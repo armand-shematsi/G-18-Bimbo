@@ -1,0 +1,28 @@
+# Ignore a specific file
+.env
+
+# Ignore a whole folder
+/vendor
+
+# Ignore all `.log` files
+*.log
+
+*.class    # all files ending with .class
+**/cache   # all folders named cache, anywhere
+# Laravel (Bimbo-implementation)
+Bimbo-implementation/vendor/
+Bimbo-implementation/node_modules/
+Bimbo-implementation/.env
+Bimbo-implementation/public/storage
+Bimbo-implementation/storage/*.key
+
+# Java (Bimbo-java)
+Bimbo-java/bin/
+Bimbo-java/target/
+Bimbo-java/*.class
+Bimbo-java/*.jar
+
+# System & Editor files
+.DS_Store
+.vscode/
+.idea/
