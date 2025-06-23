@@ -11,43 +11,53 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // Admin User
-        User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@bimbo.com',
-            'password' => Hash::make('admin123'),
-            'role' => 'admin',
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@bimbo.com'],
+            [
+                'name' => 'Admin User',
+                'password' => Hash::make('admin123'),
+                'role' => 'admin',
+            ]
+        );
 
         // Supplier User
-        User::create([
-            'name' => 'Supplier User',
-            'email' => 'supplier@bimbo.com',
-            'password' => Hash::make('supplier123'),
-            'role' => 'supplier',
-        ]);
+        User::updateOrCreate(
+            ['email' => 'supplier@bimbo.com'],
+            [
+                'name' => 'Supplier User',
+                'password' => Hash::make('supplier123'),
+                'role' => 'supplier',
+            ]
+        );
 
         // Bakery Manager
-        User::create([
-            'name' => 'Bakery Manager',
-            'email' => 'bakery@bimbo.com',
-            'password' => Hash::make('bakery123'),
-            'role' => 'bakery_manager',
-        ]);
+        User::updateOrCreate(
+            ['email' => 'bakery@bimbo.com'],
+            [
+                'name' => 'Bakery Manager',
+                'password' => Hash::make('bakery123'),
+                'role' => 'bakery_manager',
+            ]
+        );
 
         // Distributor
-        User::create([
-            'name' => 'Distributor User',
-            'email' => 'distributor@bimbo.com',
-            'password' => Hash::make('distributor123'),
-            'role' => 'distributor',
-        ]);
+        User::updateOrCreate(
+            ['email' => 'distributor@bimbo.com'],
+            [
+                'name' => 'Distributor User',
+                'password' => Hash::make('distributor123'),
+                'role' => 'distributor',
+            ]
+        );
 
         // Retail Manager
-        User::create([
-            'name' => 'Retail Manager',
-            'email' => 'retail@bimbo.com',
-            'password' => Hash::make('retail123'),
-            'role' => 'retail_manager',
-        ]);
+        User::updateOrCreate(
+            ['email' => 'retail@bimbo.com'],
+            [
+                'name' => 'Retail Manager',
+                'password' => Hash::make('retail123'),
+                'role' => 'retail_manager',
+            ]
+        );
     }
 } 
