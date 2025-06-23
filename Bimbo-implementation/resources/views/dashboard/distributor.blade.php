@@ -1,4 +1,4 @@
-@extends('layouts.dashboard')
+@extends('layouts.distributor')
 
 @section('header')
     Distribution Team Dashboard
