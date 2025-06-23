@@ -1,20 +1,10 @@
-@extends('layouts.dashboard')
+@extends('layouts.retail-manager')
 
 @section('header')
     Retail Manager Dashboard
 @endsection
 
-@section('navigation-links')
-    <a href="{{ route('retail.orders.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
-        Bread Orders
-    </a>
-    <a href="{{ route('retail.inventory.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
-        Inventory Levels
-    </a>
-    <a href="{{ route('retail.forecast.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
-        Demand Forecast
-    </a>
-@endsection
+
 
 @section('content')
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

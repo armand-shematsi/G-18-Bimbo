@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.retail-manager')
 
 @section('header')
     View Demand Forecast
