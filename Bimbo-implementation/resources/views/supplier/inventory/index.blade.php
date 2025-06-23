@@ -1,4 +1,4 @@
-@extends('layouts.dashboard')
+@extends('layouts.supplier')
 
 @section('header')
     <div class="flex justify-between items-center">
