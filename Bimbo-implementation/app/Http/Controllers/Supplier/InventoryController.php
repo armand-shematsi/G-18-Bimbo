@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Supplier;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Inventory;
+use Illuminate\Support\Facades\Auth;
 
 class InventoryController extends Controller
 {
@@ -13,7 +14,8 @@ class InventoryController extends Controller
      */
     public function index()
     {
-        $inventory = Inventory::all();
+        $vendorId = Auth::user()->vendor_id;
+        $inventory = Inventory::where('vendor_id', $vendorId)->get();
         return view('supplier.inventory.index', compact('inventory'));
     }
 
@@ -38,6 +40,7 @@ class InventoryController extends Controller
             'status' => 'required|in:available,low_stock,out_of_stock',
         ]);
 
+        $validated['vendor_id'] = Auth::user()->vendor_id;
         Inventory::create($validated);
 
         return redirect()->route('supplier.inventory.index')

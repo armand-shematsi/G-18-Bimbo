@@ -8,12 +8,12 @@ class Inventory extends Model
 
 {
     protected $fillable = [
-        'item_name', 'item_type', 'quantity', 'unit'
+        'vendor_id', 'item_name', 'item_type', 'quantity', 'unit', 'status'
     ];
 
-    public function supplier()
+    public function vendor()
     {
-        return $this->belongsTo(Supplier::class);
+        return $this->belongsTo(Vendor::class);
     }
 }
 
