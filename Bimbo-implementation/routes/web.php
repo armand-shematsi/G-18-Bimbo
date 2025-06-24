@@ -21,7 +21,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
+
     // Admin Routes
     Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
         Route::resource('vendors', VendorController::class);
@@ -37,7 +37,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('supplier')->name('supplier.')->middleware('role:supplier')->group(function () {
         Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory');
         Route::get('/inventory/add', [InventoryController::class, 'create'])->name('inventory.add');
-        Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
+        Route::post('/inventory', [InventoryController::class, 'store'])->name('supplier.inventory.store');
         Route::get('/orders', [OrderController::class, 'index'])->name('orders');
         Route::get('/orders/new', [OrderController::class, 'create'])->name('orders.new');
         Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
@@ -63,13 +63,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/production/start', [ProductionController::class, 'start'])->name('production.start');
         Route::post('/production/start', [ProductionController::class, 'store'])->name('production.store');
-        
+
         // Schedule Routes
         Route::get('/schedule', [\App\Http\Controllers\Bakery\ScheduleController::class, 'index'])->name('schedule');
 
         Route::get('/schedule/create', [ScheduleController::class, 'create'])->name('schedule.create');
         Route::post('/schedule', [ScheduleController::class, 'store'])->name('schedule.store');
-        
+
         // Maintenance Routes
         Route::get('/maintenance', [\App\Http\Controllers\Bakery\MaintenanceController::class, 'index'])->name('maintenance');
 
@@ -124,7 +124,7 @@ Route::middleware(['auth'])->group(function () {
 Route::prefix('supplier')->group(function(){
 Route::get('/inventory', [\App\http\controllers\supplier\InventoryController::class, 'index'])->name('supplier.inventory.index');
 Route::get('/inventory/create', [\App\http\controllers\supplier\InventoryController::class, 'create'])->name('supplier.inventory.create');
-Route::post('/inventory', [I\App\http\controllers\supplier\nventoryController::class, 'store'])->name('supplier.inventory.store');
+Route::post('/inventory', [\App\Http\Controllers\Supplier\InventoryController::class, 'store'])->name('supplier.inventory.store');
 Route::post('/inventory/{id}/update-quantity', [\App\http\controllers\supplier\InventoryController::class, 'updateQuantity'])->name('supplier.inventory.updateQuantity');
     Route::get('/inventory/{id}/edit', [\App\http\controllers\supplier\InventoryController::class, 'edit'])->name('supplier.inventory.edit');
     Route::put('/inventory/{id}', [\App\http\controllers\supplier\InventoryController::class, 'update'])->name('supplier.inventory.update');
