@@ -93,6 +93,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/forecast', [App\Http\Controllers\Retail\ForecastController::class, 'index'])->name('forecast.index');
         Route::get('/forecast/generate', [App\Http\Controllers\Retail\ForecastController::class, 'generate'])->name('forecast.generate');
+
+        Route::get('/chat', [App\Http\Controllers\Retail\ChatController::class, 'index'])->name('chat.index');
+        Route::post('/chat/send', [App\Http\Controllers\Retail\ChatController::class, 'send'])->name('chat.send');
+        Route::get('/chat/messages', [App\Http\Controllers\Retail\ChatController::class, 'getMessages'])->name('chat.get-messages');
     });
 
     // Distributor Routes
@@ -129,6 +133,13 @@ Route::post('/inventory/{id}/update-quantity', [\App\http\controllers\supplier\I
     Route::get('/inventory/{id}/edit', [\App\http\controllers\supplier\InventoryController::class, 'edit'])->name('supplier.inventory.edit');
     Route::put('/inventory/{id}', [\App\http\controllers\supplier\InventoryController::class, 'update'])->name('supplier.inventory.update');
     Route::delete('/inventory/{id}', [\App\http\controllers\supplier\InventoryController::class, 'destroy'])->name('supplier.inventory.destroy');
+});
+
+// Supplier Chat Routes
+Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier.')->group(function () {
+    Route::get('/chat', [App\Http\Controllers\Supplier\ChatController::class, 'index'])->name('chat.index');
+    Route::post('/chat/send', [App\Http\Controllers\Supplier\ChatController::class, 'send'])->name('chat.send');
+    Route::get('/chat/messages', [App\Http\Controllers\Supplier\ChatController::class, 'getMessages'])->name('chat.get-messages');
 });
 
 require __DIR__.'/auth.php';

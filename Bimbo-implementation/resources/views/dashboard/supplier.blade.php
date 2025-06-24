@@ -11,8 +11,25 @@
     <a href="{{ route('supplier.orders') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
         Order Requests
     </a>
-    <a href="{{ route('supplier.chat') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
-        Chat with Bakery
+    @php
+    use App\Models\Message;
+    use App\Models\User;
+    $unreadCount = Message::where('receiver_id', auth()->id())
+        ->where('is_read', false)
+        ->whereIn('sender_id', User::where('role', 'retail_manager')->pluck('id'))
+        ->count();
+    $unreadFromRetailer = Message::where('receiver_id', auth()->id())
+        ->where('is_read', false)
+        ->whereIn('sender_id', User::where('role', 'retailer')->pluck('id'))
+        ->count();
+    @endphp
+    <div class="p-2 text-xs text-red-600">DEBUG: Unread messages (retail_manager) = {{ $unreadCount }}</div>
+    <div class="p-2 text-xs text-blue-600">DEBUG: Unread messages (retailer) = {{ $unreadFromRetailer }}</div>
+    <a href="{{ route('supplier.chat.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
+        Chat with Retail Managers
+        @if($unreadCount > 0)
+            <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-500 text-white">{{ $unreadCount }}</span>
+        @endif
     </a>
 @endsection
 
