@@ -103,6 +103,10 @@
                         </button>
                     </div>
                 </form>
+                <!-- Floating Create Order Button -->
+                <button type="submit" form="" class="fixed bottom-8 right-8 z-50 bg-green-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-green-700 transition-colors text-lg font-semibold">
+                    Create Order
+                </button>
             </div>
         </div>
     </div>
