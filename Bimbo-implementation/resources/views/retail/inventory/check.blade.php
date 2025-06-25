@@ -47,32 +47,30 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">White Bread</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Bread</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">150</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">50</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-03-20 10:30</td>
+                            @forelse($inventory as $item)
+                            <tr class="{{ $item->needsReorder() ? 'bg-red-50' : '' }}">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $item->item_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $item->item_type }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $item->quantity }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $item->reorder_level }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $item->updated_at ? $item->updated_at->format('Y-m-d H:i') : '-' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">In Stock</span>
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {{ $item->quantity > $item->reorder_level ? 'bg-green-100 text-green-800' : ($item->quantity > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
+                                        {{ $item->quantity > $item->reorder_level ? 'In Stock' : ($item->quantity > 0 ? 'Low Stock' : 'Out of Stock') }}
+                                    </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <button class="text-primary hover:text-primary/80">Update</button>
+                                    <button class="text-blue-600 hover:text-blue-800">Update</button>
                                 </td>
                             </tr>
+                            @empty
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Whole Wheat</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Bread</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">25</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">50</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-03-20 09:15</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Low Stock</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <button class="text-primary hover:text-primary/80">Update</button>
+                                <td colspan="7" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                    No inventory found.
                                 </td>
                             </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>

@@ -21,7 +21,15 @@ class DashboardController extends Controller
             case 'distributor':
                 return view('dashboard.distributor');
             case 'retail_manager':
-                return view('dashboard.retail-manager');
+                $supplierInventory = \App\Models\Inventory::whereHas('user', function($query) {
+                    $query->where('role', 'supplier');
+                })->get();
+                
+                $lowStockItems = $supplierInventory->filter(function($item) {
+                    return $item->needsReorder();
+                });
+                
+                return view('dashboard.retail-manager', compact('supplierInventory', 'lowStockItems'));
             case 'customer':
                 return view('dashboard.customer');
             default:
