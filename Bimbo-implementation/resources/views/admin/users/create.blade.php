@@ -52,6 +52,7 @@
                     <select name="role" id="role" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
                         <option value="admin">Admin</option>
                         <option value="supplier">Supplier</option>
+                        <option value="customer">Customer</option>
                         <option value="bakery_manager">Bakery Manager</option>
                         <option value="distributor">Distributor</option>
                         <option value="retail_manager">Retail Manager</option>

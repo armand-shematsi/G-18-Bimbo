@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('inventories', function (Blueprint $table) {
-            //
+            $table->integer('reorder_level')->default(5)->after('quantity');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('inventories', function (Blueprint $table) {
-            //
+            $table->dropColumn('reorder_level');
         });
     }
 };

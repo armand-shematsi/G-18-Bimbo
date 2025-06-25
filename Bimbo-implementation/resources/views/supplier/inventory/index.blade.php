@@ -26,6 +26,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reorder Level</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
@@ -36,7 +37,12 @@
                             <td class="px-6 py-4 whitespace-nowrap">{{ $item->item_type }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $item->quantity }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $item->unit }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ ucfirst(str_replace('_', ' ', $item->status)) }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ ucfirst(str_replace('_', ' ', $item->status)) }}
+                                @if($item->needsReorder())
+                                    <span class="ml-2 inline-block bg-red-100 text-red-800 text-xs px-2 py-1 rounded">Reorder Needed</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $item->reorder_level }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <a href="{{ route('supplier.inventory.edit', $item->id) }}" class="text-blue-600 hover:underline">Edit</a>
                                 <form action="{{ route('supplier.inventory.destroy', $item->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this item?');">

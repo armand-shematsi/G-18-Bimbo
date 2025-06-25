@@ -8,12 +8,17 @@ class Inventory extends Model
 
 {
     protected $fillable = [
-        'vendor_id', 'item_name', 'item_type', 'quantity', 'unit', 'status'
+        'item_name', 'item_type', 'quantity', 'unit', 'status', 'reorder_level', 'user_id'
     ];
 
-    public function vendor()
+    public function needsReorder()
     {
-        return $this->belongsTo(Vendor::class);
+        return $this->quantity <= $this->reorder_level;
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
 

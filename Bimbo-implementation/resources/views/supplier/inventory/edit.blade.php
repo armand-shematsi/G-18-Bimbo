@@ -64,6 +64,11 @@
                     </select>
                 </div>
 
+                <div>
+                    <label for="reorder_level" class="block text-sm font-medium text-gray-700">Reorder Level</label>
+                    <input type="number" name="reorder_level" id="reorder_level" min="0" step="1" value="{{ old('reorder_level', $item->reorder_level) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                </div>
+
                 <div class="flex justify-end space-x-4">
                     <a href="{{ route('supplier.inventory.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-25 transition">
                         Cancel

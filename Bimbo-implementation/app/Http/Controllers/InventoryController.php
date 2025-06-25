@@ -8,8 +8,15 @@ class InventoryController extends Controller
 {
     public function index()
     {
-        $inventory = Inventory::all();
-        return view('supplier.inventory.index',['inventory'=>$inventory]);
+        $user = auth()->user();
+        if ($user->hasRole('admin')) {
+            $inventory = \App\Models\Inventory::all();
+        } elseif ($user->hasRole('supplier')) {
+            $inventory = \App\Models\Inventory::where('user_id', $user->id)->get();
+        } else {
+            abort(403, 'Unauthorized');
+        }
+        return view('supplier.inventory.index', ['inventory' => $inventory]);
     }
 
     public function create()
@@ -19,14 +26,16 @@ class InventoryController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'item_name' => 'required|string|max:255',
             'item_type' => 'required|string|max:255',
             'quantity' => 'required|integer|min:1',
             'unit' => 'required|string|max:50',
         ]);
 
-        Inventory::create($request->only('item_name', 'item_type', 'quantity', 'unit'));
+        $validated['user_id'] = auth()->id();
+
+        Inventory::create($validated);
 
         return redirect()->route('supplier.inventory.index')->with('success', 'Item added successfully!');
     }
@@ -39,15 +48,17 @@ class InventoryController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate([
+        $validated = $request->validate([
             'item_name' => 'required|string|max:255',
             'item_type' => 'required|string|max:255',
             'quantity' => 'required|integer|min:1',
             'unit' => 'required|string|max:50',
         ]);
 
+        $validated['user_id'] = auth()->id();
+
         $item = Inventory::findOrFail($id);
-        $item->update($request->only('item_name', 'item_type', 'quantity', 'unit'));
+        $item->update($validated);
 
         return redirect()->route('supplier.inventory.index')->with('success', 'Item updated successfully!');
     }

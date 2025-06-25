@@ -14,8 +14,7 @@ class InventoryController extends Controller
      */
     public function index()
     {
-        $vendorId = Auth::user()->vendor_id;
-        $inventory = Inventory::where('vendor_id', $vendorId)->get();
+        $inventory = Inventory::where('user_id', auth()->id())->get();
         return view('supplier.inventory.index', compact('inventory'));
     }
 
@@ -38,9 +37,11 @@ class InventoryController extends Controller
             'quantity' => 'required|integer|min:0',
             'unit' => 'required|string|max:50',
             'status' => 'required|in:available,low_stock,out_of_stock',
+            'reorder_level' => 'required|integer|min:0',
         ]);
 
-        $validated['vendor_id'] = Auth::user()->vendor_id;
+        $validated['user_id'] = auth()->id();
+
         Inventory::create($validated);
 
         return redirect()->route('supplier.inventory.index')
@@ -52,7 +53,7 @@ class InventoryController extends Controller
      */
     public function edit($id)
     {
-        $item = Inventory::findOrFail($id);
+        $item = Inventory::where('user_id', auth()->id())->findOrFail($id);
         return view('supplier.inventory.edit', compact('item'));
     }
 
@@ -67,9 +68,12 @@ class InventoryController extends Controller
             'quantity' => 'required|integer|min:0',
             'unit' => 'required|string|max:50',
             'status' => 'required|in:available,low_stock,out_of_stock',
+            'reorder_level' => 'required|integer|min:0',
         ]);
 
-        $item = Inventory::findOrFail($id);
+        $validated['user_id'] = auth()->id();
+
+        $item = Inventory::where('user_id', auth()->id())->findOrFail($id);
         $item->update($validated);
 
         return redirect()->route('supplier.inventory.index')
@@ -81,7 +85,7 @@ class InventoryController extends Controller
      */
     public function destroy($id)
     {
-        $item = Inventory::findOrFail($id);
+        $item = Inventory::where('user_id', auth()->id())->findOrFail($id);
         $item->delete();
 
         return redirect()->route('supplier.inventory.index')

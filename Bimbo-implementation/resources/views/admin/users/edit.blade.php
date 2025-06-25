@@ -53,6 +53,7 @@
                     <select name="role" id="role" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
                         <option value="admin" {{ $user->role === 'admin' ? 'selected' : '' }}>Admin</option>
                         <option value="supplier" {{ $user->role === 'supplier' ? 'selected' : '' }}>Supplier</option>
+                        <option value="customer" {{ $user->role === 'customer' ? 'selected' : '' }}>Customer</option>
                         <option value="bakery_manager" {{ $user->role === 'bakery_manager' ? 'selected' : '' }}>Bakery Manager</option>
                         <option value="distributor" {{ $user->role === 'distributor' ? 'selected' : '' }}>Distributor</option>
                         <option value="retail_manager" {{ $user->role === 'retail_manager' ? 'selected' : '' }}>Retail Manager</option>

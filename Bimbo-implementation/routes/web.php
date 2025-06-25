@@ -111,6 +111,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/deliveries/confirm', [\App\Http\Controllers\Distributor\DeliveryController::class, 'confirm'])->name('deliveries.confirm');
         Route::post('/deliveries/confirm', [\App\Http\Controllers\Distributor\DeliveryController::class, 'storeConfirmation'])->name('deliveries.storeConfirmation');
     });
+
+    // Customer Chat Routes
+    Route::middleware(['auth', 'role:customer'])->prefix('customer')->name('customer.')->group(function () {
+        Route::get('/chat', [App\Http\Controllers\Customer\ChatController::class, 'index'])->name('chat.index');
+        Route::post('/chat/send', [App\Http\Controllers\Customer\ChatController::class, 'send'])->name('chat.send');
+    });
 });
 
 // Vendor Registration Routes
