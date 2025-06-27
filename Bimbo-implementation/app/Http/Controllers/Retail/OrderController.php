@@ -3,45 +3,126 @@
 namespace App\Http\Controllers\Retail;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Payment;
 use Illuminate\Http\Request;
+use App\Notifications\OrderPlaced;
+use App\Notifications\OrderStatusUpdated;
+use App\Http\Requests\StoreOrderRequest;
+use App\Models\ActivityLog;
+use App\Models\Inventory;
 
 class OrderController extends Controller
 {
-    public function index()
+    // List all orders (with search/filter stub)
+    public function index(Request $request)
     {
-        return view('retail.orders');
+        $orders = Order::query();
+        // Add search/filter logic here
+        $orders = $orders->latest()->paginate(20);
+        return view('retail.orders.index', compact('orders'));
     }
 
+    // Show order creation form
     public function create()
     {
-        return view('retail.orders.create');
+        $products = Inventory::all();
+        return view('retail.orders.create', compact('products'));
     }
 
-    public function store(Request $request)
+    // Store new order and items
+    public function store(StoreOrderRequest $request)
     {
-        // TODO: Implement order creation logic
-        return redirect()->route('retail.orders.index')->with('success', 'Order created successfully.');
+        \Log::info('OrderController@store called', ['request' => $request->all()]);
+        // Calculate total from items
+        $total = collect($request->items)->sum(function($item) {
+            return $item['quantity'] * $item['unit_price'];
+        });
+        // Create order with correct user_id and total
+        $order = Order::create([
+            'user_id' => auth()->id(),
+            'vendor_id' => 1, // TODO: Replace with actual vendor selection logic
+            'customer_name' => $request->customer_name,
+            'status' => 'pending',
+            'total' => $total,
+            'payment_status' => 'unpaid',
+            'shipping_address' => $request->shipping_address,
+            'billing_address' => $request->billing_address,
+            'placed_at' => now(),
+        ]);
+        // Create order items
+        if ($request->has('items')) {
+            foreach ($request->items as $item) {
+                $item['total_price'] = $item['quantity'] * $item['unit_price'];
+                $order->items()->create($item);
+            }
+        }
+        // Notify customer
+        if ($order->user) {
+            $order->user->notify(new OrderPlaced($order));
+        }
+        // Log activity
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'order_created',
+            'subject_type' => Order::class,
+            'subject_id' => $order->id,
+            'description' => 'Order #' . $order->id . ' created.'
+        ]);
+        return redirect()->route('retail.orders.show', $order->id)->with('success', 'Order created!');
     }
 
+    // Show order details
     public function show($id)
     {
-        return view('retail.orders.show', compact('id'));
+        $order = Order::with('items', 'payment')->findOrFail($id);
+        return view('retail.orders.show', compact('order'));
     }
 
+    // Show edit form
     public function edit($id)
     {
-        return view('retail.orders.edit', compact('id'));
+        $order = Order::with('items')->findOrFail($id);
+        return view('retail.orders.edit', compact('order'));
     }
 
+    // Update order and items
     public function update(Request $request, $id)
     {
-        // TODO: Implement order update logic
-        return redirect()->route('retail.orders.index')->with('success', 'Order updated successfully.');
+        $order = Order::findOrFail($id);
+        $order->update($request->only([
+            'status', 'total', 'payment_status', 'shipping_address', 'billing_address', 'placed_at', 'delivered_at'
+        ]));
+        // Update order items logic here
+        return redirect()->route('retail.orders.show', $order->id)->with('success', 'Order updated!');
     }
 
+    // Cancel/delete order
     public function destroy($id)
     {
-        // TODO: Implement order deletion logic
-        return redirect()->route('retail.orders.index')->with('success', 'Order deleted successfully.');
+        $order = Order::findOrFail($id);
+        $order->delete();
+        return redirect()->route('retail.orders.index')->with('success', 'Order deleted!');
+    }
+
+    // Change order status
+    public function changeStatus(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+        $order->setStatus($request->input('status'));
+        // Notify customer
+        if ($order->user) {
+            $order->user->notify(new OrderStatusUpdated($order));
+        }
+        // Log activity
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'order_status_changed',
+            'subject_type' => Order::class,
+            'subject_id' => $order->id,
+            'description' => 'Order #' . $order->id . ' status changed to ' . $order->status
+        ]);
+        return redirect()->route('retail.orders.show', $order->id)->with('success', 'Order status updated!');
     }
 } 
