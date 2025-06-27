@@ -79,13 +79,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Retail Manager Routes
     Route::middleware(['auth', 'role:retail_manager'])->prefix('retail')->name('retail.')->group(function () {
-        Route::get('/orders', [App\Http\Controllers\Retail\OrderController::class, 'index'])->name('orders.index');
-        Route::get('/orders/create', [App\Http\Controllers\Retail\OrderController::class, 'create'])->name('orders.create');
-        Route::post('/orders', [App\Http\Controllers\Retail\OrderController::class, 'store'])->name('orders.store');
-        Route::get('/orders/{order}', [App\Http\Controllers\Retail\OrderController::class, 'show'])->name('orders.show');
-        Route::get('/orders/{order}/edit', [App\Http\Controllers\Retail\OrderController::class, 'edit'])->name('orders.edit');
-        Route::put('/orders/{order}', [App\Http\Controllers\Retail\OrderController::class, 'update'])->name('orders.update');
-        Route::delete('/orders/{order}', [App\Http\Controllers\Retail\OrderController::class, 'destroy'])->name('orders.destroy');
+        Route::resource('orders', App\Http\Controllers\Retail\OrderController::class);
+        Route::post('/orders/{order}/status', [App\Http\Controllers\Retail\OrderController::class, 'changeStatus'])->name('orders.changeStatus');
 
         Route::get('/inventory', [App\Http\Controllers\Retail\InventoryController::class, 'index'])->name('inventory.index');
         Route::get('/inventory/check', [App\Http\Controllers\Retail\InventoryController::class, 'check'])->name('inventory.check');
@@ -97,6 +92,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/chat', [App\Http\Controllers\Retail\ChatController::class, 'index'])->name('chat.index');
         Route::post('/chat/send', [App\Http\Controllers\Retail\ChatController::class, 'send'])->name('chat.send');
         Route::get('/chat/messages', [App\Http\Controllers\Retail\ChatController::class, 'getMessages'])->name('chat.get-messages');
+
+        Route::post('/payments/{payment}/confirm', [App\Http\Controllers\Retail\PaymentController::class, 'confirm'])->name('payments.confirm');
+        Route::post('/payments/{payment}/refund', [App\Http\Controllers\Retail\PaymentController::class, 'refund'])->name('payments.refund');
+
+        Route::get('/dashboard', [App\Http\Controllers\Retail\DashboardController::class, 'index'])->name('dashboard.retail');
     });
 
     // Distributor Routes

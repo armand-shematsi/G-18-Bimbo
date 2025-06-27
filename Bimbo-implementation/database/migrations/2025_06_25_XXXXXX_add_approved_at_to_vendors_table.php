@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('messages', function (Blueprint $table) {
-            //
+        Schema::table('vendors', function (Blueprint $table) {
+            $table->timestamp('approved_at')->nullable();
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('messages', function (Blueprint $table) {
-            //
+        Schema::table('vendors', function (Blueprint $table) {
+            $table->dropColumn('approved_at');
         });
     }
-};
+}; 
