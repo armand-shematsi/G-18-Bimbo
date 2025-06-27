@@ -33,7 +33,9 @@ class DashboardController extends Controller
             case 'customer':
                 return view('dashboard.customer');
             default:
-                abort(403, 'Unauthorized role.');
+                // Log out the user and redirect to login with error message
+                \Auth::logout();
+                return redirect()->route('login')->withErrors(['email' => 'Unauthorized role. Please contact support.']);
         }
     }
 }
