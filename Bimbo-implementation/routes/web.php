@@ -14,13 +14,14 @@ use App\Http\Controllers\Bakery\ScheduleController;
 use App\Http\Controllers\Bakery\MaintenanceController;
 use Illuminate\Support\Facades\Route;
 
+
 Route::get('/', function () {
     return view('welcome');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
+
     // Admin Routes
     Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
         Route::resource('vendors', VendorController::class);
@@ -36,7 +37,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('supplier')->name('supplier.')->middleware('role:supplier')->group(function () {
         Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory');
         Route::get('/inventory/add', [InventoryController::class, 'create'])->name('inventory.add');
-        Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
+        Route::post('/inventory', [InventoryController::class, 'store'])->name('supplier.inventory.store');
         Route::get('/orders', [OrderController::class, 'index'])->name('orders');
         Route::get('/orders/new', [OrderController::class, 'create'])->name('orders.new');
         Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
@@ -62,13 +63,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/production/start', [ProductionController::class, 'start'])->name('production.start');
         Route::post('/production/start', [ProductionController::class, 'store'])->name('production.store');
-        
+
         // Schedule Routes
         Route::get('/schedule', [\App\Http\Controllers\Bakery\ScheduleController::class, 'index'])->name('schedule');
 
         Route::get('/schedule/create', [ScheduleController::class, 'create'])->name('schedule.create');
         Route::post('/schedule', [ScheduleController::class, 'store'])->name('schedule.store');
-        
+
         // Maintenance Routes
         Route::get('/maintenance', [\App\Http\Controllers\Bakery\MaintenanceController::class, 'index'])->name('maintenance');
 
@@ -78,13 +79,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Retail Manager Routes
     Route::middleware(['auth', 'role:retail_manager'])->prefix('retail')->name('retail.')->group(function () {
-        Route::get('/orders', [App\Http\Controllers\Retail\OrderController::class, 'index'])->name('orders.index');
-        Route::get('/orders/create', [App\Http\Controllers\Retail\OrderController::class, 'create'])->name('orders.create');
-        Route::post('/orders', [App\Http\Controllers\Retail\OrderController::class, 'store'])->name('orders.store');
-        Route::get('/orders/{order}', [App\Http\Controllers\Retail\OrderController::class, 'show'])->name('orders.show');
-        Route::get('/orders/{order}/edit', [App\Http\Controllers\Retail\OrderController::class, 'edit'])->name('orders.edit');
-        Route::put('/orders/{order}', [App\Http\Controllers\Retail\OrderController::class, 'update'])->name('orders.update');
-        Route::delete('/orders/{order}', [App\Http\Controllers\Retail\OrderController::class, 'destroy'])->name('orders.destroy');
+        Route::resource('orders', App\Http\Controllers\Retail\OrderController::class);
+        Route::post('/orders/{order}/status', [App\Http\Controllers\Retail\OrderController::class, 'changeStatus'])->name('orders.changeStatus');
 
         Route::get('/inventory', [App\Http\Controllers\Retail\InventoryController::class, 'index'])->name('inventory.index');
         Route::get('/inventory/check', [App\Http\Controllers\Retail\InventoryController::class, 'check'])->name('inventory.check');
@@ -96,6 +92,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/chat', [App\Http\Controllers\Retail\ChatController::class, 'index'])->name('chat.index');
         Route::post('/chat/send', [App\Http\Controllers\Retail\ChatController::class, 'send'])->name('chat.send');
         Route::get('/chat/messages', [App\Http\Controllers\Retail\ChatController::class, 'getMessages'])->name('chat.get-messages');
+
+        Route::post('/payments/{payment}/confirm', [App\Http\Controllers\Retail\PaymentController::class, 'confirm'])->name('payments.confirm');
+        Route::post('/payments/{payment}/refund', [App\Http\Controllers\Retail\PaymentController::class, 'refund'])->name('payments.refund');
+
+        Route::get('/dashboard', [App\Http\Controllers\Retail\DashboardController::class, 'index'])->name('dashboard.retail');
     });
 
     // Distributor Routes
@@ -110,6 +111,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/deliveries/confirm', [\App\Http\Controllers\Distributor\DeliveryController::class, 'confirm'])->name('deliveries.confirm');
         Route::post('/deliveries/confirm', [\App\Http\Controllers\Distributor\DeliveryController::class, 'storeConfirmation'])->name('deliveries.storeConfirmation');
     });
+
+    // Customer Chat Routes
+    Route::middleware(['auth', 'role:customer'])->prefix('customer')->name('customer.')->group(function () {
+        Route::get('/chat', [App\Http\Controllers\Customer\ChatController::class, 'index'])->name('chat.index');
+        Route::post('/chat/send', [App\Http\Controllers\Customer\ChatController::class, 'send'])->name('chat.send');
+    });
 });
 
 // Vendor Registration Routes
@@ -122,6 +129,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/password', [\App\Http\Controllers\Auth\PasswordController::class, 'edit'])->name('password.edit');
     Route::put('/password', [\App\Http\Controllers\Auth\PasswordController::class, 'update'])->name('password.update');
 });
+// Inventory Routes
+
+Route::prefix('supplier')->group(function(){
+Route::get('/inventory', [\App\http\controllers\supplier\InventoryController::class, 'index'])->name('supplier.inventory.index');
+Route::get('/inventory/create', [\App\http\controllers\supplier\InventoryController::class, 'create'])->name('supplier.inventory.create');
+Route::post('/inventory', [\App\Http\Controllers\Supplier\InventoryController::class, 'store'])->name('supplier.inventory.store');
+Route::post('/inventory/{id}/update-quantity', [\App\http\controllers\supplier\InventoryController::class, 'updateQuantity'])->name('supplier.inventory.updateQuantity');
+    Route::get('/inventory/{id}/edit', [\App\http\controllers\supplier\InventoryController::class, 'edit'])->name('supplier.inventory.edit');
+    Route::put('/inventory/{id}', [\App\http\controllers\supplier\InventoryController::class, 'update'])->name('supplier.inventory.update');
+    Route::delete('/inventory/{id}', [\App\http\controllers\supplier\InventoryController::class, 'destroy'])->name('supplier.inventory.destroy');
+});
 
 // Supplier Chat Routes
 Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier.')->group(function () {
@@ -131,3 +149,7 @@ Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier
 });
 
 require __DIR__.'/auth.php';
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/chat-dashboard', [App\Http\Controllers\ChatDashboardController::class, 'index'])->name('chat.dashboard');
+});

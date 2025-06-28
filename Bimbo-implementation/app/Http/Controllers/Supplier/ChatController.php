@@ -16,6 +16,7 @@ class ChatController extends Controller
     public function index()
     {
         $retailers = User::where('role', 'retail_manager')->get();
+        $customers = User::where('role', 'customer')->get();
         $currentChat = request('user_id') ? User::findOrFail(request('user_id')) : null;
 
         if ($currentChat) {
@@ -36,7 +37,7 @@ class ChatController extends Controller
             $messages = collect();
         }
 
-        return view('supplier.chat.index', compact('retailers', 'currentChat', 'messages'));
+        return view('supplier.chat.index', compact('retailers', 'customers', 'currentChat', 'messages'));
     }
 
     public function send(Request $request)
@@ -73,4 +74,4 @@ class ChatController extends Controller
 
         return response()->json($messages);
     }
-} 
+}

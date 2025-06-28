@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Supplier;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Inventory;
+use Illuminate\Support\Facades\Auth;
 
 class InventoryController extends Controller
 {
@@ -12,7 +14,8 @@ class InventoryController extends Controller
      */
     public function index()
     {
-        return view('supplier.inventory.index');
+        $inventory = Inventory::where('user_id', auth()->id())->get();
+        return view('supplier.inventory.index', compact('inventory'));
     }
 
     /**
@@ -29,15 +32,63 @@ class InventoryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'quantity' => 'required|numeric|min:0',
+            'item_name' => 'required|string|max:255',
+            'item_type' => 'nullable|string|max:255',
+            'quantity' => 'required|integer|min:0',
             'unit' => 'required|string|max:50',
             'status' => 'required|in:available,low_stock,out_of_stock',
+            'reorder_level' => 'required|integer|min:0',
         ]);
 
-        // TODO: Store the inventory item in the database
+        $validated['user_id'] = auth()->id();
 
-        return redirect()->route('supplier.inventory')
+        Inventory::create($validated);
+
+        return redirect()->route('supplier.inventory.index')
             ->with('success', 'Inventory item added successfully.');
     }
-} 
+
+    /**
+     * Show the form for editing the specified inventory item.
+     */
+    public function edit($id)
+    {
+        $item = Inventory::where('user_id', auth()->id())->findOrFail($id);
+        return view('supplier.inventory.edit', compact('item'));
+    }
+
+    /**
+     * Update the specified inventory item in storage.
+     */
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'item_name' => 'required|string|max:255',
+            'item_type' => 'nullable|string|max:255',
+            'quantity' => 'required|integer|min:0',
+            'unit' => 'required|string|max:50',
+            'status' => 'required|in:available,low_stock,out_of_stock',
+            'reorder_level' => 'required|integer|min:0',
+        ]);
+
+        $validated['user_id'] = auth()->id();
+
+        $item = Inventory::where('user_id', auth()->id())->findOrFail($id);
+        $item->update($validated);
+
+        return redirect()->route('supplier.inventory.index')
+            ->with('success', 'Inventory item updated successfully.');
+    }
+
+    /**
+     * Remove the specified inventory item from storage.
+     */
+    public function destroy($id)
+    {
+        $item = Inventory::where('user_id', auth()->id())->findOrFail($id);
+        $item->delete();
+
+        return redirect()->route('supplier.inventory.index')
+            ->with('success', 'Inventory item deleted successfully.');
+    }
+}

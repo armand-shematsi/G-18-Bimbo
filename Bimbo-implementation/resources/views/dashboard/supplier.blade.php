@@ -5,7 +5,7 @@
 @endsection
 
 @section('navigation-links')
-    <a href="{{ route('supplier.inventory') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
+    <a href="{{ route('supplier.inventory.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
         Raw Material Inventory
     </a>
     <a href="{{ route('supplier.orders') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
@@ -26,7 +26,7 @@
     <div class="p-2 text-xs text-red-600">DEBUG: Unread messages (retail_manager) = {{ $unreadCount }}</div>
     <div class="p-2 text-xs text-blue-600">DEBUG: Unread messages (retailer) = {{ $unreadFromRetailer }}</div>
     <a href="{{ route('supplier.chat.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
-        Chat with Retail Managers
+        Chat with Retail Managers & Customers
         @if($unreadCount > 0)
             <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-500 text-white">{{ $unreadCount }}</span>
         @endif
@@ -116,6 +116,14 @@
             <a href="{{ route('supplier.orders.new') }}" class="relative block w-full p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-50">
                 <h4 class="text-lg font-medium text-gray-900">Create New Order</h4>
                 <p class="mt-1 text-sm text-gray-500">Submit a new order request</p>
+            </a>
+            <!-- Chat Quick Action Card -->
+            <a href="{{ route('supplier.chat.index') }}" class="relative block w-full p-6 bg-white border border-blue-400 rounded-lg shadow hover:bg-blue-50">
+                <h4 class="text-lg font-medium text-blue-900">Chat with Retail Managers & Customers</h4>
+                <p class="mt-1 text-sm text-blue-700">Start or continue conversations with your customers and retail partners.</p>
+                @if($unreadCount > 0)
+                    <span class="absolute top-2 right-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-500 text-white">{{ $unreadCount }} unread</span>
+                @endif
             </a>
         </div>
     </div>

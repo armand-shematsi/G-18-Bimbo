@@ -10,4 +10,23 @@ class InventoryController extends Controller
     {
         return view('retail.inventory');
     }
+
+    public function supplierInventory()
+    {
+        $supplierInventory = \App\Models\Inventory::whereHas('user', function($query) {
+            $query->where('role', 'supplier');
+        })->with('user')->get();
+        
+        $lowStockItems = $supplierInventory->filter(function($item) {
+            return $item->needsReorder();
+        });
+        
+        return view('retail.supplier-inventory', compact('supplierInventory', 'lowStockItems'));
+    }
+
+    public function check()
+    {
+        $inventory = \App\Models\Inventory::with('user')->get();
+        return view('retail.inventory.check', compact('inventory'));
+    }
 } 
