@@ -43,18 +43,59 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'bakery_id' => 'required|exists:users,id',
-            'items' => 'required|array',
-            'items.*.name' => 'required|string|max:255',
-            'items.*.quantity' => 'required|numeric|min:0',
-            'items.*.unit' => 'required|string|max:50',
+            'customer_name' => 'required|string|max:255',
+            'customer_email' => 'required|email',
+            'shipping_address' => 'required|string',
+            'billing_address' => 'nullable|string',
+            'items' => 'required|array|min:1',
+            'items.*.product_name' => 'required|string|max:255',
+            'items.*.quantity' => 'required|numeric|min:1',
+            'items.*.unit_price' => 'required|numeric|min:0',
             'notes' => 'nullable|string',
         ]);
 
-        // TODO: Store the order in the database
+        try {
+            \DB::beginTransaction();
 
-        return redirect()->route('supplier.orders')
-            ->with('success', 'Order created successfully.');
+            // Create the order
+            $order = Order::create([
+                'user_id' => auth()->id(), // The supplier creating the order
+                'vendor_id' => auth()->id(), // The supplier is also the vendor
+                'customer_name' => $validated['customer_name'],
+                'status' => 'pending',
+                'payment_status' => 'pending',
+                'shipping_address' => $validated['shipping_address'],
+                'billing_address' => $validated['billing_address'] ?? $validated['shipping_address'],
+                'placed_at' => now(),
+            ]);
+
+            // Calculate total and create order items
+            $total = 0;
+            foreach ($validated['items'] as $item) {
+                $itemTotal = $item['quantity'] * $item['unit_price'];
+                $total += $itemTotal;
+
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_name' => $item['product_name'],
+                    'quantity' => $item['quantity'],
+                    'unit_price' => $item['unit_price'],
+                    'total_price' => $itemTotal,
+                ]);
+            }
+
+            // Update order total
+            $order->update(['total' => $total]);
+
+            \DB::commit();
+
+            return redirect()->route('supplier.orders')
+                ->with('success', 'Order created successfully.');
+
+        } catch (\Exception $e) {
+            \DB::rollback();
+            return back()->withInput()->withErrors(['error' => 'Failed to create order. Please try again.']);
+        }
     }
 
     /**
