@@ -91,4 +91,20 @@ class InventoryController extends Controller
         return redirect()->route('supplier.inventory.index')
             ->with('success', 'Inventory item deleted successfully.');
     }
+
+    /**
+     * Update the quantity of an inventory item.
+     */
+    public function updateQuantity(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'quantity' => 'required|integer|min:0',
+        ]);
+
+        $item = Inventory::where('user_id', auth()->id())->findOrFail($id);
+        $item->update($validated);
+
+        return redirect()->route('supplier.inventory.index')
+            ->with('success', 'Inventory quantity updated successfully.');
+    }
 }

@@ -35,9 +35,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Supplier routes
     Route::prefix('supplier')->name('supplier.')->middleware('role:supplier')->group(function () {
-        Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory');
-        Route::get('/inventory/add', [InventoryController::class, 'create'])->name('inventory.add');
-        Route::post('/inventory', [InventoryController::class, 'store'])->name('supplier.inventory.store');
+        Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+        Route::get('/inventory/create', [InventoryController::class, 'create'])->name('inventory.create');
+        Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
+        Route::get('/inventory/{id}/edit', [InventoryController::class, 'edit'])->name('inventory.edit');
+        Route::put('/inventory/{id}', [InventoryController::class, 'update'])->name('inventory.update');
+        Route::delete('/inventory/{id}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
+        Route::post('/inventory/{id}/update-quantity', [InventoryController::class, 'updateQuantity'])->name('inventory.updateQuantity');
         Route::get('/orders', [OrderController::class, 'index'])->name('orders');
         Route::get('/orders/new', [OrderController::class, 'create'])->name('orders.new');
         Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
@@ -128,17 +132,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/update', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
     Route::get('/password', [\App\Http\Controllers\Auth\PasswordController::class, 'edit'])->name('password.edit');
     Route::put('/password', [\App\Http\Controllers\Auth\PasswordController::class, 'update'])->name('password.update');
-});
-// Inventory Routes
-
-Route::prefix('supplier')->group(function(){
-Route::get('/inventory', [\App\http\controllers\supplier\InventoryController::class, 'index'])->name('supplier.inventory.index');
-Route::get('/inventory/create', [\App\http\controllers\supplier\InventoryController::class, 'create'])->name('supplier.inventory.create');
-Route::post('/inventory', [\App\Http\Controllers\Supplier\InventoryController::class, 'store'])->name('supplier.inventory.store');
-Route::post('/inventory/{id}/update-quantity', [\App\http\controllers\supplier\InventoryController::class, 'updateQuantity'])->name('supplier.inventory.updateQuantity');
-    Route::get('/inventory/{id}/edit', [\App\http\controllers\supplier\InventoryController::class, 'edit'])->name('supplier.inventory.edit');
-    Route::put('/inventory/{id}', [\App\http\controllers\supplier\InventoryController::class, 'update'])->name('supplier.inventory.update');
-    Route::delete('/inventory/{id}', [\App\http\controllers\supplier\InventoryController::class, 'destroy'])->name('supplier.inventory.destroy');
 });
 
 // Supplier Chat Routes
