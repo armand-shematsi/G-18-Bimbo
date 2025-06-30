@@ -133,19 +133,6 @@
                 @enderror
             </div>
 
-            <!-- Notes -->
-            <div class="bg-white rounded-xl shadow-lg p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Additional Notes</h3>
-                <div>
-                    <label for="notes" class="block text-sm font-medium text-gray-700">Order Notes</label>
-                    <textarea name="notes" id="notes" rows="4"
-                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">{{ old('notes') }}</textarea>
-                    @error('notes')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-            </div>
-
             <!-- Error Display -->
             @if($errors->has('error'))
                 <div class="bg-red-50 border border-red-200 rounded-md p-4">

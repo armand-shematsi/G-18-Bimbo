@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Vendor;
 
 class OrderController extends Controller
 {
@@ -14,17 +15,18 @@ class OrderController extends Controller
      */
     public function index()
     {
-        // Get orders where the current user is the supplier
-        $orders = Order::where('vendor_id', auth()->id())
+        // Get the first vendor's id (used when creating orders)
+        $vendorId = \App\Models\Vendor::query()->value('id');
+        $orders = Order::where('vendor_id', $vendorId)
             ->with(['user', 'items', 'payment'])
             ->latest()
             ->paginate(10);
 
         // Get order statistics
-        $totalOrders = Order::where('vendor_id', auth()->id())->count();
-        $pendingOrders = Order::where('vendor_id', auth()->id())->where('status', 'pending')->count();
-        $processingOrders = Order::where('vendor_id', auth()->id())->where('status', 'processing')->count();
-        $completedOrders = Order::where('vendor_id', auth()->id())->whereIn('status', ['delivered', 'shipped'])->count();
+        $totalOrders = Order::where('vendor_id', $vendorId)->count();
+        $pendingOrders = Order::where('vendor_id', $vendorId)->where('status', 'pending')->count();
+        $processingOrders = Order::where('vendor_id', $vendorId)->where('status', 'processing')->count();
+        $completedOrders = Order::where('vendor_id', $vendorId)->whereIn('status', ['delivered', 'shipped'])->count();
 
         return view('supplier.orders.index', compact('orders', 'totalOrders', 'pendingOrders', 'processingOrders', 'completedOrders'));
     }
@@ -45,28 +47,27 @@ class OrderController extends Controller
         $validated = $request->validate([
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'required|email',
-            'shipping_address' => 'required|string',
-            'billing_address' => 'nullable|string',
             'items' => 'required|array|min:1',
             'items.*.product_name' => 'required|string|max:255',
             'items.*.quantity' => 'required|numeric|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
-            'notes' => 'nullable|string',
         ]);
 
         try {
             \DB::beginTransaction();
 
+            // Get the first existing vendor's id
+            $vendorId = Vendor::query()->value('id');
+            if (!$vendorId) {
+                throw new \Exception('No vendor exists in the database.');
+            }
+
             // Create the order
             $order = Order::create([
-                'user_id' => auth()->id(), // The supplier creating the order
-                'vendor_id' => auth()->id(), // The supplier is also the vendor
+                'vendor_id' => $vendorId, // Use existing vendor id
                 'customer_name' => $validated['customer_name'],
+                'customer_email' => $validated['customer_email'],
                 'status' => 'pending',
-                'payment_status' => 'pending',
-                'shipping_address' => $validated['shipping_address'],
-                'billing_address' => $validated['billing_address'] ?? $validated['shipping_address'],
-                'placed_at' => now(),
             ]);
 
             // Calculate total and create order items
@@ -77,6 +78,7 @@ class OrderController extends Controller
 
                 OrderItem::create([
                     'order_id' => $order->id,
+                    'product_id' => null, // Custom product, not from inventory
                     'product_name' => $item['product_name'],
                     'quantity' => $item['quantity'],
                     'unit_price' => $item['unit_price'],
@@ -94,7 +96,7 @@ class OrderController extends Controller
 
         } catch (\Exception $e) {
             \DB::rollback();
-            return back()->withInput()->withErrors(['error' => 'Failed to create order. Please try again.']);
+            return back()->withInput()->withErrors(['error' => 'Failed to create order: ' . $e->getMessage()]);
         }
     }
 

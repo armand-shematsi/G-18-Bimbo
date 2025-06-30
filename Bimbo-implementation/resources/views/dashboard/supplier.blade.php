@@ -42,8 +42,8 @@
     $outOfStockItems = Inventory::where('user_id', auth()->id())->where('status', 'out_of_stock')->count();
 
     // Get recent orders
-    $recentOrders = Order::where('supplier_id', auth()->id())->latest()->take(5)->get();
-    $pendingOrders = Order::where('supplier_id', auth()->id())->where('status', 'pending')->count();
+    $recentOrders = Order::where('vendor_id', auth()->id())->latest()->take(5)->get();
+    $pendingOrders = Order::where('vendor_id', auth()->id())->where('status', 'pending')->count();
     @endphp
     <a href="{{ route('supplier.chat.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
         Chat with Retail Managers & Customers
