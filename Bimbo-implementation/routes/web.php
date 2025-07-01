@@ -54,6 +54,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
         Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
         Route::get('/chat', [ChatController::class, 'index'])->name('chat');
+        Route::get('/inventory/dashboard', [App\Http\Controllers\Supplier\InventoryController::class, 'dashboard'])->name('inventory.dashboard');
+        Route::get('/stockin', [App\Http\Controllers\Supplier\StockInController::class, 'index'])->name('stockin.index');
+        Route::get('/stockin/create', [App\Http\Controllers\Supplier\StockInController::class, 'create'])->name('stockin.create');
+        Route::post('/stockin', [App\Http\Controllers\Supplier\StockInController::class, 'store'])->name('stockin.store');
+        Route::post('/stockin/test', function () {
+            dd('Form submitted!');
+        })->name('stockin.test');
+        Route::get('/stockout', [App\Http\Controllers\Supplier\StockOutController::class, 'index'])->name('stockout.index');
+        Route::get('/stockout/create', [App\Http\Controllers\Supplier\StockOutController::class, 'create'])->name('stockout.create');
+        Route::post('/stockout', [App\Http\Controllers\Supplier\StockOutController::class, 'store'])->name('stockout.store');
     });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
