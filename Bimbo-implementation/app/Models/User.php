@@ -60,4 +60,9 @@ class User extends Authenticatable
         $this->notify(new ResetPassword($token));
         // You can replace ResetPassword with a custom notification if you want to further customize the email.
     }
+
+    public function supplyCenter()
+    {
+        return $this->belongsTo(SupplyCenter::class);
+    }
 }

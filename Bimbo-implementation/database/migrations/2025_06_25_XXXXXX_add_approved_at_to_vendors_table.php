@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('vendors', function (Blueprint $table) {
-            $table->timestamp('approved_at')->nullable();
+            if (!Schema::hasColumn('vendors', 'approved_at')) {
+                $table->timestamp('approved_at')->nullable();
+            }
         });
     }
 

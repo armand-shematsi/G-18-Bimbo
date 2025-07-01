@@ -82,4 +82,23 @@ class ProductionBatchController extends Controller
         $batch->delete();
         return redirect()->route('bakery.batches.index')->with('success', 'Production batch deleted successfully.');
     }
+
+    /**
+     * API: Get production batches with optional filters (status, date, product)
+     */
+    public function apiIndex(Request $request)
+    {
+        $query = ProductionBatch::query();
+        if ($request->has('status')) {
+            $query->where('status', $request->input('status'));
+        }
+        if ($request->has('date')) {
+            $query->whereDate('scheduled_start', $request->input('date'));
+        }
+        if ($request->has('product')) {
+            $query->where('name', 'like', '%' . $request->input('product') . '%');
+        }
+        $batches = $query->orderBy('scheduled_start', 'desc')->get();
+        return response()->json($batches);
+    }
 }
