@@ -160,6 +160,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/chat', [App\Http\Controllers\Customer\ChatController::class, 'index'])->name('chat.index');
         Route::post('/chat/send', [App\Http\Controllers\Customer\ChatController::class, 'send'])->name('chat.send');
     });
+
+    // Customer order placement
+    Route::middleware(['auth', 'role:customer'])->group(function () {
+        Route::get('/customer/order', [App\Http\Controllers\Customer\OrderController::class, 'create'])->name('customer.order.create');
+        Route::post('/customer/order', [App\Http\Controllers\Customer\OrderController::class, 'store'])->name('customer.order.store');
+    });
 });
 
 // Vendor Registration Routes
