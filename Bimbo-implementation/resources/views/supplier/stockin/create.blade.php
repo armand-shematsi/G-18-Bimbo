@@ -9,6 +9,20 @@
 @section('content')
     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg max-w-lg mx-auto mt-6">
         <div class="p-6 text-gray-900">
+            @if (session('success'))
+                <div class="mb-4 p-3 bg-green-100 text-green-800 rounded">
+                    {{ session('success') }}
+                </div>
+            @endif
+            @if ($errors->any())
+                <div class="mb-4 p-3 bg-red-100 text-red-800 rounded">
+                    <ul class="list-disc pl-5">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             <form method="POST" action="{{ route('supplier.stockin.store') }}">
                 @csrf
                 <div class="mb-4">
