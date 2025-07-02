@@ -31,7 +31,8 @@ class DashboardController extends Controller
                 
                 return view('dashboard.retail-manager', compact('supplierInventory', 'lowStockItems'));
             case 'customer':
-                return view('dashboard.customer');
+                $orders = \App\Models\Order::where('user_id', $user->id)->latest()->take(5)->get();
+                return view('dashboard.customer', compact('orders'));
             default:
                 // Log out the user and redirect to login with error message
                 \Auth::logout();

@@ -153,3 +153,6 @@ require __DIR__.'/auth.php';
 Route::middleware(['auth'])->group(function () {
     Route::get('/chat-dashboard', [App\Http\Controllers\ChatDashboardController::class, 'index'])->name('chat.dashboard');
 });
+
+Route::get('/customer/orders/create', [App\Http\Controllers\Customer\OrderController::class, 'create'])
+    ->name('customer.orders.create');

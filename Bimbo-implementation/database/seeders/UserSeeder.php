@@ -59,5 +59,15 @@ class UserSeeder extends Seeder
                 'role' => 'retail_manager',
             ]
         );
+
+        // Customer User
+        User::updateOrCreate(
+            ['email' => 'customer@bimbo.com'],
+            [
+                'name' => 'Customer User',
+                'password' => Hash::make('customer123'),
+                'role' => 'customer',
+            ]
+        );
     }
 } 

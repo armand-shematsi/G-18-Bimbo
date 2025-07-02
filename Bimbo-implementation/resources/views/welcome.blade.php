@@ -477,9 +477,9 @@
                         <!-- Testimonial 4 -->
                         <div class="bg-white p-6 rounded-lg shadow-md transform hover:scale-105 transition-transform duration-300 animate-fade-in-up delay-400">
                             <div class="flex items-center mb-4">
-                                <img src="https://ui-avatars.com/api/?name=Sarah+Chen&background=0D8ABC&color=fff" alt="Sarah Chen" class="w-12 h-12 rounded-full">
+                                <img src="https://ui-avatars.com/api/?name=Mwanabasa+Hanes&background=0D8ABC&color=fff" alt="Mwanabasa Hanes" class="w-12 h-12 rounded-full">
                                 <div class="ml-4">
-                                    <h4 class="text-lg font-medium text-gray-900">Sarah Chen</h4>
+                                    <h4 class="text-lg font-medium text-gray-900">Mwanabasa Hanes</h4>
                                     <p class="text-gray-500">Supply Chain Director</p>
                                 </div>
                             </div>
