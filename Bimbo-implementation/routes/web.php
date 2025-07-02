@@ -185,3 +185,7 @@ require __DIR__ . '/auth.php';
 Route::middleware(['auth'])->group(function () {
     Route::get('/chat-dashboard', [App\Http\Controllers\ChatDashboardController::class, 'index'])->name('chat.dashboard');
 });
+
+Route::get('/supplier', function () {
+    return view('supplier.index');
+})->middleware(['auth', 'role:supplier']);
