@@ -45,8 +45,8 @@
             </div>
 
             <!-- Chart.js Pie Chart -->
-            <div class="mb-8">
-                <canvas id="statusChart" width="400" height="200"></canvas>
+            <div class="mb-8 flex justify-center">
+                <canvas id="statusChart" width="300" height="300" style="max-width:300px;max-height:300px;"></canvas>
             </div>
 
             <!-- Export Buttons -->
