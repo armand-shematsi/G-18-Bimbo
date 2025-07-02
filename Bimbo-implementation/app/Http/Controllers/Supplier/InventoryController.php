@@ -91,4 +91,40 @@ class InventoryController extends Controller
         return redirect()->route('supplier.inventory.index')
             ->with('success', 'Inventory item deleted successfully.');
     }
+
+    /**
+     * Update the quantity of an inventory item.
+     */
+    public function updateQuantity(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'quantity' => 'required|integer|min:0',
+        ]);
+
+        $item = Inventory::where('user_id', auth()->id())->findOrFail($id);
+        $item->update($validated);
+
+        return redirect()->route('supplier.inventory.index')
+            ->with('success', 'Inventory quantity updated successfully.');
+    }
+
+    /**
+     * Show the inventory summary dashboard.
+     */
+    public function dashboard()
+    {
+        $userId = auth()->id();
+        $inventory = \App\Models\Inventory::where('user_id', $userId)->get();
+        $stats = [
+            'total' => $inventory->count(),
+            'available' => $inventory->where('status', 'available')->count(),
+            'low_stock' => $inventory->where('status', 'low_stock')->count(),
+            'out_of_stock' => $inventory->where('status', 'out_of_stock')->count(),
+        ];
+        $recentActivity = \App\Models\Inventory::where('user_id', $userId)
+            ->orderBy('updated_at', 'desc')
+            ->take(10)
+            ->get();
+        return view('supplier.inventory.dashboard', compact('stats', 'recentActivity', 'inventory'));
+    }
 }

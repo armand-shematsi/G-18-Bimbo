@@ -13,6 +13,7 @@ use App\Http\Controllers\Bakery\ProductionController;
 use App\Http\Controllers\Bakery\ScheduleController;
 use App\Http\Controllers\Bakery\MaintenanceController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\WorkforceController;
 
 
 Route::get('/', function () {
@@ -31,17 +32,39 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
         Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
         Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+        // Dashboard summary API endpoints
+        Route::get('/api/dashboard/production-summary', [\App\Http\Controllers\Admin\DashboardController::class, 'productionSummary'])->name('dashboard.production-summary');
+        Route::get('/api/dashboard/staff-summary', [\App\Http\Controllers\Admin\DashboardController::class, 'staffSummary'])->name('dashboard.staff-summary');
+        Route::get('/api/dashboard/maintenance-summary', [\App\Http\Controllers\Admin\DashboardController::class, 'maintenanceSummary'])->name('dashboard.maintenance-summary');
+        // Workforce distribution API endpoint
+        Route::get('/api/workforce-distribution', [\App\Http\Controllers\DashboardController::class, 'workforceDistribution'])->name('workforce.distribution.api');
     });
 
     // Supplier routes
     Route::prefix('supplier')->name('supplier.')->middleware('role:supplier')->group(function () {
-        Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory');
-        Route::get('/inventory/add', [InventoryController::class, 'create'])->name('inventory.add');
-        Route::post('/inventory', [InventoryController::class, 'store'])->name('supplier.inventory.store');
+        Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+        Route::get('/inventory/create', [InventoryController::class, 'create'])->name('inventory.create');
+        Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
+        Route::get('/inventory/{id}/edit', [InventoryController::class, 'edit'])->name('inventory.edit');
+        Route::put('/inventory/{id}', [InventoryController::class, 'update'])->name('inventory.update');
+        Route::delete('/inventory/{id}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
+        Route::post('/inventory/{id}/update-quantity', [InventoryController::class, 'updateQuantity'])->name('inventory.updateQuantity');
         Route::get('/orders', [OrderController::class, 'index'])->name('orders');
         Route::get('/orders/new', [OrderController::class, 'create'])->name('orders.new');
         Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+        Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
         Route::get('/chat', [ChatController::class, 'index'])->name('chat');
+        Route::get('/inventory/dashboard', [App\Http\Controllers\Supplier\InventoryController::class, 'dashboard'])->name('inventory.dashboard');
+        Route::get('/stockin', [App\Http\Controllers\Supplier\StockInController::class, 'index'])->name('stockin.index');
+        Route::get('/stockin/create', [App\Http\Controllers\Supplier\StockInController::class, 'create'])->name('stockin.create');
+        Route::post('/stockin', [App\Http\Controllers\Supplier\StockInController::class, 'store'])->name('stockin.store');
+        Route::post('/stockin/test', function () {
+            dd('Form submitted!');
+        })->name('stockin.test');
+        Route::get('/stockout', [App\Http\Controllers\Supplier\StockOutController::class, 'index'])->name('stockout.index');
+        Route::get('/stockout/create', [App\Http\Controllers\Supplier\StockOutController::class, 'create'])->name('stockout.create');
+        Route::post('/stockout', [App\Http\Controllers\Supplier\StockOutController::class, 'store'])->name('stockout.store');
     });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -61,6 +84,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             return view('bakery.production');
         })->name('production');
 
+        // API endpoint for production batches (AJAX/live updates)
+        Route::get('/api/production-batches', [\App\Http\Controllers\ProductionBatchController::class, 'apiIndex'])->name('production-batches.api');
+
         Route::get('/production/start', [ProductionController::class, 'start'])->name('production.start');
         Route::post('/production/start', [ProductionController::class, 'store'])->name('production.store');
 
@@ -75,6 +101,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/maintenance/schedule', [MaintenanceController::class, 'schedule'])->name('maintenance.schedule');
         Route::post('/maintenance', [MaintenanceController::class, 'store'])->name('maintenance.store');
+
+        // API endpoint for active staff (live updates)
+        Route::get('/api/active-staff', [\App\Http\Controllers\ShiftController::class, 'apiActiveStaff'])->name('active-staff.api');
+
+        // Live dashboard API endpoints
+        Route::get('/api/production-live', [\App\Http\Controllers\DashboardController::class, 'productionLive'])->name('bakery.production-live');
+        Route::get('/api/workforce-live', [\App\Http\Controllers\DashboardController::class, 'workforceLive'])->name('bakery.workforce-live');
+        Route::get('/api/machines-live', [\App\Http\Controllers\DashboardController::class, 'machinesLive'])->name('bakery.machines-live');
+        Route::get('/api/ingredients-live', [\App\Http\Controllers\DashboardController::class, 'ingredientsLive'])->name('bakery.ingredients-live');
+        Route::get('/api/notifications-live', [\App\Http\Controllers\DashboardController::class, 'notificationsLive'])->name('bakery.notifications-live');
+        Route::get('/api/chat-live', [\App\Http\Controllers\DashboardController::class, 'chatLive'])->name('bakery.chat-live');
+
+        // Workforce Management
+        Route::post('/workforce/assign-task', [\App\Http\Controllers\WorkforceController::class, 'assignTask'])->name('workforce.assign-task');
+        Route::post('/workforce/update-task/{task}', [\App\Http\Controllers\WorkforceController::class, 'updateTaskStatus'])->name('workforce.update-task');
+        Route::get('/workforce/tasks', [\App\Http\Controllers\WorkforceController::class, 'getTasks'])->name('workforce.tasks');
+        Route::post('/workforce/auto-reassign', [\App\Http\Controllers\WorkforceController::class, 'autoReassignAbsentees'])->name('workforce.auto-reassign');
     });
 
     // Retail Manager Routes
@@ -129,17 +172,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/password', [\App\Http\Controllers\Auth\PasswordController::class, 'edit'])->name('password.edit');
     Route::put('/password', [\App\Http\Controllers\Auth\PasswordController::class, 'update'])->name('password.update');
 });
-// Inventory Routes
-
-Route::prefix('supplier')->group(function(){
-Route::get('/inventory', [\App\http\controllers\supplier\InventoryController::class, 'index'])->name('supplier.inventory.index');
-Route::get('/inventory/create', [\App\http\controllers\supplier\InventoryController::class, 'create'])->name('supplier.inventory.create');
-Route::post('/inventory', [\App\Http\Controllers\Supplier\InventoryController::class, 'store'])->name('supplier.inventory.store');
-Route::post('/inventory/{id}/update-quantity', [\App\http\controllers\supplier\InventoryController::class, 'updateQuantity'])->name('supplier.inventory.updateQuantity');
-    Route::get('/inventory/{id}/edit', [\App\http\controllers\supplier\InventoryController::class, 'edit'])->name('supplier.inventory.edit');
-    Route::put('/inventory/{id}', [\App\http\controllers\supplier\InventoryController::class, 'update'])->name('supplier.inventory.update');
-    Route::delete('/inventory/{id}', [\App\http\controllers\supplier\InventoryController::class, 'destroy'])->name('supplier.inventory.destroy');
-});
 
 // Supplier Chat Routes
 Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier.')->group(function () {
@@ -148,7 +180,7 @@ Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier
     Route::get('/chat/messages', [App\Http\Controllers\Supplier\ChatController::class, 'getMessages'])->name('chat.get-messages');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/chat-dashboard', [App\Http\Controllers\ChatDashboardController::class, 'index'])->name('chat.dashboard');

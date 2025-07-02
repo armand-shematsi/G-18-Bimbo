@@ -87,4 +87,25 @@ class ShiftController extends Controller
         $shift->delete();
         return redirect()->route('bakery.shifts.index')->with('success', 'Shift deleted successfully.');
     }
+
+    /**
+     * API: Get currently active staff (on duty)
+     */
+    public function apiActiveStaff()
+    {
+        $now = now();
+        $activeShifts = Shift::with('user')
+            ->where('start_time', '<=', $now)
+            ->where('end_time', '>=', $now)
+            ->get();
+        $staff = $activeShifts->map(function ($shift) {
+            return [
+                'name' => $shift->user->name,
+                'role' => $shift->role,
+                'start_time' => $shift->start_time,
+                'end_time' => $shift->end_time,
+            ];
+        });
+        return response()->json($staff);
+    }
 }
