@@ -15,7 +15,7 @@ class StockInController extends Controller
     public function index()
     {
         $supplierId = Auth::id();
-        $stockIns = StockIn::where('supplier_id', $supplierId)
+        $stockIns = StockIn::where('user_id', $supplierId)
             ->with('inventory')
             ->orderBy('received_at', 'desc')
             ->get();
@@ -39,18 +39,13 @@ class StockInController extends Controller
             'received_at' => 'required|date',
         ]);
 
-        // Fetch the vendor record for the logged-in user
-        $vendor = \App\Models\Vendor::where('user_id', Auth::id())->first();
-        if (!$vendor) {
-            return back()->withErrors(['You are not registered as a vendor.']);
-        }
-        $supplierId = $vendor->id;
+        $supplierId = Auth::id();
 
         $inventory = Inventory::where('user_id', Auth::id())->findOrFail($request->inventory_id);
 
         // Create stock-in record
         $stockIn = StockIn::create([
-            'supplier_id' => $supplierId,
+            'user_id' => $supplierId,
             'inventory_id' => $inventory->id,
             'quantity_received' => $request->quantity_received,
             'received_at' => $request->received_at,
