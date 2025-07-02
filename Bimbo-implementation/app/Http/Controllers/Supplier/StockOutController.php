@@ -13,17 +13,18 @@ class StockOutController extends Controller
 {
     public function index()
     {
-        $supplierId = Auth::id();
-        $vendor = Vendor::where('user_id', $supplierId)->first();
-        $stockOuts = $vendor ? StockOut::where('supplier_id', $vendor->id)->with('inventory')->orderBy('removed_at', 'desc')->get() : collect();
+        $userId = Auth::id();
+        $stockOuts = StockOut::where('user_id', $userId)
+            ->with('inventory')
+            ->orderBy('removed_at', 'desc')
+            ->get();
         return view('supplier.stockout.index', compact('stockOuts'));
     }
 
     public function create()
     {
-        $supplierId = Auth::id();
-        $vendor = Vendor::where('user_id', $supplierId)->first();
-        $inventory = $vendor ? Inventory::where('user_id', $supplierId)->get() : collect();
+        $userId = Auth::id();
+        $inventory = Inventory::where('user_id', $userId)->get();
         return view('supplier.stockout.create', compact('inventory'));
     }
 
@@ -35,14 +36,8 @@ class StockOutController extends Controller
             'removed_at' => 'required|date',
         ]);
 
-        $supplierId = Auth::id();
-        $vendor = Vendor::where('user_id', $supplierId)->first();
-        if (!$vendor) {
-            return back()->withErrors(['You are not registered as a vendor.']);
-        }
-        $supplierVendorId = $vendor->id;
-
-        $inventory = Inventory::where('user_id', $supplierId)->findOrFail($request->inventory_id);
+        $userId = Auth::id();
+        $inventory = Inventory::where('user_id', $userId)->findOrFail($request->inventory_id);
 
         // Check if enough quantity exists
         if ($inventory->quantity < $request->quantity_removed) {
@@ -51,7 +46,7 @@ class StockOutController extends Controller
 
         // Create stock-out record
         StockOut::create([
-            'supplier_id' => $supplierVendorId,
+            'user_id' => $userId,
             'inventory_id' => $inventory->id,
             'quantity_removed' => $request->quantity_removed,
             'removed_at' => $request->removed_at,

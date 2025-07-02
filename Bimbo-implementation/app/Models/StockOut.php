@@ -10,19 +10,25 @@ class StockOut extends Model
     use HasFactory;
 
     protected $fillable = [
-        'supplier_id',
+        'user_id',
         'inventory_id',
         'quantity_removed',
         'removed_at',
     ];
 
-    public function supplier()
+    public function user()
     {
-        return $this->belongsTo(Vendor::class, 'supplier_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function inventory()
     {
         return $this->belongsTo(Inventory::class, 'inventory_id');
     }
+
+    // Optional: relate to StockIn if you want to track which stock-in this stock-out is from
+    // public function stockIn()
+    // {
+    //     return $this->belongsTo(StockIn::class, 'inventory_id', 'inventory_id');
+    // }
 }
