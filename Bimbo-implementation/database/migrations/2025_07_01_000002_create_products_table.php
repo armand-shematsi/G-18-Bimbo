@@ -7,15 +7,17 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up()
     {
-        Schema::create('products', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('products')) {
+            Schema::create('products', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->timestamps();
+            });
+        }
     }
 
     public function down()
     {
         Schema::dropIfExists('products');
     }
-}; 
+};
