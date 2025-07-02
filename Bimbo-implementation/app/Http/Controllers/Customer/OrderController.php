@@ -21,6 +21,18 @@ class OrderController extends Controller
     // Handle order submission
     public function store(Request $request)
     {
+        // Filter out items with quantity < 1
+        $items = collect($request->input('items', []))
+            ->filter(function($item) {
+                return isset($item['quantity']) && $item['quantity'] > 0;
+            })->values();
+
+        if ($items->isEmpty()) {
+            return back()->withErrors(['items' => 'Please select at least one product and quantity.'])->withInput();
+        }
+
+        $request->merge(['items' => $items->toArray()]);
+
         $request->validate([
             'items' => 'required|array',
             'items.*.id' => 'required|exists:inventories,id',
@@ -30,7 +42,7 @@ class OrderController extends Controller
         $user = Auth::user();
         $total = 0;
         $orderItems = [];
-        foreach ($request->items as $item) {
+        foreach ($items as $item) {
             $product = Inventory::findOrFail($item['id']);
             $qty = min($item['quantity'], $product->quantity);
             $total += $qty * $product->unit_price;
@@ -43,6 +55,7 @@ class OrderController extends Controller
         }
         $order = Order::create([
             'user_id' => $user->id,
+            'vendor_id' => 1,
             'customer_name' => $user->name,
             'customer_email' => $user->email,
             'status' => 'pending',
