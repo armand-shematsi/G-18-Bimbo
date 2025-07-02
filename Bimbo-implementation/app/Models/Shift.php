@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Task;
 
 class Shift extends Model
 {
@@ -22,5 +23,10 @@ class Shift extends Model
     public function productionBatch()
     {
         return $this->belongsTo(ProductionBatch::class);
+    }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
     }
 }

@@ -1,273 +1,282 @@
 @extends('layouts.bakery-manager')
 
 @section('header')
-Production Monitoring
+<div class="flex justify-between items-center">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Production Monitoring</h1>
+        <p class="mt-1 text-sm text-gray-600">Track and manage your bakery's production in real time.</p>
+    </div>
+    <div class="text-right">
+        <p class="text-sm text-gray-500">Last updated</p>
+        <p class="text-sm font-medium text-gray-900">{{ now()->format('M d, Y H:i') }}</p>
+    </div>
+</div>
 @endsection
 
 @section('content')
-<div class="mb-6 flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0">
-    <a href="{{ route('bakery.production.start') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Start Production</a>
-    <a href="{{ route('bakery.batches.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">Production Batches</a>
-    <a href="{{ route('bakery.schedule') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">Production Schedule</a>
-</div>
-
-<!-- Notification Area -->
-<div id="notification-area" class="mb-4"></div>
-
-<!-- Filter/Search Controls -->
-<div class="flex flex-col md:flex-row md:items-end md:space-x-4 space-y-2 md:space-y-0 mb-6">
-    <div>
-        <label for="filter-status" class="block text-sm font-medium text-gray-700">Status</label>
-        <select id="filter-status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            <option value="">All</option>
-            <option value="planned">Planned</option>
-            <option value="active">Active</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
-        </select>
+<!-- Banner -->
+<div class="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg shadow-lg mb-8">
+    <div class="px-6 py-8 flex items-center justify-between">
+        <div class="text-white">
+            <h2 class="text-2xl font-bold mb-2">Production Overview</h2>
+            <p class="text-blue-100">Monitor batches, trends, and machine status</p>
+        </div>
+        <div class="hidden md:block">
+            <svg class="w-24 h-24 text-blue-200" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
+        </div>
     </div>
-    <div>
-        <label for="filter-date" class="block text-sm font-medium text-gray-700">Date</label>
-        <input type="date" id="filter-date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+</div>
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+        <div class="ml-4">
+            <p class="text-sm font-medium text-gray-600">Batches Today</p>
+            <p class="text-2xl font-bold text-gray-900 batches-today">-</p>
+        </div>
     </div>
-    <div>
-        <label for="filter-product" class="block text-sm font-medium text-gray-700">Product</label>
-        <input type="text" id="filter-product" placeholder="Product name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+        <div class="ml-4">
+            <p class="text-sm font-medium text-gray-600">Active Batches</p>
+            <p class="text-2xl font-bold text-gray-900 active-batches">-</p>
+        </div>
     </div>
-    <button id="export-btn" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4 md:mt-0">Export CSV</button>
+    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
+        <div class="ml-4">
+            <p class="text-sm font-medium text-gray-600">Output</p>
+            <p class="text-2xl font-bold text-gray-900 output-today">-</p>
+        </div>
+    </div>
+    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500">
+        <div class="ml-4">
+            <p class="text-sm font-medium text-gray-600">Downtime</p>
+            <p class="text-2xl font-bold text-gray-900 downtime-today">-</p>
+        </div>
+    </div>
 </div>
-
-<!-- Chart Area -->
-<div class="bg-white rounded-lg shadow p-6 mb-8">
-    <h3 class="text-lg font-semibold text-gray-900 mb-4">Production Trends</h3>
-    <canvas id="productionChart" height="80"></canvas>
-</div>
-
-<!-- Responsive Table for Batches -->
-<div class="bg-white rounded-lg shadow overflow-x-auto">
-    <table class="min-w-full divide-y divide-gray-200" id="batches-table">
-        <thead class="bg-gray-50">
-            <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Batch Name</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Scheduled Start</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actual Start</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actual End</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
-            </tr>
-        </thead>
-        <tbody id="batches-tbody" class="bg-white divide-y divide-gray-200">
-            <!-- Populated by JS -->
-        </tbody>
-    </table>
-</div>
-
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    function fetchBatches() {
-        const status = document.getElementById('filter-status').value;
-        const date = document.getElementById('filter-date').value;
-        const product = document.getElementById('filter-product').value;
-        let url = `{{ route('bakery.production-batches.api') }}?`;
-        if (status) url += `status=${status}&`;
-        if (date) url += `date=${date}&`;
-        if (product) url += `product=${encodeURIComponent(product)}&`;
-        fetch(url)
-            .then(res => res.json())
-            .then(data => {
-                renderBatches(data);
-                updateChart(data);
-            });
-    }
-
-    function renderBatches(batches) {
-        const tbody = document.getElementById('batches-tbody');
-        tbody.innerHTML = '';
-        if (!batches.length) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-gray-500">No batches found</td></tr>`;
-            return;
-        }
-        batches.forEach(batch => {
-            tbody.innerHTML += `
-            <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${batch.name}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">${batch.status}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">${batch.scheduled_start ?? '-'}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">${batch.actual_start ?? '-'}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">${batch.actual_end ?? '-'}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">${batch.notes ?? '-'}</td>
-            </tr>
-        `;
-        });
-    }
-
-    function updateChart(batches) {
-        // Example: show number of batches per status
-        const statusCounts = batches.reduce((acc, b) => {
-            acc[b.status] = (acc[b.status] || 0) + 1;
-            return acc;
-        }, {});
-        const ctx = document.getElementById('productionChart').getContext('2d');
-        if (window.productionChart) window.productionChart.destroy();
-        window.productionChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(statusCounts),
-                datasets: [{
-                    label: 'Batches',
-                    data: Object.values(statusCounts),
-                    backgroundColor: ['#3b82f6', '#10b981', '#f59e42', '#ef4444'],
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
-            }
-        });
-    }
-
-    document.getElementById('filter-status').addEventListener('change', fetchBatches);
-    document.getElementById('filter-date').addEventListener('change', fetchBatches);
-    document.getElementById('filter-product').addEventListener('input', fetchBatches);
-
-    // Export CSV
-    function exportCSV() {
-        const rows = Array.from(document.querySelectorAll('#batches-table tr'));
-        const csv = rows.map(row => Array.from(row.children).map(cell => '"' + cell.innerText.replace(/"/g, '""') + '"').join(',')).join('\n');
-        const blob = new Blob([csv], {
-            type: 'text/csv'
-        });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'production_batches.csv';
-        a.click();
-        URL.revokeObjectURL(url);
-    }
-    document.getElementById('export-btn').addEventListener('click', exportCSV);
-
-    // Notification example (placeholder)
-    function showNotification(msg, type = 'info') {
-        const area = document.getElementById('notification-area');
-        area.innerHTML = `<div class="p-4 mb-4 text-sm text-${type === 'error' ? 'red' : 'green'}-700 bg-${type === 'error' ? 'red' : 'green'}-100 rounded-lg">${msg}</div>`;
-        setTimeout(() => {
-            area.innerHTML = '';
-        }, 5000);
-    }
-
-    // Initial fetch and polling for live updates
-    fetchBatches();
-    setInterval(fetchBatches, 15000); // Poll every 15s
-</script>
-@endpush
-
-<div class="py-12">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6 text-gray-900">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Production Overview Card -->
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Today's Production</h3>
-                        <div class="space-y-4">
-                            <div>
-                                <p class="text-sm text-gray-600">Total Loaves</p>
-                                <p class="text-2xl font-bold text-primary">1,250</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-600">Target</p>
-                                <p class="text-2xl font-bold text-gray-900">1,500</p>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div class="bg-primary h-2.5 rounded-full" style="width: 83%"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quality Metrics Card -->
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Quality Metrics</h3>
-                        <div class="space-y-4">
-                            <div>
-                                <p class="text-sm text-gray-600">Quality Score</p>
-                                <p class="text-2xl font-bold text-green-600">98%</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-600">Rejection Rate</p>
-                                <p class="text-2xl font-bold text-red-600">2%</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Efficiency Card -->
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Efficiency</h3>
-                        <div class="space-y-4">
-                            <div>
-                                <p class="text-sm text-gray-600">Production Rate</p>
-                                <p class="text-2xl font-bold text-primary">125 loaves/hr</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-600">Downtime</p>
-                                <p class="text-2xl font-bold text-gray-900">15 min</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Production Line Status -->
-                <div class="mt-8">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Production Line Status</h3>
-                    <div class="bg-white rounded-lg shadow overflow-hidden">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Line</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Product</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Output</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Efficiency</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Line 1</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Running</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">White Bread</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">450 loaves</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">95%</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Line 2</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Maintenance</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Whole Wheat</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">0 loaves</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Line 3</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Running</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Sourdough</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">380 loaves</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">92%</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+<!-- Quick Actions -->
+<div class="mb-8">
+    <div class="bg-white rounded-xl shadow-lg p-6 flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
+        <a href="{{ route('bakery.production.start') }}" class="flex-1 flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105">
+            <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
             </div>
+            <div class="ml-4">
+                <p class="font-medium">Start Batch</p>
+                <p class="text-xs text-blue-100">Start New Production</p>
+            </div>
+        </a>
+        <a href="{{ route('bakery.batches.index') }}" class="flex-1 flex items-center p-4 bg-gradient-to-r from-green-500 to-green-600 rounded-lg text-white hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105">
+            <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+            </div>
+            <div class="ml-4">
+                <p class="font-medium">View All Batches</p>
+                <p class="text-xs text-green-100">Production List</p>
+            </div>
+        </a>
+        <button onclick="downloadProductionReport()" class="flex-1 flex items-center p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg text-white hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 transform hover:scale-105">
+            <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+            </div>
+            <div class="ml-4">
+                <p class="font-medium">Download Report</p>
+                <p class="text-xs text-yellow-100">Export Data</p>
+            </div>
+        </button>
+    </div>
+</div>
+<!-- Production Trends Chart -->
+<div class="bg-white rounded-xl shadow-lg mb-8">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900">Production Trends</h3>
+    </div>
+    <div class="p-6">
+        <canvas id="productionTrendsChart" height="80"></canvas>
+    </div>
+</div>
+<!-- Recent Batches Table -->
+<div class="bg-white rounded-xl shadow-lg mb-8">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900">Recent Batches</h3>
+    </div>
+    <div class="p-6">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th>Batch Name</th>
+                        <th>Status</th>
+                        <th>Scheduled Start</th>
+                        <th>Actual Start</th>
+                        <th>Actual End</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody class="production-batch-tbody">
+                    <tr>
+                        <td colspan="6" class="text-center text-gray-400 py-8">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                            <p class="mt-2 text-sm text-gray-500">No recent batches</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- Machine Alerts -->
+<div class="bg-white rounded-xl shadow-lg mb-8">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900">Machine Alerts</h3>
+    </div>
+    <div class="p-6">
+        <ul class="list-disc pl-5 text-sm text-gray-700 machine-alert-list">
+            <li>Oven 2 scheduled for maintenance at 15:00.</li>
+        </ul>
+    </div>
+</div>
+<!-- Activity Timeline -->
+<div class="mt-8 bg-white rounded-xl shadow-lg">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900">Recent Activity</h3>
+    </div>
+    <div class="p-6">
+        <div class="flow-root">
+            <ul class="-mb-8 activity-timeline">
+                <li class="relative pb-8">
+                    <div class="relative flex space-x-3">
+                        <div>
+                            <span class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white">
+                                <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                            <div>
+                                <p class="text-sm text-gray-500">Production dashboard accessed</p>
+                            </div>
+                            <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                <time>{{ now()->format('M d, H:i') }}</time>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
         </div>
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Fetch and update stats cards
+    function fetchProductionStats() {
+        fetch('/api/production-stats')
+            .then(res => res.json())
+            .then(data => {
+                document.querySelector('.batches-today').textContent = data.batches_today ?? '-';
+                document.querySelector('.active-batches').textContent = data.active_batches ?? '-';
+                document.querySelector('.output-today').textContent = data.output_today ?? '-';
+                document.querySelector('.downtime-today').textContent = data.downtime_today ?? '-';
+            });
+    }
+    // Fetch and update recent batches table
+    function fetchRecentBatches() {
+        const tbody = document.querySelector('.production-batch-tbody');
+        tbody.innerHTML = `<tr><td colspan='6' class='text-center text-gray-400 py-8'>Loading...</td></tr>`;
+        fetch('/bakery/api/production-batches')
+            .then(res => res.json())
+            .then(batches => {
+                tbody.innerHTML = '';
+                if (!batches || batches.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan='6' class='text-center text-gray-400 py-8'>
+                    <svg class='mx-auto h-12 w-12 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'></path>
+                    </svg>
+                    <p class='mt-2 text-sm text-gray-500'>No recent batches</p>
+                </td></tr>`;
+                } else {
+                    batches.forEach(batch => {
+                        function fmt(dt) {
+                            if (!dt) return '-';
+                            const d = new Date(dt);
+                            if (isNaN(d)) return dt;
+                            return d.toLocaleString('en-US', {
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+                        }
+                        let badgeClass = 'bg-gray-200 text-gray-800';
+                        if (batch.status === 'active' || batch.status === 'Active') badgeClass = 'bg-blue-200 text-blue-800';
+                        if (batch.status === 'completed' || batch.status === 'Completed') badgeClass = 'bg-green-200 text-green-800';
+                        if (batch.status === 'delayed' || batch.status === 'Delayed') badgeClass = 'bg-red-200 text-red-800';
+                        tbody.innerHTML += `<tr>
+                        <td>${batch.name}</td>
+                        <td><span class='px-2 py-1 rounded ${badgeClass}'>${batch.status}</span></td>
+                        <td>${fmt(batch.scheduled_start)}</td>
+                        <td>${fmt(batch.actual_start)}</td>
+                        <td>${fmt(batch.actual_end)}</td>
+                        <td title='${batch.notes ?? ''}'>${batch.notes ? batch.notes.substring(0, 30) + (batch.notes.length > 30 ? '...' : '') : '-'}</td>
+                    </tr>`;
+                    });
+                }
+            });
+    }
+    // Fetch and update production trends chart
+    function fetchProductionTrends() {
+        fetch('/api/production-trends')
+            .then(res => res.json())
+            .then(data => {
+                const ctx = document.getElementById('productionTrendsChart').getContext('2d');
+                if (window.productionTrendsChart) window.productionTrendsChart.destroy();
+                window.productionTrendsChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Output',
+                            data: data.values,
+                            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                            borderColor: '#3b82f6',
+                            borderWidth: 2,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            });
+    }
+    // Download report function
+    function downloadProductionReport() {
+        window.location.href = '/api/production-report';
+    }
+    // Initial fetch and polling
+    fetchProductionStats();
+    fetchRecentBatches();
+    fetchProductionTrends();
+    setInterval(fetchProductionStats, 10000);
+    setInterval(fetchRecentBatches, 10000);
+    setInterval(fetchProductionTrends, 30000);
+</script>
+@endpush

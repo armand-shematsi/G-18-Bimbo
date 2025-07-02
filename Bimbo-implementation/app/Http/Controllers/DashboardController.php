@@ -64,15 +64,35 @@ class DashboardController extends Controller
      */
     public function productionLive()
     {
-        // Example data, replace with real queries
+        // Get batches for the last 7 days
+        $batches = \App\Models\ProductionBatch::orderBy('scheduled_start', 'desc')->take(7)->get();
+        $batchData = $batches->map(function ($batch) {
+            return [
+                'name' => $batch->name,
+                'status' => $batch->status,
+                'scheduled_start' => $batch->scheduled_start,
+                'actual_start' => $batch->actual_start,
+                'actual_end' => $batch->actual_end,
+                'notes' => $batch->notes,
+            ];
+        });
+        // Trends: batches completed per day for last 7 days
+        $trends = [];
+        $trendLabels = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i)->toDateString();
+            $trendLabels[] = $date;
+            $count = \App\Models\ProductionBatch::whereDate('actual_end', $date)->where('status', 'Completed')->count();
+            $trends[] = $count;
+        }
+        $output = $batches->where('status', 'Completed')->count();
+        $target = 7; // Example: target is 1 batch per day for a week
         return response()->json([
-            'output' => 1250,
-            'target' => 1500,
-            'batches' => [
-                ['name' => 'Batch A', 'status' => 'Active', 'start' => '08:00', 'end' => '12:00'],
-                ['name' => 'Batch B', 'status' => 'Planned', 'start' => '13:00', 'end' => '17:00'],
-            ],
-            'trends' => [1200, 1350, 1100, 1400, 1250, 1500, 1300],
+            'output' => $output,
+            'target' => $target,
+            'batches' => $batchData,
+            'trends' => $trends,
+            'trend_labels' => $trendLabels,
         ]);
     }
 
