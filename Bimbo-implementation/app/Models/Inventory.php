@@ -39,5 +39,10 @@ class Inventory extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function movements()
+    {
+        return $this->hasMany(InventoryMovement::class);
+    }
 }
 
