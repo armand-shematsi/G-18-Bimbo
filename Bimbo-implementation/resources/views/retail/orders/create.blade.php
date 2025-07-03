@@ -5,157 +5,164 @@
 @endsection
 
 @section('content')
-<div class="py-12">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6 text-gray-900">
-                @if ($errors->any())
-                    <div class="alert alert-danger mb-4">
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-200 to-green-200 py-8">
+    <div class="w-full max-w-4xl bg-white rounded-3xl shadow-2xl border-4 border-blue-600 p-0 md:p-10">
+        <!-- Gradient Header -->
+        <div class="rounded-t-3xl bg-gradient-to-r from-blue-800 to-green-600 py-8 px-4 text-center shadow-md">
+            <h2 class="text-4xl font-extrabold text-white flex items-center justify-center gap-3">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
+                Create New Order
+            </h2>
+        </div>
+        <form id="orderForm" method="POST" action="{{ route('retail.orders.store') }}" class="space-y-10 px-4 md:px-0 pb-10">
+            @csrf
+            <!-- Section Divider -->
+            <div class="flex items-center my-6">
+                <span class="flex-grow border-t-4 border-blue-600"></span>
+                <span class="mx-4 text-xl font-bold text-blue-800 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-blue-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                    Customer Information
+                </span>
+                <span class="flex-grow border-t-4 border-blue-600"></span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="customer_name" class="block text-base font-bold text-blue-800">Customer Name</label>
+                    <input type="text" name="customer_name" id="customer_name" class="mt-1 block w-full rounded-lg border-2 border-blue-700 shadow-sm focus:border-blue-900 focus:ring-2 focus:ring-blue-700 bg-blue-100 text-blue-900 font-semibold transition-all duration-150" />
+                    @error('customer_name')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label for="customer_email" class="block text-base font-bold text-blue-800">Email Address</label>
+                    <input type="email" name="customer_email" id="customer_email" class="mt-1 block w-full rounded-lg border-2 border-blue-700 shadow-sm focus:border-blue-900 focus:ring-2 focus:ring-blue-700 bg-blue-100 text-blue-900 font-semibold transition-all duration-150" />
+                    @error('customer_email')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                <div>
+                    <label for="shipping_address" class="block text-base font-bold text-blue-800">Shipping Address</label>
+                    <input type="text" name="shipping_address" id="shipping_address" class="mt-1 block w-full rounded-lg border-2 border-blue-700 shadow-sm focus:border-blue-900 focus:ring-2 focus:ring-blue-700 bg-blue-100 text-blue-900 font-semibold transition-all duration-150" required />
+                </div>
+                <div>
+                    <label for="billing_address" class="block text-base font-bold text-blue-800">Billing Address</label>
+                    <input type="text" name="billing_address" id="billing_address" class="mt-1 block w-full rounded-lg border-2 border-blue-700 shadow-sm focus:border-blue-900 focus:ring-2 focus:ring-blue-700 bg-blue-100 text-blue-900 font-semibold transition-all duration-150" required />
+                </div>
+            </div>
+            <!-- Section Divider -->
+            <div class="flex items-center my-6">
+                <span class="flex-grow border-t-4 border-green-600"></span>
+                <span class="mx-4 text-xl font-bold text-green-800 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-green-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3" /></svg>
+                    Payment Method
+                </span>
+                <span class="flex-grow border-t-4 border-green-600"></span>
+            </div>
+            <div class="mt-4">
+                <select name="payment_method" id="payment_method" class="mt-1 block w-full rounded-lg border-2 border-green-700 shadow-sm focus:border-green-900 focus:ring-2 focus:ring-green-700 bg-green-100 text-green-900 font-semibold transition-all duration-150" required>
+                    <option value="">Select payment method</option>
+                    <option value="stripe">Stripe</option>
+                    <option value="flutterwave">Flutterwave</option>
+                    <option value="paystack">Paystack</option>
+                    <option value="momo">MTN MoMo</option>
+                </select>
+            </div>
+            <!-- Section Divider -->
+            <div class="flex items-center my-6">
+                <span class="flex-grow border-t-4 border-green-600"></span>
+                <span class="mx-4 text-2xl font-extrabold text-green-800 flex items-center gap-2">
+                    <svg class="w-7 h-7 text-green-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M3 12h18M3 17h18" /></svg>
+                    Order Items
+                </span>
+                <span class="flex-grow border-t-4 border-green-600"></span>
+            </div>
+            <div class="space-y-4" id="order-items">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4" id="order-item-row-0">
+                    <div>
+                        <label class="block text-base font-bold text-green-800">Product</label>
+                        <select name="items[0][product_id]" class="product-select mt-1 block w-full rounded-lg border-2 border-green-700 shadow-sm focus:border-green-900 focus:ring-2 focus:ring-green-700 bg-green-100 text-green-900 font-semibold transition-all duration-150" required data-row="order-item-row-0">
+                            <option value="">Select a product</option>
+                            @foreach($products as $product)
+                                <option value="{{ $product->id }}" data-name="{{ $product->name }}" data-price="{{ $product->unit_price ?? '' }}">{{ $product->name }}</option>
                             @endforeach
-                        </ul>
-                    </div>
-                @endif
-                <form id="orderForm" method="POST" action="{{ route('retail.orders.store') }}" class="space-y-6">
-                    @csrf
-                    
-                    <!-- Customer Information -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="customer_name" class="block text-sm font-medium text-gray-700">Customer Name</label>
-                            <input type="text" name="customer_name" id="customer_name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary">
-                            @error('customer_name')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="customer_email" class="block text-sm font-medium text-gray-700">Email Address</label>
-                            <input type="email" name="customer_email" id="customer_email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary">
-                            @error('customer_email')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <!-- Shipping and Billing Address -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                        <div>
-                            <label for="shipping_address" class="block text-sm font-medium text-gray-700">Shipping Address</label>
-                            <input type="text" name="shipping_address" id="shipping_address" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary" required>
-                        </div>
-                        <div>
-                            <label for="billing_address" class="block text-sm font-medium text-gray-700">Billing Address</label>
-                            <input type="text" name="billing_address" id="billing_address" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary" required>
-                        </div>
-                    </div>
-
-                    <!-- Payment Method -->
-                    <div class="mt-4">
-                        <label for="payment_method" class="block text-sm font-medium text-gray-700">Payment Method</label>
-                        <select name="payment_method" id="payment_method" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary" required>
-                            <option value="">Select payment method</option>
-                            <option value="stripe">Stripe</option>
-                            <option value="flutterwave">Flutterwave</option>
-                            <option value="paystack">Paystack</option>
-                            <option value="momo">MTN MoMo</option>
                         </select>
                     </div>
-
-                    <!-- Order Details -->
-                    <div class="space-y-4">
-                        <h3 class="text-lg font-medium text-gray-900">Order Items</h3>
-                        
-                        <div class="space-y-4" id="order-items">
-                            <div class="grid grid-cols-1 md:grid-cols-5 gap-4" id="order-item-row-0">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Product</label>
-                                    <select name="items[0][product_id]" class="product-select mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary" required data-row="order-item-row-0">
-                                        <option value="">Select a product</option>
-                                        @foreach($products as $product)
-                                            <option value="{{ $product->id }}" data-name="{{ $product->item_name }}" data-price="{{ $product->unit_price }}">{{ $product->item_name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Quantity</label>
-                                    <input type="number" name="items[0][quantity]" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary" required>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Notes</label>
-                                    <input type="text" name="items[0][notes]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Product Name</label>
-                                    <input type="text" name="items[0][product_name]" class="product-name mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary" readonly required>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Unit Price</label>
-                                    <input type="number" name="items[0][unit_price]" class="unit-price mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary" step="0.01" readonly required>
-                                </div>
-                            </div>
-                        </div>
-
-                        <button type="button" onclick="addOrderItem()" class="text-primary hover:text-primary/80">
-                            + Add Another Item
-                        </button>
-                    </div>
-
-                    <!-- Delivery Information -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="delivery_date" class="block text-sm font-medium text-gray-700">Delivery Date</label>
-                            <input type="date" name="delivery_date" id="delivery_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary">
-                            @error('delivery_date')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="delivery_time" class="block text-sm font-medium text-gray-700">Delivery Time</label>
-                            <select name="delivery_time" id="delivery_time" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary">
-                                <option value="">Select delivery time</option>
-                                <option value="morning">Morning (8:00 - 12:00)</option>
-                                <option value="afternoon">Afternoon (12:00 - 16:00)</option>
-                                <option value="evening">Evening (16:00 - 20:00)</option>
-                            </select>
-                            @error('delivery_time')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <!-- Special Instructions -->
                     <div>
-                        <label for="special_instructions" class="block text-sm font-medium text-gray-700">Special Instructions</label>
-                        <textarea name="special_instructions" id="special_instructions" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary"></textarea>
-                        @error('special_instructions')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <label class="block text-base font-bold text-green-800">Quantity</label>
+                        <input type="number" name="items[0][quantity]" min="1" class="mt-1 block w-full rounded-lg border-2 border-green-700 shadow-sm focus:border-green-900 focus:ring-2 focus:ring-green-700 bg-green-100 text-green-900 font-semibold transition-all duration-150" required />
                     </div>
-
-                    <div class="flex justify-end">
-                        <button type="submit" class="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 transition-colors">
-                            Place Order
-                        </button>
+                    <div>
+                        <label class="block text-base font-bold text-green-800">Notes</label>
+                        <input type="text" name="items[0][notes]" class="mt-1 block w-full rounded-lg border-2 border-green-700 shadow-sm focus:border-green-900 focus:ring-2 focus:ring-green-700 bg-green-100 text-green-900 font-semibold transition-all duration-150" />
                     </div>
-                </form>
-                <!-- Floating Create Order Button -->
-                <button
-                    type="submit"
-                    form="orderForm"
-                    id="createOrderBtn"
-                    aria-label="Create Order"
-                    class="fixed bottom-8 right-8 z-50 bg-green-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-green-700 transition-colors text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-green-400"
-                    style="min-width: 160px;"
-                >
-                    <span id="createOrderBtnText">Create Order</span>
-                    <span id="createOrderBtnSpinner" class="hidden ml-2"><svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg></span>
+                    <div>
+                        <label class="block text-base font-bold text-green-800">Product Name</label>
+                        <input type="text" name="items[0][product_name]" class="product-name mt-1 block w-full rounded-lg border-2 border-green-700 shadow-sm focus:border-green-900 focus:ring-2 focus:ring-green-700 bg-green-100 text-green-900 font-semibold transition-all duration-150" readonly required />
+                    </div>
+                    <div>
+                        <label class="block text-base font-bold text-green-800">Unit Price</label>
+                        <input type="number" name="items[0][unit_price]" class="unit-price mt-1 block w-full rounded-lg border-2 border-green-700 shadow-sm focus:border-green-900 focus:ring-2 focus:ring-green-700 bg-green-100 text-green-900 font-semibold transition-all duration-150" step="0.01" readonly required />
+                    </div>
+                </div>
+            </div>
+            <button type="button" onclick="addOrderItem()" class="text-green-800 hover:text-green-900 font-bold transition flex items-center gap-2 mt-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
+                + Add Another Item
+            </button>
+            <!-- Section Divider -->
+            <div class="flex items-center my-6">
+                <span class="flex-grow border-t-4 border-blue-600"></span>
+                <span class="mx-4 text-xl font-bold text-blue-800 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-blue-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10m-7 4h4" /></svg>
+                    Delivery Details
+                </span>
+                <span class="flex-grow border-t-4 border-blue-600"></span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="delivery_date" class="block text-base font-bold text-blue-800">Delivery Date</label>
+                    <input type="date" name="delivery_date" id="delivery_date" class="mt-1 block w-full rounded-lg border-2 border-blue-700 shadow-sm focus:border-blue-900 focus:ring-2 focus:ring-blue-700 bg-blue-100 text-blue-900 font-semibold transition-all duration-150" />
+                    @error('delivery_date')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label for="delivery_time" class="block text-base font-bold text-blue-800">Delivery Time</label>
+                    <select name="delivery_time" id="delivery_time" class="mt-1 block w-full rounded-lg border-2 border-blue-700 shadow-sm focus:border-blue-900 focus:ring-2 focus:ring-blue-700 bg-blue-100 text-blue-900 font-semibold transition-all duration-150">
+                        <option value="">Select delivery time</option>
+                        <option value="morning">Morning (8:00 - 12:00)</option>
+                        <option value="afternoon">Afternoon (12:00 - 16:00)</option>
+                        <option value="evening">Evening (16:00 - 20:00)</option>
+                    </select>
+                    @error('delivery_time')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+            <!-- Section Divider -->
+            <div class="flex items-center my-6">
+                <span class="flex-grow border-t-4 border-blue-600"></span>
+                <span class="mx-4 text-xl font-bold text-blue-800 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-blue-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6" /></svg>
+                    Special Instructions
+                </span>
+                <span class="flex-grow border-t-4 border-blue-600"></span>
+            </div>
+            <div>
+                <textarea name="special_instructions" id="special_instructions" rows="3" class="mt-1 block w-full rounded-lg border-2 border-blue-700 shadow-sm focus:border-blue-900 focus:ring-2 focus:ring-blue-700 bg-blue-100 text-blue-900 font-semibold transition-all duration-150"></textarea>
+                @error('special_instructions')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+            <div class="flex justify-end mt-8">
+                <button type="submit" class="flex items-center gap-2 bg-gradient-to-r from-green-700 to-blue-800 text-white px-10 py-4 rounded-2xl shadow-xl hover:from-green-800 hover:to-blue-900 font-bold text-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-green-400 active:scale-95">
+                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                    Create Order
                 </button>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 
@@ -166,7 +173,7 @@
     const productOptions = `
         <option value="">Select a product</option>
         @foreach($products as $product)
-            <option value="{{ $product->id }}" data-name="{{ $product->item_name }}" data-price="{{ $product->unit_price }}">{{ $product->item_name }}</option>
+            <option value="{{ $product->id }}" data-name="{{ $product->name }}" data-price="{{ $product->unit_price ?? '' }}">{{ $product->name }}</option>
         @endforeach
     `;
     function addOrderItem() {
