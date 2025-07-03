@@ -42,8 +42,13 @@ class DashboardController extends Controller
                     ->get();
                 return view('dashboard.customer', compact('recentOrders', 'recentMessages'));
             case 'customer':
-                $orders = \App\Models\Order::where('user_id', $user->id)->latest()->take(5)->get();
-                return view('dashboard.customer', compact('orders'));
+                $recentOrders = \App\Models\Order::where('user_id', $user->id)->latest()->take(5)->get();
+                $recentMessages = \App\Models\Message::where('receiver_id', $user->id)
+                    ->with('sender')
+                    ->latest()
+                    ->take(5)
+                    ->get();
+                return view('dashboard.customer', compact('recentOrders', 'recentMessages'));
             default:
                 // Log out the user and redirect to login with error message
                 \Auth::logout();

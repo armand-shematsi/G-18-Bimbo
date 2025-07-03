@@ -202,6 +202,10 @@ class InventoryController extends Controller
             ];
         });
 
+        $lowStockItems = $inventory->filter(function($item) {
+            return $item->quantity <= $item->reorder_level && $item->quantity > 0;
+        });
+
         // Prepare for view
         return view('supplier.inventory.dashboard', [
             'stats' => $stats,
@@ -214,6 +218,7 @@ class InventoryController extends Controller
             'topSelling' => $topSelling,
             'totalInventoryValue' => $totalInventoryValue,
             'stockLevelChartData' => $stockLevelChartData,
+            'lowStockItems' => $lowStockItems,
         ]);
     }
 }

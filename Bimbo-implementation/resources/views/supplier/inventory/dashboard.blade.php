@@ -15,11 +15,11 @@
     <h1>Supplier Inventory Dashboard</h1>
 
     <!-- Low Stock Alert Banner for Supplier -->
-    @if(isset($inventory) && $inventory->where('quantity', '<=', function($item) { return $item->reorder_level; })->where('quantity', '>', 0)->count() > 0)
+    @if(isset($lowStockItems) && $lowStockItems->count() > 0)
         <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6">
             <div class="font-bold mb-2">Low Stock Alert!</div>
             <ul class="list-disc pl-6">
-                @foreach($inventory->where('quantity', '<=', function($item) { return $item->reorder_level; })->where('quantity', '>', 0) as $item)
+                @foreach($lowStockItems as $item)
                     <li>
                         <span class="font-semibold">{{ $item->item_name }}</span> ({{ $item->quantity }} {{ $item->unit }}) is at or below its reorder level ({{ $item->reorder_level }} {{ $item->unit }})
                     </li>
