@@ -12,6 +12,7 @@ use App\Notifications\OrderStatusUpdated;
 use App\Http\Requests\StoreOrderRequest;
 use App\Models\ActivityLog;
 use App\Models\Inventory;
+use App\Models\Product;
 
 class OrderController extends Controller
 {
@@ -27,7 +28,7 @@ class OrderController extends Controller
     // Show order creation form
     public function create()
     {
-        $products = Inventory::all();
+        $products = Product::all();
         return view('retail.orders.create', compact('products'));
     }
 

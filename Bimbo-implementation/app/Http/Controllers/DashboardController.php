@@ -29,7 +29,23 @@ class DashboardController extends Controller
                     return $item->needsReorder();
                 });
 
-                return view('dashboard.retail-manager', compact('supplierInventory', 'lowStockItems'));
+                // Orders per day (last 7 days)
+                $orderDays = collect();
+                $orderCounts = collect();
+                for ($i = 6; $i >= 0; $i--) {
+                    $date = now()->subDays($i)->toDateString();
+                    $orderDays->push($date);
+                    $orderCounts->push(\App\Models\Order::whereDate('created_at', $date)->count());
+                }
+
+                // Order status breakdown
+                $statuses = ['pending', 'processing', 'shipped', 'completed', 'cancelled'];
+                $statusCounts = [];
+                foreach ($statuses as $status) {
+                    $statusCounts[$status] = \App\Models\Order::where('status', $status)->count();
+                }
+
+                return view('dashboard.retail-manager', compact('supplierInventory', 'lowStockItems', 'orderDays', 'orderCounts', 'statusCounts'));
             case 'customer':
                 $recentOrders = \App\Models\Order::where('user_id', $user->id)
                     ->latest('created_at')

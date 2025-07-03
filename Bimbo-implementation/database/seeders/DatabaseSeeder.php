@@ -22,7 +22,6 @@ class DatabaseSeeder extends Seeder
             ShiftSeeder::class,
             ProductionBatchSeeder::class,
             ProductionLineSeeder::class,
-            CustomerUserSeeder::class,
         ]);
     }
 }
