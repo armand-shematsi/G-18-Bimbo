@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->foreignId('user_id')->nullable()->after('id')->constrained()->onDelete('cascade');
+            if (!Schema::hasColumn('orders', 'user_id')) {
+                $table->foreignId('user_id')->nullable()->after('id')->constrained()->onDelete('cascade');
+            }
             if (Schema::hasColumn('orders', 'supplier_id')) {
                 $table->dropColumn('supplier_id');
             }

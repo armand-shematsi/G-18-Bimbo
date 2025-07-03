@@ -166,6 +166,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/customer/order', [App\Http\Controllers\Customer\OrderController::class, 'create'])->name('customer.order.create');
         Route::post('/customer/order', [App\Http\Controllers\Customer\OrderController::class, 'store'])->name('customer.order.store');
     });
+
+    // Customer dashboard route (named for redirect)
+    Route::get('/customer/dashboard', [DashboardController::class, 'index'])->name('dashboard.customer');
 });
 
 // Vendor Registration Routes

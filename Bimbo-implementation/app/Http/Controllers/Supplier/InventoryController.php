@@ -38,6 +38,7 @@ class InventoryController extends Controller
             'unit' => 'required|string|max:50',
             'status' => 'required|in:available,low_stock,out_of_stock',
             'reorder_level' => 'required|integer|min:0',
+            'unit_price' => 'required|numeric|min:0',
         ]);
 
         $validated['user_id'] = auth()->id();
@@ -69,6 +70,7 @@ class InventoryController extends Controller
             'unit' => 'required|string|max:50',
             'status' => 'required|in:available,low_stock,out_of_stock',
             'reorder_level' => 'required|integer|min:0',
+            'unit_price' => 'required|numeric|min:0',
         ]);
 
         $validated['user_id'] = auth()->id();
