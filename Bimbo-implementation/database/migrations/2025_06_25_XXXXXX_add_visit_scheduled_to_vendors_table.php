@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('vendors', function (Blueprint $table) {
-            $table->date('visit_scheduled')->nullable();
-        });
+        // Schema::table('vendors', function (Blueprint $table) {
+        //     if (!Schema::hasColumn('vendors', 'visit_scheduled')) {
+        //         $table->date('visit_scheduled')->nullable();
+        //     }
+        // });
     }
 
     /**
@@ -25,4 +27,4 @@ return new class extends Migration
             $table->dropColumn('visit_scheduled');
         });
     }
-}; 
+};

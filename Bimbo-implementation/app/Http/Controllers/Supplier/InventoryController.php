@@ -91,4 +91,74 @@ class InventoryController extends Controller
         return redirect()->route('supplier.inventory.index')
             ->with('success', 'Inventory item deleted successfully.');
     }
+
+    /**
+     * Update the quantity of an inventory item.
+     */
+    public function updateQuantity(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'quantity' => 'required|integer|min:0',
+        ]);
+
+        $item = Inventory::where('user_id', auth()->id())->findOrFail($id);
+        $item->update($validated);
+
+        return redirect()->route('supplier.inventory.index')
+            ->with('success', 'Inventory quantity updated successfully.');
+    }
+
+    /**
+     * Show the inventory summary dashboard.
+     */
+    public function dashboard()
+    {
+        $userId = auth()->id();
+        $inventory = \App\Models\Inventory::where('user_id', $userId)->get();
+        $stats = [
+            'total' => $inventory->count(),
+            'available' => $inventory->where('status', 'available')->count(),
+            'low_stock' => $inventory->where('status', 'low_stock')->count(),
+            'out_of_stock' => $inventory->where('status', 'out_of_stock')->count(),
+            'over_stock' => $inventory->where('status', 'available')->count(), // Over stock = available
+        ];
+
+        // Total Stock In
+        $totalStockIn = \App\Models\StockIn::where('user_id', $userId)->sum('quantity_received');
+        // Total Stock Out
+        $totalStockOut = \App\Models\StockOut::where('user_id', $userId)->sum('quantity_removed');
+
+        // Daily Movement (last 7 days)
+        $stockInDaily = \App\Models\StockIn::where('user_id', $userId)
+            ->where('received_at', '>=', now()->subDays(7))
+            ->get()
+            ->groupBy(function($item) { return \Carbon\Carbon::parse($item->received_at)->format('Y-m-d'); });
+        $stockOutDaily = \App\Models\StockOut::where('user_id', $userId)
+            ->where('removed_at', '>=', now()->subDays(7))
+            ->get()
+            ->groupBy(function($item) { return \Carbon\Carbon::parse($item->removed_at)->format('Y-m-d'); });
+        $dates = collect(range(0, 6))->map(function($i) { return now()->subDays(6 - $i)->format('Y-m-d'); });
+        $stockInData = $dates->map(fn($date) => isset($stockInDaily[$date]) ? $stockInDaily[$date]->sum('quantity_received') : 0);
+        $stockOutData = $dates->map(fn($date) => isset($stockOutDaily[$date]) ? $stockOutDaily[$date]->sum('quantity_removed') : 0);
+
+        // Top Selling Items (by quantity)
+        $topSelling = \App\Models\OrderItem::select('product_name')
+            ->selectRaw('SUM(quantity) as total_sold')
+            ->groupBy('product_name')
+            ->orderByDesc('total_sold')
+            ->limit(5)
+            ->get();
+
+        // Prepare for view
+        return view('supplier.inventory.dashboard', [
+            'stats' => $stats,
+            'totalStockIn' => $totalStockIn,
+            'totalStockOut' => $totalStockOut,
+            'stockInData' => $stockInData,
+            'stockOutData' => $stockOutData,
+            'dates' => $dates,
+            'inventory' => $inventory,
+            'topSelling' => $topSelling,
+        ]);
+    }
 }

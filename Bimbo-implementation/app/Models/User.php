@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Auth\Notifications\ResetPassword;
+use App\Models\Task;
+use App\Models\Attendance;
 
 class User extends Authenticatable
 {
@@ -59,5 +61,20 @@ class User extends Authenticatable
     {
         $this->notify(new ResetPassword($token));
         // You can replace ResetPassword with a custom notification if you want to further customize the email.
+    }
+
+    public function supplyCenter()
+    {
+        return $this->belongsTo(SupplyCenter::class);
+    }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
     }
 }

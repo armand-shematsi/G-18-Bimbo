@@ -19,6 +19,10 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             AdminUserSeeder::class,
             VendorSeeder::class,
+            ShiftSeeder::class,
+            ProductionBatchSeeder::class,
+            ProductionLineSeeder::class,
+            CustomerUserSeeder::class,
         ]);
     }
 }

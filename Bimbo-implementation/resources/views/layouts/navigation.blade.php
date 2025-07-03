@@ -15,6 +15,14 @@
                     <a href="{{ route('dashboard') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('dashboard') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none focus:border-primary">
                         {{ __('Dashboard') }}
                     </a>
+                    @auth
+                        @if(auth()->user()->role === 'customer')
+                            <a href="{{ route('customer.order.create') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('customer.order.*') ? 'border-primary text-gray-900' : 'border-transparent text-green-600 hover:text-green-700 hover:border-green-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none focus:border-green-600">
+                                <svg class="w-4 h-4 mr-1 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                                Place Order
+                            </a>
+                        @endif
+                    @endauth
                     @guest
                         <a href="{{ route('vendor.register') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('vendor.register') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none focus:border-primary">
                             {{ __('Register as Vendor') }}
@@ -85,6 +93,14 @@
             <a href="{{ route('dashboard') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('dashboard') ? 'border-primary text-primary bg-primary/10' : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300' }} text-base font-medium transition duration-150 ease-in-out focus:outline-none focus:text-gray-800 focus:bg-gray-50 focus:border-gray-300">
                 {{ __('Dashboard') }}
             </a>
+            @auth
+                @if(auth()->user()->role === 'customer')
+                    <a href="{{ route('customer.order.create') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('customer.order.*') ? 'border-green-600 text-green-700 bg-green-50' : 'border-transparent text-green-600 hover:text-green-800 hover:bg-green-50 hover:border-green-300' }} text-base font-medium transition duration-150 ease-in-out focus:outline-none focus:text-green-800 focus:bg-green-50 focus:border-green-300">
+                        <svg class="w-4 h-4 mr-1 inline text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                        Place Order
+                    </a>
+                @endif
+            @endauth
             @guest
                 <a href="{{ route('vendor.register') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('vendor.register') ? 'border-primary text-primary bg-primary/10' : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300' }} text-base font-medium transition duration-150 ease-in-out focus:outline-none focus:text-gray-800 focus:bg-gray-50 focus:border-gray-300">
                     {{ __('Register as Vendor') }}
