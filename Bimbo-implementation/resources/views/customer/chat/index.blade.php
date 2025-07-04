@@ -30,6 +30,17 @@
 
                     <!-- Chat Area -->
                     <div class="w-3/4 flex flex-col">
+                        <!-- Notification Messages -->
+                        @if(session('success'))
+                            <div class="mb-4 p-3 rounded bg-green-100 text-green-800 border border-green-200">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+                        @if(session('error'))
+                            <div class="mb-4 p-3 rounded bg-red-100 text-red-800 border border-red-200">
+                                {{ session('error') }}
+                            </div>
+                        @endif
                         @if($currentChat)
                             <!-- Chat Header -->
                             <div class="p-4 border-b border-gray-200">

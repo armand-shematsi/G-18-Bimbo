@@ -60,6 +60,17 @@ class UserSeeder extends Seeder
             ]
         );
 
+        // Customer User
+        User::updateOrCreate(
+            ['email' => 'customer@bimbo.com'],
+            [
+                'name' => 'Customer User',
+                'password' => Hash::make('customer123'),
+                'role' => 'customer',
+            ]
+        );
+
+        // Demo Staff Users
         $staff = [
             ['name' => 'Alice Baker', 'email' => 'alice@bakery.com', 'password' => Hash::make('password'), 'role' => 'staff'],
             ['name' => 'Bob Dough', 'email' => 'bob@bakery.com', 'password' => Hash::make('password'), 'role' => 'staff'],
@@ -69,4 +80,4 @@ class UserSeeder extends Seeder
             User::firstOrCreate(['email' => $user['email']], $user);
         }
     }
-} 
+}

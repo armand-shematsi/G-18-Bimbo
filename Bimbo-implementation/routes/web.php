@@ -14,6 +14,8 @@ use App\Http\Controllers\Bakery\ScheduleController;
 use App\Http\Controllers\Bakery\MaintenanceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkforceController;
+use App\Http\Controllers\CustomerSegmentImportController;
+use App\Http\Controllers\CustomerSegmentController;
 
 
 Route::get('/', function () {
@@ -169,6 +171,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/chat', [App\Http\Controllers\Customer\ChatController::class, 'index'])->name('chat.index');
         Route::post('/chat/send', [App\Http\Controllers\Customer\ChatController::class, 'send'])->name('chat.send');
     });
+
+    // Customer order placement
+    Route::middleware(['auth', 'role:customer'])->group(function () {
+        Route::get('/customer/order', [App\Http\Controllers\Customer\OrderController::class, 'create'])->name('customer.order.create');
+        Route::post('/customer/order', [App\Http\Controllers\Customer\OrderController::class, 'store'])->name('customer.order.store');
+    });
+
+    // Customer dashboard route (named for redirect)
+    Route::get('/customer/dashboard', [DashboardController::class, 'index'])->name('dashboard.customer');
 });
 
 // Vendor Registration Routes
@@ -193,4 +204,16 @@ require __DIR__ . '/auth.php';
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/chat-dashboard', [App\Http\Controllers\ChatDashboardController::class, 'index'])->name('chat.dashboard');
+});
+
+Route::get('/customer/orders/create', [App\Http\Controllers\Customer\OrderController::class, 'create'])
+    ->name('customer.orders.create');
+
+    Route::get('/customer/orders', [App\Http\Controllers\Customer\OrderController::class, 'index'])->name('customer.orders.index');
+
+Route::get('/customer-segments/import', [CustomerSegmentImportController::class, 'showForm'])->name('customer-segments.import.form');
+Route::post('/customer-segments/import', [CustomerSegmentImportController::class, 'import'])->name('customer-segments.import');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/customer-segments', [CustomerSegmentController::class, 'index'])->name('admin.customer-segments');
 });

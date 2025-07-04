@@ -43,12 +43,16 @@ class ChatController extends Controller
             'content' => 'required|string',
         ]);
 
-        Message::create([
-            'sender_id' => Auth::id(),
-            'receiver_id' => $request->receiver_id,
-            'content' => $request->content,
-        ]);
-
-        return redirect()->back()->with('success', 'Message sent successfully');
+        try {
+            Message::create([
+                'sender_id' => Auth::id(),
+                'receiver_id' => $request->receiver_id,
+                'content' => $request->content,
+            ]);
+            return redirect()->back()->with('success', 'Message sent successfully!');
+        } catch (\Exception $e) {
+            // Log the error if needed: \Log::error($e);
+            return redirect()->back()->with('error', 'Failed to send message. Please try again.');
+        }
     }
 }

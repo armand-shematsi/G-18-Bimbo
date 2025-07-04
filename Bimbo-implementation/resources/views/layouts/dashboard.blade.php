@@ -45,6 +45,16 @@
                             <a href="{{ route('admin.analytics') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('admin.analytics') ? 'border-indigo-400 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 focus:outline-none focus:border-indigo-700 transition duration-150 ease-in-out">
                                 Analytics
                             </a>
+                            @if(auth()->user() && auth()->user()->role === 'admin')
+                                <a href="{{ route('customer-segments.import.form') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('customer-segments.import.form') ? 'border-primary text-blue-900' : 'border-transparent text-blue-600 hover:text-blue-700 hover:border-blue-300' }} text-sm font-medium leading-5 focus:outline-none focus:border-blue-600 transition duration-150 ease-in-out">
+                                    <svg class="w-4 h-4 mr-1 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                                    Import Customer Segments
+                                </a>
+                                <a href="{{ route('admin.customer-segments') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('admin.customer-segments') ? 'border-primary text-blue-900' : 'border-transparent text-blue-600 hover:text-blue-700 hover:border-blue-300' }} text-sm font-medium leading-5 focus:outline-none focus:border-blue-600 transition duration-150 ease-in-out">
+                                    <svg class="w-4 h-4 mr-1 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 4v16M8 4v16" /></svg>
+                                    View Customer Segments
+                                </a>
+                            @endif
                         </div>
                     </div>
 
@@ -100,4 +110,4 @@
         });
     </script>
 </body>
-</html> 
+</html>
