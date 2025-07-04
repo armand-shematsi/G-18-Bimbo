@@ -13,6 +13,7 @@ class ProductionBatch extends Model
         'actual_start',
         'actual_end',
         'notes',
+        'production_line_id',
     ];
 
     public function shifts()
@@ -23,5 +24,10 @@ class ProductionBatch extends Model
     public function ingredients()
     {
         return $this->belongsToMany(Ingredient::class, 'batch_ingredient')->withPivot('quantity_used');
+    }
+
+    public function productionLine()
+    {
+        return $this->belongsTo(ProductionLine::class);
     }
 }

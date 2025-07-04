@@ -118,6 +118,7 @@
                         <th>Actual Start</th>
                         <th>Actual End</th>
                         <th>Notes</th>
+                        <th>Assigned Staff</th>
                     </tr>
                 </thead>
                 <tbody class="production-batch-tbody">
@@ -181,34 +182,28 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Fetch and update stats cards
-    function fetchProductionStats() {
-        fetch('/api/production-stats')
+    // --- Live Stats Cards ---
+    function fetchProductionStatsLive() {
+        fetch('/api/production-live')
             .then(res => res.json())
             .then(data => {
                 document.querySelector('.batches-today').textContent = data.batches_today ?? '-';
-                document.querySelector('.active-batches').textContent = data.active_batches ?? '-';
-                document.querySelector('.output-today').textContent = data.output_today ?? '-';
-                document.querySelector('.downtime-today').textContent = data.downtime_today ?? '-';
+                document.querySelector('.active-batches').textContent = data.active ?? '-';
+                document.querySelector('.output-today').textContent = data.output ?? '-';
+                document.querySelector('.downtime-today').textContent = data.downtime ?? '0';
             });
     }
-    // Fetch and update recent batches table
-    function fetchRecentBatches() {
-        const tbody = document.querySelector('.production-batch-tbody');
-        tbody.innerHTML = `<tr><td colspan='6' class='text-center text-gray-400 py-8'>Loading...</td></tr>`;
-        fetch('/bakery/api/production-batches')
+    // --- Live Recent Batches Table ---
+    function fetchRecentBatchesLive() {
+        fetch('/api/production-live')
             .then(res => res.json())
-            .then(batches => {
+            .then(data => {
+                const tbody = document.querySelector('.production-batch-tbody');
                 tbody.innerHTML = '';
-                if (!batches || batches.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan='6' class='text-center text-gray-400 py-8'>
-                    <svg class='mx-auto h-12 w-12 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'></path>
-                    </svg>
-                    <p class='mt-2 text-sm text-gray-500'>No recent batches</p>
-                </td></tr>`;
+                if (!data.batches || data.batches.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan='7' class='text-center text-gray-400 py-8'>No recent batches</td></tr>`;
                 } else {
-                    batches.forEach(batch => {
+                    data.batches.forEach(batch => {
                         function fmt(dt) {
                             if (!dt) return '-';
                             const d = new Date(dt);
@@ -231,14 +226,15 @@
                         <td>${fmt(batch.actual_start)}</td>
                         <td>${fmt(batch.actual_end)}</td>
                         <td title='${batch.notes ?? ''}'>${batch.notes ? batch.notes.substring(0, 30) + (batch.notes.length > 30 ? '...' : '') : '-'}</td>
+                        <td>${batch.assigned_staff ? batch.assigned_staff : '-'}</td>
                     </tr>`;
                     });
                 }
             });
     }
-    // Fetch and update production trends chart
-    function fetchProductionTrends() {
-        fetch('/api/production-trends')
+    // --- Live Production Trends Chart ---
+    function fetchProductionTrendsLive() {
+        fetch('/api/production-live')
             .then(res => res.json())
             .then(data => {
                 const ctx = document.getElementById('productionTrendsChart').getContext('2d');
@@ -246,10 +242,10 @@
                 window.productionTrendsChart = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: data.labels,
+                        labels: data.trend_labels,
                         datasets: [{
                             label: 'Output',
-                            data: data.values,
+                            data: data.trends,
                             backgroundColor: 'rgba(59, 130, 246, 0.2)',
                             borderColor: '#3b82f6',
                             borderWidth: 2,
@@ -267,16 +263,70 @@
                 });
             });
     }
-    // Download report function
+    // --- Live Machine Alerts ---
+    function fetchMachineAlertsLive() {
+        fetch('/api/machines-live')
+            .then(res => res.json())
+            .then(data => {
+                const alertList = document.querySelector('.machine-alert-list');
+                alertList.innerHTML = '';
+                if (data.alerts && data.alerts.length) {
+                    data.alerts.forEach(alert => {
+                        alertList.innerHTML += `<li>${alert}</li>`;
+                    });
+                } else {
+                    alertList.innerHTML = '<li class="text-gray-400">No machine alerts</li>';
+                }
+            });
+    }
+    // --- Live Activity Timeline ---
+    function fetchProductionActivityLive() {
+        fetch('/api/production-activity')
+            .then(res => res.json())
+            .then(data => {
+                const timeline = document.querySelector('.activity-timeline');
+                timeline.innerHTML = '';
+                if (data.notifications && data.notifications.length) {
+                    data.notifications.forEach(note => {
+                        timeline.innerHTML += `<li class="relative pb-8">
+                            <div class="relative flex space-x-3">
+                                <div>
+                                    <span class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white">
+                                        <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                        </svg>
+                                    </span>
+                                </div>
+                                <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                    <div>
+                                        <p class="text-sm text-gray-500">${note}</p>
+                                    </div>
+                                    <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                        <time>${new Date().toLocaleString()}</time>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>`;
+                    });
+                } else {
+                    timeline.innerHTML = '<li class="relative pb-8 text-gray-400">No recent activity</li>';
+                }
+            });
+    }
+    // --- Download report function ---
     function downloadProductionReport() {
         window.location.href = '/api/production-report';
     }
-    // Initial fetch and polling
-    fetchProductionStats();
-    fetchRecentBatches();
-    fetchProductionTrends();
-    setInterval(fetchProductionStats, 10000);
-    setInterval(fetchRecentBatches, 10000);
-    setInterval(fetchProductionTrends, 30000);
+    // --- Initial fetch and polling ---
+    fetchProductionStatsLive();
+    fetchRecentBatchesLive();
+    fetchProductionTrendsLive();
+    fetchMachineAlertsLive();
+    fetchProductionActivityLive();
+    setInterval(fetchProductionStatsLive, 1000);
+    setInterval(fetchRecentBatchesLive, 1000);
+    setInterval(fetchProductionTrendsLive, 1000 * 10); // trends can update every 10s
+    setInterval(fetchMachineAlertsLive, 1000);
+    setInterval(fetchProductionActivityLive, 1000);
 </script>
 @endpush
