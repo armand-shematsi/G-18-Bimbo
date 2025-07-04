@@ -14,6 +14,8 @@ use App\Http\Controllers\Bakery\ScheduleController;
 use App\Http\Controllers\Bakery\MaintenanceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkforceController;
+use App\Http\Controllers\CustomerSegmentImportController;
+use App\Http\Controllers\CustomerSegmentController;
 
 
 Route::get('/', function () {
@@ -199,3 +201,10 @@ Route::get('/customer/orders/create', [App\Http\Controllers\Customer\OrderContro
     ->name('customer.orders.create');
 
     Route::get('/customer/orders', [App\Http\Controllers\Customer\OrderController::class, 'index'])->name('customer.orders.index');
+
+Route::get('/customer-segments/import', [CustomerSegmentImportController::class, 'showForm'])->name('customer-segments.import.form');
+Route::post('/customer-segments/import', [CustomerSegmentImportController::class, 'import'])->name('customer-segments.import');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/customer-segments', [CustomerSegmentController::class, 'index'])->name('admin.customer-segments');
+});

@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('inventory_movements', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('inventory_id')->constrained('inventories')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('set null')->nullable();
-            $table->enum('type', ['in', 'out', 'adjustment']);
-            $table->integer('quantity');
-            $table->string('note')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('inventory_movements')) {
+            Schema::create('inventory_movements', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('inventory_id')->constrained('inventories')->onDelete('cascade');
+                $table->foreignId('user_id')->constrained('users')->onDelete('set null')->nullable();
+                $table->enum('type', ['in', 'out', 'adjustment']);
+                $table->integer('quantity');
+                $table->string('note')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**
