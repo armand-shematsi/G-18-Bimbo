@@ -40,6 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/api/dashboard/maintenance-summary', [\App\Http\Controllers\Admin\DashboardController::class, 'maintenanceSummary'])->name('dashboard.maintenance-summary');
         // Workforce distribution API endpoint
         Route::get('/api/workforce-distribution', [\App\Http\Controllers\DashboardController::class, 'workforceDistribution'])->name('workforce.distribution.api');
+        Route::get('/customer-segments', [\App\Http\Controllers\CustomerSegmentController::class, 'index'])->name('customer-segments');
     });
 
     // Supplier routes
@@ -194,4 +195,14 @@ require __DIR__ . '/auth.php';
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/chat-dashboard', [App\Http\Controllers\ChatDashboardController::class, 'index'])->name('chat.dashboard');
+});
+
+// Add these routes for customer segments import
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/customer-segments/import', function() {
+        return view('customer_segments.import');
+    })->name('customer-segments.import.form');
+    // If you have a controller method for import, you can use it instead:
+    // Route::get('/customer-segments/import', [CustomerSegmentController::class, 'importForm'])->name('customer-segments.import.form');
+    Route::post('/customer-segments/import', [App\Http\Controllers\CustomerSegmentImportController::class, 'import'])->name('customer-segments.import');
 });
