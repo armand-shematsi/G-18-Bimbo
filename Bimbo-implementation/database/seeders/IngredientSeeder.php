@@ -24,3 +24,4 @@ class IngredientSeeder extends Seeder
         }
     }
 }
+ 
