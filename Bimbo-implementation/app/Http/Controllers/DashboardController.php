@@ -10,6 +10,11 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
+        // Fetch the segment for this customer using email
+        $segment = \DB::table('customer_segments')
+            ->where('Name', $user->name)
+            ->first();
+
         switch ($user->role) {
             case 'admin':
                 $activeVendorsCount = \App\Models\Vendor::where('status', 'active')->count();
@@ -30,17 +35,6 @@ class DashboardController extends Controller
                 });
 
                 return view('dashboard.retail-manager', compact('supplierInventory', 'lowStockItems'));
-
-                $recentOrders = \App\Models\Order::where('user_id', $user->id)
-                    ->latest('created_at')
-                    ->take(5)
-                    ->get();
-                $recentMessages = \App\Models\Message::where('receiver_id', $user->id)
-                    ->with('sender')
-                    ->latest()
-                    ->take(5)
-                    ->get();
-                return view('dashboard.customer', compact('recentOrders', 'recentMessages'));
             case 'customer':
                 $recentOrders = \App\Models\Order::where('user_id', $user->id)->latest()->take(5)->get();
                 $recentMessages = \App\Models\Message::where('receiver_id', $user->id)
@@ -48,7 +42,7 @@ class DashboardController extends Controller
                     ->latest()
                     ->take(5)
                     ->get();
-                return view('dashboard.customer', compact('recentOrders', 'recentMessages'));
+                return view('dashboard.customer', compact('recentOrders', 'recentMessages', 'segment'));
             default:
                 // Log out the user and redirect to login with error message
                 \Auth::logout();
