@@ -108,4 +108,35 @@ class ShiftController extends Controller
         });
         return response()->json($staff);
     }
+
+    /**
+     * Assign a shift to a production batch.
+     */
+    public function assignToBatch(Request $request)
+    {
+        $request->validate([
+            'shift_id' => 'required|exists:shifts,id',
+            'production_batch_id' => 'required|exists:production_batches,id',
+        ]);
+        $shift = Shift::find($request->shift_id);
+        $shift->production_batch_id = $request->production_batch_id;
+        $shift->save();
+        return redirect()->back()->with('success', 'Shift assigned!');
+    }
+
+    /**
+     * Assign a new shift to a production batch (AJAX).
+     */
+    public function assignNewToBatch(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'production_batch_id' => 'required|exists:production_batches,id',
+            'start_time' => 'required|date',
+            'end_time' => 'required|date|after:start_time',
+            'role' => 'required|string|max:255',
+        ]);
+        $shift = \App\Models\Shift::create($validated);
+        return response()->json(['success' => true, 'shift' => $shift]);
+    }
 }

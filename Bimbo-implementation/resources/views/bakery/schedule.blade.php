@@ -166,6 +166,74 @@
         </div>
     </div>
 </div>
+<!-- Live Staff on Duty -->
+<div class="bg-white rounded-xl shadow-lg mb-8">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900">Live Staff on Duty</h3>
+    </div>
+    <div class="p-6">
+        <ul class="list-disc pl-5 text-sm text-gray-700 live-staff-list">
+            <li class="text-gray-400">Loading...</li>
+        </ul>
+    </div>
+</div>
+<!-- Live Assignments Table -->
+<div class="bg-white rounded-xl shadow-lg mb-8">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900">Live Shift Assignments</h3>
+    </div>
+    <div class="p-6">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th>Staff</th>
+                        <th>Role</th>
+                        <th>Shift Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody class="live-assignments-tbody">
+                    <tr>
+                        <td colspan="4" class="text-center text-gray-400 py-4">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- Assign Task Modal -->
+<div id="assignTaskModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+        <h3 class="text-lg font-semibold mb-4">Assign Shift/Task</h3>
+        <form id="assignTaskForm">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Title</label>
+                <input type="text" name="title" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Description</label>
+                <textarea name="description" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"></textarea>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Assign to Staff</label>
+                <select name="user_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <option value="">Select Staff</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Assign to Shift (optional)</label>
+                <select name="shift_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <option value="">None</option>
+                </select>
+            </div>
+            <div class="flex justify-end">
+                <button type="button" onclick="closeAssignTaskModal()" class="mr-2 px-4 py-2 rounded bg-gray-300">Cancel</button>
+                <button type="submit" class="px-4 py-2 rounded bg-green-600 text-white">Assign</button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -175,15 +243,51 @@
         fetch('/api/workforce-analytics')
             .then(res => res.json())
             .then(data => {
-                document.querySelector('.staff-on-duty').textContent = data.staff_on_duty ?? '-';
+                document.querySelector('.staff-on-duty').textContent = data.filled_shifts ?? '-';
                 document.querySelector('.absences-today').textContent = data.absences ?? '-';
-                document.querySelector('.shifts-filled').textContent = data.shifts_filled ?? '-';
+                document.querySelector('.shifts-filled').textContent = data.filled_shifts ?? '-';
                 document.querySelector('.overtime-today').textContent = data.overtime ?? '-';
             });
     }
-    // Fetch and update workforce table
+    // Fetch and update live workforce (staff on duty and assignments)
+    function fetchWorkforceLive() {
+        fetch('/api/workforce-live')
+            .then(res => res.json())
+            .then(data => {
+                // Update staff on duty list
+                let staffList = document.querySelector('.live-staff-list');
+                if (staffList) {
+                    staffList.innerHTML = '';
+                    if (data.staff && data.staff.length) {
+                        data.staff.forEach(staff => {
+                            staffList.innerHTML += `<li>${staff.name} <span class='text-xs text-gray-400'>(${staff.role})</span></li>`;
+                        });
+                    } else {
+                        staffList.innerHTML = '<li class="text-gray-400">No staff on duty</li>';
+                    }
+                }
+                // Update assignments table
+                let assignTbody = document.querySelector('.live-assignments-tbody');
+                if (assignTbody) {
+                    assignTbody.innerHTML = '';
+                    if (data.assignments && data.assignments.length) {
+                        data.assignments.forEach(a => {
+                            assignTbody.innerHTML += `<tr>
+                                <td>${a.staff ?? ''}</td>
+                                <td>${a.role ?? ''}</td>
+                                <td>${a.start_time ? new Date(a.start_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''} - ${a.end_time ? new Date(a.end_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</td>
+                                <td>${a.status ? a.status.replace('_', ' ') : ''}</td>
+                            </tr>`;
+                        });
+                    } else {
+                        assignTbody.innerHTML = `<tr><td colspan='4' class='text-center text-gray-400 py-4'>No assignments</td></tr>`;
+                    }
+                }
+            });
+    }
+    // Fetch and update workforce tasks table (existing)
     function fetchWorkforceTasks() {
-        fetch('/bakery/workforce/tasks')
+        fetch('/workforce/tasks')
             .then(res => res.json())
             .then(data => {
                 const tbody = document.querySelector('.task-list-tbody');
@@ -217,8 +321,68 @@
     }
     // Initial fetch and polling
     fetchWorkforceStats();
+    fetchWorkforceLive();
     fetchWorkforceTasks();
-    setInterval(fetchWorkforceStats, 10000);
-    setInterval(fetchWorkforceTasks, 10000);
+    setInterval(fetchWorkforceStats, 1000);
+    setInterval(fetchWorkforceLive, 1000);
+    setInterval(fetchWorkforceTasks, 1000);
+    function openAssignTaskModal() {
+        // Fetch staff and shifts for the dropdowns
+        fetch('/api/users?role=staff')
+            .then(res => res.json())
+            .then(users => {
+                const userSelect = document.querySelector('#assignTaskForm select[name="user_id"]');
+                userSelect.innerHTML = '<option value="">Select Staff</option>';
+                users.forEach(u => {
+                    userSelect.innerHTML += `<option value="${u.id}">${u.name} (${u.role})</option>`;
+                });
+            });
+        fetch('/api/shifts')
+            .then(res => res.json())
+            .then(shifts => {
+                const shiftSelect = document.querySelector('#assignTaskForm select[name="shift_id"]');
+                shiftSelect.innerHTML = '<option value="">None</option>';
+                shifts.forEach(s => {
+                    shiftSelect.innerHTML += `<option value="${s.id}">${s.id} (${s.start_time} - ${s.end_time})</option>`;
+                });
+            });
+        document.getElementById('assignTaskModal').classList.remove('hidden');
+    }
+    function closeAssignTaskModal() {
+        document.getElementById('assignTaskModal').classList.add('hidden');
+    }
+    document.getElementById('assignTaskForm').onsubmit = function(e) {
+        e.preventDefault();
+        const form = e.target;
+        const data = Object.fromEntries(new FormData(form).entries());
+        fetch('/workforce/assign-task', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(() => {
+            closeAssignTaskModal();
+            fetchWorkforceTasks();
+            fetchWorkforceLive();
+        });
+    };
+    function autoReassignTasks() {
+        fetch('/workforce/auto-reassign', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(res => res.json())
+        .then(() => {
+            fetchWorkforceTasks();
+            fetchWorkforceLive();
+            alert('Auto-reassignment complete!');
+        });
+    }
 </script>
 @endpush

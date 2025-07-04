@@ -55,5 +55,17 @@ class ShiftSeeder extends Seeder
                 ]);
             }
         }
+        // Ensure at least one shift is assigned to a batch for today
+        $batch = \App\Models\ProductionBatch::whereDate('scheduled_start', now()->toDateString())->first();
+        $staff = \App\Models\User::where('role', 'staff')->first();
+        if ($batch && $staff) {
+            Shift::create([
+                'user_id' => $staff->id,
+                'production_batch_id' => $batch->id,
+                'start_time' => now()->setTime(8, 0),
+                'end_time' => now()->setTime(16, 0),
+                'role' => 'staff',
+            ]);
+        }
     }
 }
