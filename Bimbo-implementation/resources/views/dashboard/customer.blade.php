@@ -14,6 +14,21 @@
 @endsection
 
 @section('content')
+@if(isset($segment))
+    @if($segment->Segment == 0)
+        <div class="mb-6 p-4 rounded-lg bg-green-100 text-green-900 font-semibold shadow">
+            Welcome, valued customer! Enjoy exclusive loyalty rewards just for you.
+        </div>
+    @elseif($segment->Segment == 1)
+        <div class="mb-6 p-4 rounded-lg bg-blue-100 text-blue-900 font-semibold shadow">
+            Thanks for shopping with us! Check out our new products and special offers.
+        </div>
+    @elseif($segment->Segment == 2)
+        <div class="mb-6 p-4 rounded-lg bg-yellow-100 text-yellow-900 font-semibold shadow">
+            We miss you! Here's a special discount to welcome you back.
+        </div>
+    @endif
+@endif
 <div class="py-12 min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-10">
@@ -213,5 +228,7 @@
             </main>
         </div>
     </div>
+    <!-- Footer -->
+    <div class="mt-16 text-center text-gray-400 text-xs">Thank you for being a valued customer! &mdash; The Bimbo Team</div>
 </div>
 @endsection

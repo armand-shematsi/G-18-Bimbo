@@ -46,6 +46,7 @@ class ProductionBatchController extends Controller
      */
     public function show(ProductionBatch $batch)
     {
+        $batch->load('shifts.user');
         return view('bakery.batches.show', compact('batch'));
     }
 
@@ -88,17 +89,85 @@ class ProductionBatchController extends Controller
      */
     public function apiIndex(Request $request)
     {
-        $query = ProductionBatch::query();
+        $query = ProductionBatch::with('shifts.user');
         if ($request->has('status')) {
             $query->where('status', $request->input('status'));
         }
         if ($request->has('date')) {
             $query->whereDate('scheduled_start', $request->input('date'));
+        } else {
+            $query->whereDate('scheduled_start', now()->toDateString());
         }
         if ($request->has('product')) {
             $query->where('name', 'like', '%' . $request->input('product') . '%');
         }
         $batches = $query->orderBy('scheduled_start', 'desc')->get();
         return response()->json($batches);
+    }
+
+    /**
+     * API: Store a new production batch (AJAX)
+     */
+    public function apiStore(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'status' => 'required|in:planned,active,completed,cancelled',
+            'scheduled_start' => 'required|date',
+            'actual_start' => 'nullable|date',
+            'actual_end' => 'nullable|date',
+            'notes' => 'nullable|string',
+        ]);
+        $batch = ProductionBatch::create($validated);
+        return response()->json(['success' => true, 'batch' => $batch]);
+    }
+
+    /**
+     * API: Update a production batch (AJAX)
+     */
+    public function apiUpdate(Request $request, ProductionBatch $batch)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'status' => 'required|in:planned,active,completed,cancelled',
+            'scheduled_start' => 'required|date',
+            'actual_start' => 'nullable|date',
+            'actual_end' => 'nullable|date',
+            'notes' => 'nullable|string',
+        ]);
+        $batch->update($validated);
+        return response()->json(['success' => true, 'batch' => $batch]);
+    }
+
+    /**
+     * API: Update only the status of a batch (AJAX)
+     */
+    public function apiUpdateStatus(Request $request, ProductionBatch $batch)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:planned,active,completed,cancelled',
+        ]);
+        $batch->update(['status' => $validated['status']]);
+        return response()->json(['success' => true, 'batch' => $batch]);
+    }
+
+    /**
+     * Assign a shift to a batch (AJAX)
+     */
+    public function assignShift(Request $request, $batchId)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'start_time' => 'required|date',
+            'end_time' => 'required|date|after:start_time',
+        ]);
+        $shift = \App\Models\Shift::create([
+            'production_batch_id' => $batchId,
+            'user_id' => $request->user_id,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
+            'role' => 'staff',
+        ]);
+        return response()->json(['success' => true, 'shift' => $shift]);
     }
 }

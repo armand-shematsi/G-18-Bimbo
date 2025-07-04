@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Inventory;
 use Illuminate\Support\Facades\Auth;
+use App\Models\InventoryMovement;
+use App\Notifications\LowStockNotification;
 
 class InventoryController extends Controller
 {
@@ -43,7 +45,16 @@ class InventoryController extends Controller
 
         $validated['user_id'] = auth()->id();
 
-        Inventory::create($validated);
+        $item = Inventory::create($validated);
+
+        // Log initial stock-in movement
+        InventoryMovement::create([
+            'inventory_id' => $item->id,
+            'user_id' => auth()->id(),
+            'type' => 'in',
+            'quantity' => $item->quantity,
+            'note' => 'Initial stock-in on creation',
+        ]);
 
         return redirect()->route('supplier.inventory.index')
             ->with('success', 'Inventory item added successfully.');
@@ -55,7 +66,8 @@ class InventoryController extends Controller
     public function edit($id)
     {
         $item = Inventory::where('user_id', auth()->id())->findOrFail($id);
-        return view('supplier.inventory.edit', compact('item'));
+        $movements = $item->movements()->with('user')->orderByDesc('created_at')->get();
+        return view('supplier.inventory.edit', compact('item', 'movements'));
     }
 
     /**
@@ -104,7 +116,33 @@ class InventoryController extends Controller
         ]);
 
         $item = Inventory::where('user_id', auth()->id())->findOrFail($id);
+        $oldQuantity = $item->quantity;
+        $newQuantity = $validated['quantity'];
+        $diff = $newQuantity - $oldQuantity;
+        $type = $diff > 0 ? 'in' : ($diff < 0 ? 'out' : 'adjustment');
+
         $item->update($validated);
+
+        if ($diff !== 0) {
+            InventoryMovement::create([
+                'inventory_id' => $item->id,
+                'user_id' => auth()->id(),
+                'type' => $type,
+                'quantity' => abs($diff),
+                'note' => 'Quantity updated by supplier',
+            ]);
+        }
+
+        // Send low stock notification if now at or below reorder level
+        if ($item->quantity <= $item->reorder_level) {
+            // Notify supplier (current user)
+            auth()->user()->notify(new LowStockNotification($item));
+            // Notify admin (first admin user)
+            $admin = \App\Models\User::where('role', 'admin')->first();
+            if ($admin) {
+                $admin->notify(new LowStockNotification($item));
+            }
+        }
 
         return redirect()->route('supplier.inventory.index')
             ->with('success', 'Inventory quantity updated successfully.');
@@ -130,7 +168,7 @@ class InventoryController extends Controller
         // Total Stock Out
         $totalStockOut = \App\Models\StockOut::where('user_id', $userId)->sum('quantity_removed');
 
-        // Daily Movement (last 7 days)
+        // Daily Movement (last 7 days) using StockIn and StockOut (original logic)
         $stockInDaily = \App\Models\StockIn::where('user_id', $userId)
             ->where('received_at', '>=', now()->subDays(7))
             ->get()
@@ -151,6 +189,23 @@ class InventoryController extends Controller
             ->limit(5)
             ->get();
 
+        // Total inventory value
+        $totalInventoryValue = $inventory->sum(function($item) {
+            return $item->quantity * $item->unit_price;
+        });
+
+        // Stock level chart data
+        $stockLevelChartData = $inventory->map(function($item) {
+            return [
+                'item_name' => $item->item_name,
+                'quantity' => $item->quantity,
+            ];
+        });
+
+        $lowStockItems = $inventory->filter(function($item) {
+            return $item->quantity <= $item->reorder_level && $item->quantity > 0;
+        });
+
         // Prepare for view
         return view('supplier.inventory.dashboard', [
             'stats' => $stats,
@@ -161,6 +216,9 @@ class InventoryController extends Controller
             'dates' => $dates,
             'inventory' => $inventory,
             'topSelling' => $topSelling,
+            'totalInventoryValue' => $totalInventoryValue,
+            'stockLevelChartData' => $stockLevelChartData,
+            'lowStockItems' => $lowStockItems,
         ]);
     }
 }

@@ -14,6 +14,20 @@
 @section('content')
     <h1>Supplier Inventory Dashboard</h1>
 
+    <!-- Low Stock Alert Banner for Supplier -->
+    @if(isset($lowStockItems) && $lowStockItems->count() > 0)
+        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6">
+            <div class="font-bold mb-2">Low Stock Alert!</div>
+            <ul class="list-disc pl-6">
+                @foreach($lowStockItems as $item)
+                    <li>
+                        <span class="font-semibold">{{ $item->item_name }}</span> ({{ $item->quantity }} {{ $item->unit }}) is at or below its reorder level ({{ $item->reorder_level }} {{ $item->unit }})
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
         <div class="p-6 text-gray-900">
             <!-- Stat Cards -->
@@ -114,6 +128,19 @@
         </table>
     </div>
 
+    <!-- Analytics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white shadow rounded-lg p-5">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Total Inventory Value</h3>
+            <div class="text-2xl font-bold text-green-700">₦{{ number_format($totalInventoryValue, 2) }}</div>
+        </div>
+        <div class="bg-white shadow rounded-lg p-5">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Stock Level per Item</h3>
+            <canvas id="stockLevelBarChart" height="120"></canvas>
+        </div>
+    </div>
+    <!-- End Analytics Cards -->
+
     <!-- Chart.js Script -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -181,6 +208,20 @@
                     }
                 }
             }
+        });
+
+        // Stock Level Bar Chart
+        new Chart(document.getElementById('stockLevelBarChart'), {
+            type: 'bar',
+            data: {
+                labels: {!! $stockLevelChartData->pluck('item_name')->toJson() !!},
+                datasets: [{
+                    label: 'Quantity',
+                    data: {!! $stockLevelChartData->pluck('quantity')->toJson() !!},
+                    backgroundColor: '#60a5fa',
+                }]
+            },
+            options: {responsive: true, indexAxis: 'y'}
         });
 
         // Export CSV (client-side)

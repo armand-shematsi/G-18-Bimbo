@@ -14,6 +14,8 @@ use App\Http\Controllers\Bakery\ScheduleController;
 use App\Http\Controllers\Bakery\MaintenanceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkforceController;
+use App\Http\Controllers\CustomerSegmentImportController;
+use App\Http\Controllers\CustomerSegmentController;
 
 
 Route::get('/', function () {
@@ -86,6 +88,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // API endpoint for production batches (AJAX/live updates)
         Route::get('/api/production-batches', [\App\Http\Controllers\ProductionBatchController::class, 'apiIndex'])->name('production-batches.api');
+        Route::post('/api/production-batches', [\App\Http\Controllers\ProductionBatchController::class, 'apiStore'])->name('production-batches.apiStore');
+        Route::put('/api/production-batches/{batch}', [\App\Http\Controllers\ProductionBatchController::class, 'apiUpdate'])->name('production-batches.apiUpdate');
+        Route::patch('/api/production-batches/{batch}/status', [\App\Http\Controllers\ProductionBatchController::class, 'apiUpdateStatus'])->name('production-batches.apiUpdateStatus');
 
         Route::get('/production/start', [ProductionController::class, 'start'])->name('production.start');
         Route::post('/production/start', [ProductionController::class, 'store'])->name('production.store');
@@ -106,7 +111,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/api/active-staff', [\App\Http\Controllers\ShiftController::class, 'apiActiveStaff'])->name('active-staff.api');
 
         // Live dashboard API endpoints
-        Route::get('/api/production-live', [\App\Http\Controllers\DashboardController::class, 'productionLive'])->name('bakery.production-live');
         Route::get('/api/workforce-live', [\App\Http\Controllers\DashboardController::class, 'workforceLive'])->name('bakery.workforce-live');
         Route::get('/api/machines-live', [\App\Http\Controllers\DashboardController::class, 'machinesLive'])->name('bakery.machines-live');
         Route::get('/api/ingredients-live', [\App\Http\Controllers\DashboardController::class, 'ingredientsLive'])->name('bakery.ingredients-live');
@@ -118,6 +122,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/workforce/update-task/{task}', [\App\Http\Controllers\WorkforceController::class, 'updateTaskStatus'])->name('workforce.update-task');
         Route::get('/workforce/tasks', [\App\Http\Controllers\WorkforceController::class, 'getTasks'])->name('workforce.tasks');
         Route::post('/workforce/auto-reassign', [\App\Http\Controllers\WorkforceController::class, 'autoReassignAbsentees'])->name('workforce.auto-reassign');
+
+        // Assign shift to batch
+        Route::post('/shifts/assign', [\App\Http\Controllers\ShiftController::class, 'assignToBatch'])->name('shifts.assignToBatch');
+        Route::post('/shifts/assign-new', [\App\Http\Controllers\ShiftController::class, 'assignNewToBatch'])->name('shifts.assignNewToBatch');
+
+        // Assign shift to batch (AJAX)
+        Route::post('/batches/{batch}/assign-shift', [\App\Http\Controllers\ProductionBatchController::class, 'assignShift'])->name('batches.assignShift');
     });
 
     // Retail Manager Routes
@@ -199,3 +210,10 @@ Route::get('/customer/orders/create', [App\Http\Controllers\Customer\OrderContro
     ->name('customer.orders.create');
 
     Route::get('/customer/orders', [App\Http\Controllers\Customer\OrderController::class, 'index'])->name('customer.orders.index');
+
+Route::get('/customer-segments/import', [CustomerSegmentImportController::class, 'showForm'])->name('customer-segments.import.form');
+Route::post('/customer-segments/import', [CustomerSegmentImportController::class, 'import'])->name('customer-segments.import');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/customer-segments', [CustomerSegmentController::class, 'index'])->name('admin.customer-segments');
+});
