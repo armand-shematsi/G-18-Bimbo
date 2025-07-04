@@ -20,7 +20,7 @@ class OrderPlaced extends Notification
 
     public function via($notifiable)
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     public function toMail($notifiable)
@@ -32,5 +32,16 @@ class OrderPlaced extends Notification
             ->line('Order Total: $' . number_format($this->order->total, 2))
             ->action('View Order', url(route('retail.orders.show', $this->order->id)))
             ->line('Thank you for your order!');
+    }
+
+    public function toDatabase($notifiable)
+    {
+        return [
+            'order_id' => $this->order->id,
+            'message' => 'A new order #' . $this->order->id . ' has been placed.',
+            'total' => $this->order->total,
+            'customer' => $this->order->customer_name,
+            'url' => url(route('retail.orders.show', $this->order->id)),
+        ];
     }
 } 

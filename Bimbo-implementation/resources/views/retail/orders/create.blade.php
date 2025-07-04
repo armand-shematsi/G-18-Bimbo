@@ -69,6 +69,27 @@
                     <option value="momo">MTN MoMo</option>
                 </select>
             </div>
+            <div class="mt-4">
+                <label for="fulfillment_type" class="block text-base font-bold text-green-800">Fulfillment Type</label>
+                <select name="fulfillment_type" id="fulfillment_type" class="mt-1 block w-full rounded-lg border-2 border-green-700 shadow-sm focus:border-green-900 focus:ring-2 focus:ring-green-700 bg-green-100 text-green-900 font-semibold transition-all duration-150" required>
+                    <option value="">Select fulfillment type</option>
+                    <option value="fba">Fulfilled by Amazon (FBA)</option>
+                    <option value="fbm">Fulfilled by Merchant (FBM)</option>
+                </select>
+            </div>
+            <div class="mt-4">
+                <label for="tracking_number" class="block text-base font-bold text-green-800">Tracking Number (optional)</label>
+                <input type="text" name="tracking_number" id="tracking_number" class="mt-1 block w-full rounded-lg border-2 border-green-700 shadow-sm focus:border-green-900 focus:ring-2 focus:ring-green-700 bg-green-100 text-green-900 font-semibold transition-all duration-150" />
+            </div>
+            <div class="mt-4">
+                <label for="delivery_option" class="block text-base font-bold text-green-800">Delivery Option</label>
+                <select name="delivery_option" id="delivery_option" class="mt-1 block w-full rounded-lg border-2 border-green-700 shadow-sm focus:border-green-900 focus:ring-2 focus:ring-green-700 bg-green-100 text-green-900 font-semibold transition-all duration-150" required>
+                    <option value="">Select delivery option</option>
+                    <option value="home">Home Delivery</option>
+                    <option value="locker">Locker Pickup</option>
+                    <option value="hub">Hub Pickup</option>
+                </select>
+            </div>
             <!-- Section Divider -->
             <div class="flex items-center my-6">
                 <span class="flex-grow border-t-4 border-green-600"></span>

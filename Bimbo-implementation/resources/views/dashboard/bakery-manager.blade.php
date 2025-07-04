@@ -26,23 +26,60 @@
 @endsection
 
 @section('content')
+<!-- New/Assigned Orders Section -->
+<div class="bg-white rounded-xl shadow-lg mb-8 border-l-4 border-blue-600">
+    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <h2 class="text-xl font-bold text-gray-900">New & Assigned Orders</h2>
+        <span class="text-sm text-gray-500">(Pending & Processing)</span>
+    </div>
+    <div class="p-6">
+        @if($orders->count())
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left font-semibold">Order ID</th>
+                            <th class="px-4 py-2 text-left font-semibold">Customer</th>
+                            <th class="px-4 py-2 text-left font-semibold">Status</th>
+                            <th class="px-4 py-2 text-left font-semibold">Placed At</th>
+                            <th class="px-4 py-2 text-left font-semibold">Fulfillment</th>
+                            <th class="px-4 py-2 text-left font-semibold">Delivery</th>
+                            <th class="px-4 py-2 text-left font-semibold">Tracking #</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($orders as $order)
+                        <tr class="border-b">
+                            <td class="px-4 py-2">{{ $order->id }}</td>
+                            <td class="px-4 py-2">{{ $order->customer_name }}</td>
+                            <td class="px-4 py-2 capitalize">{{ $order->status }}</td>
+                            <td class="px-4 py-2">{{ $order->placed_at ? $order->placed_at->format('M d, Y H:i') : '-' }}</td>
+                            <td class="px-4 py-2">{{ $order->fulfillment_type ?? '-' }}</td>
+                            <td class="px-4 py-2">{{ $order->delivery_option ?? '-' }}</td>
+                            <td class="px-4 py-2">{{ $order->tracking_number ?? '-' }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @else
+            <div class="text-center text-gray-500 py-8">
+                <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                <p class="mt-2 text-sm">No new or assigned orders at the moment.</p>
+            </div>
+        @endif
+    </div>
+</div>
+
 <!-- Welcome Banner -->
 <div class="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 rounded-lg shadow-lg mb-8">
     <div class="px-6 py-8">
         <div class="flex items-center justify-between">
             <div class="text-white">
-                @php
-                $hour = now()->hour;
-                if ($hour >= 5 && $hour < 12) {
-                    $greeting='Good Morning' ;
-                    } elseif ($hour>= 12 && $hour < 17) {
-                        $greeting='Good Afternoon' ;
-                        } else {
-                        $greeting='Good Evening' ;
-                        }
-                        @endphp
-                        <h2 class="text-2xl font-bold mb-2">{{ $greeting }}, {{ auth()->user()->name ?? 'Bakery Manager' }}!</h2>
-                        <p class="text-pink-100">Monitor production, manage workforce, and keep your bakery running smoothly</p>
+                <h2 class="text-2xl font-bold mb-2">Good {{ now()->hour < 12 ? 'Morning' : (now()->hour < 17 ? 'Afternoon' : 'Evening') }}, {{ auth()->user()->name ?? 'Bakery Manager' }}!</h2>
+                <p class="text-pink-100">Monitor production, manage workforce, and keep your bakery running smoothly</p>
             </div>
             <div class="hidden md:block">
                 <svg class="w-24 h-24 text-pink-200" fill="currentColor" viewBox="0 0 24 24">
@@ -127,6 +164,40 @@
 
 <!-- Main Content Grid -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Recent Batches (2/3) -->
+    <div class="lg:col-span-2 space-y-8">
+        <div class="bg-white rounded-xl shadow-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Recent Batches</h3>
+            </div>
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th>Batch Name</th>
+                                <th>Status</th>
+                                <th>Scheduled Start</th>
+                                <th>Actual Start</th>
+                                <th>Actual End</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody class="production-batch-tbody">
+                            <tr>
+                                <td colspan="6" class="text-center text-gray-400 py-8">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                    </svg>
+                                    <p class="mt-2 text-sm text-gray-500">No recent batches</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Quick Actions & Alerts (1/3) -->
     <div class="lg:col-span-1 space-y-8">
         <div class="bg-white rounded-xl shadow-lg">
@@ -172,9 +243,6 @@
         <!-- Ingredient Alerts and Machine Alerts removed; assign to their respective dashboards -->
     </div>
 </div>
-
-<!-- Modern Action Cards Row -->
-<!-- Modern Action Cards Row -->
 
 <!-- Activity Timeline -->
 <div class="mt-8 bg-white rounded-xl shadow-lg">
@@ -236,107 +304,6 @@
         </form>
     </div>
 </div>
-
-<!-- Batch Modal -->
-<div id="batchModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-        <h3 class="text-lg font-semibold mb-4" id="batchModalTitle">New Batch</h3>
-        <form id="batchForm">
-            <input type="hidden" name="batch_id" id="batch_id">
-            <div class="mb-2">
-                <label class="block text-sm font-medium">Name</label>
-                <input type="text" name="name" id="batch_name" class="w-full border rounded px-3 py-2" required>
-            </div>
-            <div class="mb-2">
-                <label class="block text-sm font-medium">Status</label>
-                <select name="status" id="batch_status" class="w-full border rounded px-3 py-2" required>
-                    <option value="planned">Planned</option>
-                    <option value="active">Active</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                </select>
-            </div>
-            <div class="mb-2">
-                <label class="block text-sm font-medium">Scheduled Start</label>
-                <input type="datetime-local" name="scheduled_start" id="batch_scheduled_start" class="w-full border rounded px-3 py-2" required>
-            </div>
-            <div class="mb-2">
-                <label class="block text-sm font-medium">Actual Start</label>
-                <input type="datetime-local" name="actual_start" id="batch_actual_start" class="w-full border rounded px-3 py-2">
-            </div>
-            <div class="mb-2">
-                <label class="block text-sm font-medium">Actual End</label>
-                <input type="datetime-local" name="actual_end" id="batch_actual_end" class="w-full border rounded px-3 py-2">
-            </div>
-            <div class="mb-4">
-                <label class="block text-sm font-medium">Notes</label>
-                <textarea name="notes" id="batch_notes" class="w-full border rounded px-3 py-2"></textarea>
-            </div>
-            <div class="flex justify-end">
-                <button type="button" onclick="closeBatchModal()" class="mr-2 px-4 py-2 rounded bg-gray-300">Cancel</button>
-                <button type="submit" class="px-4 py-2 rounded bg-blue-500 text-white">Save</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Assign Shift Modal -->
-<div id="assignShiftModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:1000; align-items:center; justify-content:center;">
-    <div style="background:#fff; padding:2rem; border-radius:8px; max-width:400px; margin:auto; position:relative;">
-        <button onclick="document.getElementById('assignShiftModal').style.display='none'" style="position:absolute; top:8px; right:12px;">&times;</button>
-        <h2 class="text-lg font-bold mb-4">Assign Shift</h2>
-        <form id="assignShiftForm">
-            <label>Staff:</label>
-            <select name="user_id" class="w-full mb-4 border rounded p-2" required>
-                @foreach(\App\Models\User::where('role', 'staff')->get() as $staff)
-                <option value="{{ $staff->id }}">{{ $staff->name }}</option>
-                @endforeach
-            </select>
-            <label>Start Time:</label>
-            <input type="datetime-local" name="start_time" class="w-full mb-4 border rounded p-2" required>
-            <label>End Time:</label>
-            <input type="datetime-local" name="end_time" class="w-full mb-4 border rounded p-2" required>
-            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Assign</button>
-        </form>
-    </div>
-</div>
-
-<!-- Add Assign Shifts Button -->
-<div class="flex justify-end mb-4">
-    <button id="openAssignShiftModal" class="bg-green-600 text-white px-4 py-2 rounded">Assign Shifts</button>
-</div>
-
-<!-- Start Batch Modal -->
-<div id="startBatchModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:1000; align-items:center; justify-content:center;">
-    <div style="background:#fff; padding:2rem; border-radius:8px; max-width:400px; margin:auto; position:relative;">
-        <button onclick="document.getElementById('startBatchModal').style.display='none'" style="position:absolute; top:8px; right:12px;">&times;</button>
-        <h2 class="text-lg font-bold mb-4">Start New Batch</h2>
-        <form id="startBatchForm">
-            <label>Batch Name:</label>
-            <select name="name" class="w-full mb-4 border rounded p-2" required>
-                @foreach(\App\Models\Product::all() as $product)
-                <option value="{{ $product->name }}">{{ $product->name }}</option>
-                @endforeach
-            </select>
-            <label>Production Line:</label>
-            <select name="production_line_id" class="w-full mb-4 border rounded p-2" required>
-                @foreach(\App\Models\ProductionLine::all() as $line)
-                <option value="{{ $line->id }}">{{ $line->name }}</option>
-                @endforeach
-            </select>
-            <label>Scheduled Start:</label>
-            <input type="datetime-local" name="scheduled_start" class="w-full mb-4 border rounded p-2" required>
-            <label>Notes:</label>
-            <textarea name="notes" class="w-full mb-4 border rounded p-2"></textarea>
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Start Batch</button>
-        </form>
-    </div>
-</div>
-
-<!-- Add Start Batch Button -->
-<div class="flex justify-end mb-4">
-    <button id="openStartBatchModal" class="bg-blue-600 text-white px-4 py-2 rounded">+ Start Batch</button>
-</div>
 @endsection
 
 @push('scripts')
@@ -345,15 +312,15 @@
     // --- Live Production Monitoring ---
     function fetchProductionLive() {
         const tbody = document.querySelector('.production-batch-tbody');
-        tbody.innerHTML = `<tr><td colspan='7' class='text-center text-gray-400 py-4'>Loading...</td></tr>`;
-        fetch('/bakery/api/production-batches')
+        tbody.innerHTML = `<tr><td colspan='6' class='text-center text-gray-400 py-4'>Loading...</td></tr>`;
+        fetch("{{ route('bakery.bakery.production-live') }}")
             .then(res => res.json())
-            .then(batches => {
+            .then(data => {
                 tbody.innerHTML = '';
-                if (!batches || batches.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan='7' class='text-center text-gray-400 py-4'>No batches found.</td></tr>`;
+                if (!data.batches || data.batches.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan='6' class='text-center text-gray-400 py-4'>No batches found.</td></tr>`;
                 } else {
-                    batches.forEach(batch => {
+                    data.batches.forEach(batch => {
                         function fmt(dt) {
                             if (!dt) return '-';
                             const d = new Date(dt);
@@ -366,9 +333,9 @@
                             });
                         }
                         let badgeClass = 'bg-gray-200 text-gray-800';
-                        if (batch.status === 'active' || batch.status === 'Active') badgeClass = 'bg-blue-200 text-blue-800';
-                        if (batch.status === 'completed' || batch.status === 'Completed') badgeClass = 'bg-green-200 text-green-800';
-                        if (batch.status === 'delayed' || batch.status === 'Delayed') badgeClass = 'bg-red-200 text-red-800';
+                        if (batch.status === 'Active') badgeClass = 'bg-blue-200 text-blue-800';
+                        if (batch.status === 'Completed') badgeClass = 'bg-green-200 text-green-800';
+                        if (batch.status === 'Delayed') badgeClass = 'bg-red-200 text-red-800';
                         tbody.innerHTML += `<tr>
                             <td>${batch.name}</td>
                             <td><span class='px-2 py-1 rounded ${badgeClass}'>${batch.status}</span></td>
@@ -376,12 +343,6 @@
                             <td>${fmt(batch.actual_start)}</td>
                             <td>${fmt(batch.actual_end)}</td>
                             <td title='${batch.notes ?? ''}'>${batch.notes ? batch.notes.substring(0, 30) + (batch.notes.length > 30 ? '...' : '') : '-'}</td>
-                            <td>
-                                <button onclick="openBatchModal(${encodeURIComponent(JSON.stringify(batch))})" class='text-xs px-2 py-1 bg-yellow-400 rounded mr-1'>Edit</button>
-                                <button onclick="updateBatchStatus(${batch.id}, 'active')" class='text-xs px-2 py-1 bg-blue-400 rounded mr-1'>Start</button>
-                                <button onclick="updateBatchStatus(${batch.id}, 'completed')" class='text-xs px-2 py-1 bg-green-400 rounded mr-1'>Complete</button>
-                                <button onclick="updateBatchStatus(${batch.id}, 'delayed')" class='text-xs px-2 py-1 bg-red-400 rounded'>Delay</button>
-                            </td>
                         </tr>`;
                     });
                 }
@@ -574,27 +535,23 @@
     }
 
     function autoReassignTasks() {
-        const btn = event.currentTarget;
+        const btn = document.querySelector('button[onclick="autoReassignTasks()"]');
         btn.disabled = true;
         btn.textContent = 'Reassigning...';
         fetch("{{ route('bakery.workforce.auto-reassign') }}", {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(res => res.json())
-            .then(() => {
-                btn.disabled = false;
-                btn.textContent = 'Auto-Reassign';
-                alert('Auto-reassignment complete!');
-            })
-            .catch(() => {
-                btn.disabled = false;
-                btn.textContent = 'Auto-Reassign';
-                alert('Failed to auto-reassign.');
-            });
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        }).then(res => res.json()).then(() => {
+            fetchTasks();
+            btn.disabled = false;
+            btn.textContent = 'Auto-Reassign Absent';
+        }).catch(() => {
+            btn.disabled = false;
+            btn.textContent = 'Auto-Reassign Absent';
+            alert('Failed to auto-reassign.');
+        });
     }
 
     function fetchStaffOnDuty() {
@@ -612,132 +569,50 @@
     fetchTasks();
     fetchStaffOnDuty();
 
-    function openBatchModal(batch = null) {
-        document.getElementById('batchModal').classList.remove('hidden');
-        document.getElementById('batchForm').reset();
-        document.getElementById('batch_id').value = '';
-        document.getElementById('batchModalTitle').innerText = batch ? 'Edit Batch' : 'New Batch';
-        if (batch) {
-            batch = typeof batch === 'string' ? JSON.parse(decodeURIComponent(batch)) : batch;
-            document.getElementById('batch_id').value = batch.id;
-            document.getElementById('batch_name').value = batch.name;
-            document.getElementById('batch_status').value = batch.status;
-            document.getElementById('batch_scheduled_start').value = batch.scheduled_start ? batch.scheduled_start.substring(0, 16) : '';
-            document.getElementById('batch_actual_start').value = batch.actual_start ? batch.actual_start.substring(0, 16) : '';
-            document.getElementById('batch_actual_end').value = batch.actual_end ? batch.actual_end.substring(0, 16) : '';
-            document.getElementById('batch_notes').value = batch.notes || '';
-        }
-    }
-
-    function closeBatchModal() {
-        document.getElementById('batchModal').classList.add('hidden');
-    }
-    document.getElementById('batchForm').onsubmit = function(e) {
-        e.preventDefault();
-        const id = document.getElementById('batch_id').value;
-        const url = id ? `/bakery/api/production-batches/${id}` : '/bakery/api/production-batches';
-        const method = id ? 'PUT' : 'POST';
-        const formData = new FormData(this);
-        const data = {};
-        formData.forEach((v, k) => data[k] = v);
-        fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify(data)
-            })
+    function fetchRecentBatches() {
+        const tbody = document.querySelector('.production-batch-tbody');
+        tbody.innerHTML = `<tr><td colspan='6' class='text-center text-gray-400 py-8'>Loading...</td></tr>`;
+        fetch('/bakery/api/production-batches')
             .then(res => res.json())
-            .then(res => {
-                if (res.success) {
-                    closeBatchModal();
-                    fetchProductionLive();
+            .then(batches => {
+                tbody.innerHTML = '';
+                if (!batches || batches.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan='6' class='text-center text-gray-400 py-8'>
+                        <svg class='mx-auto h-12 w-12 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                            <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'></path>
+                        </svg>
+                        <p class='mt-2 text-sm text-gray-500'>No recent batches</p>
+                    </td></tr>`;
                 } else {
-                    alert('Error saving batch');
+                    batches.forEach(batch => {
+                        function fmt(dt) {
+                            if (!dt) return '-';
+                            const d = new Date(dt);
+                            if (isNaN(d)) return dt;
+                            return d.toLocaleString('en-US', {
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+                        }
+                        let badgeClass = 'bg-gray-200 text-gray-800';
+                        if (batch.status === 'active' || batch.status === 'Active') badgeClass = 'bg-blue-200 text-blue-800';
+                        if (batch.status === 'completed' || batch.status === 'Completed') badgeClass = 'bg-green-200 text-green-800';
+                        if (batch.status === 'delayed' || batch.status === 'Delayed') badgeClass = 'bg-red-200 text-red-800';
+                        tbody.innerHTML += `<tr>
+                            <td>${batch.name}</td>
+                            <td><span class='px-2 py-1 rounded ${badgeClass}'>${batch.status}</span></td>
+                            <td>${fmt(batch.scheduled_start)}</td>
+                            <td>${fmt(batch.actual_start)}</td>
+                            <td>${fmt(batch.actual_end)}</td>
+                            <td title='${batch.notes ?? ''}'>${batch.notes ? batch.notes.substring(0, 30) + (batch.notes.length > 30 ? '...' : '') : '-'}</td>
+                        </tr>`;
+                    });
                 }
             });
-    };
-
-    function updateBatchStatus(id, status) {
-        fetch(`/bakery/api/production-batches/${id}/status`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    status
-                })
-            })
-            .then(res => res.json())
-            .then(res => {
-                if (res.success) fetchProductionLive();
-                else alert('Error updating status');
-            });
     }
-
-    // Show modal on button click
-    document.getElementById('openAssignShiftModal').onclick = function() {
-        document.getElementById('assignShiftModal').style.display = 'flex';
-    };
-    // Handle form submit
-    document.getElementById('assignShiftForm').onsubmit = function(e) {
-        e.preventDefault();
-        const form = e.target;
-        fetch('/batches/1/assign-shift', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    user_id: form.user_id.value,
-                    start_time: form.start_time.value,
-                    end_time: form.end_time.value
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Shift assigned!');
-                    document.getElementById('assignShiftModal').style.display = 'none';
-                } else {
-                    alert('Error assigning shift');
-                }
-            });
-    };
-
-    document.getElementById('openStartBatchModal').onclick = function() {
-        document.getElementById('startBatchModal').style.display = 'flex';
-    };
-    document.getElementById('startBatchForm').onsubmit = function(e) {
-        e.preventDefault();
-        const form = e.target;
-        fetch('/batches', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    name: form.name.value,
-                    production_line_id: form.production_line_id.value,
-                    scheduled_start: form.scheduled_start.value,
-                    notes: form.notes.value,
-                    status: 'Active'
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Batch started!');
-                    document.getElementById('startBatchModal').style.display = 'none';
-                    location.reload();
-                } else {
-                    alert('Error starting batch');
-                }
-            });
-    };
+    fetchRecentBatches();
+    setInterval(fetchRecentBatches, 10000);
 </script>
 @endpush

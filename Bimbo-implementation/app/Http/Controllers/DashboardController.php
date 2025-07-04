@@ -17,7 +17,9 @@ class DashboardController extends Controller
             case 'supplier':
                 return view('dashboard.supplier');
             case 'bakery_manager':
-                return view('dashboard.bakery-manager');
+                // Fetch all new or assigned orders (pending or processing)
+                $orders = \App\Models\Order::whereIn('status', ['pending', 'processing'])->orderBy('created_at', 'desc')->get();
+                return view('dashboard.bakery-manager', compact('orders'));
             case 'distributor':
                 return view('dashboard.distributor');
             case 'retail_manager':
@@ -29,29 +31,25 @@ class DashboardController extends Controller
                     return $item->needsReorder();
                 });
 
-                return view('dashboard.retail-manager', compact('supplierInventory', 'lowStockItems'));
+                // Orders per day (last 7 days)
+                $orderDays = collect();
+                $orderCounts = collect();
+                for ($i = 6; $i >= 0; $i--) {
+                    $date = now()->subDays($i)->toDateString();
+                    $orderDays->push($date);
+                    $orderCounts->push(\App\Models\Order::whereDate('created_at', $date)->count());
+                }
 
-                $recentOrders = \App\Models\Order::where('user_id', $user->id)
-                    ->latest('created_at')
-                    ->take(5)
-                    ->get();
-                $recentMessages = \App\Models\Message::where('receiver_id', $user->id)
-                    ->with('sender')
-                    ->latest()
-                    ->take(5)
-                    ->get();
-                return view('dashboard.customer', compact('recentOrders', 'recentMessages'));
+                // Order status breakdown
+                $statuses = ['pending', 'processing', 'shipped', 'completed', 'cancelled'];
+                $statusCounts = [];
+                foreach ($statuses as $status) {
+                    $statusCounts[$status] = \App\Models\Order::where('status', $status)->count();
+                }
+
+                return view('dashboard.retail-manager', compact('supplierInventory', 'lowStockItems', 'orderDays', 'orderCounts', 'statusCounts'));
             case 'customer':
-                $orders = \App\Models\Order::where('user_id', $user->id)->latest()->take(5)->get();
-                $recentOrders = \App\Models\Order::where('user_id', $user->id)
-                    ->orderBy('created_at', 'desc')
-                    ->limit(5)
-                    ->get();
-                $recentMessages = \App\Models\Message::where('sender_id', $user->id)
-                    ->orderBy('created_at', 'desc')
-                    ->limit(5)
-                    ->get();
-                return view('dashboard.customer', compact('orders', 'recentOrders', 'recentMessages'));
+                return view('dashboard.customer');
             default:
                 // Log out the user and redirect to login with error message
                 \Auth::logout();

@@ -11,17 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('orders', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('vendor_id')->constrained('vendors')->onDelete('cascade');
-            $table->string('customer_name');
-            $table->string('customer_email')->nullable();
-            $table->string('status')->default('pending');
+        Schema::table('orders', function (Blueprint $table) {
             $table->string('fulfillment_type')->nullable();
             $table->string('tracking_number')->nullable();
             $table->string('delivery_option')->nullable();
-            $table->decimal('total', 10, 2)->default(0);
-            $table->timestamps();
         });
     }
 
@@ -30,6 +23,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('orders');
+        Schema::table('orders', function (Blueprint $table) {
+            $table->dropColumn(['fulfillment_type', 'tracking_number', 'delivery_option']);
+        });
     }
 };
