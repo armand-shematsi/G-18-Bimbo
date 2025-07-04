@@ -1,8 +1,8 @@
 import java.sql.*;
+import java.util.regex.Pattern;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 public class VendorValidator {
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
@@ -11,22 +11,15 @@ public class VendorValidator {
     private static final Pattern TAX_ID_PATTERN = Pattern.compile("^\\d{2}-\\d{7}$");
 
     public static void main(String[] args) {
-        // Schedule the validation task to run every 5 minutes
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(VendorValidator::runValidation, 0, 1, TimeUnit.MINUTES);
-
-        // Keep the main thread alive to allow scheduled tasks to run
-        try {
-            Thread.sleep(Long.MAX_VALUE);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        Runnable task = () -> runValidation();
+        scheduler.scheduleAtFixedRate(task, 0, 1, TimeUnit.MINUTES);
     }
 
     private static void runValidation() {
         try (Connection conn = DatabaseUtil.getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM vendors WHERE status = 'pending' LIMIT 100")) {
+             ResultSet rs = stmt.executeQuery("SELECT * FROM vendors WHERE status = 'pending'")) {
 
             while (rs.next()) {
                 Vendor vendor = new Vendor();

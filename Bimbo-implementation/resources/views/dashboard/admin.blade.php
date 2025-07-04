@@ -17,6 +17,10 @@
     <a href="{{ route('admin.users.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
         Manage Users
     </a>
+    <a href="{{ route('customer-segments.import.form') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-blue-600 hover:text-blue-700 hover:border-blue-300 focus:outline-none focus:border-blue-600 transition">
+        <svg class="w-4 h-4 mr-1 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+        Import Customer Segments
+    </a>
 @endsection
 
 @section('content')
@@ -24,6 +28,11 @@
         <div class="px-4 py-6 sm:px-0">
             <h3 class="text-lg leading-6 font-medium text-gray-900">Welcome to the Admin Dashboard</h3>
         </div>
+        @if(session('success'))
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <span class="block sm:inline">{{ session('success') }}</span>
+            </div>
+        @endif
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -46,7 +55,7 @@
             </div>
         </div>
 
-       
+
         </div>
     </div>
-@endsection 
+@endsection

@@ -12,31 +12,55 @@
 @endsection
 
 @section('content')
+    <h1>Supplier Inventory Dashboard</h1>
+
+    <!-- Low Stock Alert Banner for Supplier -->
+    @if(isset($lowStockItems) && $lowStockItems->count() > 0)
+        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6">
+            <div class="font-bold mb-2">Low Stock Alert!</div>
+            <ul class="list-disc pl-6">
+                @foreach($lowStockItems as $item)
+                    <li>
+                        <span class="font-semibold">{{ $item->item_name }}</span> ({{ $item->quantity }} {{ $item->unit }}) is at or below its reorder level ({{ $item->reorder_level }} {{ $item->unit }})
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
         <div class="p-6 text-gray-900">
             <!-- Stat Cards -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div class="bg-blue-50 p-4 rounded-lg">
-                    <div class="text-sm font-medium text-blue-600">Total Items</div>
-                    <div class="text-2xl font-bold text-blue-900">{{ $stats['total'] }}</div>
+                <div class="bg-white p-4 rounded shadow">
+                    <div class="text-sm font-medium text-gray-600">Total Stock In</div>
+                    <div class="text-2xl font-bold text-blue-900">{{ $totalStockIn }}</div>
                 </div>
-                <div class="bg-green-50 p-4 rounded-lg">
-                    <div class="text-sm font-medium text-green-600">Available</div>
-                    <div class="text-2xl font-bold text-green-900">{{ $stats['available'] }}</div>
+                <div class="bg-white p-4 rounded shadow">
+                    <div class="text-sm font-medium text-gray-600">Total Stock Out</div>
+                    <div class="text-2xl font-bold text-red-900">{{ $totalStockOut }}</div>
                 </div>
-                <div class="bg-yellow-50 p-4 rounded-lg">
-                    <div class="text-sm font-medium text-yellow-600">Low Stock</div>
+                <div class="bg-white p-4 rounded shadow">
+                    <div class="text-sm font-medium text-gray-600">Current Stock Items</div>
+                    <div class="text-2xl font-bold text-green-900">{{ $stats['total'] }}</div>
+                </div>
+                <div class="bg-white p-4 rounded shadow">
+                    <div class="text-sm font-medium text-yellow-600">Low Stock Alerts</div>
                     <div class="text-2xl font-bold text-yellow-900">{{ $stats['low_stock'] }}</div>
                 </div>
-                <div class="bg-red-50 p-4 rounded-lg">
+                <div class="bg-white p-4 rounded shadow">
                     <div class="text-sm font-medium text-red-600">Out of Stock</div>
                     <div class="text-2xl font-bold text-red-900">{{ $stats['out_of_stock'] }}</div>
+                </div>
+                <div class="bg-white p-4 rounded shadow">
+                    <div class="text-sm font-medium text-indigo-600">Over Stock (Above Reorder Level)</div>
+                    <div class="text-2xl font-bold text-indigo-900">{{ $stats['over_stock'] }}</div>
                 </div>
             </div>
 
             <!-- Chart.js Pie Chart -->
-            <div class="mb-8">
-                <canvas id="statusChart" width="400" height="200"></canvas>
+            <div class="mb-8 flex justify-center">
+                <canvas id="statusChart" width="300" height="300" style="max-width:300px;max-height:300px;"></canvas>
             </div>
 
             <!-- Export Buttons -->
@@ -50,24 +74,72 @@
             </div>
 
             <!-- Recent Activity Log -->
-            <div class="mb-6">
-                <h3 class="text-lg font-semibold mb-2">Recent Activity</h3>
-                <ul class="divide-y divide-gray-200">
-                    @forelse($recentActivity as $item)
-                        <li class="py-2 flex justify-between items-center">
-                            <span>
-                                <strong>{{ $item->item_name }}</strong> ({{ $item->status }})
-                                <span class="text-xs text-gray-500 ml-2">Updated: {{ $item->updated_at->format('Y-m-d H:i') }}</span>
-                            </span>
-                            <span class="text-xs text-gray-400">ID: {{ $item->id }}</span>
-                        </li>
-                    @empty
-                        <li class="py-2 text-gray-500">No recent activity.</li>
-                    @endforelse
-                </ul>
-            </div>
+            <!-- Removed: Recent Activity section referencing $recentActivity -->
         </div>
     </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white p-4 rounded shadow">
+            <h3 class="text-lg font-semibold mb-2">Daily Stock Movement (Last 7 Days)</h3>
+            <canvas id="movementChart"></canvas>
+        </div>
+        <div class="bg-white p-4 rounded shadow">
+            <h3 class="text-lg font-semibold mb-2">Top Selling Items</h3>
+            <ul>
+                @foreach($topSelling as $item)
+                    <li class="flex justify-between border-b py-1">
+                        <span>{{ $item->product_name }}</span>
+                        <span class="font-bold">{{ $item->total_sold }}</span>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+    </div>
+
+    <div class="bg-white p-4 rounded shadow mb-8">
+        <h3 class="text-lg font-semibold mb-2">Current Stock Levels</h3>
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                @foreach($inventory as $item)
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ $item->item_name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ $item->quantity }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ $item->unit }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            @if($item->status === 'available')
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">In Stock</span>
+                            @elseif($item->status === 'low_stock')
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Low Stock</span>
+                            @else
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Out of Stock</span>
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Analytics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white shadow rounded-lg p-5">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Total Inventory Value</h3>
+            <div class="text-2xl font-bold text-green-700">₦{{ number_format($totalInventoryValue, 2) }}</div>
+        </div>
+        <div class="bg-white shadow rounded-lg p-5">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Stock Level per Item</h3>
+            <canvas id="stockLevelBarChart" height="120"></canvas>
+        </div>
+    </div>
+    <!-- End Analytics Cards -->
 
     <!-- Chart.js Script -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -100,6 +172,56 @@
                     },
                 },
             },
+        });
+
+        const ctxMovement = document.getElementById('movementChart').getContext('2d');
+        const movementChart = new Chart(ctxMovement, {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($dates) !!},
+                datasets: [
+                    {
+                        label: 'Stock In',
+                        data: {!! json_encode($stockInData) !!},
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        fill: true,
+                    },
+                    {
+                        label: 'Stock Out',
+                        data: {!! json_encode($stockOutData) !!},
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                        fill: true,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Stock Movement Trends'
+                    }
+                }
+            }
+        });
+
+        // Stock Level Bar Chart
+        new Chart(document.getElementById('stockLevelBarChart'), {
+            type: 'bar',
+            data: {
+                labels: {!! $stockLevelChartData->pluck('item_name')->toJson() !!},
+                datasets: [{
+                    label: 'Quantity',
+                    data: {!! $stockLevelChartData->pluck('quantity')->toJson() !!},
+                    backgroundColor: '#60a5fa',
+                }]
+            },
+            options: {responsive: true, indexAxis: 'y'}
         });
 
         // Export CSV (client-side)
