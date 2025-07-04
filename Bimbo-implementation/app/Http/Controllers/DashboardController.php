@@ -17,7 +17,9 @@ class DashboardController extends Controller
             case 'supplier':
                 return view('dashboard.supplier');
             case 'bakery_manager':
-                return view('dashboard.bakery-manager');
+                // Fetch all new or assigned orders (pending or processing)
+                $orders = \App\Models\Order::whereIn('status', ['pending', 'processing'])->orderBy('created_at', 'desc')->get();
+                return view('dashboard.bakery-manager', compact('orders'));
             case 'distributor':
                 return view('dashboard.distributor');
             case 'retail_manager':

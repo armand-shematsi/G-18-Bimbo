@@ -41,6 +41,11 @@
                         </svg>
                         {{ ucfirst($order->status) }}
                     </span>
+                    @if($order->tracking_number)
+                        <div class="mt-2 text-indigo-700 text-sm font-semibold">
+                            <strong>Tracking Number:</strong> {{ $order->tracking_number }}
+                        </div>
+                    @endif
                 </div>
                 <form method="POST" action="{{ route('retail.orders.changeStatus', $order->id) }}" class="flex items-center space-x-2">
                     @csrf
@@ -114,8 +119,59 @@
                     @method('DELETE')
                     <button type="submit" class="w-full bg-gradient-to-r from-rose-500 to-rose-700 text-white px-8 py-4 rounded-2xl font-bold shadow-lg hover:from-rose-600 hover:to-rose-800 active:scale-95 transition-all text-lg">Cancel Order</button>
                 </form>
+                @if($order->status === 'delivered')
+                <button type="button" onclick="document.getElementById('returnModal').classList.remove('hidden')" class="flex-1 text-center bg-gradient-to-r from-emerald-500 to-emerald-700 text-white px-8 py-4 rounded-2xl font-bold shadow-lg hover:from-emerald-600 hover:to-emerald-800 active:scale-95 transition-all text-lg">Request Return</button>
+                @endif
+                <button type="button" onclick="document.getElementById('supportModal').classList.remove('hidden')" class="flex-1 text-center bg-gradient-to-r from-blue-500 to-blue-700 text-white px-8 py-4 rounded-2xl font-bold shadow-lg hover:from-blue-600 hover:to-blue-800 active:scale-95 transition-all text-lg">Contact Support</button>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Return Modal -->
+<div id="returnModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg relative">
+        <button onclick="document.getElementById('returnModal').classList.add('hidden')" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+        <h3 class="text-xl font-bold text-emerald-700 mb-4">Request a Return</h3>
+        @if(session('success'))
+            <div class="bg-emerald-100 text-emerald-900 px-4 py-2 rounded-xl mb-4 border-l-4 border-emerald-500 font-semibold shadow">{{ session('success') }}</div>
+        @endif
+        <form method="POST" action="{{ route('retail.orders.return', $order->id) }}">
+            @csrf
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Reason for Return</label>
+                <textarea name="reason" class="border rounded px-2 py-1 w-full" required></textarea>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="bg-emerald-600 text-white px-6 py-2 rounded-xl font-bold shadow hover:bg-emerald-700">Submit Return Request</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Support Modal -->
+<div id="supportModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg relative">
+        <button onclick="document.getElementById('supportModal').classList.add('hidden')" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+        <h3 class="text-xl font-bold text-blue-700 mb-4">Contact Support</h3>
+        @if(session('success'))
+            <div class="bg-blue-100 text-blue-900 px-4 py-2 rounded-xl mb-4 border-l-4 border-blue-500 font-semibold shadow">{{ session('success') }}</div>
+        @endif
+        <form method="POST" action="{{ route('retail.support.store') }}">
+            @csrf
+            <input type="hidden" name="order_id" value="{{ $order->id }}">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Subject</label>
+                <input type="text" name="subject" class="border rounded px-2 py-1 w-full" required>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Message</label>
+                <textarea name="message" class="border rounded px-2 py-1 w-full" required></textarea>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold shadow hover:bg-blue-700">Send Message</button>
+            </div>
+        </form>
     </div>
 </div>
 @endsection 

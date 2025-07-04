@@ -26,6 +26,53 @@
 @endsection
 
 @section('content')
+<!-- New/Assigned Orders Section -->
+<div class="bg-white rounded-xl shadow-lg mb-8 border-l-4 border-blue-600">
+    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <h2 class="text-xl font-bold text-gray-900">New & Assigned Orders</h2>
+        <span class="text-sm text-gray-500">(Pending & Processing)</span>
+    </div>
+    <div class="p-6">
+        @if($orders->count())
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left font-semibold">Order ID</th>
+                            <th class="px-4 py-2 text-left font-semibold">Customer</th>
+                            <th class="px-4 py-2 text-left font-semibold">Status</th>
+                            <th class="px-4 py-2 text-left font-semibold">Placed At</th>
+                            <th class="px-4 py-2 text-left font-semibold">Fulfillment</th>
+                            <th class="px-4 py-2 text-left font-semibold">Delivery</th>
+                            <th class="px-4 py-2 text-left font-semibold">Tracking #</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($orders as $order)
+                        <tr class="border-b">
+                            <td class="px-4 py-2">{{ $order->id }}</td>
+                            <td class="px-4 py-2">{{ $order->customer_name }}</td>
+                            <td class="px-4 py-2 capitalize">{{ $order->status }}</td>
+                            <td class="px-4 py-2">{{ $order->placed_at ? $order->placed_at->format('M d, Y H:i') : '-' }}</td>
+                            <td class="px-4 py-2">{{ $order->fulfillment_type ?? '-' }}</td>
+                            <td class="px-4 py-2">{{ $order->delivery_option ?? '-' }}</td>
+                            <td class="px-4 py-2">{{ $order->tracking_number ?? '-' }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @else
+            <div class="text-center text-gray-500 py-8">
+                <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                <p class="mt-2 text-sm">No new or assigned orders at the moment.</p>
+            </div>
+        @endif
+    </div>
+</div>
+
 <!-- Welcome Banner -->
 <div class="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 rounded-lg shadow-lg mb-8">
     <div class="px-6 py-8">

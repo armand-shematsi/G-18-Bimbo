@@ -14,6 +14,8 @@ use App\Http\Controllers\Bakery\ScheduleController;
 use App\Http\Controllers\Bakery\MaintenanceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkforceController;
+use App\Http\Controllers\OrderReturnController;
+use App\Http\Controllers\SupportRequestController;
 
 
 Route::get('/', function () {
@@ -140,6 +142,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/payments/{payment}/refund', [App\Http\Controllers\Retail\PaymentController::class, 'refund'])->name('payments.refund');
 
         Route::get('/dashboard', [App\Http\Controllers\Retail\DashboardController::class, 'index'])->name('dashboard.retail');
+
+        Route::post('/orders/{order}/return', [\App\Http\Controllers\OrderReturnController::class, 'store'])->name('orders.return');
+        Route::get('/returns', [\App\Http\Controllers\OrderReturnController::class, 'index'])->name('returns.index');
+        Route::get('/returns/{id}', [\App\Http\Controllers\OrderReturnController::class, 'show'])->name('returns.show');
+
+        Route::post('/support', [\App\Http\Controllers\SupportRequestController::class, 'store'])->name('support.store');
+        Route::get('/support', [\App\Http\Controllers\SupportRequestController::class, 'index'])->name('support.index');
+        Route::get('/support/{id}', [\App\Http\Controllers\SupportRequestController::class, 'show'])->name('support.show');
     });
 
     // Distributor Routes

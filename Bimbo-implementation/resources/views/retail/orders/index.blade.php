@@ -26,6 +26,7 @@
                             <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Order #</th>
                             <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Customer</th>
                             <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Tracking Number</th>
                             <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Total</th>
                             <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Placed At</th>
                             <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Actions</th>
@@ -53,6 +54,7 @@
                                     {{ ucfirst($order->status) }}
                                 </span>
                             </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-blue-900">{{ $order->tracking_number ?? '-' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-lg font-bold text-blue-900">${{ number_format($order->total, 2) }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ $order->placed_at }}</td>
                             <td class="px-6 py-4 whitespace-nowrap flex space-x-2">
