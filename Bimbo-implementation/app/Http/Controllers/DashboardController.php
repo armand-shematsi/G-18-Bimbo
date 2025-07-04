@@ -43,7 +43,15 @@ class DashboardController extends Controller
                 return view('dashboard.customer', compact('recentOrders', 'recentMessages'));
             case 'customer':
                 $orders = \App\Models\Order::where('user_id', $user->id)->latest()->take(5)->get();
-                return view('dashboard.customer', compact('orders'));
+                $recentOrders = \App\Models\Order::where('user_id', $user->id)
+                    ->orderBy('created_at', 'desc')
+                    ->limit(5)
+                    ->get();
+                $recentMessages = \App\Models\Message::where('sender_id', $user->id)
+                    ->orderBy('created_at', 'desc')
+                    ->limit(5)
+                    ->get();
+                return view('dashboard.customer', compact('orders', 'recentOrders', 'recentMessages'));
             default:
                 // Log out the user and redirect to login with error message
                 \Auth::logout();
@@ -179,4 +187,6 @@ class DashboardController extends Controller
             ],
         ]);
     }
+
+
 }
