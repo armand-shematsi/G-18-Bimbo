@@ -30,6 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('vendors', VendorController::class);
         Route::resource('users', UserController::class);
         Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
+Route::get('/analytics/sales-predictions', [AnalyticsController::class, 'salesPredictions'])->name('analytics.sales_predictions');
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
         Route::post('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
         Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
