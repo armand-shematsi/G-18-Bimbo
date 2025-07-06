@@ -36,6 +36,7 @@ class ProductionBatchController extends Controller
             'actual_start' => 'nullable|date',
             'actual_end' => 'nullable|date',
             'notes' => 'nullable|string',
+            'quantity' => 'nullable|integer|min:0',
         ]);
         ProductionBatch::create($validated);
         return redirect()->route('bakery.batches.index')->with('success', 'Production batch created successfully.');
@@ -70,6 +71,7 @@ class ProductionBatchController extends Controller
             'actual_start' => 'nullable|date',
             'actual_end' => 'nullable|date',
             'notes' => 'nullable|string',
+            'quantity' => 'nullable|integer|min:0',
         ]);
         $batch->update($validated);
         return redirect()->route('bakery.batches.index')->with('success', 'Production batch updated successfully.');

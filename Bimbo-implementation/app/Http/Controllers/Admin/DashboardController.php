@@ -45,4 +45,10 @@ class DashboardController extends Controller
         $alerts = MaintenanceTask::where('status', 'active')->count();
         return response()->json(['alerts' => $alerts]);
     }
+
+    public function sendSupplierReports(Request $request)
+    {
+        // TODO: Implement actual report sending logic
+        return redirect()->back()->with('status', 'Supplier reports sent successfully!');
+    }
 }

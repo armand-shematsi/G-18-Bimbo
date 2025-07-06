@@ -17,7 +17,20 @@ class DashboardController extends Controller
             case 'supplier':
                 return view('dashboard.supplier');
             case 'bakery_manager':
-                return view('dashboard.bakery-manager');
+                $staff = \App\Models\User::where('role', 'staff')->get();
+                $supplyCenters = \App\Models\SupplyCenter::all();
+                // Count active staff: those with a shift where now is between start_time and end_time
+                $now = now();
+                $activeStaffCount = \App\Models\Shift::whereNotNull('user_id')
+                    ->where('start_time', '<=', $now)
+                    ->where('end_time', '>=', $now)
+                    ->distinct('user_id')
+                    ->count('user_id');
+                // Fetch production target from settings
+                $productionTarget = optional(\App\Models\Setting::where('key', 'production_target')->first())->value;
+                // Sum today's output from production batches
+                $todaysOutput = \App\Models\ProductionBatch::whereDate('scheduled_start', now()->toDateString())->sum('quantity');
+                return view('dashboard.bakery-manager', compact('staff', 'supplyCenters', 'activeStaffCount', 'productionTarget', 'todaysOutput'));
             case 'distributor':
                 return view('dashboard.distributor');
             case 'retail_manager':
@@ -29,18 +42,28 @@ class DashboardController extends Controller
                     return $item->needsReorder();
                 });
 
-                return view('dashboard.retail-manager', compact('supplierInventory', 'lowStockItems'));
+                // Compute order analytics for the last 7 days
+                $orderDays = [];
+                $orderCounts = [];
+                $userId = $user->id;
+                for ($i = 6; $i >= 0; $i--) {
+                    $date = now()->subDays($i)->toDateString();
+                    $orderDays[] = $date;
+                    $orderCounts[] = \App\Models\Order::where('user_id', $userId)
+                        ->whereDate('created_at', $date)
+                        ->count();
+                }
 
-                $recentOrders = \App\Models\Order::where('user_id', $user->id)
-                    ->latest('created_at')
-                    ->take(5)
-                    ->get();
-                $recentMessages = \App\Models\Message::where('receiver_id', $user->id)
-                    ->with('sender')
-                    ->latest()
-                    ->take(5)
-                    ->get();
-                return view('dashboard.customer', compact('recentOrders', 'recentMessages'));
+                // Compute order status breakdown for this user
+                $statuses = ['pending', 'processing', 'shipped', 'completed', 'cancelled'];
+                $statusCounts = [];
+                foreach ($statuses as $status) {
+                    $statusCounts[$status] = \App\Models\Order::where('user_id', $userId)
+                        ->where('status', $status)
+                        ->count();
+                }
+
+                return view('dashboard.retail-manager', compact('supplierInventory', 'lowStockItems', 'orderDays', 'orderCounts', 'statusCounts'));
             case 'customer':
                 $recentOrders = \App\Models\Order::where('user_id', $user->id)->latest()->take(5)->get();
                 $recentMessages = \App\Models\Message::where('receiver_id', $user->id)
@@ -95,7 +118,7 @@ class DashboardController extends Controller
                 'actual_start' => $batch->actual_start,
                 'actual_end' => $batch->actual_end,
                 'notes' => $batch->notes,
-                'assigned_staff' => $batch->shifts->map(function($shift) {
+                'assigned_staff' => $batch->shifts->map(function ($shift) {
                     return $shift->user ? $shift->user->name : 'Unassigned';
                 })->join(', '),
             ];

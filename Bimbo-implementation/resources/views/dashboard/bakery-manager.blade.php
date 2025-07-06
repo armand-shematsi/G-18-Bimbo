@@ -7,7 +7,7 @@
         <p class="mt-1 text-sm text-gray-600">Welcome back, {{ auth()->user()->name ?? 'Bakery Manager' }}! Here's your bakery overview.</p>
     </div>
     <div class="text-right">
-        <p class="text-sm text-gray-500">Last updated</p>
+        <p class="text-sm text-gray-500 mt-2">Last updated</p>
         <p class="text-sm font-medium text-gray-900">{{ now()->format('M d, Y H:i') }}</p>
     </div>
 </div>
@@ -17,17 +17,17 @@
 <a href="{{ route('bakery.production') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
     Production Monitoring
 </a>
-<a href="{{ route('bakery.schedule') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
-    Workforce Schedule
-</a>
 <a href="{{ route('bakery.maintenance') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
     Machine Maintenance
+</a>
+<a href="{{ route('bakery.order-processing') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
+    Order Processing
 </a>
 @endsection
 
 @section('content')
 <!-- Welcome Banner -->
-<div class="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 rounded-lg shadow-lg mb-8">
+<div class="bg-gradient-to-r from-sky-400 via-sky-500 to-sky-600 rounded-lg shadow-lg mb-8">
     <div class="px-6 py-8">
         <div class="flex items-center justify-between">
             <div class="text-white">
@@ -42,10 +42,10 @@
                         }
                         @endphp
                         <h2 class="text-2xl font-bold mb-2">{{ $greeting }}, {{ auth()->user()->name ?? 'Bakery Manager' }}!</h2>
-                        <p class="text-pink-100">Monitor production, manage workforce, and keep your bakery running smoothly</p>
+                        <p class="text-sky-100">Monitor production, manage workforce, and keep your bakery running smoothly</p>
             </div>
             <div class="hidden md:block">
-                <svg class="w-24 h-24 text-pink-200" fill="currentColor" viewBox="0 0 24 24">
+                <svg class="w-24 h-24 text-sky-200" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                 </svg>
             </div>
@@ -67,7 +67,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Today's Output</p>
-                <p class="text-2xl font-bold text-gray-900 production-output">-</p>
+                <p class="text-2xl font-bold text-gray-900 production-output">{{ $todaysOutput ?? '-' }}</p>
                 <p class="text-xs text-gray-500">Loaves produced</p>
             </div>
         </div>
@@ -84,7 +84,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Production Target</p>
-                <p class="text-2xl font-bold text-gray-900 production-target">-</p>
+                <p class="text-2xl font-bold text-gray-900 production-target">{{ $productionTarget ?? '-' }}</p>
                 <p class="text-xs text-gray-500">Target for today</p>
             </div>
         </div>
@@ -101,7 +101,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Active Staff</p>
-                <p class="text-2xl font-bold text-gray-900 active-staff">-</p>
+                <p class="text-2xl font-bold text-gray-900 active-staff">{{ $activeStaffCount ?? '-' }}</p>
                 <p class="text-xs text-gray-500">On duty now</p>
             </div>
         </div>
@@ -125,6 +125,12 @@
     </div>
 </div>
 
+<!-- Success Message -->
+<div id="shift-message" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 hidden">
+    <span id="shift-message-text"></span>
+    <button onclick="document.getElementById('shift-message').classList.add('hidden')" class="float-right text-sm text-green-500 hover:text-green-700">&times;</button>
+</div>
+
 <!-- Main Content Grid -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     <!-- Quick Actions & Alerts (1/3) -->
@@ -145,15 +151,15 @@
                         <p class="text-xs text-blue-100">Start Batch</p>
                     </div>
                 </a>
-                <a href="{{ route('bakery.schedule') }}" class="flex items-center p-4 bg-gradient-to-r from-green-500 to-green-600 rounded-lg text-white w-full mb-2 hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105">
+                <a href="{{ route('bakery.workforce.shifts') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full mb-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105">
                     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="font-medium">Schedule Workforce</p>
-                        <p class="text-xs text-green-100">Assign Shifts</p>
+                        <p class="font-medium">Shift Scheduling</p>
+                        <p class="text-xs text-blue-100">Plan staff shifts</p>
                     </div>
                 </a>
                 <a href="{{ route('bakery.maintenance') }}" class="flex items-center p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg text-white w-full mb-2 hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 transform hover:scale-105">
@@ -167,6 +173,28 @@
                         <p class="text-xs text-yellow-100">Log Maintenance</p>
                     </div>
                 </a>
+                <a href="{{ route('bakery.order-processing') }}" class="flex items-center p-4 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg text-white w-full mb-2 hover:from-indigo-600 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="font-medium">Order Processing</p>
+                        <p class="text-xs text-indigo-100">Place/Receive Orders</p>
+                    </div>
+                </a>
+                <button onclick="document.getElementById('assignShiftModal').style.display='flex'" class="flex items-center p-4 bg-gradient-to-r from-green-500 to-green-600 rounded-lg text-white w-full mb-2 hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="font-medium">Assign Shift</p>
+                        <p class="text-xs text-green-100">Schedule Staff</p>
+                    </div>
+                </button>
             </div>
         </div>
         <!-- Ingredient Alerts and Machine Alerts removed; assign to their respective dashboards -->
@@ -281,15 +309,23 @@
 </div>
 
 <!-- Assign Shift Modal -->
-<div id="assignShiftModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:1000; align-items:center; justify-content:center;">
+<div id="assignShiftModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:1000; align-items:center; justify-content:center;" onclick="if(event.target===this)this.style.display='none'">
     <div style="background:#fff; padding:2rem; border-radius:8px; max-width:400px; margin:auto; position:relative;">
         <button onclick="document.getElementById('assignShiftModal').style.display='none'" style="position:absolute; top:8px; right:12px;">&times;</button>
         <h2 class="text-lg font-bold mb-4">Assign Shift</h2>
-        <form id="assignShiftForm">
+        <form id="assignShiftForm" data-staff-centers="{{ json_encode($staff->pluck('supply_center_id', 'id')) }}">
             <label>Staff:</label>
             <select name="user_id" class="w-full mb-4 border rounded p-2" required>
-                @foreach(\App\Models\User::where('role', 'staff')->get() as $staff)
-                <option value="{{ $staff->id }}">{{ $staff->name }}</option>
+                <option value="">Select Staff</option>
+                @foreach($staff as $staffMember)
+                <option value="{{ $staffMember->id }}">{{ $staffMember->name }}</option>
+                @endforeach
+            </select>
+            <label>Supply Center:</label>
+            <select name="supply_center_id" class="w-full mb-4 border rounded p-2" required>
+                <option value="">Select Center</option>
+                @foreach($supplyCenters as $center)
+                <option value="{{ $center->id }}">{{ $center->name }}</option>
                 @endforeach
             </select>
             <label>Start Time:</label>
@@ -299,11 +335,6 @@
             <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Assign</button>
         </form>
     </div>
-</div>
-
-<!-- Add Assign Shifts Button -->
-<div class="flex justify-end mb-4">
-    <button id="openAssignShiftModal" class="bg-green-600 text-white px-4 py-2 rounded">Assign Shifts</button>
 </div>
 
 <!-- Start Batch Modal -->
@@ -332,412 +363,9 @@
         </form>
     </div>
 </div>
-
-<!-- Add Start Batch Button -->
-<div class="flex justify-end mb-4">
-    <button id="openStartBatchModal" class="bg-blue-600 text-white px-4 py-2 rounded">+ Start Batch</button>
-</div>
 @endsection
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // --- Live Production Monitoring ---
-    function fetchProductionLive() {
-        const tbody = document.querySelector('.production-batch-tbody');
-        tbody.innerHTML = `<tr><td colspan='7' class='text-center text-gray-400 py-4'>Loading...</td></tr>`;
-        fetch('/bakery/api/production-batches')
-            .then(res => res.json())
-            .then(batches => {
-                tbody.innerHTML = '';
-                if (!batches || batches.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan='7' class='text-center text-gray-400 py-4'>No batches found.</td></tr>`;
-                } else {
-                    batches.forEach(batch => {
-                        function fmt(dt) {
-                            if (!dt) return '-';
-                            const d = new Date(dt);
-                            if (isNaN(d)) return dt;
-                            return d.toLocaleString('en-US', {
-                                month: '2-digit',
-                                day: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            });
-                        }
-                        let badgeClass = 'bg-gray-200 text-gray-800';
-                        if (batch.status === 'active' || batch.status === 'Active') badgeClass = 'bg-blue-200 text-blue-800';
-                        if (batch.status === 'completed' || batch.status === 'Completed') badgeClass = 'bg-green-200 text-green-800';
-                        if (batch.status === 'delayed' || batch.status === 'Delayed') badgeClass = 'bg-red-200 text-red-800';
-                        tbody.innerHTML += `<tr>
-                            <td>${batch.name}</td>
-                            <td><span class='px-2 py-1 rounded ${badgeClass}'>${batch.status}</span></td>
-                            <td>${fmt(batch.scheduled_start)}</td>
-                            <td>${fmt(batch.actual_start)}</td>
-                            <td>${fmt(batch.actual_end)}</td>
-                            <td title='${batch.notes ?? ''}'>${batch.notes ? batch.notes.substring(0, 30) + (batch.notes.length > 30 ? '...' : '') : '-'}</td>
-                            <td>
-                                <button onclick="openBatchModal(${encodeURIComponent(JSON.stringify(batch))})" class='text-xs px-2 py-1 bg-yellow-400 rounded mr-1'>Edit</button>
-                                <button onclick="updateBatchStatus(${batch.id}, 'active')" class='text-xs px-2 py-1 bg-blue-400 rounded mr-1'>Start</button>
-                                <button onclick="updateBatchStatus(${batch.id}, 'completed')" class='text-xs px-2 py-1 bg-green-400 rounded mr-1'>Complete</button>
-                                <button onclick="updateBatchStatus(${batch.id}, 'delayed')" class='text-xs px-2 py-1 bg-red-400 rounded'>Delay</button>
-                            </td>
-                        </tr>`;
-                    });
-                }
-            });
-    }
-    fetchProductionLive();
-    setInterval(fetchProductionLive, 2000);
-
-    // --- Live Workforce ---
-    function fetchWorkforceLive() {
-        fetch("{{ route('bakery.bakery.workforce-live') }}")
-            .then(res => res.json())
-            .then(data => {
-                const staffList = document.querySelector('.workforce-staff-list');
-                staffList.innerHTML = '';
-                data.staff.forEach(staff => {
-                    staffList.innerHTML += `<li>${staff.name} (${staff.role})</li>`;
-                });
-                const assignList = document.querySelector('.workforce-assign-list');
-                assignList.innerHTML = '';
-                data.assignments.forEach(a => {
-                    assignList.innerHTML += `<li>${a.staff} assigned to ${a.batch}.</li>`;
-                });
-            });
-    }
-    // --- Live Machines ---
-    function fetchMachinesLive() {
-        fetch("{{ route('bakery.bakery.machines-live') }}")
-            .then(res => res.json())
-            .then(data => {
-                const machineList = document.querySelector('.machine-status-list');
-                machineList.innerHTML = '';
-                data.machines.forEach(m => {
-                    let color = m.status === 'Running' ? 'text-green-600' : (m.status === 'Maintenance' ? 'text-yellow-600' : 'text-red-600');
-                    machineList.innerHTML += `<li>${m.name}: <span class='${color}'>${m.status}</span></li>`;
-                });
-                const alertList = document.querySelector('.machine-alert-list');
-                alertList.innerHTML = '';
-                data.alerts.forEach(alert => {
-                    alertList.innerHTML += `<li>${alert}</li>`;
-                });
-            });
-    }
-    // --- Live Ingredients ---
-    function fetchIngredientsLive() {
-        fetch("{{ route('bakery.bakery.ingredients-live') }}")
-            .then(res => res.json())
-            .then(data => {
-                const ingList = document.querySelector('.ingredient-list');
-                ingList.innerHTML = '';
-                data.ingredients.forEach(i => {
-                    let alert = i.alert ? ` <span class='text-red-600'>(${i.alert})</span>` : '';
-                    ingList.innerHTML += `<li>${i.name}: ${i.stock}kg${alert}</li>`;
-                });
-            });
-    }
-    // --- Live Notifications ---
-    function fetchNotificationsLive() {
-        fetch("{{ route('bakery.bakery.notifications-live') }}")
-            .then(res => res.json())
-            .then(data => {
-                const notifLists = document.querySelectorAll('.notification-list');
-                notifLists.forEach(list => {
-                    list.innerHTML = '';
-                    data.notifications.forEach(n => {
-                        list.innerHTML += `<li>${n}</li>`;
-                    });
-                });
-            });
-    }
-    // --- Live Chat ---
-    function fetchChatLive() {
-        fetch("{{ route('bakery.bakery.chat-live') }}")
-            .then(res => res.json())
-            .then(data => {
-                const chatBox = document.querySelector('.chat-messages');
-                chatBox.innerHTML = '';
-                data.messages.forEach(m => {
-                    chatBox.innerHTML += `<div><span class='font-bold'>${m.user}:</span> ${m.message}</div>`;
-                });
-            });
-    }
-    // Initial fetch and polling
-    function fetchAllLive() {
-        fetchProductionLive();
-        fetchWorkforceLive();
-        fetchMachinesLive();
-        fetchIngredientsLive();
-        fetchNotificationsLive();
-        fetchChatLive();
-        fetchStaffOnDuty();
-    }
-    fetchAllLive();
-    setInterval(fetchAllLive, 15000);
-
-    // --- Workforce Management AJAX ---
-    function fetchTasks() {
-        fetch("{{ route('bakery.workforce.tasks') }}")
-            .then(res => res.json())
-            .then(data => {
-                const tbody = document.querySelector('.task-list-tbody');
-                tbody.innerHTML = '';
-                data.forEach(task => {
-                    tbody.innerHTML += `<tr>
-                        <td class='px-4 py-3'>${task.title}</td>
-                        <td class='px-4 py-3'>${task.user ? task.user.name : ''}</td>
-                        <td class='px-4 py-3'>${task.shift ? task.shift.name : ''}</td>
-                        <td class='px-4 py-3'>${task.status.replace('_', ' ')}</td>
-                        <td class='px-4 py-3'>
-                            <select onchange="updateTaskStatus(${task.id}, this.value)">
-                                <option value="pending" ${task.status === 'pending' ? 'selected' : ''}>Pending</option>
-                                <option value="in_progress" ${task.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
-                                <option value="completed" ${task.status === 'completed' ? 'selected' : ''}>Completed</option>
-                                <option value="reassigned" ${task.status === 'reassigned' ? 'selected' : ''}>Reassigned</option>
-                            </select>
-                        </td>
-                    </tr>`;
-                });
-            });
-    }
-
-    function openAssignTaskModal() {
-        document.getElementById('assignTaskModal').classList.remove('hidden');
-        const userSelect = document.querySelector('#assignTaskForm select[name=user_id]');
-        const shiftSelect = document.querySelector('#assignTaskForm select[name=shift_id]');
-        userSelect.innerHTML = '<option>Loading...</option>';
-        shiftSelect.innerHTML = '<option>Loading...</option>';
-        // Fetch only available workers (not absent/on leave)
-        fetch('/api/staff-availability?week=' + new Date().toISOString().slice(0, 10))
-            .then(res => res.json())
-            .then(data => {
-                // Only show workers present or unknown today
-                const today = new Date().toISOString().slice(0, 10);
-                const available = data.availability.filter(u => u.availability[today] === 'present' || u.availability[today] === 'unknown');
-                if (available.length === 0) {
-                    userSelect.innerHTML = '<option disabled>No available staff</option>';
-                    document.querySelector('#assignTaskForm button[type=submit]').disabled = true;
-                } else {
-                    userSelect.innerHTML = available.map(u => `<option value="${u.id}">${u.name} (${u.role})</option>`).join('');
-                    document.querySelector('#assignTaskForm button[type=submit]').disabled = false;
-                }
-            });
-        fetch("/api/shifts")
-            .then(res => res.json())
-            .then(shifts => {
-                shiftSelect.innerHTML = '<option value="">--None--</option>' + shifts.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
-            });
-    }
-
-    function closeAssignTaskModal() {
-        document.getElementById('assignTaskModal').classList.add('hidden');
-    }
-    document.getElementById('assignTaskForm').onsubmit = function(e) {
-        e.preventDefault();
-        const form = e.target;
-        const data = Object.fromEntries(new FormData(form));
-        const submitBtn = form.querySelector('button[type=submit]');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Assigning...';
-        fetch("{{ route('bakery.workforce.assign-task') }}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify(data)
-        }).then(res => res.json()).then(() => {
-            closeAssignTaskModal();
-            fetchTasks();
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Assign';
-        }).catch(() => {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Assign';
-            alert('Failed to assign task.');
-        });
-    };
-
-    function updateTaskStatus(taskId, status) {
-        fetch(`{{ url('bakery/workforce/update-task') }}/${taskId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({
-                status
-            })
-        }).then(res => res.json()).then(() => fetchTasks());
-    }
-
-    function autoReassignTasks() {
-        const btn = event.currentTarget;
-        btn.disabled = true;
-        btn.textContent = 'Reassigning...';
-        fetch("{{ route('bakery.workforce.auto-reassign') }}", {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(res => res.json())
-            .then(() => {
-                btn.disabled = false;
-                btn.textContent = 'Auto-Reassign';
-                alert('Auto-reassignment complete!');
-            })
-            .catch(() => {
-                btn.disabled = false;
-                btn.textContent = 'Auto-Reassign';
-                alert('Failed to auto-reassign.');
-            });
-    }
-
-    function fetchStaffOnDuty() {
-        fetch('/api/staff-on-duty')
-            .then(res => res.json())
-            .then(data => {
-                const staffList = document.querySelector('.workforce-staff-list');
-                staffList.innerHTML = `<li class='font-bold mb-1'>Staff on Duty: ${data.count}</li>`;
-                data.staff.forEach(staff => {
-                    staffList.innerHTML += `<li>${staff.name} (${staff.role})</li>`;
-                });
-            });
-    }
-    // Initial fetch
-    fetchTasks();
-    fetchStaffOnDuty();
-
-    function openBatchModal(batch = null) {
-        document.getElementById('batchModal').classList.remove('hidden');
-        document.getElementById('batchForm').reset();
-        document.getElementById('batch_id').value = '';
-        document.getElementById('batchModalTitle').innerText = batch ? 'Edit Batch' : 'New Batch';
-        if (batch) {
-            batch = typeof batch === 'string' ? JSON.parse(decodeURIComponent(batch)) : batch;
-            document.getElementById('batch_id').value = batch.id;
-            document.getElementById('batch_name').value = batch.name;
-            document.getElementById('batch_status').value = batch.status;
-            document.getElementById('batch_scheduled_start').value = batch.scheduled_start ? batch.scheduled_start.substring(0, 16) : '';
-            document.getElementById('batch_actual_start').value = batch.actual_start ? batch.actual_start.substring(0, 16) : '';
-            document.getElementById('batch_actual_end').value = batch.actual_end ? batch.actual_end.substring(0, 16) : '';
-            document.getElementById('batch_notes').value = batch.notes || '';
-        }
-    }
-
-    function closeBatchModal() {
-        document.getElementById('batchModal').classList.add('hidden');
-    }
-    document.getElementById('batchForm').onsubmit = function(e) {
-        e.preventDefault();
-        const id = document.getElementById('batch_id').value;
-        const url = id ? `/bakery/api/production-batches/${id}` : '/bakery/api/production-batches';
-        const method = id ? 'PUT' : 'POST';
-        const formData = new FormData(this);
-        const data = {};
-        formData.forEach((v, k) => data[k] = v);
-        fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify(data)
-            })
-            .then(res => res.json())
-            .then(res => {
-                if (res.success) {
-                    closeBatchModal();
-                    fetchProductionLive();
-                } else {
-                    alert('Error saving batch');
-                }
-            });
-    };
-
-    function updateBatchStatus(id, status) {
-        fetch(`/bakery/api/production-batches/${id}/status`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    status
-                })
-            })
-            .then(res => res.json())
-            .then(res => {
-                if (res.success) fetchProductionLive();
-                else alert('Error updating status');
-            });
-    }
-
-    // Show modal on button click
-    document.getElementById('openAssignShiftModal').onclick = function() {
-        document.getElementById('assignShiftModal').style.display = 'flex';
-    };
-    // Handle form submit
-    document.getElementById('assignShiftForm').onsubmit = function(e) {
-        e.preventDefault();
-        const form = e.target;
-        fetch('/batches/1/assign-shift', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    user_id: form.user_id.value,
-                    start_time: form.start_time.value,
-                    end_time: form.end_time.value
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Shift assigned!');
-                    document.getElementById('assignShiftModal').style.display = 'none';
-                } else {
-                    alert('Error assigning shift');
-                }
-            });
-    };
-
-    document.getElementById('openStartBatchModal').onclick = function() {
-        document.getElementById('startBatchModal').style.display = 'flex';
-    };
-    document.getElementById('startBatchForm').onsubmit = function(e) {
-        e.preventDefault();
-        const form = e.target;
-        fetch('/batches', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    name: form.name.value,
-                    production_line_id: form.production_line_id.value,
-                    scheduled_start: form.scheduled_start.value,
-                    notes: form.notes.value,
-                    status: 'Active'
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Batch started!');
-                    document.getElementById('startBatchModal').style.display = 'none';
-                    location.reload();
-                } else {
-                    alert('Error starting batch');
-                }
-            });
-    };
-</script>
+<script src="{{ asset('js/bakery-manager.js') }}"></script>
 @endpush

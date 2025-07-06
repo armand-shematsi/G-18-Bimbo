@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,6 +15,7 @@
     <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="font-sans antialiased">
     <div class="min-h-screen bg-gray-100">
         <!-- Navigation -->
@@ -32,11 +34,14 @@
                             <a href="{{ route('bakery.production') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('bakery.production') ? 'border-indigo-400 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 focus:outline-none focus:border-indigo-700 transition duration-150 ease-in-out">
                                 Production Monitoring
                             </a>
-                            <a href="{{ route('bakery.schedule') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('bakery.schedule') ? 'border-indigo-400 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 focus:outline-none focus:border-indigo-700 transition duration-150 ease-in-out">
-                                Workforce Schedule
+                            <a href="{{ route('workforce.overview', array_filter(['supply_center_id' => request('supply_center_id')])) }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('workforce.overview') ? 'border-indigo-400 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 focus:outline-none focus:border-indigo-700 transition duration-150 ease-in-out">
+                                Workforce Distribution Management
                             </a>
                             <a href="{{ route('bakery.maintenance') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('bakery.maintenance') ? 'border-indigo-400 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 focus:outline-none focus:border-indigo-700 transition duration-150 ease-in-out">
                                 Machine Maintenance
+                            </a>
+                            <a href="{{ route('bakery.order-processing') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('bakery.order-processing') ? 'border-indigo-400 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 focus:outline-none focus:border-indigo-700 transition duration-150 ease-in-out">
+                                Order Processing
                             </a>
                         </div>
                     </div>
@@ -88,5 +93,7 @@
             document.getElementById('user-menu').classList.toggle('hidden');
         });
     </script>
+    @stack('scripts')
 </body>
-</html> 
+
+</html>

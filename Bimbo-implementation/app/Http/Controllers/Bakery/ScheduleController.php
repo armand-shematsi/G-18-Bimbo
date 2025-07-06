@@ -94,4 +94,4 @@ class ScheduleController extends Controller
             'nextWeek' => $nextWeek,
         ]);
     }
-} 
+}
