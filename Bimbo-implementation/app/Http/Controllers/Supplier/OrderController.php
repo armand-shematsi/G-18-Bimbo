@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Vendor;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -54,7 +55,7 @@ class OrderController extends Controller
         ]);
 
         try {
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             // Get the first existing vendor's id
             $vendorId = Vendor::query()->value('id');
@@ -89,13 +90,12 @@ class OrderController extends Controller
             // Update order total
             $order->update(['total' => $total]);
 
-            \DB::commit();
+            DB::commit();
 
-            return redirect()->route('supplier.orders')
+            return redirect()->route('supplier.orders.index')
                 ->with('success', 'Order created successfully.');
-
         } catch (\Exception $e) {
-            \DB::rollback();
+            DB::rollback();
             return back()->withInput()->withErrors(['error' => 'Failed to create order: ' . $e->getMessage()]);
         }
     }
@@ -118,6 +118,31 @@ class OrderController extends Controller
     }
 
     /**
+     * Update the specified order.
+     */
+    public function update(Request $request, Order $order)
+    {
+        // Use the first vendor's id (used when creating orders)
+        $vendorId = \App\Models\Vendor::query()->value('id');
+        // Ensure the order belongs to the current supplier
+        if ($order->vendor_id !== $vendorId) {
+            abort(403, 'Unauthorized access to this order.');
+        }
+
+        $validated = $request->validate([
+            'customer_name' => 'required|string|max:255',
+            'customer_email' => 'required|email',
+            'status' => 'required|in:pending,processing,shipped,delivered,cancelled',
+            'notes' => 'nullable|string',
+        ]);
+
+        $order->update($validated);
+
+        return redirect()->route('supplier.orders.show', $order)
+            ->with('success', 'Order updated successfully.');
+    }
+
+    /**
      * Update order status.
      */
     public function updateStatus(Request $request, Order $order)
@@ -136,5 +161,27 @@ class OrderController extends Controller
         $order->update(['status' => $validated['status']]);
 
         return redirect()->back()->with('success', 'Order status updated successfully.');
+    }
+
+    /**
+     * Update the specified order (resource route).
+     */
+    public function update(Request $request, Order $order)
+    {
+        // Use the first vendor's id (used when creating orders)
+        $vendorId = \App\Models\Vendor::query()->value('id');
+        // Ensure the order belongs to the current supplier
+        if ($order->vendor_id !== $vendorId) {
+            abort(403, 'Unauthorized access to this order.');
+        }
+
+        $validated = $request->validate([
+            'customer_name' => 'required|string|max:255',
+            'customer_email' => 'required|email',
+        ]);
+
+        $order->update($validated);
+
+        return redirect()->route('supplier.orders.show', $order)->with('success', 'Order updated successfully.');
     }
 }

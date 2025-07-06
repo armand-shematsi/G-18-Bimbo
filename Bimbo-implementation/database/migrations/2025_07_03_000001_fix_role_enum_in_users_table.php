@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->dropColumn('role');
         });
         Schema::table('users', function (Blueprint $table) {
-            $table->enum('role', ['admin', 'supplier', 'bakery_manager', 'distributor', 'retail_manager', 'pending', 'rejected', 'staff'])
+            $table->enum('role', ['admin', 'supplier', 'bakery_manager', 'distributor', 'retail_manager', 'pending', 'rejected', 'customer', 'staff'])
                 ->default('pending')
                 ->after('email');
         });
@@ -22,7 +22,7 @@ return new class extends Migration {
             $table->dropColumn('role');
         });
         Schema::table('users', function (Blueprint $table) {
-            $table->enum('role', ['admin', 'supplier', 'bakery_manager', 'distributor', 'retail_manager', 'pending', 'rejected'])
+            $table->enum('role', ['admin', 'supplier', 'bakery_manager', 'distributor', 'retail_manager', 'pending', 'rejected', 'customer', 'staff'])
                 ->default('pending')
                 ->after('email');
         });

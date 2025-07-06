@@ -1,0 +1,5 @@
+,purchase_frequency,purchase_frequency,purchase_frequency,avg_spending,avg_spending,total_spending,total_spending,customer_lifetime,customer_lifetime,satisfaction,satisfaction,spending_per_month,spending_per_month,value_score,value_score
+,mean,std,count,mean,std,mean,sum,mean,std,mean,std,mean,std,mean,std
+segment,,,,,,,,,,,,,,,
+0,9.27,2.36,120,13164.97,4174.29,119577.65,14349318.58,17.79,12.53,4.06,0.74,10055.42,6847.89,476610.86,163273.3
+1,12.22,2.57,80,18101.49,4286.97,217961.85,17436948.0,10.4,7.1,4.34,0.59,29581.65,18018.86,939378.4,268115.26

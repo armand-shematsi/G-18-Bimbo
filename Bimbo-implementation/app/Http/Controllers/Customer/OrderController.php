@@ -81,38 +81,6 @@ class OrderController extends Controller
         foreach ($orderItems as $item) {
             $order->items()->create($item);
         }
-        return redirect()->route('customer.orders.index')->with('success', 'Order placed successfully!');
-    }
-
-    /**
-     * Display the specified order.
-     */
-    public function show(Order $order)
-    {
-        // Ensure the order belongs to the authenticated customer
-        if ($order->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized access to this order.');
-        }
-
-        $order->load(['items']);
-        return view('customer.orders.show', compact('order'));
-    }
-
-    /**
-     * Cancel an order (only if it's still pending)
-     */
-    public function cancel(Order $order)
-    {
-        // Ensure the order belongs to the authenticated customer
-        if ($order->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized access to this order.');
-        }
-
-        if ($order->status !== 'pending') {
-            return back()->withErrors(['order' => 'Only pending orders can be cancelled.']);
-        }
-
-        $order->update(['status' => 'cancelled']);
-        return redirect()->route('customer.orders.index')->with('success', 'Order cancelled successfully!');
+        return redirect()->route('dashboard')->with('success', 'Order placed successfully!');
     }
 }

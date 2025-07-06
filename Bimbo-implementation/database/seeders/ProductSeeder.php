@@ -13,7 +13,7 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('products')->truncate();
+        DB::table('products')->delete();
         $now = Carbon::now();
         DB::table('products')->insert([
             ['name' => 'White Bread', 'unit_price' => 2.50, 'created_at' => $now, 'updated_at' => $now],
