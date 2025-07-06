@@ -335,7 +335,7 @@ $pendingOrders = Order::where('vendor_id', auth()->id())->where('status', 'pendi
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->created_at->format('M d, Y H:i') }}</td>
                 <td>
                     @if($order->status === 'pending')
-                    <form method="POST" action="{{ route('supplier.orders.updateStatus', $order->id) }}">
+                    <form method="POST" action="{{ route('supplier.orders.updateStatus', $order) }}">
                         @csrf
                         @method('PATCH')
                         <select name="status" class="border rounded px-2 py-1 text-xs">
@@ -345,7 +345,7 @@ $pendingOrders = Order::where('vendor_id', auth()->id())->where('status', 'pendi
                         <button type="submit" class="ml-2 bg-blue-500 text-white px-2 py-1 rounded text-xs">Update</button>
                     </form>
                     @elseif($order->status === 'accepted')
-                    <form method="POST" action="{{ route('supplier.orders.updateStatus', $order->id) }}">
+                    <form method="POST" action="{{ route('supplier.orders.updateStatus', $order) }}">
                         @csrf
                         @method('PATCH')
                         <input type="hidden" name="status" value="shipped">
