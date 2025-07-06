@@ -323,10 +323,10 @@
     fetchProductionTrendsLive();
     fetchMachineAlertsLive();
     fetchProductionActivityLive();
-    setInterval(fetchProductionStatsLive, 60000);
-    setInterval(fetchRecentBatchesLive, 60000);
-    setInterval(fetchProductionTrendsLive, 60000); // trends can update every 1min
-    setInterval(fetchMachineAlertsLive, 60000);
-    setInterval(fetchProductionActivityLive, 60000);
+    // setInterval(fetchProductionStatsLive, 60000); // polling disabled
+    // setInterval(fetchRecentBatchesLive, 60000); // polling disabled
+    // setInterval(fetchProductionTrendsLive, 60000); // polling disabled
+    // setInterval(fetchMachineAlertsLive, 60000); // polling disabled
+    // setInterval(fetchProductionActivityLive, 60000); // polling disabled
 </script>
 @endpush

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -17,6 +18,8 @@ class DashboardController extends Controller
             case 'supplier':
                 return view('dashboard.supplier');
             case 'bakery_manager':
+                // Fetch all new or assigned orders (pending or processing)
+                $orders = \App\Models\Order::whereIn('status', ['pending', 'processing'])->orderBy('created_at', 'desc')->get();
                 $staff = \App\Models\User::where('role', 'staff')->get();
                 $supplyCenters = \App\Models\SupplyCenter::all();
                 // Count active staff: those with a shift where now is between start_time and end_time
@@ -30,9 +33,7 @@ class DashboardController extends Controller
                 $productionTarget = optional(\App\Models\Setting::where('key', 'production_target')->first())->value;
                 // Sum today's output from production batches
                 $todaysOutput = \App\Models\ProductionBatch::whereDate('scheduled_start', now()->toDateString())->sum('quantity');
-                // Fetch all new or assigned orders (pending or processing)
-                $orders = \App\Models\Order::whereIn('status', ['pending', 'processing'])->orderBy('created_at', 'desc')->get();
-                return view('dashboard.bakery-manager', compact('staff', 'supplyCenters', 'activeStaffCount', 'productionTarget', 'todaysOutput', 'orders'));
+                return view('dashboard.bakery-manager', compact('orders', 'staff', 'supplyCenters', 'activeStaffCount', 'productionTarget', 'todaysOutput'));
             case 'distributor':
                 return view('dashboard.distributor');
             case 'retail_manager':
@@ -93,7 +94,7 @@ class DashboardController extends Controller
                 return view('dashboard.customer', compact('recentOrders', 'recentMessages'));
             default:
                 // Log out the user and redirect to login with error message
-                \Auth::logout();
+                Auth::logout();
                 return redirect()->route('login')->withErrors(['email' => 'Unauthorized role. Please contact support.']);
         }
     }
@@ -229,6 +230,4 @@ class DashboardController extends Controller
             ],
         ]);
     }
-
-
 }

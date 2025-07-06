@@ -12,7 +12,8 @@ class ProductionController extends Controller
     public function start()
     {
         $ingredients = Ingredient::orderBy('name')->get();
-        return view('bakery.production.start', compact('ingredients'));
+        $products = \App\Models\Product::all();
+        return view('bakery.production.start', compact('ingredients', 'products'));
     }
 
     public function store(Request $request)
@@ -44,4 +45,4 @@ class ProductionController extends Controller
 
         return redirect()->route('bakery.batches.show', $batch)->with('success', 'Production started successfully.');
     }
-} 
+}
