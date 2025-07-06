@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             IngredientSeeder::class,
             ProductionBatchSeeder::class,
             ProductionLineSeeder::class,
+            CustomerUserSeeder::class,
         ]);
 
         // --- Demo Attendance for Workforce Overview ---

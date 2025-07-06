@@ -33,12 +33,6 @@
                 <span class="block sm:inline">{{ session('success') }}</span>
             </div>
         @endif
-        <form method="POST" action="{{ route('admin.sendSupplierReports') }}">
-            @csrf
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Send Supplier Reports
-            </button>
-        </form>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

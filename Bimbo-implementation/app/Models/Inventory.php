@@ -44,5 +44,13 @@ class Inventory extends Model
     {
         return $this->hasMany(InventoryMovement::class);
     }
+
+    /**
+     * Get the product that owns the inventory.
+     */
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
 }
 

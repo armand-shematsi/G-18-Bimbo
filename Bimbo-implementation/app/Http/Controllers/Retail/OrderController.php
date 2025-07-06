@@ -51,6 +51,9 @@ class OrderController extends Controller
             'shipping_address' => $request->shipping_address,
             'billing_address' => $request->billing_address,
             'placed_at' => now(),
+            'fulfillment_type' => $request->fulfillment_type,
+            'tracking_number' => $request->tracking_number,
+            'delivery_option' => $request->delivery_option,
         ]);
         // Create order items
         if ($request->has('items')) {
@@ -62,6 +65,11 @@ class OrderController extends Controller
         // Notify customer
         if ($order->user) {
             $order->user->notify(new OrderPlaced($order));
+        }
+        // Notify Bakery Manager (both email and in-app)
+        $bakeryManager = \App\Models\User::where('role', 'bakery_manager')->first();
+        if ($bakeryManager) {
+            $bakeryManager->notify(new OrderPlaced($order));
         }
         // Log activity
         ActivityLog::create([

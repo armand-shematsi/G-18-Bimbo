@@ -7,14 +7,18 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up()
     {
-        Schema::table('vendors', function (Blueprint $table) {
-            $table->string('visit_scheduled')->nullable()->after('regulatory_certification');
-        });
+        if (!Schema::hasColumn('vendors', 'visit_scheduled')) {
+            Schema::table('vendors', function (Blueprint $table) {
+                $table->string('visit_scheduled')->nullable();
+            });
+        }
     }
     public function down()
     {
-        Schema::table('vendors', function (Blueprint $table) {
-            $table->dropColumn('visit_scheduled');
-        });
+        if (Schema::hasColumn('vendors', 'visit_scheduled')) {
+            Schema::table('vendors', function (Blueprint $table) {
+                $table->dropColumn('visit_scheduled');
+            });
+        }
     }
 };

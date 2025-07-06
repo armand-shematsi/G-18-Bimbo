@@ -26,23 +26,62 @@
 @endsection
 
 @section('content')
+<!-- New/Assigned Orders Section -->
+<div class="bg-white rounded-xl shadow-lg mb-8 border-l-4 border-blue-600">
+    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <h2 class="text-xl font-bold text-gray-900">New & Assigned Orders</h2>
+        <span class="text-sm text-gray-500">(Pending & Processing)</span>
+    </div>
+    <div class="p-6">
+        @if($orders->count())
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-2 text-left font-semibold">Order ID</th>
+                        <th class="px-4 py-2 text-left font-semibold">Customer</th>
+                        <th class="px-4 py-2 text-left font-semibold">Status</th>
+                        <th class="px-4 py-2 text-left font-semibold">Placed At</th>
+                        <th class="px-4 py-2 text-left font-semibold">Fulfillment</th>
+                        <th class="px-4 py-2 text-left font-semibold">Delivery</th>
+                        <th class="px-4 py-2 text-left font-semibold">Tracking #</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($orders as $order)
+                    <tr class="border-b">
+                        <td class="px-4 py-2">{{ $order->id }}</td>
+                        <td class="px-4 py-2">{{ $order->customer_name }}</td>
+                        <td class="px-4 py-2 capitalize">{{ $order->status }}</td>
+                        <td class="px-4 py-2">{{ $order->placed_at ? $order->placed_at->format('M d, Y H:i') : '-' }}</td>
+                        <td class="px-4 py-2">{{ $order->fulfillment_type ?? '-' }}</td>
+                        <td class="px-4 py-2">{{ $order->delivery_option ?? '-' }}</td>
+                        <td class="px-4 py-2">{{ $order->tracking_number ?? '-' }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @else
+        <div class="text-center text-gray-500 py-8">
+            <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+            <p class="mt-2 text-sm">No new or assigned orders at the moment.</p>
+        </div>
+        @endif
+    </div>
+</div>
+
 <!-- Welcome Banner -->
 <div class="bg-gradient-to-r from-sky-400 via-sky-500 to-sky-600 rounded-lg shadow-lg mb-8">
     <div class="px-6 py-8">
         <div class="flex items-center justify-between">
             <div class="text-white">
-                @php
-                $hour = now()->hour;
-                if ($hour >= 5 && $hour < 12) {
-                    $greeting='Good Morning' ;
-                    } elseif ($hour>= 12 && $hour < 17) {
-                        $greeting='Good Afternoon' ;
-                        } else {
-                        $greeting='Good Evening' ;
-                        }
-                        @endphp
-                        <h2 class="text-2xl font-bold mb-2">{{ $greeting }}, {{ auth()->user()->name ?? 'Bakery Manager' }}!</h2>
-                        <p class="text-sky-100">Monitor production, manage workforce, and keep your bakery running smoothly</p>
+                <h2 class="text-2xl font-bold mb-2">
+                    Good {{ now()->hour < 12 ? 'Morning' : (now()->hour < 17 ? 'Afternoon' : 'Evening') }}, {{ auth()->user()->name ?? 'Bakery Manager' }}!
+                </h2>
+                <p class="text-sky-100">Monitor production, manage workforce, and keep your bakery running smoothly</p>
             </div>
             <div class="hidden md:block">
                 <svg class="w-24 h-24 text-sky-200" fill="currentColor" viewBox="0 0 24 24">
@@ -133,6 +172,40 @@
 
 <!-- Main Content Grid -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Recent Batches (2/3) -->
+    <div class="lg:col-span-2 space-y-8">
+        <div class="bg-white rounded-xl shadow-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Recent Batches</h3>
+            </div>
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th>Batch Name</th>
+                                <th>Status</th>
+                                <th>Scheduled Start</th>
+                                <th>Actual Start</th>
+                                <th>Actual End</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody class="production-batch-tbody">
+                            <tr>
+                                <td colspan="6" class="text-center text-gray-400 py-8">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                    </svg>
+                                    <p class="mt-2 text-sm text-gray-500">No recent batches</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Quick Actions & Alerts (1/3) -->
     <div class="lg:col-span-1 space-y-8">
         <div class="bg-white rounded-xl shadow-lg">
@@ -200,9 +273,6 @@
         <!-- Ingredient Alerts and Machine Alerts removed; assign to their respective dashboards -->
     </div>
 </div>
-
-<!-- Modern Action Cards Row -->
-<!-- Modern Action Cards Row -->
 
 <!-- Activity Timeline -->
 <div class="mt-8 bg-white rounded-xl shadow-lg">

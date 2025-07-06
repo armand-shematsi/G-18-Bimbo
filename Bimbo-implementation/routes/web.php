@@ -14,8 +14,8 @@ use App\Http\Controllers\Bakery\ScheduleController;
 use App\Http\Controllers\Bakery\MaintenanceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkforceController;
-use App\Http\Controllers\CustomerSegmentImportController;
-use App\Http\Controllers\CustomerSegmentController;
+use App\Http\Controllers\OrderReturnController;
+use App\Http\Controllers\SupportRequestController;
 
 
 Route::get('/', function () {
@@ -30,6 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('vendors', VendorController::class);
         Route::resource('users', UserController::class);
         Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
+        Route::get('/analytics/sales-predictions', [AnalyticsController::class, 'salesPredictions'])->name('analytics.sales_predictions');
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
         Route::post('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
         Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
@@ -41,6 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Workforce distribution API endpoint
         Route::get('/api/workforce-distribution', [\App\Http\Controllers\DashboardController::class, 'workforceDistribution'])->name('workforce.distribution.api');
         Route::post('/send-supplier-reports', [\App\Http\Controllers\Admin\DashboardController::class, 'sendSupplierReports'])->name('sendSupplierReports');
+        Route::get('/customer-segments', [\App\Http\Controllers\CustomerSegmentController::class, 'index'])->name('customer-segments');
     });
 
     // Supplier routes
@@ -89,9 +91,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // API endpoint for production batches (AJAX/live updates)
         Route::get('/api/production-batches', [\App\Http\Controllers\ProductionBatchController::class, 'apiIndex'])->name('production-batches.api');
-        Route::post('/api/production-batches', [\App\Http\Controllers\ProductionBatchController::class, 'apiStore'])->name('production-batches.apiStore');
-        Route::put('/api/production-batches/{batch}', [\App\Http\Controllers\ProductionBatchController::class, 'apiUpdate'])->name('production-batches.apiUpdate');
-        Route::patch('/api/production-batches/{batch}/status', [\App\Http\Controllers\ProductionBatchController::class, 'apiUpdateStatus'])->name('production-batches.apiUpdateStatus');
 
         Route::get('/production/start', [ProductionController::class, 'start'])->name('production.start');
         Route::post('/production/start', [ProductionController::class, 'store'])->name('production.store');
@@ -112,6 +111,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/api/active-staff', [\App\Http\Controllers\ShiftController::class, 'apiActiveStaff'])->name('active-staff.api');
 
         // Live dashboard API endpoints
+        Route::get('/api/production-live', [\App\Http\Controllers\DashboardController::class, 'productionLive'])->name('bakery.production-live');
         Route::get('/api/workforce-live', [\App\Http\Controllers\DashboardController::class, 'workforceLive'])->name('bakery.workforce-live');
         Route::get('/api/machines-live', [\App\Http\Controllers\DashboardController::class, 'machinesLive'])->name('bakery.machines-live');
         Route::get('/api/ingredients-live', [\App\Http\Controllers\DashboardController::class, 'ingredientsLive'])->name('bakery.ingredients-live');
@@ -124,22 +124,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/workforce/tasks', [\App\Http\Controllers\WorkforceController::class, 'getTasks'])->name('workforce.tasks');
         Route::post('/workforce/auto-reassign', [\App\Http\Controllers\WorkforceController::class, 'autoReassignAbsentees'])->name('workforce.auto-reassign');
         Route::post('/workforce/assign-staff', [\App\Http\Controllers\WorkforceController::class, 'assignStaff'])->name('workforce.assign-staff');
-
         // Assign shift to batch
         Route::post('/shifts/assign', [\App\Http\Controllers\ShiftController::class, 'assignToBatch'])->name('shifts.assignToBatch');
         Route::post('/shifts/assign-new', [\App\Http\Controllers\ShiftController::class, 'assignNewToBatch'])->name('shifts.assignNewToBatch');
-
         // Assign shift to batch (AJAX)
         Route::post('/batches/{batch}/assign-shift', [\App\Http\Controllers\ProductionBatchController::class, 'assignShift'])->name('batches.assignShift');
-
         Route::get('/order-processing', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'index'])->name('order-processing');
         Route::post('/order-processing/supplier-order', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'storeSupplierOrder'])->name('order-processing.supplier-order');
         Route::get('/order-processing/retailer-orders', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'listRetailerOrders'])->name('order-processing.retailer-orders');
         Route::post('/order-processing/retailer-orders/{id}/receive', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'receiveRetailerOrder'])->name('order-processing.retailer-orders.receive');
-
         Route::get('/workforce/shifts', [\App\Http\Controllers\WorkforceController::class, 'shifts'])->name('workforce.shifts');
         Route::post('/workforce/shifts', [\App\Http\Controllers\WorkforceController::class, 'storeShift'])->name('workforce.shifts.store');
-
         Route::get('/workforce/assignment', [\App\Http\Controllers\WorkforceController::class, 'assignment'])->name('workforce.assignment');
         Route::get('/workforce/availability', [\App\Http\Controllers\WorkforceController::class, 'availability'])->name('workforce.availability');
         Route::get('/workforce/distribution-overview', [\App\Http\Controllers\WorkforceController::class, 'distributionOverview'])->name('workforce.distribution-overview');
@@ -168,6 +163,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/orders/simple', [\App\Http\Controllers\Retail\RetailerOrderController::class, 'index'])->name('orders.simple');
         Route::post('/orders/simple', [\App\Http\Controllers\Retail\RetailerOrderController::class, 'store'])->name('orders.simple.store');
+        Route::post('/orders/{order}/return', [\App\Http\Controllers\OrderReturnController::class, 'store'])->name('orders.return');
+        Route::get('/returns', [\App\Http\Controllers\OrderReturnController::class, 'index'])->name('returns.index');
+        Route::get('/returns/{id}', [\App\Http\Controllers\OrderReturnController::class, 'show'])->name('returns.show');
+        Route::post('/support', [\App\Http\Controllers\SupportRequestController::class, 'store'])->name('support.store');
+        Route::get('/support', [\App\Http\Controllers\SupportRequestController::class, 'index'])->name('support.index');
+        Route::get('/support/{id}', [\App\Http\Controllers\SupportRequestController::class, 'show'])->name('support.show');
     });
 
     // Distributor Routes
@@ -188,15 +189,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/chat', [App\Http\Controllers\Customer\ChatController::class, 'index'])->name('chat.index');
         Route::post('/chat/send', [App\Http\Controllers\Customer\ChatController::class, 'send'])->name('chat.send');
     });
-
-    // Customer order placement
-    Route::middleware(['auth', 'role:customer'])->group(function () {
-        Route::get('/customer/order', [App\Http\Controllers\Customer\OrderController::class, 'create'])->name('customer.order.create');
-        Route::post('/customer/order', [App\Http\Controllers\Customer\OrderController::class, 'store'])->name('customer.order.store');
-    });
-
-    // Customer dashboard route (named for redirect)
-    Route::get('/customer/dashboard', [DashboardController::class, 'index'])->name('dashboard.customer');
 });
 
 // Vendor Registration Routes
@@ -233,12 +225,5 @@ Route::get('/customer/orders/create', [App\Http\Controllers\Customer\OrderContro
     ->name('customer.orders.create');
 
 Route::get('/customer/orders', [App\Http\Controllers\Customer\OrderController::class, 'index'])->name('customer.orders.index');
-
-Route::get('/customer-segments/import', [CustomerSegmentImportController::class, 'showForm'])->name('customer-segments.import.form');
-Route::post('/customer-segments/import', [CustomerSegmentImportController::class, 'import'])->name('customer-segments.import');
-
-Route::middleware(['auth'])->group(function () {
-    Route::get('/admin/customer-segments', [CustomerSegmentController::class, 'index'])->name('admin.customer-segments');
-});
 
 Route::get('/workforce/overview', [\App\Http\Controllers\WorkforceController::class, 'overview'])->name('workforce.overview');

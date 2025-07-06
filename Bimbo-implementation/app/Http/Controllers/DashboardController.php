@@ -17,6 +17,7 @@ class DashboardController extends Controller
             case 'supplier':
                 return view('dashboard.supplier');
             case 'bakery_manager':
+<<<<<<< HEAD
                 $staff = \App\Models\User::where('role', 'staff')->get();
                 $supplyCenters = \App\Models\SupplyCenter::all();
                 // Count active staff: those with a shift where now is between start_time and end_time
@@ -31,6 +32,11 @@ class DashboardController extends Controller
                 // Sum today's output from production batches
                 $todaysOutput = \App\Models\ProductionBatch::whereDate('scheduled_start', now()->toDateString())->sum('quantity');
                 return view('dashboard.bakery-manager', compact('staff', 'supplyCenters', 'activeStaffCount', 'productionTarget', 'todaysOutput'));
+=======
+                // Fetch all new or assigned orders (pending or processing)
+                $orders = \App\Models\Order::whereIn('status', ['pending', 'processing'])->orderBy('created_at', 'desc')->get();
+                return view('dashboard.bakery-manager', compact('orders'));
+>>>>>>> 757964858b60c766b82ed7bc91155b5ad213ac97
             case 'distributor':
                 return view('dashboard.distributor');
             case 'retail_manager':
@@ -42,6 +48,7 @@ class DashboardController extends Controller
                     return $item->needsReorder();
                 });
 
+<<<<<<< HEAD
                 // Compute order analytics for the last 7 days
                 $orderDays = [];
                 $orderCounts = [];
@@ -61,17 +68,27 @@ class DashboardController extends Controller
                     $statusCounts[$status] = \App\Models\Order::where('user_id', $userId)
                         ->where('status', $status)
                         ->count();
+=======
+                // Orders per day (last 7 days)
+                $orderDays = collect();
+                $orderCounts = collect();
+                for ($i = 6; $i >= 0; $i--) {
+                    $date = now()->subDays($i)->toDateString();
+                    $orderDays->push($date);
+                    $orderCounts->push(\App\Models\Order::whereDate('created_at', $date)->count());
+                }
+
+                // Order status breakdown
+                $statuses = ['pending', 'processing', 'shipped', 'completed', 'cancelled'];
+                $statusCounts = [];
+                foreach ($statuses as $status) {
+                    $statusCounts[$status] = \App\Models\Order::where('status', $status)->count();
+>>>>>>> 757964858b60c766b82ed7bc91155b5ad213ac97
                 }
 
                 return view('dashboard.retail-manager', compact('supplierInventory', 'lowStockItems', 'orderDays', 'orderCounts', 'statusCounts'));
             case 'customer':
-                $recentOrders = \App\Models\Order::where('user_id', $user->id)->latest()->take(5)->get();
-                $recentMessages = \App\Models\Message::where('receiver_id', $user->id)
-                    ->with('sender')
-                    ->latest()
-                    ->take(5)
-                    ->get();
-                return view('dashboard.customer', compact('recentOrders', 'recentMessages'));
+                return view('dashboard.customer');
             default:
                 // Log out the user and redirect to login with error message
                 \Auth::logout();
@@ -104,12 +121,8 @@ class DashboardController extends Controller
      */
     public function productionLive()
     {
-        // Get all batches for today
-        $today = now()->toDateString();
-        $batches = \App\Models\ProductionBatch::with(['shifts.user'])
-            ->whereDate('scheduled_start', $today)
-            ->orderBy('scheduled_start', 'desc')
-            ->get();
+        // Get batches for the last 7 days
+        $batches = \App\Models\ProductionBatch::orderBy('scheduled_start', 'desc')->take(7)->get();
         $batchData = $batches->map(function ($batch) {
             return [
                 'name' => $batch->name,
@@ -118,9 +131,12 @@ class DashboardController extends Controller
                 'actual_start' => $batch->actual_start,
                 'actual_end' => $batch->actual_end,
                 'notes' => $batch->notes,
+<<<<<<< HEAD
                 'assigned_staff' => $batch->shifts->map(function ($shift) {
                     return $shift->user ? $shift->user->name : 'Unassigned';
                 })->join(', '),
+=======
+>>>>>>> 757964858b60c766b82ed7bc91155b5ad213ac97
             ];
         });
         // Trends: batches completed per day for last 7 days
@@ -133,16 +149,13 @@ class DashboardController extends Controller
             $trends[] = $count;
         }
         $output = $batches->where('status', 'Completed')->count();
-        $active = $batches->whereIn('status', ['Active', 'active'])->count();
-        $downtime = 0; // Placeholder, implement logic if available
+        $target = 7; // Example: target is 1 batch per day for a week
         return response()->json([
             'output' => $output,
-            'active' => $active,
-            'batches_today' => $batches->count(),
+            'target' => $target,
             'batches' => $batchData,
             'trends' => $trends,
             'trend_labels' => $trendLabels,
-            'downtime' => $downtime,
         ]);
     }
 
@@ -151,31 +164,14 @@ class DashboardController extends Controller
      */
     public function workforceLive()
     {
-        // Staff on duty: users marked present today
-        $today = now()->toDateString();
-        $staffOnDuty = \App\Models\User::whereHas('attendances', function ($q) use ($today) {
-            $q->where('date', $today)->where('status', 'present');
-        })->get(['id', 'name', 'role']);
-
-        // Assignments: active shifts for today with user info
-        $assignments = \App\Models\Shift::whereDate('start_time', $today)
-            ->whereNotNull('user_id')
-            ->with(['user'])
-            ->get()
-            ->map(function ($shift) {
-                return [
-                    'staff' => $shift->user ? $shift->user->name : null,
-                    'role' => $shift->user ? $shift->user->role : null,
-                    'shift_id' => $shift->id,
-                    'start_time' => $shift->start_time,
-                    'end_time' => $shift->end_time,
-                    'status' => $shift->status ?? null,
-                ];
-            });
-
         return response()->json([
-            'staff' => $staffOnDuty,
-            'assignments' => $assignments,
+            'staff' => [
+                ['name' => 'Jane Doe', 'role' => 'Baker'],
+                ['name' => 'John Smith', 'role' => 'Operator'],
+            ],
+            'assignments' => [
+                ['staff' => 'John Smith', 'batch' => 'Batch B'],
+            ],
         ]);
     }
 
@@ -234,4 +230,6 @@ class DashboardController extends Controller
             ],
         ]);
     }
+
+
 }
