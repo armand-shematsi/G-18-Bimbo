@@ -357,40 +357,72 @@ class AnalyticsController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    public function salesPredictions()
+    public function salesPredictions(Request $request)
     {
-        // ML-Based Analytics (Primary)
-        $mlDemandForecast = $this->getMLDemandForecast();
-        $segmentRecommendations = $this->getSegmentRecommendations();
-        $mlInsights = $this->getMLInsights();
+        try {
+            $successMessage = null;
 
-        // Enhanced demand forecast using ML data
-        $demandForecast = $this->getDemandForecast();
+            // Check if user wants to refresh ML data
+            if ($request->has('refresh_ml')) {
+                $this->refreshMLData();
+                $successMessage = 'ML data has been successfully refreshed with latest predictions!';
+            }
 
-        // Supporting Analytics
-        $salesData = $this->getSalesAnalytics();
-        $customerSegments = $this->getCustomerSegments();
-        $topProducts = $this->getTopProducts();
-        $salesTrends = $this->getSalesTrends();
-        $inventoryPredictions = $this->getInventoryPredictions();
-        $breadTypeDistribution = $this->getBreadTypeDistribution();
-        $locationDistribution = $this->getLocationDistribution();
-        $avgPurchaseFrequency = $this->getAvgPurchaseFrequency();
+            // ML-Based Analytics (Primary)
+            $mlDemandForecast = $this->getMLDemandForecast();
+            $segmentRecommendations = $this->getSegmentRecommendations();
+            $mlInsights = $this->getMLInsights();
 
-        return view('admin.analytics.sales_predictions', compact(
-            'salesData',
-            'demandForecast',
-            'mlDemandForecast',
-            'mlInsights',
-            'customerSegments',
-            'topProducts',
-            'salesTrends',
-            'inventoryPredictions',
-            'segmentRecommendations',
-            'breadTypeDistribution',
-            'locationDistribution',
-            'avgPurchaseFrequency'
-        ));
+            // Enhanced demand forecast using ML data
+            $demandForecast = $this->getDemandForecast();
+
+            // Supporting Analytics
+            $salesData = $this->getSalesAnalytics();
+            $customerSegments = $this->getCustomerSegments();
+            $topProducts = $this->getTopProducts();
+            $salesTrends = $this->getSalesTrends();
+            $inventoryPredictions = $this->getInventoryPredictions();
+            $breadTypeDistribution = $this->getBreadTypeDistribution();
+            $locationDistribution = $this->getLocationDistribution();
+            $avgPurchaseFrequency = $this->getAvgPurchaseFrequency();
+
+            return view('admin.analytics.sales_predictions', compact(
+                'salesData',
+                'demandForecast',
+                'mlDemandForecast',
+                'mlInsights',
+                'customerSegments',
+                'topProducts',
+                'salesTrends',
+                'inventoryPredictions',
+                'segmentRecommendations',
+                'breadTypeDistribution',
+                'locationDistribution',
+                'avgPurchaseFrequency',
+                'successMessage'
+            ));
+        } catch (\Exception $e) {
+            // Log the error
+            \Log::error('Sales Predictions Error: ' . $e->getMessage());
+
+            // Return view with error message
+            return view('admin.analytics.sales_predictions', [
+                'error' => 'An error occurred while loading sales predictions: ' . $e->getMessage(),
+                'salesData' => [],
+                'demandForecast' => [],
+                'mlDemandForecast' => [],
+                'mlInsights' => [],
+                'customerSegments' => [],
+                'topProducts' => [],
+                'salesTrends' => [],
+                'inventoryPredictions' => [],
+                'segmentRecommendations' => [],
+                'breadTypeDistribution' => [],
+                'locationDistribution' => [],
+                'avgPurchaseFrequency' => [],
+                'successMessage' => null
+            ]);
+        }
     }
 
     private function getMLDemandForecast()
@@ -408,11 +440,13 @@ class AnalyticsController extends Controller
         fgetcsv($handle);
 
         while (($data = fgetcsv($handle)) !== false) {
-            $forecastData[] = [
-                'date' => $data[0],
-                'product_type' => $data[1],
-                'predicted_quantity' => (int)$data[2]
-            ];
+            if (count($data) >= 3) {
+                $forecastData[] = [
+                    'date' => $data[0],
+                    'product_type' => $data[1],
+                    'predicted_quantity' => (int)$data[2]
+                ];
+            }
         }
 
         fclose($handle);
@@ -682,5 +716,32 @@ class AnalyticsController extends Controller
         fclose($handle);
 
         return $customers;
+    }
+
+    private function refreshMLData()
+    {
+        try {
+            $mlPath = base_path('ml');
+            $pythonScript = $mlPath . '/product_demand_forecast.py';
+
+            if (!File::exists($pythonScript)) {
+                throw new \Exception('Python script not found: ' . $pythonScript);
+            }
+
+            // Change to ML directory and run Python script
+            $command = "cd {$mlPath} && python product_demand_forecast.py";
+            $output = shell_exec($command . ' 2>&1');
+
+            if ($output === null) {
+                throw new \Exception('Failed to execute Python script');
+            }
+
+            // Log the output for debugging
+            \Log::info('ML Data Refresh Output: ' . $output);
+
+        } catch (\Exception $e) {
+            \Log::error('ML Data Refresh Error: ' . $e->getMessage());
+            throw $e;
+        }
     }
 }

@@ -9,232 +9,167 @@
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900">
-                <div class="mb-6 flex space-x-4">
-                    <a href="{{ route('admin.analytics') }}" class="px-4 py-2 rounded {{ request()->routeIs('admin.analytics') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700' }}">Customer Segmentation</a>
-                    <a href="{{ route('admin.analytics.sales_predictions') }}" class="px-4 py-2 rounded {{ request()->routeIs('admin.analytics.sales_predictions') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700' }}">Sales Predictions</a>
-                </div>
-                <h3 class="text-lg font-semibold mb-4">🤖 ML-Powered Insights</h3>
-                <div class="mb-8">
-                    @if(!empty($mlInsights))
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            @foreach($mlInsights as $insight)
-                                <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-200">
-                                    @if($insight['type'] == 'customer_segment')
-                                        <div class="flex items-center mb-3">
-                                            <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-                                            <h4 class="font-semibold text-blue-800">Segment {{ $insight['segment'] ?? 'N/A' }} Analysis</h4>
-                                        </div>
-                                        <div class="space-y-2 text-sm">
-                                            <p><strong>{{ $insight['customer_count'] ?? 0 }}</strong> customers</p>
-                                            <p>Avg Spending: <strong>₦{{ number_format($insight['avg_spending'] ?? 0, 2) }}</strong></p>
-                                            <p>Purchase Frequency: <strong>{{ $insight['avg_frequency'] ?? 'N/A' }}</strong> times/month</p>
-                                            <p>Top Product: <strong>{{ $insight['top_product'] ?? 'Unknown' }}</strong></p>
-                                            <p>Top Location: <strong>{{ $insight['top_location'] ?? 'Unknown' }}</strong></p>
-                                            <div class="mt-3 p-3 bg-blue-100 rounded">
-                                                <p class="text-blue-800 text-xs"><strong>ML Recommendation:</strong> {{ $insight['recommendation'] ?? 'No recommendation available' }}</p>
-                                            </div>
-                                        </div>
-                                    @elseif($insight['type'] == 'demand_forecast')
-                                        <div class="flex items-center mb-3">
-                                            <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                                            <h4 class="font-semibold text-green-800">Demand Forecast</h4>
-                                        </div>
-                                        <div class="space-y-2 text-sm">
-                                            <p>Top Product: <strong>{{ $insight['top_product'] ?? 'Unknown' }}</strong></p>
-                                            <p>Total Predicted Demand: <strong>{{ number_format($insight['total_demand'] ?? 0) }}</strong> units</p>
-                                            <p>Highest Demand: <strong>{{ number_format($insight['top_demand'] ?? 0) }}</strong> units</p>
-                                            <div class="mt-3 p-3 bg-green-100 rounded">
-                                                <p class="text-green-800 text-xs"><strong>ML Recommendation:</strong> {{ $insight['recommendation'] ?? 'No recommendation available' }}</p>
-                                            </div>
-                                        </div>
-                                    @endif
-                                </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                            <p class="text-yellow-800">ML insights will appear here when machine learning data is available.</p>
-                        </div>
-                    @endif
-                </div>
-
-                <h3 class="text-lg font-semibold mb-4">Data Status</h3>
-                <div class="mb-8">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div class="bg-gray-50 p-4 rounded">
-                            <div class="text-sm text-gray-600">Total Orders</div>
-                            <div class="text-xl font-bold">{{ $salesData['total_orders'] ?? 0 }}</div>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded">
-                            <div class="text-sm text-gray-600">ML Forecasts</div>
-                            <div class="text-xl font-bold">{{ count($mlDemandForecast) }}</div>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded">
-                            <div class="text-sm text-gray-600">Customer Segments</div>
-                            <div class="text-xl font-bold">{{ count($segmentRecommendations) }}</div>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded">
-                            <div class="text-sm text-gray-600">Products</div>
-                            <div class="text-xl font-bold">{{ count($topProducts) }}</div>
-                        </div>
+                <div class="mb-6 flex justify-between items-center">
+                    <div class="flex space-x-4">
+                        <a href="{{ route('admin.analytics.sales_predictions') }}" class="px-4 py-2 rounded bg-blue-500 text-white">Sales Predictions</a>
+                    </div>
+                    <div class="flex space-x-2">
+                        <form action="{{ route('admin.analytics.sales_predictions') }}" method="GET" class="inline">
+                            <input type="hidden" name="refresh_ml" value="1">
+                            <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
+                                🔄 Refresh ML Data
+                            </button>
+                        </form>
                     </div>
                 </div>
 
-                <h3 class="text-lg font-semibold mb-4">Sales Overview</h3>
-                @if(($salesData['current_month_sales'] ?? 0) > 0)
-                    <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded">
-                        <p class="text-sm text-blue-700">
-                            <strong>Note:</strong> This dashboard shows real sales data from your database.
-                        </p>
-                    </div>
-                @else
-                    <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
-                        <p class="text-sm text-yellow-700">
-                            <strong>Note:</strong> Sample data is being displayed for demonstration purposes.
-                            Create real orders to see actual analytics.
-                        </p>
+                @if(isset($error))
+                    <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                        <h4 class="font-semibold mb-2">Error:</h4>
+                        <p>{{ $error }}</p>
                     </div>
                 @endif
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    <div class="bg-blue-100 p-4 rounded">
-                        <div class="text-sm text-gray-600">Current Month Sales</div>
-                        <div class="text-2xl font-bold">₦{{ number_format($salesData['current_month_sales'] ?? 0, 2) }}</div>
+
+                @if(isset($successMessage))
+                    <div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                        <h4 class="font-semibold mb-2">Success:</h4>
+                        <p>{{ $successMessage }}</p>
                     </div>
-                    <div class="bg-green-100 p-4 rounded">
-                        <div class="text-sm text-gray-600">Last Month Sales</div>
-                        <div class="text-2xl font-bold">₦{{ number_format($salesData['last_month_sales'] ?? 0, 2) }}</div>
-                    </div>
-                    <div class="bg-yellow-100 p-4 rounded">
-                        <div class="text-sm text-gray-600">Growth Rate</div>
-                        <div class="text-2xl font-bold">{{ $salesData['growth_rate'] ?? 0 }}%</div>
-                    </div>
-                    <div class="bg-purple-100 p-4 rounded">
-                        <div class="text-sm text-gray-600">Total Orders</div>
-                        <div class="text-2xl font-bold">{{ $salesData['total_orders'] ?? 0 }}</div>
-                    </div>
-                    <div class="bg-pink-100 p-4 rounded">
-                        <div class="text-sm text-gray-600">Avg Order Value</div>
-                        <div class="text-2xl font-bold">₦{{ number_format($salesData['average_order_value'] ?? 0, 2) }}</div>
-                    </div>
-                </div>
-                <h3 class="text-lg font-semibold mb-4">Sales Trends (Last 12 Months)</h3>
+                @endif
+
+                <!-- ML Data Status -->
                 <div class="mb-8">
-                    <canvas id="salesTrendsChart" width="600" height="250"></canvas>
-                </div>
-                <h3 class="text-lg font-semibold mb-4">Demand Forecast (Next 30 Days)</h3>
-                <div class="mb-4">
-                    @if(isset($demandForecast[0]['ml_based']) && $demandForecast[0]['ml_based'])
-                        <div class="bg-green-50 p-3 rounded border border-green-200 mb-4">
-                            <p class="text-green-800 text-sm">
-                                <strong>🤖 ML-Enhanced:</strong> This forecast combines Prophet ML predictions with statistical analysis for improved accuracy.
-                            </p>
+                    <h3 class="text-lg font-semibold mb-4">🤖 ML Data Status</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                            <div class="text-sm text-blue-600">ML Forecasts</div>
+                            <div class="text-2xl font-bold text-blue-800">{{ count($mlDemandForecast ?? []) }}</div>
+                            <div class="text-xs text-blue-600">30-day predictions</div>
                         </div>
-                    @else
-                        <div class="bg-blue-50 p-3 rounded border border-blue-200 mb-4">
-                            <p class="text-blue-800 text-sm">
-                                <strong>📊 Statistical:</strong> This forecast uses statistical trend analysis. Run ML scripts for enhanced predictions.
-                            </p>
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                            <div class="text-sm text-green-600">Products</div>
+                            <div class="text-2xl font-bold text-green-800">{{ count(array_unique(array_column($mlDemandForecast ?? [], 'product_type'))) }}</div>
+                            <div class="text-xs text-green-600">Product types</div>
                         </div>
-                    @endif
-                </div>
-                <div class="mb-8">
-                    <canvas id="demandForecastChart" width="600" height="250"></canvas>
+                        <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                            <div class="text-sm text-purple-600">Total Demand</div>
+                            <div class="text-2xl font-bold text-purple-800">{{ number_format(array_sum(array_column($mlDemandForecast ?? [], 'predicted_quantity'))) }}</div>
+                            <div class="text-xs text-purple-600">Units predicted</div>
+                        </div>
+                        <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                            <div class="text-sm text-orange-600">Data Quality</div>
+                            <div class="text-2xl font-bold text-orange-800">Cleaned</div>
+                            <div class="text-xs text-orange-600">Using cleaned dataset</div>
+                        </div>
+                    </div>
                 </div>
 
-                <h3 class="text-lg font-semibold mb-4">ML-Generated Product Demand Forecast</h3>
+                <!-- Product Demand Forecast Chart -->
                 <div class="mb-8">
-                    <table class="min-w-full bg-white border border-gray-200 mb-4">
-                        <thead>
-                            <tr>
-                                <th class="px-4 py-2 border-b">Date</th>
-                                <th class="px-4 py-2 border-b">Product Type</th>
-                                <th class="px-4 py-2 border-b">Predicted Quantity</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach(array_slice($mlDemandForecast, 0, 20) as $forecast)
-                                <tr>
-                                    <td class="px-4 py-2 border-b">{{ $forecast['date'] ?? 'N/A' }}</td>
-                                    <td class="px-4 py-2 border-b">{{ $forecast['product_type'] ?? 'Unknown' }}</td>
-                                    <td class="px-4 py-2 border-b">{{ $forecast['predicted_quantity'] ?? 0 }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                    @if(count($mlDemandForecast) > 20)
-                        <p class="text-sm text-gray-600">Showing first 20 predictions. Total: {{ count($mlDemandForecast) }} predictions</p>
-                    @endif
+                    <h3 class="text-lg font-semibold mb-4">📈 Product Demand Forecast (Next 30 Days)</h3>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <canvas id="productDemandChart" width="800" height="400"></canvas>
+                    </div>
                 </div>
 
-                <h3 class="text-lg font-semibold mb-4">Product Demand Summary (ML)</h3>
+                <!-- Product Comparison Chart -->
                 <div class="mb-8">
-                    @php
-                        $productSummary = [];
-                        foreach($mlDemandForecast as $forecast) {
-                            $productType = $forecast['product_type'] ?? 'Unknown';
-                            if (!isset($productSummary[$productType])) {
-                                $productSummary[$productType] = 0;
-                            }
-                            $productSummary[$productType] += $forecast['predicted_quantity'] ?? 0;
-                        }
-                    @endphp
+                    <h3 class="text-lg font-semibold mb-4">📊 Product Demand Comparison</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <canvas id="productComparisonChart" width="400" height="300"></canvas>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <canvas id="productPieChart" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daily Demand Trend -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold mb-4">📅 Daily Demand Trend</h3>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <canvas id="dailyTrendChart" width="800" height="300"></canvas>
+                    </div>
+                </div>
+
+                <!-- Product Summary Cards -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold mb-4">🏷️ Product Demand Summary</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        @foreach($productSummary as $product => $total)
-                            <div class="bg-green-50 p-4 rounded-lg">
-                                <h4 class="font-semibold text-green-800">{{ $product }}</h4>
-                                <p class="text-2xl font-bold text-green-600">{{ number_format($total) }}</p>
-                                <p class="text-sm text-green-600">Total predicted demand (30 days)</p>
+                        @php
+                            $productSummary = [];
+                            foreach($mlDemandForecast ?? [] as $forecast) {
+                                $productType = $forecast['product_type'] ?? 'Unknown';
+                                if (!isset($productSummary[$productType])) {
+                                    $productSummary[$productType] = [
+                                        'total' => 0,
+                                        'avg' => 0,
+                                        'max' => 0,
+                                        'min' => 999999
+                                    ];
+                                }
+                                $quantity = $forecast['predicted_quantity'] ?? 0;
+                                $productSummary[$productType]['total'] += $quantity;
+                                $productSummary[$productType]['max'] = max($productSummary[$productType]['max'], $quantity);
+                                $productSummary[$productType]['min'] = min($productSummary[$productType]['min'], $quantity);
+                            }
+                            foreach($productSummary as $product => $data) {
+                                $productSummary[$product]['avg'] = round($data['total'] / 30, 1);
+                            }
+                        @endphp
+                        @foreach($productSummary as $product => $data)
+                            <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg border border-blue-200">
+                                <h4 class="font-bold text-blue-800 text-lg mb-2">{{ $product }}</h4>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-blue-600">Total (30 days):</span>
+                                        <span class="font-bold text-blue-800">{{ number_format($data['total']) }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-blue-600">Daily Average:</span>
+                                        <span class="font-bold text-blue-800">{{ $data['avg'] }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-blue-600">Peak Demand:</span>
+                                        <span class="font-bold text-blue-800">{{ $data['max'] }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-blue-600">Min Demand:</span>
+                                        <span class="font-bold text-blue-800">{{ $data['min'] }}</span>
+                                    </div>
+                                </div>
                             </div>
                         @endforeach
                     </div>
                 </div>
-                <h3 class="text-lg font-semibold mb-4">Top Products</h3>
+
+                <!-- Detailed Forecast Table -->
                 <div class="mb-8">
-                    <table class="min-w-full bg-white border border-gray-200 mb-4">
-                        <thead>
-                            <tr>
-                                <th class="px-4 py-2 border-b">Product</th>
-                                <th class="px-4 py-2 border-b">Total Sold</th>
-                                <th class="px-4 py-2 border-b">Total Revenue</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($topProducts as $product)
-                                <tr>
-                                    <td class="px-4 py-2 border-b">{{ $product->name }}</td>
-                                    <td class="px-4 py-2 border-b">{{ $product->total_sold }}</td>
-                                    <td class="px-4 py-2 border-b">₦{{ number_format($product->total_revenue, 2) }}</td>
+                    <h3 class="text-lg font-semibold mb-4">📋 Detailed Forecast Data</h3>
+                    <div class="bg-gray-50 p-4 rounded-lg overflow-x-auto">
+                        <table class="min-w-full bg-white border border-gray-200">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="px-4 py-2 border-b text-left">Date</th>
+                                    <th class="px-4 py-2 border-b text-left">Product Type</th>
+                                    <th class="px-4 py-2 border-b text-right">Predicted Quantity</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                <h3 class="text-lg font-semibold mb-4">Inventory Predictions</h3>
-                <div class="mb-8">
-                    <table class="min-w-full bg-white border border-gray-200 mb-4">
-                        <thead>
-                            <tr>
-                                <th class="px-4 py-2 border-b">Product</th>
-                                <th class="px-4 py-2 border-b">Current Stock</th>
-                                <th class="px-4 py-2 border-b">Reorder Level</th>
-                                <th class="px-4 py-2 border-b">Daily Usage</th>
-                                <th class="px-4 py-2 border-b">Days Until Stockout</th>
-                                <th class="px-4 py-2 border-b">Recommended Order Qty</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($inventoryPredictions as $item)
-                                <tr>
-                                    <td class="px-4 py-2 border-b">{{ $item['product_name'] ?? 'Unknown Product' }}</td>
-                                    <td class="px-4 py-2 border-b">{{ $item['current_stock'] ?? 0 }}</td>
-                                    <td class="px-4 py-2 border-b">{{ $item['reorder_level'] ?? 0 }}</td>
-                                    <td class="px-4 py-2 border-b">{{ $item['daily_usage'] ?? 0 }}</td>
-                                    <td class="px-4 py-2 border-b">{{ $item['days_until_stockout'] ?? 'N/A' }}</td>
-                                    <td class="px-4 py-2 border-b">{{ $item['recommended_order_quantity'] ?? 0 }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach(array_slice($mlDemandForecast ?? [], 0, 30) as $forecast)
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-2 border-b">{{ $forecast['date'] ?? 'N/A' }}</td>
+                                        <td class="px-4 py-2 border-b">{{ $forecast['product_type'] ?? 'Unknown' }}</td>
+                                        <td class="px-4 py-2 border-b text-right font-semibold">{{ number_format($forecast['predicted_quantity'] ?? 0) }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                        @if(count($mlDemandForecast ?? []) > 30)
+                            <p class="text-sm text-gray-600 mt-2">Showing first 30 predictions. Total: {{ count($mlDemandForecast ?? []) }} predictions</p>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -245,27 +180,86 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Debug: Log data to console
-    console.log('Sales Trends Data:', @json($salesTrends));
-    console.log('Demand Forecast Data:', @json($demandForecast));
+    // ML Demand Forecast Data
+    const mlForecast = @json($mlDemandForecast ?? []);
 
-    // Sales Trends Chart
-    const salesTrends = @json($salesTrends);
-    const salesTrendsLabels = salesTrends.map(t => t.month);
-    const salesTrendsData = salesTrends.map(t => t.sales);
+    if (mlForecast.length > 0) {
+        // Process data for charts
+        const dates = [...new Set(mlForecast.map(f => f.date))].sort();
+        const products = [...new Set(mlForecast.map(f => f.product_type))];
 
-    if (salesTrendsData.length > 0) {
-        new Chart(document.getElementById('salesTrendsChart'), {
+        // Product Demand Forecast Chart (Line Chart)
+        const productDemandCtx = document.getElementById('productDemandChart').getContext('2d');
+        const datasets = products.map((product, index) => {
+            const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
+            const data = dates.map(date => {
+                const forecast = mlForecast.find(f => f.date === date && f.product_type === product);
+                return forecast ? forecast.predicted_quantity : 0;
+            });
+            return {
+                label: product,
+                data: data,
+                borderColor: colors[index % colors.length],
+                backgroundColor: colors[index % colors.length] + '20',
+                fill: false,
+                tension: 0.4,
+                borderWidth: 3
+            };
+        });
+
+        new Chart(productDemandCtx, {
             type: 'line',
             data: {
-                labels: salesTrendsLabels,
+                labels: dates,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: '30-Day Product Demand Forecast'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Predicted Quantity'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Product Comparison Chart (Bar Chart)
+        const productComparisonCtx = document.getElementById('productComparisonChart').getContext('2d');
+        const productTotals = products.map(product => {
+            return mlForecast.filter(f => f.product_type === product)
+                           .reduce((sum, f) => sum + f.predicted_quantity, 0);
+        });
+
+        new Chart(productComparisonCtx, {
+            type: 'bar',
+            data: {
+                labels: products,
                 datasets: [{
-                    label: 'Sales',
-                    data: salesTrendsData,
-                    borderColor: '#2563eb',
-                    backgroundColor: 'rgba(37,99,235,0.1)',
-                    fill: true,
-                    tension: 0.4,
+                    label: 'Total Predicted Demand (30 days)',
+                    data: productTotals,
+                    backgroundColor: ['#3B82F6', '#10B981', '#F59E0B'],
+                    borderColor: ['#2563EB', '#059669', '#D97706'],
+                    borderWidth: 2
                 }]
             },
             options: {
@@ -273,88 +267,105 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        display: true,
-                        position: 'top',
+                        display: false
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return '₦' + value.toLocaleString();
-                            }
+                        title: {
+                            display: true,
+                            text: 'Total Quantity'
                         }
                     }
                 }
             }
         });
-    } else {
-        document.getElementById('salesTrendsChart').innerHTML = '<div class="text-center text-gray-500 py-8">No sales data available</div>';
-    }
 
-    // Demand Forecast Chart
-    const demandForecast = @json($demandForecast);
-    const forecastLabels = demandForecast.map(f => f.date);
-    const forecastData = demandForecast.map(f => f.predicted_sales);
-    const forecastLower = demandForecast.map(f => f.confidence_lower);
-    const forecastUpper = demandForecast.map(f => f.confidence_upper);
-
-    if (forecastData.length > 0) {
-        new Chart(document.getElementById('demandForecastChart'), {
-            type: 'line',
+        // Product Pie Chart
+        const productPieCtx = document.getElementById('productPieChart').getContext('2d');
+        new Chart(productPieCtx, {
+            type: 'doughnut',
             data: {
-                labels: forecastLabels,
-                datasets: [
-                    {
-                        label: 'Predicted Sales',
-                        data: forecastData,
-                        borderColor: '#059669',
-                        backgroundColor: 'rgba(5,150,105,0.1)',
-                        fill: true,
-                        tension: 0.4,
-                    },
-                    {
-                        label: 'Lower Bound',
-                        data: forecastLower,
-                        borderColor: '#f59e42',
-                        borderDash: [5,5],
-                        fill: false,
-                        tension: 0.4,
-                    },
-                    {
-                        label: 'Upper Bound',
-                        data: forecastUpper,
-                        borderColor: '#f59e42',
-                        borderDash: [5,5],
-                        fill: false,
-                        tension: 0.4,
-                    }
-                ]
+                labels: products,
+                datasets: [{
+                    data: productTotals,
+                    backgroundColor: ['#3B82F6', '#10B981', '#F59E0B'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        display: true,
-                        position: 'top',
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Daily Trend Chart (Stacked Area)
+        const dailyTrendCtx = document.getElementById('dailyTrendChart').getContext('2d');
+        const dailyData = dates.map(date => {
+            const dayData = {};
+            products.forEach(product => {
+                const forecast = mlForecast.find(f => f.date === date && f.product_type === product);
+                dayData[product] = forecast ? forecast.predicted_quantity : 0;
+            });
+            return dayData;
+        });
+
+        const dailyDatasets = products.map((product, index) => {
+            const colors = ['#3B82F6', '#10B981', '#F59E0B'];
+            return {
+                label: product,
+                data: dailyData.map(day => day[product]),
+                backgroundColor: colors[index % colors.length] + '80',
+                borderColor: colors[index % colors.length],
+                fill: true,
+                tension: 0.4
+            };
+        });
+
+        new Chart(dailyTrendCtx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: dailyDatasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top'
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return '₦' + value.toLocaleString();
-                            }
+                        title: {
+                            display: true,
+                            text: 'Daily Predicted Quantity'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
                         }
                     }
                 }
             }
         });
     } else {
-        document.getElementById('demandForecastChart').innerHTML = '<div class="text-center text-gray-500 py-8">No forecast data available</div>';
+        // Show message if no data
+        document.getElementById('productDemandChart').innerHTML = '<div class="text-center text-gray-500 py-8">No ML forecast data available</div>';
+        document.getElementById('productComparisonChart').innerHTML = '<div class="text-center text-gray-500 py-8">No ML forecast data available</div>';
+        document.getElementById('productPieChart').innerHTML = '<div class="text-center text-gray-500 py-8">No ML forecast data available</div>';
+        document.getElementById('dailyTrendChart').innerHTML = '<div class="text-center text-gray-500 py-8">No ML forecast data available</div>';
     }
 </script>
 @endpush
