@@ -27,10 +27,20 @@
                 </select>
                 @error('status')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
             </div>
-            <div class="mb-4">
-                <label for="last_maintenance_at" class="block text-sm font-medium text-gray-700">Last Maintenance</label>
-                <input type="datetime-local" name="last_maintenance_at" id="last_maintenance_at" value="{{ old('last_maintenance_at') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                @error('last_maintenance_at')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
+            <div>
+                <label for="last_maintenance_at_date" class="block text-sm font-medium text-gray-700">Last Maintenance Date</label>
+                <input type="date" name="last_maintenance_at_date" id="last_maintenance_at_date" value="{{ old('last_maintenance_at_date') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+            </div>
+            <div>
+                <label for="last_maintenance_at_time_raw" class="block text-sm font-medium text-gray-700">Last Maintenance Time</label>
+                <div class="flex space-x-2">
+                    <input type="time" name="last_maintenance_at_time_raw" id="last_maintenance_at_time_raw" value="{{ old('last_maintenance_at_time_raw') }}" class="block w-full rounded-md border-gray-300 shadow-sm">
+                    <select name="last_maintenance_at_time_ampm" id="last_maintenance_at_time_ampm" class="block rounded-md border-gray-300 shadow-sm">
+                        <option value="AM"{{ old('last_maintenance_at_time_ampm') == 'AM' ? ' selected' : '' }}>AM</option>
+                        <option value="PM"{{ old('last_maintenance_at_time_ampm') == 'PM' ? ' selected' : '' }}>PM</option>
+                    </select>
+                </div>
+                <input type="hidden" name="last_maintenance_at" id="last_maintenance_at">
             </div>
             <div class="mb-4">
                 <label for="notes" class="block text-sm font-medium text-gray-700">Notes</label>
@@ -41,4 +51,21 @@
             <a href="{{ route('bakery.machines.index') }}" class="ml-2 text-gray-600 hover:underline">Cancel</a>
         </form>
     </div>
+    <script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+        function to24(time, ampm) {
+            let [h, m] = time.split(':');
+            h = parseInt(h);
+            if (ampm === 'PM' && h < 12) h += 12;
+            if (ampm === 'AM' && h === 12) h = 0;
+            return (h < 10 ? '0' : '') + h + ':' + m;
+        }
+        const d = document.getElementById('last_maintenance_at_date').value;
+        const t = document.getElementById('last_maintenance_at_time_raw').value;
+        const ampm = document.getElementById('last_maintenance_at_time_ampm').value;
+        if (d && t && ampm) {
+            document.getElementById('last_maintenance_at').value = d + 'T' + to24(t, ampm);
+        }
+    });
+    </script>
 @endsection 

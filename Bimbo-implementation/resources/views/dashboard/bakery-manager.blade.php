@@ -26,53 +26,6 @@
 @endsection
 
 @section('content')
-<!-- New/Assigned Orders Section -->
-<div class="bg-white rounded-xl shadow-lg mb-8 border-l-4 border-blue-600">
-    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-        <h2 class="text-xl font-bold text-gray-900">New & Assigned Orders</h2>
-        <span class="text-sm text-gray-500">(Pending & Processing)</span>
-    </div>
-    <div class="p-6">
-        @if($orders->count())
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 text-sm">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-4 py-2 text-left font-semibold">Order ID</th>
-                        <th class="px-4 py-2 text-left font-semibold">Customer</th>
-                        <th class="px-4 py-2 text-left font-semibold">Status</th>
-                        <th class="px-4 py-2 text-left font-semibold">Placed At</th>
-                        <th class="px-4 py-2 text-left font-semibold">Fulfillment</th>
-                        <th class="px-4 py-2 text-left font-semibold">Delivery</th>
-                        <th class="px-4 py-2 text-left font-semibold">Tracking #</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($orders as $order)
-                    <tr class="border-b">
-                        <td class="px-4 py-2">{{ $order->id }}</td>
-                        <td class="px-4 py-2">{{ $order->customer_name }}</td>
-                        <td class="px-4 py-2 capitalize">{{ $order->status }}</td>
-                        <td class="px-4 py-2">{{ $order->placed_at ? $order->placed_at->format('M d, Y H:i') : '-' }}</td>
-                        <td class="px-4 py-2">{{ $order->fulfillment_type ?? '-' }}</td>
-                        <td class="px-4 py-2">{{ $order->delivery_option ?? '-' }}</td>
-                        <td class="px-4 py-2">{{ $order->tracking_number ?? '-' }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-        @else
-        <div class="text-center text-gray-500 py-8">
-            <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-            </svg>
-            <p class="mt-2 text-sm">No new or assigned orders at the moment.</p>
-        </div>
-        @endif
-    </div>
-</div>
-
 <!-- Welcome Banner -->
 <div class="bg-gradient-to-r from-sky-400 via-sky-500 to-sky-600 rounded-lg shadow-lg mb-8">
     <div class="px-6 py-8">
@@ -172,40 +125,6 @@
 
 <!-- Main Content Grid -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <!-- Recent Batches (2/3) -->
-    <div class="lg:col-span-2 space-y-8">
-        <div class="bg-white rounded-xl shadow-lg">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">Recent Batches</h3>
-            </div>
-            <div class="p-6">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th>Batch Name</th>
-                                <th>Status</th>
-                                <th>Scheduled Start</th>
-                                <th>Actual Start</th>
-                                <th>Actual End</th>
-                                <th>Notes</th>
-                            </tr>
-                        </thead>
-                        <tbody class="production-batch-tbody">
-                            <tr>
-                                <td colspan="6" class="text-center text-gray-400 py-8">
-                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                                    </svg>
-                                    <p class="mt-2 text-sm text-gray-500">No recent batches</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
     <!-- Quick Actions & Alerts (1/3) -->
     <div class="lg:col-span-1 space-y-8">
         <div class="bg-white rounded-xl shadow-lg">
@@ -268,6 +187,17 @@
                         <p class="text-xs text-green-100">Schedule Staff</p>
                     </div>
                 </button>
+                <a href="{{ route('workforce.overview') }}" class="flex items-center p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg text-white w-full mb-2 hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 transform hover:scale-105">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="font-medium">Workforce Distribution</p>
+                        <p class="text-xs text-yellow-100">View & Manage Workforce</p>
+                    </div>
+                </a>
             </div>
         </div>
         <!-- Ingredient Alerts and Machine Alerts removed; assign to their respective dashboards -->
@@ -355,16 +285,49 @@
                 </select>
             </div>
             <div class="mb-2">
-                <label class="block text-sm font-medium">Scheduled Start</label>
-                <input type="datetime-local" name="scheduled_start" id="batch_scheduled_start" class="w-full border rounded px-3 py-2" required>
+                <label class="block text-sm font-medium">Scheduled Start Date</label>
+                <input type="date" name="scheduled_start_date" id="batch_scheduled_start_date" class="w-full border rounded px-3 py-2" required>
             </div>
             <div class="mb-2">
-                <label class="block text-sm font-medium">Actual Start</label>
-                <input type="datetime-local" name="actual_start" id="batch_actual_start" class="w-full border rounded px-3 py-2">
+                <label class="block text-sm font-medium">Scheduled Start Time</label>
+                <div class="flex space-x-2">
+                    <input type="time" name="scheduled_start_time_raw" id="batch_scheduled_start_time_raw" class="w-full border rounded px-3 py-2" required>
+                    <select name="scheduled_start_time_ampm" id="batch_scheduled_start_time_ampm" class="border rounded px-2 py-2" required>
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
+                <input type="hidden" name="scheduled_start" id="batch_scheduled_start">
             </div>
             <div class="mb-2">
-                <label class="block text-sm font-medium">Actual End</label>
-                <input type="datetime-local" name="actual_end" id="batch_actual_end" class="w-full border rounded px-3 py-2">
+                <label class="block text-sm font-medium">Actual Start Date</label>
+                <input type="date" name="actual_start_date" id="batch_actual_start_date" class="w-full border rounded px-3 py-2">
+            </div>
+            <div class="mb-2">
+                <label class="block text-sm font-medium">Actual Start Time</label>
+                <div class="flex space-x-2">
+                    <input type="time" name="actual_start_time_raw" id="batch_actual_start_time_raw" class="w-full border rounded px-3 py-2">
+                    <select name="actual_start_time_ampm" id="batch_actual_start_time_ampm" class="border rounded px-2 py-2">
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
+                <input type="hidden" name="actual_start" id="batch_actual_start">
+            </div>
+            <div class="mb-2">
+                <label class="block text-sm font-medium">Actual End Date</label>
+                <input type="date" name="actual_end_date" id="batch_actual_end_date" class="w-full border rounded px-3 py-2">
+            </div>
+            <div class="mb-2">
+                <label class="block text-sm font-medium">Actual End Time</label>
+                <div class="flex space-x-2">
+                    <input type="time" name="actual_end_time_raw" id="batch_actual_end_time_raw" class="w-full border rounded px-3 py-2">
+                    <select name="actual_end_time_ampm" id="batch_actual_end_time_ampm" class="border rounded px-2 py-2">
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
+                <input type="hidden" name="actual_end" id="batch_actual_end">
             </div>
             <div class="mb-4">
                 <label class="block text-sm font-medium">Notes</label>
@@ -398,10 +361,28 @@
                 <option value="{{ $center->id }}">{{ $center->name }}</option>
                 @endforeach
             </select>
+            <label>Start Date:</label>
+            <input type="date" name="start_date" id="shift_start_date" class="w-full mb-2 border rounded p-2" required>
             <label>Start Time:</label>
-            <input type="datetime-local" name="start_time" class="w-full mb-4 border rounded p-2" required>
+            <div class="flex space-x-2 mb-2">
+                <input type="time" name="start_time_raw" id="shift_start_time_raw" class="w-full border rounded p-2" required>
+                <select name="start_time_ampm" id="shift_start_time_ampm" class="border rounded p-2" required>
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                </select>
+            </div>
+            <input type="hidden" name="start_time" id="shift_start_time">
+            <label>End Date:</label>
+            <input type="date" name="end_date" id="shift_end_date" class="w-full mb-2 border rounded p-2" required>
             <label>End Time:</label>
-            <input type="datetime-local" name="end_time" class="w-full mb-4 border rounded p-2" required>
+            <div class="flex space-x-2 mb-2">
+                <input type="time" name="end_time_raw" id="shift_end_time_raw" class="w-full border rounded p-2" required>
+                <select name="end_time_ampm" id="shift_end_time_ampm" class="border rounded p-2" required>
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                </select>
+            </div>
+            <input type="hidden" name="end_time" id="shift_end_time">
             <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Assign</button>
         </form>
     </div>
@@ -425,8 +406,17 @@
                 <option value="{{ $line->id }}">{{ $line->name }}</option>
                 @endforeach
             </select>
-            <label>Scheduled Start:</label>
-            <input type="datetime-local" name="scheduled_start" class="w-full mb-4 border rounded p-2" required>
+            <label>Scheduled Start Date:</label>
+            <input type="date" name="scheduled_start_date" id="start_batch_scheduled_start_date" class="w-full mb-2 border rounded p-2" required>
+            <label>Scheduled Start Time:</label>
+            <div class="flex space-x-2 mb-2">
+                <input type="time" name="scheduled_start_time_raw" id="start_batch_scheduled_start_time_raw" class="w-full border rounded p-2" required>
+                <select name="scheduled_start_time_ampm" id="start_batch_scheduled_start_time_ampm" class="border rounded p-2" required>
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                </select>
+            </div>
+            <input type="hidden" name="scheduled_start" id="start_batch_scheduled_start">
             <label>Notes:</label>
             <textarea name="notes" class="w-full mb-4 border rounded p-2"></textarea>
             <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Start Batch</button>
@@ -438,4 +428,92 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{{ asset('js/bakery-manager.js') }}"></script>
+<script>
+    // Batch Modal JS
+    const batchForm = document.getElementById('batchForm');
+    if (batchForm) {
+        batchForm.addEventListener('submit', function(e) {
+            function to24(time, ampm) {
+                let [h, m] = time.split(':');
+                h = parseInt(h);
+                if (ampm === 'PM' && h < 12) h += 12;
+                if (ampm === 'AM' && h === 12) h = 0;
+                return (h < 10 ? '0' : '') + h + ':' + m;
+            }
+            // Scheduled Start
+            const ssd = document.getElementById('batch_scheduled_start_date').value;
+            const sst = document.getElementById('batch_scheduled_start_time_raw').value;
+            const ssampm = document.getElementById('batch_scheduled_start_time_ampm').value;
+            document.getElementById('batch_scheduled_start').value = ssd + 'T' + to24(sst, ssampm);
+            // Actual Start
+            const asd = document.getElementById('batch_actual_start_date').value;
+            const ast = document.getElementById('batch_actual_start_time_raw').value;
+            const asampm = document.getElementById('batch_actual_start_time_ampm').value;
+            if (asd && ast && asampm) {
+                document.getElementById('batch_actual_start').value = asd + 'T' + to24(ast, asampm);
+            }
+            // Actual End
+            const aed = document.getElementById('batch_actual_end_date').value;
+            const aet = document.getElementById('batch_actual_end_time_raw').value;
+            const aeampm = document.getElementById('batch_actual_end_time_ampm').value;
+            if (aed && aet && aeampm) {
+                document.getElementById('batch_actual_end').value = aed + 'T' + to24(aet, aeampm);
+            }
+        });
+    }
+    // Assign Shift Modal JS
+    const assignShiftForm = document.getElementById('assignShiftForm');
+    if (assignShiftForm) {
+        assignShiftForm.addEventListener('submit', function(e) {
+            function to24(time, ampm) {
+                let [h, m] = time.split(':');
+                h = parseInt(h);
+                if (ampm === 'PM' && h < 12) h += 12;
+                if (ampm === 'AM' && h === 12) h = 0;
+                return (h < 10 ? '0' : '') + h + ':' + m;
+            }
+            // Start
+            const sd = document.getElementById('shift_start_date').value;
+            const st = document.getElementById('shift_start_time_raw').value;
+            const stampm = document.getElementById('shift_start_time_ampm').value;
+            document.getElementById('shift_start_time').value = sd + 'T' + to24(st, stampm);
+            // End
+            const ed = document.getElementById('shift_end_date').value;
+            const et = document.getElementById('shift_end_time_raw').value;
+            const etampm = document.getElementById('shift_end_time_ampm').value;
+            document.getElementById('shift_end_time').value = ed + 'T' + to24(et, etampm);
+        });
+    }
+    // --- AM/PM toggle for Assign Shift Modal ---
+    function toggleTimeAMPM(timeInput, ampmSelect) {
+        ampmSelect.addEventListener('change', function() {
+            let [h, m] = timeInput.value.split(':');
+            if (!h || !m) return;
+            h = parseInt(h);
+            if (this.value === 'PM' && h < 12) {
+                h += 12;
+            } else if (this.value === 'AM' && h >= 12) {
+                h = h === 12 ? 0 : h - 12;
+            }
+            // Format with leading zero
+            let hStr = h < 10 ? '0' + h : '' + h;
+            timeInput.value = hStr + ':' + m;
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Start Time
+        const shiftStartTime = document.getElementById('shift_start_time_raw');
+        const shiftStartAMPM = document.getElementById('shift_start_time_ampm');
+        if (shiftStartTime && shiftStartAMPM) {
+            toggleTimeAMPM(shiftStartTime, shiftStartAMPM);
+        }
+        // End Time
+        const shiftEndTime = document.getElementById('shift_end_time_raw');
+        const shiftEndAMPM = document.getElementById('shift_end_time_ampm');
+        if (shiftEndTime && shiftEndAMPM) {
+            toggleTimeAMPM(shiftEndTime, shiftEndAMPM);
+        }
+    });
+</script>
 @endpush

@@ -92,5 +92,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     fetchRetailerOrders();
-    setInterval(fetchRetailerOrders, 10000);
+    // setInterval(fetchRetailerOrders, 60000); // polling disabled
 }); 

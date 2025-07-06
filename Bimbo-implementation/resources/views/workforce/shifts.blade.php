@@ -66,12 +66,34 @@
                 </select>
             </div>
             <div class="mb-2">
-                <label class="block text-sm font-medium">Start Time</label>
-                <input type="datetime-local" name="start_time" class="w-full border rounded px-3 py-2" required>
+                <label class="block text-sm font-medium">Start Date</label>
+                <input type="date" name="start_date" id="start_date" class="w-full border rounded px-3 py-2" required>
             </div>
-            <div class="mb-4">
+            <div class="mb-2">
+                <label class="block text-sm font-medium">Start Time</label>
+                <div class="flex space-x-2">
+                    <input type="time" name="start_time_raw" id="start_time_raw" class="w-full border rounded px-3 py-2" required>
+                    <select name="start_time_ampm" id="start_time_ampm" class="border rounded px-2 py-2" required>
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
+                <input type="hidden" name="start_time" id="start_time">
+            </div>
+            <div class="mb-2">
+                <label class="block text-sm font-medium">End Date</label>
+                <input type="date" name="end_date" id="end_date" class="w-full border rounded px-3 py-2" required>
+            </div>
+            <div class="mb-2">
                 <label class="block text-sm font-medium">End Time</label>
-                <input type="datetime-local" name="end_time" class="w-full border rounded px-3 py-2" required>
+                <div class="flex space-x-2">
+                    <input type="time" name="end_time_raw" id="end_time_raw" class="w-full border rounded px-3 py-2" required>
+                    <select name="end_time_ampm" id="end_time_ampm" class="border rounded px-2 py-2" required>
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
+                <input type="hidden" name="end_time" id="end_time">
             </div>
             <div class="flex justify-end">
                 <button type="button" id="closeShiftModal" class="mr-2 px-4 py-2 rounded bg-gray-300">Cancel</button>
@@ -156,6 +178,24 @@
                     scheduleBtn.textContent = originalText;
                 });
         };
+
+        document.getElementById('shiftForm').addEventListener('submit', function(e) {
+            function to24(time, ampm) {
+                let [h, m] = time.split(':');
+                h = parseInt(h);
+                if (ampm === 'PM' && h < 12) h += 12;
+                if (ampm === 'AM' && h === 12) h = 0;
+                return (h < 10 ? '0' : '') + h + ':' + m;
+            }
+            const sd = document.getElementById('start_date').value;
+            const st = document.getElementById('start_time_raw').value;
+            const stam = document.getElementById('start_time_ampm').value;
+            document.getElementById('start_time').value = sd + 'T' + to24(st, stam);
+            const ed = document.getElementById('end_date').value;
+            const et = document.getElementById('end_time_raw').value;
+            const etam = document.getElementById('end_time_ampm').value;
+            document.getElementById('end_time').value = ed + 'T' + to24(et, etam);
+        });
     });
 </script>
 @endpush
