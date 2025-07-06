@@ -72,10 +72,36 @@ Batch Details
                 <option value="{{ $staff->id }}">{{ $staff->name }}</option>
                 @endforeach
             </select>
-            <label>Start Time:</label>
-            <input type="datetime-local" name="start_time" class="w-full mb-4 border rounded p-2" required>
-            <label>End Time:</label>
-            <input type="datetime-local" name="end_time" class="w-full mb-4 border rounded p-2" required>
+            <div>
+                <label for="start_time_date" class="block text-sm font-medium text-gray-700">Start Time Date</label>
+                <input type="date" name="start_time_date" id="start_time_date" class="w-full mb-2 border rounded p-2">
+            </div>
+            <div>
+                <label for="start_time_raw" class="block text-sm font-medium text-gray-700">Start Time</label>
+                <div class="flex space-x-2 mb-2">
+                    <input type="time" name="start_time_raw" id="start_time_raw" class="w-full border rounded p-2">
+                    <select name="start_time_ampm" id="start_time_ampm" class="border rounded p-2">
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
+                <input type="hidden" name="start_time" id="start_time">
+            </div>
+            <div>
+                <label for="end_time_date" class="block text-sm font-medium text-gray-700">End Time Date</label>
+                <input type="date" name="end_time_date" id="end_time_date" class="w-full mb-2 border rounded p-2">
+            </div>
+            <div>
+                <label for="end_time_raw" class="block text-sm font-medium text-gray-700">End Time</label>
+                <div class="flex space-x-2 mb-2">
+                    <input type="time" name="end_time_raw" id="end_time_raw" class="w-full border rounded p-2">
+                    <select name="end_time_ampm" id="end_time_ampm" class="border rounded p-2">
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
+                <input type="hidden" name="end_time" id="end_time">
+            </div>
             <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Assign</button>
         </form>
     </div>
@@ -89,33 +115,44 @@ Batch Details
     document.getElementById('assignShiftForm').onsubmit = function(e) {
         e.preventDefault();
         const form = e.target;
-        var batchId = {
-            {
-                $batch - > id
-            }
-        };
+        var batchId = "{{ $batch->id }}";
+        function to24(time, ampm) {
+            let [h, m] = time.split(':');
+            h = parseInt(h);
+            if (ampm === 'PM' && h < 12) h += 12;
+            if (ampm === 'AM' && h === 12) h = 0;
+            return (h < 10 ? '0' : '') + h + ':' + m;
+        }
+        const sd = document.getElementById('start_time_date').value;
+        const st = document.getElementById('start_time_raw').value;
+        const stam = document.getElementById('start_time_ampm').value;
+        const startTime = sd + 'T' + to24(st, stam);
+        const ed = document.getElementById('end_time_date').value;
+        const et = document.getElementById('end_time_raw').value;
+        const etam = document.getElementById('end_time_ampm').value;
+        const endTime = ed + 'T' + to24(et, etam);
         fetch(`/batches/${batchId}/assign-shift`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    user_id: form.user_id.value,
-                    start_time: form.start_time.value,
-                    end_time: form.end_time.value
-                })
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                user_id: form.user_id.value,
+                start_time: startTime,
+                end_time: endTime
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Shift assigned!');
-                    document.getElementById('assignShiftModal').style.display = 'none';
-                    location.reload();
-                } else {
-                    alert('Error assigning shift');
-                }
-            });
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert('Shift assigned!');
+                document.getElementById('assignShiftModal').style.display = 'none';
+                location.reload();
+            } else {
+                alert('Error assigning shift');
+            }
+        });
     };
 </script>
 @endpush
