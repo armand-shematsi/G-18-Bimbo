@@ -62,6 +62,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/orders/new', [OrderController::class, 'create'])->name('orders.new');
         Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
         Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::put('/orders/{order}', [OrderController::class, 'update'])->name('orders.update');
         Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
         Route::get('/chat', [ChatController::class, 'index'])->name('chat');
         Route::get('/inventory/dashboard', [App\Http\Controllers\Supplier\InventoryController::class, 'dashboard'])->name('inventory.dashboard');
@@ -276,6 +277,9 @@ Route::get('/test-ml-data', function () {
 // Customer order routes
 Route::get('/customer/orders/create', [App\Http\Controllers\Customer\OrderController::class, 'create'])
     ->name('customer.orders.create');
+
+Route::post('/customer/orders', [App\Http\Controllers\Customer\OrderController::class, 'store'])
+    ->name('customer.orders.store');
 
 Route::get('/customer/orders', [App\Http\Controllers\Customer\OrderController::class, 'index'])->name('customer.orders.index');
 

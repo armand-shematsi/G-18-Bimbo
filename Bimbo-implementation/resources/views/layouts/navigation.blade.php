@@ -17,7 +17,7 @@
                     </a>
                     @auth
                         @if(auth()->user()->role === 'customer')
-                            <a href="{{ route('customer.order.create') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('customer.order.*') ? 'border-primary text-gray-900' : 'border-transparent text-green-600 hover:text-green-700 hover:border-green-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none focus:border-green-600">
+                            <a href="{{ route('customer.orders.create') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('customer.orders.*') ? 'border-primary text-gray-900' : 'border-transparent text-green-600 hover:text-green-700 hover:border-green-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none focus:border-green-600">
                                 <svg class="w-4 h-4 mr-1 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                                 Place Order
                             </a>
@@ -101,7 +101,7 @@
             </a>
             @auth
                 @if(auth()->user()->role === 'customer')
-                    <a href="{{ route('customer.order.create') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('customer.order.*') ? 'border-green-600 text-green-700 bg-green-50' : 'border-transparent text-green-600 hover:text-green-800 hover:bg-green-50 hover:border-green-300' }} text-base font-medium transition duration-150 ease-in-out focus:outline-none focus:text-green-800 focus:bg-green-50 focus:border-green-300">
+                    <a href="{{ route('customer.orders.create') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('customer.orders.*') ? 'border-green-600 text-green-700 bg-green-50' : 'border-transparent text-green-600 hover:text-green-800 hover:bg-green-50 hover:border-green-300' }} text-base font-medium transition duration-150 ease-in-out focus:outline-none focus:text-green-800 focus:bg-green-50 focus:border-green-300">
                         <svg class="w-4 h-4 mr-1 inline text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                         Place Order
                     </a>

@@ -64,6 +64,6 @@ class OrderController extends Controller
         foreach ($orderItems as $item) {
             $order->items()->create($item);
         }
-        return redirect()->route('dashboard.customer')->with('success', 'Order placed successfully!');
+        return redirect()->route('dashboard')->with('success', 'Order placed successfully!');
     }
 }
