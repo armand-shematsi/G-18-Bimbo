@@ -13,12 +13,57 @@
                     <a href="{{ route('admin.analytics') }}" class="px-4 py-2 rounded {{ request()->routeIs('admin.analytics') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700' }}">Customer Segmentation</a>
                     <a href="{{ route('admin.analytics.sales_predictions') }}" class="px-4 py-2 rounded {{ request()->routeIs('admin.analytics.sales_predictions') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700' }}">Sales Predictions</a>
                 </div>
+                <h3 class="text-lg font-semibold mb-4">🤖 ML-Powered Insights</h3>
+                <div class="mb-8">
+                    @if(!empty($mlInsights))
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            @foreach($mlInsights as $insight)
+                                <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-200">
+                                    @if($insight['type'] == 'customer_segment')
+                                        <div class="flex items-center mb-3">
+                                            <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+                                            <h4 class="font-semibold text-blue-800">Segment {{ $insight['segment'] ?? 'N/A' }} Analysis</h4>
+                                        </div>
+                                        <div class="space-y-2 text-sm">
+                                            <p><strong>{{ $insight['customer_count'] ?? 0 }}</strong> customers</p>
+                                            <p>Avg Spending: <strong>₦{{ number_format($insight['avg_spending'] ?? 0, 2) }}</strong></p>
+                                            <p>Purchase Frequency: <strong>{{ $insight['avg_frequency'] ?? 'N/A' }}</strong> times/month</p>
+                                            <p>Top Product: <strong>{{ $insight['top_product'] ?? 'Unknown' }}</strong></p>
+                                            <p>Top Location: <strong>{{ $insight['top_location'] ?? 'Unknown' }}</strong></p>
+                                            <div class="mt-3 p-3 bg-blue-100 rounded">
+                                                <p class="text-blue-800 text-xs"><strong>ML Recommendation:</strong> {{ $insight['recommendation'] ?? 'No recommendation available' }}</p>
+                                            </div>
+                                        </div>
+                                    @elseif($insight['type'] == 'demand_forecast')
+                                        <div class="flex items-center mb-3">
+                                            <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                                            <h4 class="font-semibold text-green-800">Demand Forecast</h4>
+                                        </div>
+                                        <div class="space-y-2 text-sm">
+                                            <p>Top Product: <strong>{{ $insight['top_product'] ?? 'Unknown' }}</strong></p>
+                                            <p>Total Predicted Demand: <strong>{{ number_format($insight['total_demand'] ?? 0) }}</strong> units</p>
+                                            <p>Highest Demand: <strong>{{ number_format($insight['top_demand'] ?? 0) }}</strong> units</p>
+                                            <div class="mt-3 p-3 bg-green-100 rounded">
+                                                <p class="text-green-800 text-xs"><strong>ML Recommendation:</strong> {{ $insight['recommendation'] ?? 'No recommendation available' }}</p>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                            <p class="text-yellow-800">ML insights will appear here when machine learning data is available.</p>
+                        </div>
+                    @endif
+                </div>
+
                 <h3 class="text-lg font-semibold mb-4">Data Status</h3>
                 <div class="mb-8">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div class="bg-gray-50 p-4 rounded">
                             <div class="text-sm text-gray-600">Total Orders</div>
-                            <div class="text-xl font-bold">{{ $salesData['total_orders'] }}</div>
+                            <div class="text-xl font-bold">{{ $salesData['total_orders'] ?? 0 }}</div>
                         </div>
                         <div class="bg-gray-50 p-4 rounded">
                             <div class="text-sm text-gray-600">ML Forecasts</div>
@@ -36,7 +81,7 @@
                 </div>
 
                 <h3 class="text-lg font-semibold mb-4">Sales Overview</h3>
-                @if($salesData['current_month_sales'] > 0)
+                @if(($salesData['current_month_sales'] ?? 0) > 0)
                     <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded">
                         <p class="text-sm text-blue-700">
                             <strong>Note:</strong> This dashboard shows real sales data from your database.
@@ -53,23 +98,23 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                     <div class="bg-blue-100 p-4 rounded">
                         <div class="text-sm text-gray-600">Current Month Sales</div>
-                        <div class="text-2xl font-bold">₦{{ number_format($salesData['current_month_sales'], 2) }}</div>
+                        <div class="text-2xl font-bold">₦{{ number_format($salesData['current_month_sales'] ?? 0, 2) }}</div>
                     </div>
                     <div class="bg-green-100 p-4 rounded">
                         <div class="text-sm text-gray-600">Last Month Sales</div>
-                        <div class="text-2xl font-bold">₦{{ number_format($salesData['last_month_sales'], 2) }}</div>
+                        <div class="text-2xl font-bold">₦{{ number_format($salesData['last_month_sales'] ?? 0, 2) }}</div>
                     </div>
                     <div class="bg-yellow-100 p-4 rounded">
                         <div class="text-sm text-gray-600">Growth Rate</div>
-                        <div class="text-2xl font-bold">{{ $salesData['growth_rate'] }}%</div>
+                        <div class="text-2xl font-bold">{{ $salesData['growth_rate'] ?? 0 }}%</div>
                     </div>
                     <div class="bg-purple-100 p-4 rounded">
                         <div class="text-sm text-gray-600">Total Orders</div>
-                        <div class="text-2xl font-bold">{{ $salesData['total_orders'] }}</div>
+                        <div class="text-2xl font-bold">{{ $salesData['total_orders'] ?? 0 }}</div>
                     </div>
                     <div class="bg-pink-100 p-4 rounded">
                         <div class="text-sm text-gray-600">Avg Order Value</div>
-                        <div class="text-2xl font-bold">₦{{ number_format($salesData['average_order_value'], 2) }}</div>
+                        <div class="text-2xl font-bold">₦{{ number_format($salesData['average_order_value'] ?? 0, 2) }}</div>
                     </div>
                 </div>
                 <h3 class="text-lg font-semibold mb-4">Sales Trends (Last 12 Months)</h3>
@@ -77,6 +122,21 @@
                     <canvas id="salesTrendsChart" width="600" height="250"></canvas>
                 </div>
                 <h3 class="text-lg font-semibold mb-4">Demand Forecast (Next 30 Days)</h3>
+                <div class="mb-4">
+                    @if(isset($demandForecast[0]['ml_based']) && $demandForecast[0]['ml_based'])
+                        <div class="bg-green-50 p-3 rounded border border-green-200 mb-4">
+                            <p class="text-green-800 text-sm">
+                                <strong>🤖 ML-Enhanced:</strong> This forecast combines Prophet ML predictions with statistical analysis for improved accuracy.
+                            </p>
+                        </div>
+                    @else
+                        <div class="bg-blue-50 p-3 rounded border border-blue-200 mb-4">
+                            <p class="text-blue-800 text-sm">
+                                <strong>📊 Statistical:</strong> This forecast uses statistical trend analysis. Run ML scripts for enhanced predictions.
+                            </p>
+                        </div>
+                    @endif
+                </div>
                 <div class="mb-8">
                     <canvas id="demandForecastChart" width="600" height="250"></canvas>
                 </div>
@@ -94,9 +154,9 @@
                         <tbody>
                             @foreach(array_slice($mlDemandForecast, 0, 20) as $forecast)
                                 <tr>
-                                    <td class="px-4 py-2 border-b">{{ $forecast['date'] }}</td>
-                                    <td class="px-4 py-2 border-b">{{ $forecast['product_type'] }}</td>
-                                    <td class="px-4 py-2 border-b">{{ $forecast['predicted_quantity'] }}</td>
+                                    <td class="px-4 py-2 border-b">{{ $forecast['date'] ?? 'N/A' }}</td>
+                                    <td class="px-4 py-2 border-b">{{ $forecast['product_type'] ?? 'Unknown' }}</td>
+                                    <td class="px-4 py-2 border-b">{{ $forecast['predicted_quantity'] ?? 0 }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -111,10 +171,11 @@
                     @php
                         $productSummary = [];
                         foreach($mlDemandForecast as $forecast) {
-                            if (!isset($productSummary[$forecast['product_type']])) {
-                                $productSummary[$forecast['product_type']] = 0;
+                            $productType = $forecast['product_type'] ?? 'Unknown';
+                            if (!isset($productSummary[$productType])) {
+                                $productSummary[$productType] = 0;
                             }
-                            $productSummary[$forecast['product_type']] += $forecast['predicted_quantity'];
+                            $productSummary[$productType] += $forecast['predicted_quantity'] ?? 0;
                         }
                     @endphp
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -164,12 +225,12 @@
                         <tbody>
                             @foreach($inventoryPredictions as $item)
                                 <tr>
-                                    <td class="px-4 py-2 border-b">{{ $item['product_name'] }}</td>
-                                    <td class="px-4 py-2 border-b">{{ $item['current_stock'] }}</td>
-                                    <td class="px-4 py-2 border-b">{{ $item['reorder_level'] }}</td>
-                                    <td class="px-4 py-2 border-b">{{ $item['daily_usage'] }}</td>
-                                    <td class="px-4 py-2 border-b">{{ $item['days_until_stockout'] }}</td>
-                                    <td class="px-4 py-2 border-b">{{ $item['recommended_order_quantity'] }}</td>
+                                    <td class="px-4 py-2 border-b">{{ $item['product_name'] ?? 'Unknown Product' }}</td>
+                                    <td class="px-4 py-2 border-b">{{ $item['current_stock'] ?? 0 }}</td>
+                                    <td class="px-4 py-2 border-b">{{ $item['reorder_level'] ?? 0 }}</td>
+                                    <td class="px-4 py-2 border-b">{{ $item['daily_usage'] ?? 0 }}</td>
+                                    <td class="px-4 py-2 border-b">{{ $item['days_until_stockout'] ?? 'N/A' }}</td>
+                                    <td class="px-4 py-2 border-b">{{ $item['recommended_order_quantity'] ?? 0 }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

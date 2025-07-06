@@ -14,7 +14,16 @@
                     <a href="{{ route('admin.analytics.sales_predictions') }}" class="px-4 py-2 rounded {{ request()->routeIs('admin.analytics.sales_predictions') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700' }}">Sales Predictions</a>
                 </div>
 
-                <h3 class="text-lg font-semibold mb-4">Customer Segment Distribution (ML-Generated)</h3>
+                <h3 class="text-lg font-semibold mb-4">Customer Spending Distribution by Segment</h3>
+                <p class="text-sm text-gray-600 mb-4">Visualizing spending patterns across {{ count($segmentRecommendations) }} customers</p>
+                <div class="bg-yellow-50 p-4 rounded mb-4">
+                    <p class="text-sm text-yellow-800">
+                        <strong>Debug Info:</strong>
+                        Segment Recommendations Count: {{ count($segmentRecommendations) }} |
+                        Customer Segments Count: {{ count($customerSegments) }} |
+                        Bread Type Distribution Count: {{ count($breadTypeDistribution) }}
+                    </p>
+                </div>
                 <div class="mb-8">
                     <canvas id="segmentDistributionChart" width="400" height="200"></canvas>
                 </div>
@@ -26,30 +35,9 @@
 
                 <h3 class="text-lg font-semibold mb-4">Top Customers by Spending</h3>
                 <div class="mb-8">
-                    <table class="min-w-full bg-white border border-gray-200 mb-4">
-                        <thead>
-                            <tr>
-                                <th class="px-4 py-2 border-b">Name</th>
-                                <th class="px-4 py-2 border-b">Segment</th>
-                                <th class="px-4 py-2 border-b">Avg Spending</th>
-                                <th class="px-4 py-2 border-b">Purchase Frequency</th>
-                                <th class="px-4 py-2 border-b">Preferred Bread</th>
-                                <th class="px-4 py-2 border-b">Location</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach(array_slice($segmentRecommendations, 0, 10) as $customer)
-                                <tr>
-                                    <td class="px-4 py-2 border-b">{{ $customer['name'] }}</td>
-                                    <td class="px-4 py-2 border-b">Segment {{ $customer['segment'] }}</td>
-                                    <td class="px-4 py-2 border-b">₦{{ number_format($customer['avg_spending'], 2) }}</td>
-                                    <td class="px-4 py-2 border-b">{{ $customer['purchase_frequency'] }}</td>
-                                    <td class="px-4 py-2 border-b">{{ $customer['preferred_bread_type'] }}</td>
-                                    <td class="px-4 py-2 border-b">{{ $customer['location'] }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                    <canvas id="customerSpendingChart" width="800" height="400"></canvas>
+                    <div id="chartDebug" class="text-sm text-gray-600 mt-2"></div>
+                    <div id="dataDebug" class="text-sm text-gray-600 mt-2"></div>
                 </div>
 
                 <h3 class="text-lg font-semibold mb-4">Bread Type Distribution</h3>
@@ -224,6 +212,95 @@
         });
     } else {
         document.getElementById('breadTypeChart').innerHTML = '<div class="text-center text-gray-500 py-8">No bread type data available</div>';
+    }
+
+            // Simple Customer Spending Chart
+    console.log('Creating simple customer spending chart...');
+
+    const customerData = @json($segmentRecommendations);
+    console.log('Customer data received:', customerData ? customerData.length : 'No data');
+
+    // Display debug info
+    document.getElementById('dataDebug').innerHTML = 'Data received: ' + (customerData ? customerData.length : 0) + ' customers';
+
+    const canvas = document.getElementById('customerSpendingChart');
+    if (!canvas) {
+        console.error('Canvas not found!');
+        document.getElementById('chartDebug').innerHTML = 'Canvas element not found!';
+        return;
+    }
+
+    // Simple data processing
+    const segments = {};
+    if (customerData && customerData.length > 0) {
+        customerData.forEach(customer => {
+            const segment = customer.segment || 0;
+            if (!segments[segment]) {
+                segments[segment] = { count: 0, totalSpending: 0 };
+            }
+            segments[segment].count++;
+            segments[segment].totalSpending += customer.avg_spending || 0;
+        });
+
+        const labels = Object.keys(segments).map(s => 'Segment ' + s);
+        const data = Object.values(segments).map(s => s.totalSpending / s.count);
+        const counts = Object.values(segments).map(s => s.count);
+
+        console.log('Chart data:', { labels, data, counts });
+
+        try {
+            new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Average Spending per Customer',
+                        data: data,
+                        backgroundColor: ['#3b82f6', '#10b981'],
+                        borderColor: ['#2563eb', '#059669'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Customer Spending by Segment'
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Average Spending (₦)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '₦' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            console.log('Chart created successfully!');
+            document.getElementById('chartDebug').innerHTML = 'Chart created successfully!';
+        } catch (error) {
+            console.error('Chart error:', error);
+            document.getElementById('chartDebug').innerHTML = 'Chart error: ' + error.message;
+            canvas.innerHTML = '<div class="text-center text-red-500 py-8">Error: ' + error.message + '</div>';
+        }
+    } else {
+        console.log('No customer data available');
+        document.getElementById('chartDebug').innerHTML = 'No customer data available';
+        canvas.innerHTML = '<div class="text-center text-gray-500 py-8">No customer data available</div>';
     }
 
     // Location Distribution

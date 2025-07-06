@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkforceController;
 use App\Http\Controllers\OrderReturnController;
 use App\Http\Controllers\SupportRequestController;
+use Illuminate\Support\Facades\File;
 
 
 Route::get('/', function () {
@@ -206,4 +207,42 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     // If you have a controller method for import, you can use it instead:
     // Route::get('/customer-segments/import', [CustomerSegmentController::class, 'importForm'])->name('customer-segments.import.form');
     Route::post('/customer-segments/import', [App\Http\Controllers\CustomerSegmentImportController::class, 'import'])->name('customer-segments.import');
+});
+
+// Test route for ML data
+Route::get('/test-ml-data', function () {
+    $csvPath = base_path('ml/customer_segments_summary.csv');
+
+    if (!File::exists($csvPath)) {
+        return response()->json(['error' => 'CSV file not found']);
+    }
+
+    $segments = [];
+    $handle = fopen($csvPath, 'r');
+
+    // Skip header
+    fgetcsv($handle);
+
+    while (($data = fgetcsv($handle)) !== false) {
+        if (count($data) >= 7) {
+            $segments[] = [
+                'segment' => (int)$data[0],
+                'type' => $data[1],
+                'customer_count' => (int)$data[2],
+                'avg_spending' => (float)$data[3],
+                'purchase_frequency' => (float)$data[4],
+                'preferred_bread_type' => $data[5],
+                'location' => $data[6],
+                'recommendations' => $data[7] ?? ''
+            ];
+        }
+    }
+
+    fclose($handle);
+
+    return response()->json([
+        'success' => true,
+        'segments' => $segments,
+        'total_segments' => count($segments)
+    ]);
 });

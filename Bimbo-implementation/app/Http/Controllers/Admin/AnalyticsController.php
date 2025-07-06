@@ -30,6 +30,7 @@ class AnalyticsController extends Controller
         $breadTypeDistribution = $this->getBreadTypeDistribution();
         $locationDistribution = $this->getLocationDistribution();
         $avgPurchaseFrequency = $this->getAvgPurchaseFrequency();
+        $detailedSegments = $this->getDetailedSegments();
 
         return view('admin.analytics.index', compact(
             'salesData',
@@ -41,7 +42,8 @@ class AnalyticsController extends Controller
             'segmentRecommendations',
             'breadTypeDistribution',
             'locationDistribution',
-            'avgPurchaseFrequency'
+            'avgPurchaseFrequency',
+            'detailedSegments'
         ));
     }
 
@@ -87,7 +89,51 @@ class AnalyticsController extends Controller
 
     private function getDemandForecast()
     {
-        // Get last 30 days of sales data
+        // Prioritize ML-based forecast
+        $mlForecast = $this->getMLDemandForecast();
+
+        if (!empty($mlForecast)) {
+            // Use ML data to create enhanced forecast
+            $forecastData = [];
+            $productForecasts = [];
+
+            // Group ML predictions by product
+            foreach ($mlForecast as $forecast) {
+                $product = $forecast['product_type'];
+                if (!isset($productForecasts[$product])) {
+                    $productForecasts[$product] = [];
+                }
+                $productForecasts[$product][] = $forecast['predicted_quantity'];
+            }
+
+            // Create 30-day forecast based on ML predictions
+            for ($i = 1; $i <= 30; $i++) {
+                $forecastDate = Carbon::now()->addDays($i);
+                $totalPredicted = 0;
+
+                // Sum predictions across all products for each day
+                foreach ($productForecasts as $product => $predictions) {
+                    $dayIndex = ($i - 1) % count($predictions);
+                    $totalPredicted += $predictions[$dayIndex] ?? 0;
+                }
+
+                // Convert quantity to sales value (assuming average price)
+                $avgPrice = 500; // Average price per unit
+                $predictedSales = $totalPredicted * $avgPrice;
+
+                $forecastData[] = [
+                    'date' => $forecastDate->format('Y-m-d'),
+                    'predicted_sales' => $predictedSales,
+                    'confidence_lower' => $predictedSales * 0.85,
+                    'confidence_upper' => $predictedSales * 1.15,
+                    'ml_based' => true,
+                ];
+            }
+
+            return $forecastData;
+        }
+
+        // Fallback to statistical forecast if no ML data
         $historicalSales = Order::where('created_at', '>=', Carbon::now()->subDays(30))
             ->where('status', 'completed')
             ->selectRaw('DATE(created_at) as date, SUM(total_amount) as daily_sales')
@@ -97,27 +143,26 @@ class AnalyticsController extends Controller
 
         $forecastData = [];
 
-        // If no historical data, create sample forecast
         if ($historicalSales->count() == 0) {
-            $baseSales = 8000; // Base daily sales
-            $trend = 150; // Daily growth trend
+            $baseSales = 8000;
+            $trend = 150;
 
             for ($i = 1; $i <= 30; $i++) {
                 $forecastDate = Carbon::now()->addDays($i);
-                $predictedSales = $baseSales + ($trend * $i) + (rand(-500, 500)); // Add some randomness
+                $predictedSales = $baseSales + ($trend * $i) + (rand(-500, 500));
 
                 $forecastData[] = [
                     'date' => $forecastDate->format('Y-m-d'),
                     'predicted_sales' => max(0, round($predictedSales, 2)),
                     'confidence_lower' => max(0, round($predictedSales * 0.8, 2)),
                     'confidence_upper' => round($predictedSales * 1.2, 2),
+                    'ml_based' => false,
                 ];
             }
         } else {
             $avgDailySales = $historicalSales->avg('daily_sales');
             $trend = $this->calculateTrend($historicalSales);
 
-            // Generate 30-day forecast
             for ($i = 1; $i <= 30; $i++) {
                 $forecastDate = Carbon::now()->addDays($i);
                 $predictedSales = $avgDailySales + ($trend * $i);
@@ -127,6 +172,7 @@ class AnalyticsController extends Controller
                     'predicted_sales' => max(0, round($predictedSales, 2)),
                     'confidence_lower' => max(0, round($predictedSales * 0.8, 2)),
                     'confidence_upper' => round($predictedSales * 1.2, 2),
+                    'ml_based' => false,
                 ];
             }
         }
@@ -313,17 +359,20 @@ class AnalyticsController extends Controller
 
     public function salesPredictions()
     {
-        // Sales Analytics
-        $salesData = $this->getSalesAnalytics();
-        $demandForecast = $this->getDemandForecast();
+        // ML-Based Analytics (Primary)
         $mlDemandForecast = $this->getMLDemandForecast();
+        $segmentRecommendations = $this->getSegmentRecommendations();
+        $mlInsights = $this->getMLInsights();
+
+        // Enhanced demand forecast using ML data
+        $demandForecast = $this->getDemandForecast();
+
+        // Supporting Analytics
+        $salesData = $this->getSalesAnalytics();
         $customerSegments = $this->getCustomerSegments();
         $topProducts = $this->getTopProducts();
         $salesTrends = $this->getSalesTrends();
         $inventoryPredictions = $this->getInventoryPredictions();
-
-        // Customer Segmentation Analytics (ML-based)
-        $segmentRecommendations = $this->getSegmentRecommendations();
         $breadTypeDistribution = $this->getBreadTypeDistribution();
         $locationDistribution = $this->getLocationDistribution();
         $avgPurchaseFrequency = $this->getAvgPurchaseFrequency();
@@ -332,6 +381,7 @@ class AnalyticsController extends Controller
             'salesData',
             'demandForecast',
             'mlDemandForecast',
+            'mlInsights',
             'customerSegments',
             'topProducts',
             'salesTrends',
@@ -372,32 +422,88 @@ class AnalyticsController extends Controller
 
     private function getSegmentRecommendations()
     {
-        $csvPath = base_path('ml/customer_segments_with_recommendations.csv');
+        // Try to read from the detailed customer segments file first
+        $csvPath = base_path('ml/customer_segments_detailed.csv');
 
         if (!File::exists($csvPath)) {
-            return [];
+            // Fallback to summary file
+            $csvPath = base_path('ml/customer_segments_summary.csv');
+            if (!File::exists($csvPath)) {
+                // Fallback to old file
+                $csvPath = base_path('ml/customer_segments_with_recommendations.csv');
+                if (!File::exists($csvPath)) {
+                    return [];
+                }
+            }
         }
 
-        $segments = [];
+        $customers = [];
         $handle = fopen($csvPath, 'r');
 
         // Skip header
         fgetcsv($handle);
 
         while (($data = fgetcsv($handle)) !== false) {
-            $segments[] = [
-                'name' => $data[0],
-                'purchase_frequency' => (float)$data[1],
-                'avg_spending' => (float)$data[2],
-                'preferred_bread_type' => $data[3],
-                'location' => $data[4],
-                'segment' => (int)$data[5]
-            ];
+            if (count($data) >= 15) {
+                // Detailed format from customer_segments_detailed.csv
+                $customers[] = [
+                    'name' => $data[0], // Customer ID
+                    'segment' => (int)$data[14], // segment column
+                    'type' => 'Customer',
+                    'customer_count' => 1,
+                    'avg_spending' => (float)$data[2], // avg_spending column
+                    'purchase_frequency' => (float)$data[1], // purchase_frequency column
+                    'preferred_bread_type' => $data[5], // preferred_bread column
+                    'location' => $data[6], // location column
+                    'total_spending' => (float)$data[3], // total_spending column
+                    'customer_lifetime' => (float)$data[4], // customer_lifetime column
+                    'payment_method' => $data[7], // payment_method column
+                    'satisfaction' => (float)$data[8], // satisfaction column
+                    'recommendations' => $this->getCustomerRecommendation((int)$data[14], (float)$data[2], (float)$data[1])
+                ];
+            } else if (count($data) >= 7) {
+                // Summary format from customer_segments_summary.csv
+                $customers[] = [
+                    'name' => 'Customer Segment ' . $data[0],
+                    'segment' => (int)$data[0],
+                    'type' => $data[1],
+                    'customer_count' => (int)$data[2],
+                    'avg_spending' => (float)$data[3],
+                    'purchase_frequency' => (float)$data[4],
+                    'preferred_bread_type' => $data[5],
+                    'location' => $data[6],
+                    'recommendations' => $data[7] ?? ''
+                ];
+            } else {
+                // Old format fallback
+                $customers[] = [
+                    'name' => 'Customer Segment ' . ($data[5] ?? 0),
+                    'segment' => (int)($data[5] ?? 0),
+                    'type' => 'Legacy',
+                    'customer_count' => 1,
+                    'avg_spending' => (float)($data[2] ?? 0),
+                    'purchase_frequency' => (float)($data[1] ?? 0),
+                    'preferred_bread_type' => $data[3] ?? '',
+                    'location' => $data[4] ?? '',
+                    'recommendations' => ''
+                ];
+            }
         }
 
         fclose($handle);
 
-        return $segments;
+        return $customers;
+    }
+
+    private function getCustomerRecommendation($segment, $avgSpending, $purchaseFrequency)
+    {
+        if ($avgSpending > 20000 && $purchaseFrequency > 10) {
+            return "High-value customer: Offer premium products and loyalty rewards";
+        } elseif ($avgSpending > 10000 && $purchaseFrequency > 5) {
+            return "Medium-value customer: Bundle offers and personalized discounts";
+        } else {
+            return "Growth customer: Win-back campaigns and introductory offers";
+        }
     }
 
     private function getBreadTypeDistribution()
@@ -406,7 +512,7 @@ class AnalyticsController extends Controller
         $distribution = [];
 
         foreach ($segments as $segment) {
-            $breadType = $segment['preferred_bread_type'];
+            $breadType = $segment['preferred_bread_type'] ?? $segment['preferred_bread'] ?? 'Unknown';
             if (!isset($distribution[$breadType])) {
                 $distribution[$breadType] = 0;
             }
@@ -422,7 +528,7 @@ class AnalyticsController extends Controller
         $distribution = [];
 
         foreach ($segments as $segment) {
-            $location = $segment['location'];
+            $location = $segment['location'] ?? 'Unknown';
             if (!isset($distribution[$location])) {
                 $distribution[$location] = 0;
             }
@@ -438,11 +544,11 @@ class AnalyticsController extends Controller
         $frequencyBySegment = [];
 
         foreach ($segments as $segment) {
-            $segmentNum = $segment['segment'];
+            $segmentNum = $segment['segment'] ?? 0;
             if (!isset($frequencyBySegment[$segmentNum])) {
                 $frequencyBySegment[$segmentNum] = ['total' => 0, 'count' => 0];
             }
-            $frequencyBySegment[$segmentNum]['total'] += $segment['purchase_frequency'];
+            $frequencyBySegment[$segmentNum]['total'] += $segment['purchase_frequency'] ?? 0;
             $frequencyBySegment[$segmentNum]['count']++;
         }
 
@@ -452,5 +558,129 @@ class AnalyticsController extends Controller
         }
 
         return $avgFrequency;
+    }
+
+    private function getMLInsights()
+    {
+        $insights = [];
+
+        // Analyze ML customer segments
+        $segments = $this->getSegmentRecommendations();
+        if (!empty($segments)) {
+            $segmentAnalysis = [];
+            foreach ($segments as $customer) {
+                $segment = $customer['segment'] ?? 0;
+                if (!isset($segmentAnalysis[$segment])) {
+                    $segmentAnalysis[$segment] = [
+                        'count' => 0,
+                        'total_spending' => 0,
+                        'avg_frequency' => 0,
+                        'preferred_products' => [],
+                        'locations' => []
+                    ];
+                }
+                $segmentAnalysis[$segment]['count']++;
+                $segmentAnalysis[$segment]['total_spending'] += $customer['avg_spending'] ?? 0;
+                $segmentAnalysis[$segment]['avg_frequency'] += $customer['purchase_frequency'] ?? 0;
+                $segmentAnalysis[$segment]['preferred_products'][] = $customer['preferred_bread_type'] ?? $customer['preferred_bread'] ?? 'Unknown';
+                $segmentAnalysis[$segment]['locations'][] = $customer['location'] ?? 'Unknown';
+            }
+
+            foreach ($segmentAnalysis as $segment => $data) {
+                $avgSpending = $data['total_spending'] / $data['count'];
+                $avgFrequency = $data['avg_frequency'] / $data['count'];
+                $topProduct = array_count_values($data['preferred_products']);
+                arsort($topProduct);
+                $topLocation = array_count_values($data['locations']);
+                arsort($topLocation);
+
+                $insights[] = [
+                    'type' => 'customer_segment',
+                    'segment' => $segment,
+                    'customer_count' => $data['count'],
+                    'avg_spending' => round($avgSpending, 2),
+                    'avg_frequency' => round($avgFrequency, 1),
+                    'top_product' => array_key_first($topProduct),
+                    'top_location' => array_key_first($topLocation),
+                    'recommendation' => $this->getSegmentRecommendation($segment, $avgSpending, $avgFrequency)
+                ];
+            }
+        }
+
+        // Analyze ML demand forecast
+        $mlForecast = $this->getMLDemandForecast();
+        if (!empty($mlForecast)) {
+            $productDemand = [];
+            foreach ($mlForecast as $forecast) {
+                $product = $forecast['product_type'];
+                if (!isset($productDemand[$product])) {
+                    $productDemand[$product] = 0;
+                }
+                $productDemand[$product] += $forecast['predicted_quantity'];
+            }
+
+            arsort($productDemand);
+            $topProduct = array_key_first($productDemand);
+            $totalDemand = array_sum($productDemand);
+
+            $insights[] = [
+                'type' => 'demand_forecast',
+                'top_product' => $topProduct,
+                'total_demand' => $totalDemand,
+                'top_demand' => $productDemand[$topProduct],
+                'recommendation' => "Focus production on {$topProduct} - highest predicted demand of {$productDemand[$topProduct]} units"
+            ];
+        }
+
+        return $insights;
+    }
+
+    private function getSegmentRecommendation($segment, $avgSpending, $avgFrequency)
+    {
+        if ($avgSpending > 10000 && $avgFrequency > 10) {
+            return "High-value segment: Offer premium products and loyalty rewards";
+        } elseif ($avgSpending > 5000 && $avgFrequency > 5) {
+            return "Medium-value segment: Bundle offers and personalized discounts";
+        } else {
+            return "Growth segment: Win-back campaigns and introductory offers";
+        }
+    }
+
+    private function getDetailedSegments()
+    {
+        $csvPath = base_path('ml/customer_segments_detailed.csv');
+
+        if (!File::exists($csvPath)) {
+            return [];
+        }
+
+        $customers = [];
+        $handle = fopen($csvPath, 'r');
+
+        // Skip header
+        fgetcsv($handle);
+
+        $count = 0;
+        while (($data = fgetcsv($handle)) !== false && $count < 50) { // Limit to first 50 for performance
+            if (count($data) >= 10) {
+                $customers[] = [
+                    'customer_id' => $data[0],
+                    'purchase_frequency' => (float)$data[1],
+                    'avg_spending' => (float)$data[2],
+                    'total_spending' => (float)$data[3],
+                    'customer_lifetime' => (float)$data[4],
+                    'preferred_bread' => $data[5],
+                    'location' => $data[6],
+                    'payment_method' => $data[7],
+                    'satisfaction' => (float)$data[8],
+                    'segment' => (int)$data[9]
+                ];
+            }
+            $count++;
+        }
+
+        fclose($handle);
+
+        return $customers;
     }
 }

@@ -22,10 +22,10 @@
                 <tbody>
                     @foreach($cart as $item)
                     <tr>
-                        <td class="px-4 py-2">{{ $item['product_name'] }}</td>
-                        <td class="px-4 py-2">{{ $item['quantity'] }}</td>
-                        <td class="px-4 py-2">${{ number_format($item['unit_price'], 2) }}</td>
-                        <td class="px-4 py-2">${{ number_format($item['total_price'], 2) }}</td>
+                        <td class="px-4 py-2">{{ $item['product_name'] ?? 'Unknown Product' }}</td>
+                        <td class="px-4 py-2">{{ $item['quantity'] ?? 0 }}</td>
+                        <td class="px-4 py-2">${{ number_format($item['unit_price'] ?? 0, 2) }}</td>
+                        <td class="px-4 py-2">${{ number_format($item['total_price'] ?? 0, 2) }}</td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -57,4 +57,4 @@
         </div>
     </div>
 </div>
-@endsection 
+@endsection
