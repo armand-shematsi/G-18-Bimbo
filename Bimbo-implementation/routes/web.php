@@ -12,6 +12,8 @@ use App\Http\Controllers\Supplier\ChatController;
 use App\Http\Controllers\Bakery\ProductionController;
 use App\Http\Controllers\Bakery\ScheduleController;
 use App\Http\Controllers\Bakery\MaintenanceController;
+use App\Http\Controllers\CustomerSegmentController;
+use App\Http\Controllers\CustomerSegmentImportController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkforceController;
 use App\Http\Controllers\OrderReturnController;
@@ -31,7 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('vendors', VendorController::class);
         Route::resource('users', UserController::class);
         Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
-Route::get('/analytics/sales-predictions', [AnalyticsController::class, 'salesPredictions'])->name('analytics.sales_predictions');
+        Route::get('/analytics/sales-predictions', [AnalyticsController::class, 'salesPredictions'])->name('analytics.sales_predictions');
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
         Route::post('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
         Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
@@ -42,7 +44,8 @@ Route::get('/analytics/sales-predictions', [AnalyticsController::class, 'salesPr
         Route::get('/api/dashboard/maintenance-summary', [\App\Http\Controllers\Admin\DashboardController::class, 'maintenanceSummary'])->name('dashboard.maintenance-summary');
         // Workforce distribution API endpoint
         Route::get('/api/workforce-distribution', [\App\Http\Controllers\DashboardController::class, 'workforceDistribution'])->name('workforce.distribution.api');
-        Route::get('/customer-segments', [\App\Http\Controllers\CustomerSegmentController::class, 'index'])->name('customer-segments');
+        Route::post('/send-supplier-reports', [\App\Http\Controllers\Admin\DashboardController::class, 'sendSupplierReports'])->name('sendSupplierReports');
+        Route::get('/customer-segments', [CustomerSegmentController::class, 'index'])->name('customer-segments');
     });
 
     // Supplier routes
@@ -123,6 +126,21 @@ Route::get('/analytics/sales-predictions', [AnalyticsController::class, 'salesPr
         Route::post('/workforce/update-task/{task}', [\App\Http\Controllers\WorkforceController::class, 'updateTaskStatus'])->name('workforce.update-task');
         Route::get('/workforce/tasks', [\App\Http\Controllers\WorkforceController::class, 'getTasks'])->name('workforce.tasks');
         Route::post('/workforce/auto-reassign', [\App\Http\Controllers\WorkforceController::class, 'autoReassignAbsentees'])->name('workforce.auto-reassign');
+        Route::post('/workforce/assign-staff', [\App\Http\Controllers\WorkforceController::class, 'assignStaff'])->name('workforce.assign-staff');
+        // Assign shift to batch
+        Route::post('/shifts/assign', [\App\Http\Controllers\ShiftController::class, 'assignToBatch'])->name('shifts.assignToBatch');
+        Route::post('/shifts/assign-new', [\App\Http\Controllers\ShiftController::class, 'assignNewToBatch'])->name('shifts.assignNewToBatch');
+        // Assign shift to batch (AJAX)
+        Route::post('/batches/{batch}/assign-shift', [\App\Http\Controllers\ProductionBatchController::class, 'assignShift'])->name('batches.assignShift');
+        Route::get('/order-processing', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'index'])->name('order-processing');
+        Route::post('/order-processing/supplier-order', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'storeSupplierOrder'])->name('order-processing.supplier-order');
+        Route::get('/order-processing/retailer-orders', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'listRetailerOrders'])->name('order-processing.retailer-orders');
+        Route::post('/order-processing/retailer-orders/{id}/receive', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'receiveRetailerOrder'])->name('order-processing.retailer-orders.receive');
+        Route::get('/workforce/shifts', [\App\Http\Controllers\WorkforceController::class, 'shifts'])->name('workforce.shifts');
+        Route::post('/workforce/shifts', [\App\Http\Controllers\WorkforceController::class, 'storeShift'])->name('workforce.shifts.store');
+        Route::get('/workforce/assignment', [\App\Http\Controllers\WorkforceController::class, 'assignment'])->name('workforce.assignment');
+        Route::get('/workforce/availability', [\App\Http\Controllers\WorkforceController::class, 'availability'])->name('workforce.availability');
+        Route::get('/workforce/distribution-overview', [\App\Http\Controllers\WorkforceController::class, 'distributionOverview'])->name('workforce.distribution-overview');
     });
 
     // Retail Manager Routes
@@ -146,10 +164,11 @@ Route::get('/analytics/sales-predictions', [AnalyticsController::class, 'salesPr
 
         Route::get('/dashboard', [App\Http\Controllers\Retail\DashboardController::class, 'index'])->name('dashboard.retail');
 
+        Route::get('/orders/simple', [\App\Http\Controllers\Retail\RetailerOrderController::class, 'index'])->name('orders.simple');
+        Route::post('/orders/simple', [\App\Http\Controllers\Retail\RetailerOrderController::class, 'store'])->name('orders.simple.store');
         Route::post('/orders/{order}/return', [\App\Http\Controllers\OrderReturnController::class, 'store'])->name('orders.return');
         Route::get('/returns', [\App\Http\Controllers\OrderReturnController::class, 'index'])->name('returns.index');
         Route::get('/returns/{id}', [\App\Http\Controllers\OrderReturnController::class, 'show'])->name('returns.show');
-
         Route::post('/support', [\App\Http\Controllers\SupportRequestController::class, 'store'])->name('support.store');
         Route::get('/support', [\App\Http\Controllers\SupportRequestController::class, 'index'])->name('support.index');
         Route::get('/support/{id}', [\App\Http\Controllers\SupportRequestController::class, 'show'])->name('support.show');
@@ -193,6 +212,12 @@ Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier
     Route::get('/chat/messages', [App\Http\Controllers\Supplier\ChatController::class, 'getMessages'])->name('chat.get-messages');
 });
 
+// Supplier order routes
+Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier.')->group(function () {
+    Route::get('/orders/simple', [\App\Http\Controllers\Supplier\SupplierOrderController::class, 'index'])->name('orders.simple');
+    Route::patch('/orders/simple/{id}', [\App\Http\Controllers\Supplier\SupplierOrderController::class, 'update'])->name('orders.simple.update');
+});
+
 require __DIR__ . '/auth.php';
 
 Route::middleware(['auth'])->group(function () {
@@ -206,7 +231,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     })->name('customer-segments.import.form');
     // If you have a controller method for import, you can use it instead:
     // Route::get('/customer-segments/import', [CustomerSegmentController::class, 'importForm'])->name('customer-segments.import.form');
-    Route::post('/customer-segments/import', [App\Http\Controllers\CustomerSegmentImportController::class, 'import'])->name('customer-segments.import');
+    Route::post('/customer-segments/import', [CustomerSegmentImportController::class, 'import'])->name('customer-segments.import');
 });
 
 // Test route for ML data
@@ -246,3 +271,12 @@ Route::get('/test-ml-data', function () {
         'total_segments' => count($segments)
     ]);
 });
+
+// Customer order routes
+Route::get('/customer/orders/create', [App\Http\Controllers\Customer\OrderController::class, 'create'])
+    ->name('customer.orders.create');
+
+Route::get('/customer/orders', [App\Http\Controllers\Customer\OrderController::class, 'index'])->name('customer.orders.index');
+
+// Workforce overview route
+Route::get('/workforce/overview', [\App\Http\Controllers\WorkforceController::class, 'overview'])->name('workforce.overview');

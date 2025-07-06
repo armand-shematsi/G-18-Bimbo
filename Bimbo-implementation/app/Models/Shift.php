@@ -13,6 +13,7 @@ class Shift extends Model
         'start_time',
         'end_time',
         'role',
+        'supply_center_id',
     ];
 
     public function user()
@@ -28,5 +29,10 @@ class Shift extends Model
     public function tasks()
     {
         return $this->hasMany(Task::class);
+    }
+
+    public function supplyCenter()
+    {
+        return $this->belongsTo(SupplyCenter::class);
     }
 }

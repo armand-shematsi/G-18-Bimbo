@@ -9,7 +9,7 @@ class ProductionLineSeeder extends Seeder
 {
     public function run()
     {
-        ProductionLine::truncate();
+        ProductionLine::query()->delete();
         $lines = [
             ['name' => 'Line A – Sourdough & Artisan', 'status' => 'Running', 'current_product' => 'Sourdough Bread', 'output' => 450, 'efficiency' => 95],
             ['name' => 'Line B – Whole Wheat & Multigrain', 'status' => 'Running', 'current_product' => 'Whole Wheat Bread', 'output' => 400, 'efficiency' => 93],
