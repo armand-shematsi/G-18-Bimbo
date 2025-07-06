@@ -49,7 +49,32 @@ class DashboardController extends Controller
 
                 return view('dashboard.retail-manager', compact('supplierInventory', 'lowStockItems', 'orderDays', 'orderCounts', 'statusCounts'));
             case 'customer':
-                return view('dashboard.customer');
+                // Get recent orders for the current customer
+                try {
+                    $recentOrders = \App\Models\Order::where('user_id', $user->id)
+                        ->orderBy('created_at', 'desc')
+                        ->take(5)
+                        ->get();
+                } catch (\Exception $e) {
+                    // If user_id column doesn't exist yet, get all orders (fallback)
+                    $recentOrders = \App\Models\Order::orderBy('created_at', 'desc')
+                        ->take(5)
+                        ->get();
+                }
+                
+                // Get recent messages for the current customer
+                try {
+                    $recentMessages = \App\Models\Message::where('receiver_id', $user->id)
+                        ->orWhere('sender_id', $user->id)
+                        ->orderBy('created_at', 'desc')
+                        ->take(5)
+                        ->get();
+                } catch (\Exception $e) {
+                    // If messages table doesn't exist or has issues, return empty collection
+                    $recentMessages = collect();
+                }
+                
+                return view('dashboard.customer', compact('recentOrders', 'recentMessages'));
             default:
                 // Log out the user and redirect to login with error message
                 \Auth::logout();

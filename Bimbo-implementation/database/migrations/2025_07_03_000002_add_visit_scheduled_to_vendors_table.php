@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up()
     {
         Schema::table('vendors', function (Blueprint $table) {
-            $table->string('visit_scheduled')->nullable()->after('regulatory_certification');
+            $table->string('visit_scheduled')->nullable();
         });
     }
     public function down()

@@ -11,14 +11,31 @@ use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
-    // Show order placement form
+    /**
+     * Display a listing of the customer's orders.
+     */
+    public function index()
+    {
+        $orders = Order::where('user_id', Auth::id())
+                      ->with(['items'])
+                      ->orderBy('created_at', 'desc')
+                      ->paginate(10);
+        
+        return view('customer.orders.index', compact('orders'));
+    }
+
+    /**
+     * Show order placement form
+     */
     public function create()
     {
         $products = Inventory::where('status', 'available')->where('quantity', '>', 0)->get();
         return view('customer.order.create', compact('products'));
     }
 
-    // Handle order submission
+    /**
+     * Handle order submission
+     */
     public function store(Request $request)
     {
         // Filter out items with quantity < 1
@@ -59,11 +76,43 @@ class OrderController extends Controller
             'customer_name' => $user->name,
             'customer_email' => $user->email,
             'status' => 'pending',
-            'total' => $total,
+            'total_amount' => $total,
         ]);
         foreach ($orderItems as $item) {
             $order->items()->create($item);
         }
-        return redirect()->route('dashboard.customer')->with('success', 'Order placed successfully!');
+        return redirect()->route('customer.orders.index')->with('success', 'Order placed successfully!');
+    }
+
+    /**
+     * Display the specified order.
+     */
+    public function show(Order $order)
+    {
+        // Ensure the order belongs to the authenticated customer
+        if ($order->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to this order.');
+        }
+
+        $order->load(['items']);
+        return view('customer.orders.show', compact('order'));
+    }
+
+    /**
+     * Cancel an order (only if it's still pending)
+     */
+    public function cancel(Order $order)
+    {
+        // Ensure the order belongs to the authenticated customer
+        if ($order->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to this order.');
+        }
+
+        if ($order->status !== 'pending') {
+            return back()->withErrors(['order' => 'Only pending orders can be cancelled.']);
+        }
+
+        $order->update(['status' => 'cancelled']);
+        return redirect()->route('customer.orders.index')->with('success', 'Order cancelled successfully!');
     }
 }

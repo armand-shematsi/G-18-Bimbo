@@ -165,10 +165,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/deliveries/confirm', [\App\Http\Controllers\Distributor\DeliveryController::class, 'storeConfirmation'])->name('deliveries.storeConfirmation');
     });
 
-    // Customer Chat Routes
+    // Customer Routes
     Route::middleware(['auth', 'role:customer'])->prefix('customer')->name('customer.')->group(function () {
+        // Order management
+        Route::resource('orders', App\Http\Controllers\Customer\OrderController::class);
+        Route::get('/orders/create', [App\Http\Controllers\Customer\OrderController::class, 'create'])->name('orders.create');
+        Route::post('/orders', [App\Http\Controllers\Customer\OrderController::class, 'store'])->name('orders.store');
+        Route::get('/orders/{order}', [App\Http\Controllers\Customer\OrderController::class, 'show'])->name('orders.show');
+        Route::patch('/orders/{order}/cancel', [App\Http\Controllers\Customer\OrderController::class, 'cancel'])->name('orders.cancel');
+        
+        // Chat functionality
         Route::get('/chat', [App\Http\Controllers\Customer\ChatController::class, 'index'])->name('chat.index');
         Route::post('/chat/send', [App\Http\Controllers\Customer\ChatController::class, 'send'])->name('chat.send');
+        Route::get('/chat/messages', [App\Http\Controllers\Customer\ChatController::class, 'getMessages'])->name('chat.get-messages');
     });
 });
 
