@@ -45,7 +45,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Workforce distribution API endpoint
         Route::get('/api/workforce-distribution', [\App\Http\Controllers\DashboardController::class, 'workforceDistribution'])->name('workforce.distribution.api');
         Route::post('/send-supplier-reports', [\App\Http\Controllers\Admin\DashboardController::class, 'sendSupplierReports'])->name('sendSupplierReports');
-        Route::get('/customer-segments', [CustomerSegmentController::class, 'index'])->name('customer-segments');
+        Route::get('customer-segments', [CustomerSegmentController::class, 'index'])->name('customer-segments');
+        Route::get('customer-segments/chart-data', [CustomerSegmentController::class, 'getChartData'])->name('customer-segments.chart-data');
     });
 
     // Supplier routes

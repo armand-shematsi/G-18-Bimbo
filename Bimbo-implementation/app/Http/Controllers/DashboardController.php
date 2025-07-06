@@ -17,7 +17,6 @@ class DashboardController extends Controller
             case 'supplier':
                 return view('dashboard.supplier');
             case 'bakery_manager':
-<<<<<<< HEAD
                 $staff = \App\Models\User::where('role', 'staff')->get();
                 $supplyCenters = \App\Models\SupplyCenter::all();
                 // Count active staff: those with a shift where now is between start_time and end_time
@@ -31,12 +30,9 @@ class DashboardController extends Controller
                 $productionTarget = optional(\App\Models\Setting::where('key', 'production_target')->first())->value;
                 // Sum today's output from production batches
                 $todaysOutput = \App\Models\ProductionBatch::whereDate('scheduled_start', now()->toDateString())->sum('quantity');
-                return view('dashboard.bakery-manager', compact('staff', 'supplyCenters', 'activeStaffCount', 'productionTarget', 'todaysOutput'));
-=======
                 // Fetch all new or assigned orders (pending or processing)
                 $orders = \App\Models\Order::whereIn('status', ['pending', 'processing'])->orderBy('created_at', 'desc')->get();
-                return view('dashboard.bakery-manager', compact('orders'));
->>>>>>> 757964858b60c766b82ed7bc91155b5ad213ac97
+                return view('dashboard.bakery-manager', compact('staff', 'supplyCenters', 'activeStaffCount', 'productionTarget', 'todaysOutput', 'orders'));
             case 'distributor':
                 return view('dashboard.distributor');
             case 'retail_manager':
@@ -48,7 +44,6 @@ class DashboardController extends Controller
                     return $item->needsReorder();
                 });
 
-<<<<<<< HEAD
                 // Compute order analytics for the last 7 days
                 $orderDays = [];
                 $orderCounts = [];
@@ -68,22 +63,6 @@ class DashboardController extends Controller
                     $statusCounts[$status] = \App\Models\Order::where('user_id', $userId)
                         ->where('status', $status)
                         ->count();
-=======
-                // Orders per day (last 7 days)
-                $orderDays = collect();
-                $orderCounts = collect();
-                for ($i = 6; $i >= 0; $i--) {
-                    $date = now()->subDays($i)->toDateString();
-                    $orderDays->push($date);
-                    $orderCounts->push(\App\Models\Order::whereDate('created_at', $date)->count());
-                }
-
-                // Order status breakdown
-                $statuses = ['pending', 'processing', 'shipped', 'completed', 'cancelled'];
-                $statusCounts = [];
-                foreach ($statuses as $status) {
-                    $statusCounts[$status] = \App\Models\Order::where('status', $status)->count();
->>>>>>> 757964858b60c766b82ed7bc91155b5ad213ac97
                 }
 
                 return view('dashboard.retail-manager', compact('supplierInventory', 'lowStockItems', 'orderDays', 'orderCounts', 'statusCounts'));
@@ -131,12 +110,9 @@ class DashboardController extends Controller
                 'actual_start' => $batch->actual_start,
                 'actual_end' => $batch->actual_end,
                 'notes' => $batch->notes,
-<<<<<<< HEAD
                 'assigned_staff' => $batch->shifts->map(function ($shift) {
                     return $shift->user ? $shift->user->name : 'Unassigned';
                 })->join(', '),
-=======
->>>>>>> 757964858b60c766b82ed7bc91155b5ad213ac97
             ];
         });
         // Trends: batches completed per day for last 7 days
