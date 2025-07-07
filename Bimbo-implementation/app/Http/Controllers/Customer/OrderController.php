@@ -66,4 +66,32 @@ class OrderController extends Controller
         }
         return redirect()->route('dashboard.customer')->with('success', 'Order placed successfully!');
     }
+
+    /**
+     * Display customer's order history.
+     */
+    public function index()
+    {
+        $orders = Order::where('user_id', Auth::id())
+            ->with(['items'])
+            ->latest()
+            ->paginate(10);
+
+        return view('customer.orders.index', compact('orders'));
+    }
+
+    /**
+     * Show a specific order.
+     */
+    public function show(Order $order)
+    {
+        // Ensure the order belongs to the authenticated customer
+        if ($order->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to this order.');
+        }
+
+        $order->load(['items']);
+
+        return view('customer.orders.show', compact('order'));
+    }
 }

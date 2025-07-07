@@ -29,6 +29,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
         Route::resource('vendors', VendorController::class);
         Route::resource('users', UserController::class);
+        Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
         Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
         Route::post('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
@@ -41,6 +42,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Workforce distribution API endpoint
         Route::get('/api/workforce-distribution', [\App\Http\Controllers\DashboardController::class, 'workforceDistribution'])->name('workforce.distribution.api');
         Route::get('/customer-segments', [\App\Http\Controllers\CustomerSegmentController::class, 'index'])->name('customer-segments');
+        // Order analytics
+        Route::get('/orders/analytics', [\App\Http\Controllers\Admin\OrderController::class, 'analytics'])->name('orders.analytics');
+        Route::get('/api/orders', [\App\Http\Controllers\Admin\OrderController::class, 'apiOrders'])->name('orders.api');
+        Route::get('/api/orders/stats', [\App\Http\Controllers\Admin\OrderController::class, 'apiStats'])->name('orders.stats');
     });
 
     // Supplier routes
@@ -164,12 +169,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/deliveries', [\App\Http\Controllers\Distributor\DeliveryController::class, 'index'])->name('deliveries');
         Route::get('/deliveries/confirm', [\App\Http\Controllers\Distributor\DeliveryController::class, 'confirm'])->name('deliveries.confirm');
         Route::post('/deliveries/confirm', [\App\Http\Controllers\Distributor\DeliveryController::class, 'storeConfirmation'])->name('deliveries.storeConfirmation');
+        // Order management for distributors
+        Route::get('/orders', [\App\Http\Controllers\Distributor\OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [\App\Http\Controllers\Distributor\OrderController::class, 'show'])->name('orders.show');
+        Route::post('/orders/{order}/delivery-status', [\App\Http\Controllers\Distributor\OrderController::class, 'updateDeliveryStatus'])->name('orders.updateDeliveryStatus');
+        Route::get('/api/orders/route', [\App\Http\Controllers\Distributor\OrderController::class, 'routeOrders'])->name('orders.route');
+        Route::get('/api/orders/stats', [\App\Http\Controllers\Distributor\OrderController::class, 'deliveryStats'])->name('orders.stats');
+        Route::get('/api/orders', [\App\Http\Controllers\Distributor\OrderController::class, 'apiOrders'])->name('orders.api');
     });
 
-    // Customer Chat Routes
+    // Customer Routes
     Route::middleware(['auth', 'role:customer'])->prefix('customer')->name('customer.')->group(function () {
         Route::get('/chat', [App\Http\Controllers\Customer\ChatController::class, 'index'])->name('chat.index');
         Route::post('/chat/send', [App\Http\Controllers\Customer\ChatController::class, 'send'])->name('chat.send');
+        // Customer order routes
+        Route::get('/order/create', [App\Http\Controllers\Customer\OrderController::class, 'create'])->name('order.create');
+        Route::post('/order/store', [App\Http\Controllers\Customer\OrderController::class, 'store'])->name('order.store');
+        Route::get('/orders', [App\Http\Controllers\Customer\OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [App\Http\Controllers\Customer\OrderController::class, 'show'])->name('orders.show');
     });
 });
 
