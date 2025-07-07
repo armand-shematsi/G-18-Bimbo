@@ -92,7 +92,7 @@ class OrderController extends Controller
 
             DB::commit();
 
-            return redirect()->route('supplier.orders.index')
+            return redirect()->route('supplier.orders')
                 ->with('success', 'Order created successfully.');
         } catch (\Exception $e) {
             DB::rollback();
