@@ -2,8 +2,8 @@ import pandas as pd
 from prophet import Prophet
 import os
 
-# Load sales data
-sales = pd.read_csv('large_sales.csv', parse_dates=['Date'])
+# Load cleaned sales data
+sales = pd.read_csv('large_sales_cleaned.csv', parse_dates=['Date'])
 
 # Prepare output DataFrame
 forecast_rows = []

@@ -1,0 +1,3 @@
+segment,type,description,characteristics,preferences,recommendations
+0,Regular,Regular customers (120 customers),"Avg spending: ₦13,165, Frequency: 9.3/month",Prefers White Bread in Kampala,"['Bundle offers and volume discounts', 'Personalized recommendations for White Bread', 'Mobile app promotions', 'Seasonal campaigns and special offers']"
+1,Regular,Regular customers (80 customers),"Avg spending: ₦18,101, Frequency: 12.2/month",Prefers Brown Bread in Kampala,"['Bundle offers and volume discounts', 'Personalized recommendations for Brown Bread', 'Mobile app promotions', 'Seasonal campaigns and special offers']"

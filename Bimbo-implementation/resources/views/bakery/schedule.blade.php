@@ -323,9 +323,6 @@
     fetchWorkforceStats();
     fetchWorkforceLive();
     fetchWorkforceTasks();
-    setInterval(fetchWorkforceStats, 1000);
-    setInterval(fetchWorkforceLive, 1000);
-    setInterval(fetchWorkforceTasks, 1000);
     function openAssignTaskModal() {
         // Fetch staff and shifts for the dropdowns
         fetch('/api/users?role=staff')

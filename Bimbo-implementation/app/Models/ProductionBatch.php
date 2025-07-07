@@ -14,6 +14,7 @@ class ProductionBatch extends Model
         'actual_end',
         'notes',
         'production_line_id',
+        'quantity',
     ];
 
     public function shifts()

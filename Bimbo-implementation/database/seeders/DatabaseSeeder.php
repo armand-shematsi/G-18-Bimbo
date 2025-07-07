@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         $this->call([
+            SupplyCenterSeeder::class,
             UserSeeder::class,
             AdminUserSeeder::class,
             VendorSeeder::class,
@@ -24,11 +25,7 @@ class DatabaseSeeder extends Seeder
             IngredientSeeder::class,
             ProductionBatchSeeder::class,
             ProductionLineSeeder::class,
-<<<<<<< HEAD
             CustomerUserSeeder::class,
-            ProductSeeder::class,
-=======
->>>>>>> f5a25215d73e2f9a3f3da1c53e636dcedbde3c14
         ]);
 
         // --- Demo Attendance for Workforce Overview ---

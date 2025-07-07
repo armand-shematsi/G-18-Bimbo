@@ -42,19 +42,19 @@
                 </div>
                 <div class="bg-white p-4 rounded shadow">
                     <div class="text-sm font-medium text-gray-600">Current Stock Items</div>
-                    <div class="text-2xl font-bold text-green-900">{{ $stats['total'] }}</div>
+                    <div class="text-2xl font-bold text-green-900">{{ $stats['total'] ?? 0 }}</div>
                 </div>
                 <div class="bg-white p-4 rounded shadow">
                     <div class="text-sm font-medium text-yellow-600">Low Stock Alerts</div>
-                    <div class="text-2xl font-bold text-yellow-900">{{ $stats['low_stock'] }}</div>
+                    <div class="text-2xl font-bold text-yellow-900">{{ $stats['low_stock'] ?? 0 }}</div>
                 </div>
                 <div class="bg-white p-4 rounded shadow">
                     <div class="text-sm font-medium text-red-600">Out of Stock</div>
-                    <div class="text-2xl font-bold text-red-900">{{ $stats['out_of_stock'] }}</div>
+                    <div class="text-2xl font-bold text-red-900">{{ $stats['out_of_stock'] ?? 0 }}</div>
                 </div>
                 <div class="bg-white p-4 rounded shadow">
                     <div class="text-sm font-medium text-indigo-600">Over Stock (Above Reorder Level)</div>
-                    <div class="text-2xl font-bold text-indigo-900">{{ $stats['over_stock'] }}</div>
+                    <div class="text-2xl font-bold text-indigo-900">{{ $stats['over_stock'] ?? 0 }}</div>
                 </div>
             </div>
 
@@ -150,7 +150,7 @@
             data: {
                 labels: ['Available', 'Low Stock', 'Out of Stock'],
                 datasets: [{
-                    data: [{{ $stats['available'] }}, {{ $stats['low_stock'] }}, {{ $stats['out_of_stock'] }}],
+                    data: [{{ $stats['available'] ?? 0 }}, {{ $stats['low_stock'] ?? 0 }}, {{ $stats['out_of_stock'] ?? 0 }}],
                     backgroundColor: [
                         'rgba(16, 185, 129, 0.7)',
                         'rgba(251, 191, 36, 0.7)',

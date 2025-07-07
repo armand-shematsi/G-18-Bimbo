@@ -66,8 +66,21 @@ Production Batches
                 <option value="{{ $line->id }}">{{ $line->name }}</option>
                 @endforeach
             </select>
-            <label>Scheduled Start:</label>
-            <input type="datetime-local" name="scheduled_start" class="w-full mb-4 border rounded p-2" required>
+            <div>
+                <label for="scheduled_start_date" class="block text-sm font-medium text-gray-700">Scheduled Start Date</label>
+                <input type="date" name="scheduled_start_date" id="scheduled_start_date" class="w-full mb-2 border rounded p-2" required>
+            </div>
+            <div>
+                <label for="scheduled_start_time_raw" class="block text-sm font-medium text-gray-700">Scheduled Start Time</label>
+                <div class="flex space-x-2 mb-2">
+                    <input type="time" name="scheduled_start_time_raw" id="scheduled_start_time_raw" class="w-full border rounded p-2" required>
+                    <select name="scheduled_start_time_ampm" id="scheduled_start_time_ampm" class="border rounded p-2" required>
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
+                <input type="hidden" name="scheduled_start" id="scheduled_start">
+            </div>
             <label>Notes:</label>
             <textarea name="notes" class="w-full mb-4 border rounded p-2"></textarea>
             <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Start Batch</button>
@@ -110,5 +123,18 @@ Production Batches
                 }
             });
     };
+    document.querySelector('form').addEventListener('submit', function(e) {
+        function to24(time, ampm) {
+            let [h, m] = time.split(':');
+            h = parseInt(h);
+            if (ampm === 'PM' && h < 12) h += 12;
+            if (ampm === 'AM' && h === 12) h = 0;
+            return (h < 10 ? '0' : '') + h + ':' + m;
+        }
+        const sd = document.getElementById('scheduled_start_date').value;
+        const st = document.getElementById('scheduled_start_time_raw').value;
+        const stam = document.getElementById('scheduled_start_time_ampm').value;
+        document.getElementById('scheduled_start').value = sd + 'T' + to24(st, stam);
+    });
 </script>
 @endpush

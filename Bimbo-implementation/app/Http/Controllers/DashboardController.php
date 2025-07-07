@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -19,7 +20,20 @@ class DashboardController extends Controller
             case 'bakery_manager':
                 // Fetch all new or assigned orders (pending or processing)
                 $orders = \App\Models\Order::whereIn('status', ['pending', 'processing'])->orderBy('created_at', 'desc')->get();
-                return view('dashboard.bakery-manager', compact('orders'));
+                $staff = \App\Models\User::where('role', 'staff')->get();
+                $supplyCenters = \App\Models\SupplyCenter::all();
+                // Count active staff: those with a shift where now is between start_time and end_time
+                $now = now();
+                $activeStaffCount = \App\Models\Shift::whereNotNull('user_id')
+                    ->where('start_time', '<=', $now)
+                    ->where('end_time', '>=', $now)
+                    ->distinct('user_id')
+                    ->count('user_id');
+                // Fetch production target from settings
+                $productionTarget = optional(\App\Models\Setting::where('key', 'production_target')->first())->value;
+                // Sum today's output from production batches
+                $todaysOutput = \App\Models\ProductionBatch::whereDate('scheduled_start', now()->toDateString())->sum('quantity');
+                return view('dashboard.bakery-manager', compact('orders', 'staff', 'supplyCenters', 'activeStaffCount', 'productionTarget', 'todaysOutput'));
             case 'distributor':
                 return view('dashboard.distributor');
             case 'retail_manager':
@@ -31,28 +45,56 @@ class DashboardController extends Controller
                     return $item->needsReorder();
                 });
 
-                // Orders per day (last 7 days)
-                $orderDays = collect();
-                $orderCounts = collect();
+                // Compute order analytics for the last 7 days
+                $orderDays = [];
+                $orderCounts = [];
+                $userId = $user->id;
                 for ($i = 6; $i >= 0; $i--) {
                     $date = now()->subDays($i)->toDateString();
-                    $orderDays->push($date);
-                    $orderCounts->push(\App\Models\Order::whereDate('created_at', $date)->count());
+                    $orderDays[] = $date;
+                    $orderCounts[] = \App\Models\Order::where('user_id', $userId)
+                        ->whereDate('created_at', $date)
+                        ->count();
                 }
 
-                // Order status breakdown
+                // Compute order status breakdown for this user
                 $statuses = ['pending', 'processing', 'shipped', 'completed', 'cancelled'];
                 $statusCounts = [];
                 foreach ($statuses as $status) {
-                    $statusCounts[$status] = \App\Models\Order::where('status', $status)->count();
+                    $statusCounts[$status] = \App\Models\Order::where('user_id', $userId)
+                        ->where('status', $status)
+                        ->count();
                 }
 
                 return view('dashboard.retail-manager', compact('supplierInventory', 'lowStockItems', 'orderDays', 'orderCounts', 'statusCounts'));
-            case 'customer':
-                return view('dashboard.customer');
+                                    case 'customer':
+                // Get recent orders for the customer
+                try {
+                    $recentOrders = \App\Models\Order::where('user_id', $user->id)
+                        ->orderBy('created_at', 'desc')
+                        ->take(5)
+                        ->get();
+                } catch (\Exception $e) {
+                    // If Order model doesn't exist or table doesn't exist, use empty collection
+                    $recentOrders = collect([]);
+                }
+
+                // Get recent messages for the customer (handle case where Message model might not exist)
+                try {
+                    $recentMessages = \App\Models\Message::where('recipient_id', $user->id)
+                        ->orWhere('sender_id', $user->id)
+                        ->orderBy('created_at', 'desc')
+                        ->take(5)
+                        ->get();
+                } catch (\Exception $e) {
+                    // If Message model doesn't exist or table doesn't exist, use empty collection
+                    $recentMessages = collect([]);
+                }
+
+                return view('dashboard.customer', compact('recentOrders', 'recentMessages'));
             default:
                 // Log out the user and redirect to login with error message
-                \Auth::logout();
+                Auth::logout();
                 return redirect()->route('login')->withErrors(['email' => 'Unauthorized role. Please contact support.']);
         }
     }
@@ -92,6 +134,9 @@ class DashboardController extends Controller
                 'actual_start' => $batch->actual_start,
                 'actual_end' => $batch->actual_end,
                 'notes' => $batch->notes,
+                'assigned_staff' => $batch->shifts->map(function ($shift) {
+                    return $shift->user ? $shift->user->name : 'Unassigned';
+                })->join(', '),
             ];
         });
         // Trends: batches completed per day for last 7 days
@@ -185,6 +230,4 @@ class DashboardController extends Controller
             ],
         ]);
     }
-
-
 }

@@ -15,11 +15,13 @@ return new class extends Migration
             Schema::create('inventory_movements', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('inventory_id')->constrained('inventories')->onDelete('cascade');
-                $table->foreignId('user_id')->constrained('users')->onDelete('set null')->nullable();
+                $table->unsignedBigInteger('user_id')->nullable();
                 $table->enum('type', ['in', 'out', 'adjustment']);
                 $table->integer('quantity');
                 $table->string('note')->nullable();
                 $table->timestamps();
+
+                $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
             });
         }
     }
