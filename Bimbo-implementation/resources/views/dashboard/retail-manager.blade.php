@@ -1,57 +1,12 @@
 @extends('layouts.retail-manager')
 
 @section('header')
-Retail Manager Dashboard
+    Retail Manager Dashboard
 @endsection
 
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-blue-100 to-green-200 py-10">
     <div class="max-w-7xl mx-auto">
-        <!-- Place Order Form -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-            <h2 class="text-xl font-bold text-blue-700 mb-4">Place New Order</h2>
-            <form method="POST" action="{{ route('retail.orders.store') }}">
-                @csrf
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-2">Product</label>
-                    <select name="product_id" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
-                        <option value="">Select product</option>
-                        @foreach(\App\Models\Product::all() as $product)
-                        <option value="{{ $product->id }}">{{ $product->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-2">Quantity</label>
-                    <input type="number" name="quantity" class="w-full border border-gray-300 rounded-lg px-3 py-2" min="1" required>
-                </div>
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Place Order</button>
-            </form>
-        </div>
-        <!-- Order History Table -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-            <h2 class="text-xl font-bold text-green-700 mb-4">My Orders</h2>
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Product</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Quantity</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Placed At</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-100">
-                    @foreach(\App\Models\RetailerOrder::where('retailer_id', auth()->id())->orderBy('created_at', 'desc')->get() as $order)
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $order->product->name ?? '-' }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $order->quantity }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm {{ $order->status === 'received' ? 'text-green-700 font-bold' : 'text-yellow-700 font-bold' }}">{{ ucfirst($order->status) }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->created_at->format('M d, Y H:i') }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <!-- Current Inventory -->
             <div class="bg-gradient-to-br from-green-400 to-blue-500 shadow-xl rounded-2xl p-6 flex items-center">
@@ -126,9 +81,9 @@ Retail Manager Dashboard
                                         {{ ucfirst(str_replace('_', ' ', $item->status)) }}
                                     </span>
                                     @if($item->needsReorder())
-                                    <span class="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                                        Reorder Needed
-                                    </span>
+                                        <span class="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                            Reorder Needed
+                                        </span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-900">{{ $item->reorder_level }}</td>
@@ -178,11 +133,62 @@ Retail Manager Dashboard
 </div>
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    window.orderDays = @json($orderDays);
-    window.orderCounts = @json($orderCounts);
-    window.statusCounts = @json($statusCounts);
+    // Orders per Day Chart
+    const ordersPerDayCtx = document.getElementById('ordersPerDayChart').getContext('2d');
+    new Chart(ordersPerDayCtx, {
+        type: 'bar',
+        data: {
+            labels: @json($orderDays),
+            datasets: [{
+                label: 'Orders',
+                data: @json($orderCounts),
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // Order Status Breakdown Chart
+    const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
+    new Chart(orderStatusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(@json($statusCounts)),
+            datasets: [{
+                label: 'Orders',
+                data: Object.values(@json($statusCounts)),
+                backgroundColor: [
+                    'rgba(255, 205, 86, 0.7)', // pending
+                    'rgba(54, 162, 235, 0.7)', // processing
+                    'rgba(153, 102, 255, 0.7)', // shipped (purple)
+                    'rgba(75, 192, 192, 0.7)', // completed
+                    'rgba(255, 99, 132, 0.7)'  // cancelled
+                ],
+                borderColor: [
+                    'rgba(255, 205, 86, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(255, 99, 132, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
 </script>
-<script src="{{ asset('js/retail-manager-charts.js') }}"></script>
 @endpush
-@endsection
+@endsection 
