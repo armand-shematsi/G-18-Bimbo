@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('deliveries', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('order_id')->constrained()->onDelete('cascade');
-            $table->string('status')->default('pending');
-            $table->string('tracking_number')->nullable();
-            $table->text('notes')->nullable();
-            $table->timestamp('delivered_at')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('deliveries')) {
+            Schema::create('deliveries', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('order_id')->constrained()->onDelete('cascade');
+                $table->string('status')->default('pending');
+                $table->string('tracking_number')->nullable();
+                $table->text('notes')->nullable();
+                $table->timestamp('delivered_at')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**
@@ -29,4 +31,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('deliveries');
     }
-}; 
+};

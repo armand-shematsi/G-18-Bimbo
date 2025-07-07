@@ -15,7 +15,35 @@ class DashboardController extends Controller
     {
         $activeVendorsCount = \App\Models\Vendor::where('status', 'active')->count();
         $totalSales = \App\Models\Vendor::sum('sales');
-        return view('admin.dashboard', compact('activeVendorsCount', 'totalSales'));
+
+        // Total bread produced (sum of all ProductionBatch quantities)
+        $totalBreadProduced = \App\Models\ProductionBatch::sum('quantity');
+
+        // Total deliveries (orders with status delivered)
+        $totalDeliveries = \App\Models\Order::where('status', \App\Models\Order::STATUS_DELIVERED)->count();
+
+        // Pending orders
+        $pendingOrders = \App\Models\Order::where('status', \App\Models\Order::STATUS_PENDING)->count();
+
+        // Stock levels (sum of all inventory quantities)
+        $stockLevels = \App\Models\Inventory::sum('quantity');
+
+        // Total revenue (sum of all order totals)
+        $totalRevenue = \App\Models\Order::sum('total');
+
+        // Reorder alerts (count of inventories needing reorder)
+        $reorderAlerts = \App\Models\Inventory::whereColumn('quantity', '<=', 'reorder_level')->count();
+
+        return view('admin.dashboard', compact(
+            'activeVendorsCount',
+            'totalSales',
+            'totalBreadProduced',
+            'totalDeliveries',
+            'pendingOrders',
+            'stockLevels',
+            'totalRevenue',
+            'reorderAlerts'
+        ));
     }
 
     // API: Today's total production units

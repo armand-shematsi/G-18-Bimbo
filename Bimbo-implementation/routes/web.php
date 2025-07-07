@@ -19,7 +19,7 @@ use App\Http\Controllers\SupportRequestController;
 
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('admin.dashboard');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -46,6 +46,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/orders/analytics', [\App\Http\Controllers\Admin\OrderController::class, 'analytics'])->name('orders.analytics');
         Route::get('/api/orders', [\App\Http\Controllers\Admin\OrderController::class, 'apiOrders'])->name('orders.api');
         Route::get('/api/orders/stats', [\App\Http\Controllers\Admin\OrderController::class, 'apiStats'])->name('orders.stats');
+        Route::get('/analytics/sales-predictions', [AnalyticsController::class, 'salesPredictions'])->name('analytics.sales_predictions');
     });
 
     // Supplier routes
