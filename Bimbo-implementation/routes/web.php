@@ -127,10 +127,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/workforce/tasks', [\App\Http\Controllers\WorkforceController::class, 'getTasks'])->name('workforce.tasks');
         Route::post('/workforce/auto-reassign', [\App\Http\Controllers\WorkforceController::class, 'autoReassignAbsentees'])->name('workforce.auto-reassign');
 
+        // Workforce Management for Bakery Manager
+        Route::get('/workforce/assignment', [\App\Http\Controllers\WorkforceController::class, 'assignment'])->name('workforce.assignment');
+        Route::get('/workforce/shifts', [\App\Http\Controllers\WorkforceController::class, 'shifts'])->name('workforce.shifts');
+        Route::get('/workforce/availability', [\App\Http\Controllers\WorkforceController::class, 'availability'])->name('workforce.availability');
+
         // Order Processing Route
         Route::get('/order-processing', function () {
-            return view('bakery.order-processing');
+            $products = \App\Models\Product::all();
+            $suppliers = \App\Models\User::where('role', 'supplier')->get();
+            $retailerOrders = \App\Models\RetailerOrder::all();
+            return view('bakery.order-processing', compact('products', 'suppliers', 'retailerOrders'));
         })->name('order-processing');
+
+        // Order Processing AJAX/Form Endpoints
+        Route::post('/order-processing/supplier-order', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'placeSupplierOrder'])->name('order-processing.supplier-order');
+        Route::get('/order-processing/retailer-orders', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'retailerOrders'])->name('order-processing.retailer-orders');
     });
 
     // Retail Manager Routes
