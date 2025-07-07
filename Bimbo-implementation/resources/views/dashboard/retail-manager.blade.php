@@ -191,4 +191,4 @@
     });
 </script>
 @endpush
-@endsect
+@endsection

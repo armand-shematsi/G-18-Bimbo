@@ -1,14 +1,30 @@
 @extends('layouts.retail-manager')
 
-@section('header')
-    Check Inventory
-@endsection
+{{-- Navigation Links at the very top for this page --}}
+<div class="w-full bg-white shadow z-50 sticky top-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex flex-wrap gap-2 justify-center">
+        <a href="{{ route('retail.orders.index') }}" class="flex items-center gap-1 px-3 py-2 rounded-lg transition {{ request()->routeIs('retail.orders.*') ? 'bg-indigo-100 text-indigo-700 font-semibold shadow' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700' }}">
+            Bread Orders
+        </a>
+        <a href="{{ route('retail.inventory.index') }}" class="flex items-center gap-1 px-3 py-2 rounded-lg transition {{ request()->routeIs('retail.inventory.index') ? 'bg-indigo-100 text-indigo-700 font-semibold shadow' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700' }}">
+            Inventory Levels
+        </a>
+        <a href="{{ route('retail.inventory.check') }}" class="flex items-center gap-1 px-3 py-2 rounded-lg transition {{ request()->routeIs('retail.inventory.check') ? 'bg-indigo-100 text-indigo-700 font-semibold shadow' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700' }}">
+            Check Inventory
+        </a>
+        <a href="{{ route('retail.forecast.index') }}" class="flex items-center gap-1 px-3 py-2 rounded-lg transition {{ request()->routeIs('retail.forecast.index') ? 'bg-indigo-100 text-indigo-700 font-semibold shadow' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700' }}">
+            Demand Forecast
+        </a>
+        <a href="{{ route('retail.chat.index') }}" class="flex items-center gap-1 px-3 py-2 rounded-lg transition {{ request()->routeIs('retail.chat.index') ? 'bg-indigo-100 text-indigo-700 font-semibold shadow' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700' }}">
+            Chat with Suppliers
+        </a>
+    </div>
+</div>
 
-@section('content')
-<div class="py-12">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <!-- Inventory Dashboard -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+{{-- Inventory Dashboard at the very top --}}
+<div class="w-full bg-white shadow-lg z-40 sticky top-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="bg-white shadow-lg rounded-xl p-6 flex items-center gap-4">
                 <div class="bg-blue-100 text-blue-600 rounded-full p-3">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M3 12h18M3 17h18"/></svg>
@@ -46,7 +62,17 @@
                 </div>
             </div>
         </div>
-        <!-- End Inventory Dashboard -->
+    </div>
+</div>
+
+@section('header')
+    Check Inventory
+@endsection
+
+@section('content')
+<div class="py-12">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <!-- Inventory Dashboard -->
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900">
                 <!-- Search and Filter -->
@@ -225,3 +251,6 @@
     };
 </script>
 @endpush
+
+@section('navigation-links')
+@endsection
