@@ -92,7 +92,7 @@ class OrderController extends Controller
 
             DB::commit();
 
-            return redirect()->route('supplier.orders.index')
+            return redirect()->route('supplier.orders')
                 ->with('success', 'Order created successfully.');
         } catch (\Exception $e) {
             DB::rollback();
@@ -166,22 +166,5 @@ class OrderController extends Controller
     /**
      * Update the specified order (resource route).
      */
-    public function update(Request $request, Order $order)
-    {
-        // Use the first vendor's id (used when creating orders)
-        $vendorId = \App\Models\Vendor::query()->value('id');
-        // Ensure the order belongs to the current supplier
-        if ($order->vendor_id !== $vendorId) {
-            abort(403, 'Unauthorized access to this order.');
-        }
-
-        $validated = $request->validate([
-            'customer_name' => 'required|string|max:255',
-            'customer_email' => 'required|email',
-        ]);
-
-        $order->update($validated);
-
-        return redirect()->route('supplier.orders.show', $order)->with('success', 'Order updated successfully.');
-    }
+    // Removed duplicate update method here
 }
