@@ -81,7 +81,7 @@ class DashboardController extends Controller
 
                 // Get recent messages for the customer (handle case where Message model might not exist)
                 try {
-                    $recentMessages = \App\Models\Message::where('recipient_id', $user->id)
+                    $recentMessages = \App\Models\Message::where('receiver_id', $user->id)
                         ->orWhere('sender_id', $user->id)
                         ->orderBy('created_at', 'desc')
                         ->take(5)
