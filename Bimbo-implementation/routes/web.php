@@ -57,7 +57,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/inventory/{id}', [InventoryController::class, 'update'])->name('inventory.update');
         Route::delete('/inventory/{id}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
         Route::post('/inventory/{id}/update-quantity', [InventoryController::class, 'updateQuantity'])->name('inventory.updateQuantity');
-        Route::get('/orders', [OrderController::class, 'index'])->name('orders');
+        Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/new', [OrderController::class, 'create'])->name('orders.new');
         Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
         Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
@@ -126,6 +126,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/workforce/update-task/{task}', [\App\Http\Controllers\WorkforceController::class, 'updateTaskStatus'])->name('workforce.update-task');
         Route::get('/workforce/tasks', [\App\Http\Controllers\WorkforceController::class, 'getTasks'])->name('workforce.tasks');
         Route::post('/workforce/auto-reassign', [\App\Http\Controllers\WorkforceController::class, 'autoReassignAbsentees'])->name('workforce.auto-reassign');
+
+        // Order Processing Route
+        Route::get('/order-processing', function () {
+            return view('bakery.order-processing');
+        })->name('order-processing');
     });
 
     // Retail Manager Routes
@@ -188,6 +193,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/orders', [App\Http\Controllers\Customer\OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [App\Http\Controllers\Customer\OrderController::class, 'show'])->name('orders.show');
     });
+
+    // Workforce Overview Route
+    Route::get('/workforce/overview', [WorkforceController::class, 'overview'])->name('workforce.overview');
 });
 
 // Vendor Registration Routes
