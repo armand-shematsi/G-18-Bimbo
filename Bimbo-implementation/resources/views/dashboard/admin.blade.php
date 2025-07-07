@@ -37,30 +37,6 @@
 @endsection
 
 @section('content')
-    <!-- Summary Bar -->
-    <div class="max-w-7xl mx-auto -mt-12 mb-8 px-4">
-        <div class="flex flex-wrap gap-4 justify-center">
-            <div class="bg-white/80 backdrop-blur-md shadow rounded-lg px-6 py-3 flex items-center gap-2">
-                <span class="text-blue-600 font-bold text-lg">Bread:</span> <span class="font-semibold">{{ $totalBreadProduced }}</span>
-            </div>
-            <div class="bg-white/80 backdrop-blur-md shadow rounded-lg px-6 py-3 flex items-center gap-2">
-                <span class="text-green-600 font-bold text-lg">Deliveries:</span> <span class="font-semibold">{{ $totalDeliveries }}</span>
-            </div>
-            <div class="bg-white/80 backdrop-blur-md shadow rounded-lg px-6 py-3 flex items-center gap-2">
-                <span class="text-yellow-600 font-bold text-lg">Pending:</span> <span class="font-semibold">{{ $pendingOrders }}</span>
-            </div>
-            <div class="bg-white/80 backdrop-blur-md shadow rounded-lg px-6 py-3 flex items-center gap-2">
-                <span class="text-indigo-600 font-bold text-lg">Stock:</span> <span class="font-semibold">{{ $stockLevels }}</span>
-            </div>
-            <div class="bg-white/80 backdrop-blur-md shadow rounded-lg px-6 py-3 flex items-center gap-2">
-                <span class="text-emerald-600 font-bold text-lg">Revenue:</span> <span class="font-semibold">₦{{ number_format($totalRevenue, 2) }}</span>
-            </div>
-            <div class="bg-white/80 backdrop-blur-md shadow rounded-lg px-6 py-3 flex items-center gap-2">
-                <span class="text-red-600 font-bold text-lg">Reorder:</span> <span class="font-semibold">{{ $reorderAlerts }}</span>
-            </div>
-        </div>
-    </div>
-
     <!-- Glassmorphism Cards Grid -->
     <div class="max-w-7xl mx-auto px-4 pb-12">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
