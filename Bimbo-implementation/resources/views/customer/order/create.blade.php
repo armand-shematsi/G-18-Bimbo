@@ -14,7 +14,7 @@
                 <svg class="w-7 h-7 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a4 4 0 004 4h10a4 4 0 004-4V7a4 4 0 00-4-4H7a4 4 0 00-4 4z" /></svg>
                 Order Products
             </h3>
-            <form method="POST" action="{{ route('customer.order.store') }}">
+            <form method="POST" action="{{ route('customer.orders.store') }}">
                 @csrf
                 <table class="min-w-full mb-6 divide-y divide-gray-200">
                     <thead>

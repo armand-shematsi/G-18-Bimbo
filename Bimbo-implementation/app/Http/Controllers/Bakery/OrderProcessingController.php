@@ -17,7 +17,7 @@ class OrderProcessingController extends Controller
     {
         $suppliers = User::where('role', 'supplier')->get();
         $products = Product::all();
-        $retailerOrders = RetailerOrder::orderBy('created_at', 'desc')->get();
+        $retailerOrders = \App\Models\Order::orderBy('created_at', 'desc')->get();
         return view('bakery.order-processing', compact('suppliers', 'products', 'retailerOrders'));
     }
 

@@ -14,7 +14,22 @@ class DashboardController extends Controller
         switch ($user->role) {
             case 'admin':
                 $activeVendorsCount = \App\Models\Vendor::where('status', 'active')->count();
-                return view('dashboard.admin', compact('activeVendorsCount'));
+                $totalBreadProduced = \App\Models\ProductionBatch::sum('quantity');
+                $totalDeliveries = \App\Models\Order::where('status', \App\Models\Order::STATUS_DELIVERED)->count();
+                $pendingOrders = \App\Models\Order::where('status', \App\Models\Order::STATUS_PENDING)->count();
+                $stockLevels = \App\Models\Inventory::sum('quantity');
+                $totalRevenue = \App\Models\Order::sum('total');
+                $reorderAlerts = \App\Models\Inventory::whereColumn('quantity', '<=', 'reorder_level')->count();
+
+                return view('dashboard.admin', compact(
+                    'activeVendorsCount',
+                    'totalBreadProduced',
+                    'totalDeliveries',
+                    'pendingOrders',
+                    'stockLevels',
+                    'totalRevenue',
+                    'reorderAlerts'
+                ));
             case 'supplier':
                 return view('dashboard.supplier');
             case 'bakery_manager':
@@ -67,8 +82,31 @@ class DashboardController extends Controller
                 }
 
                 return view('dashboard.retail-manager', compact('supplierInventory', 'lowStockItems', 'orderDays', 'orderCounts', 'statusCounts'));
-            case 'customer':
-                return view('dashboard.customer');
+                                    case 'customer':
+                // Get recent orders for the customer
+                try {
+                    $recentOrders = \App\Models\Order::where('user_id', $user->id)
+                        ->orderBy('created_at', 'desc')
+                        ->take(5)
+                        ->get();
+                } catch (\Exception $e) {
+                    // If Order model doesn't exist or table doesn't exist, use empty collection
+                    $recentOrders = collect([]);
+                }
+
+                // Get recent messages for the customer (handle case where Message model might not exist)
+                try {
+                    $recentMessages = \App\Models\Message::where('receiver_id', $user->id)
+                        ->orWhere('sender_id', $user->id)
+                        ->orderBy('created_at', 'desc')
+                        ->take(5)
+                        ->get();
+                } catch (\Exception $e) {
+                    // If Message model doesn't exist or table doesn't exist, use empty collection
+                    $recentMessages = collect([]);
+                }
+
+                return view('dashboard.customer', compact('recentOrders', 'recentMessages'));
             default:
                 // Log out the user and redirect to login with error message
                 Auth::logout();

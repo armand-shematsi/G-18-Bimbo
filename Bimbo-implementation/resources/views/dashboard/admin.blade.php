@@ -1,12 +1,25 @@
 @extends('layouts.dashboard')
 
 @section('header')
-    Administrator Dashboard
+    <div class="relative bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-xl shadow-lg overflow-hidden mb-8">
+        <div class="px-8 py-12 sm:py-16 sm:px-16 flex flex-col sm:flex-row items-center justify-between">
+            <div>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-2 drop-shadow-lg">Welcome, Admin!</h2>
+                <p class="text-white text-lg opacity-90">Here's a snapshot of your business performance today.</p>
+            </div>
+            <div class="mt-6 sm:mt-0 animate-bounce">
+                <svg class="w-20 h-20 text-white opacity-80" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" stroke="white" stroke-width="3" fill="url(#grad1)"/><path d="M16 32l8-8 8 8" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="grad1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#a21caf"/></linearGradient></defs></svg>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('navigation-links')
     <a href="{{ route('admin.vendors.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
         Manage Vendors
+    </a>
+    <a href="{{ route('admin.orders.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
+        Order Management
     </a>
     <a href="{{ route('admin.analytics') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
         Analytics
@@ -24,15 +37,52 @@
 @endsection
 
 @section('content')
-    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div class="px-4 py-6 sm:px-0">
-            <h3 class="text-lg leading-6 font-medium text-gray-900">Welcome to the Admin Dashboard</h3>
-        </div>
-        @if(session('success'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                <span class="block sm:inline">{{ session('success') }}</span>
+    <!-- Glassmorphism Cards Grid -->
+    <div class="max-w-7xl mx-auto px-4 pb-12">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="bg-white/60 backdrop-blur-lg shadow-2xl rounded-2xl p-8 flex flex-col items-center hover:scale-105 transition-transform duration-300">
+                <div class="bg-blue-200/70 rounded-full p-4 mb-4 animate-pulse">
+                    <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M3 12h18M3 17h18"/></svg>
+                </div>
+                <div class="text-gray-500 text-base">Total Bread Produced</div>
+                <div class="text-3xl font-extrabold text-blue-700 mt-2">{{ $totalBreadProduced }}</div>
             </div>
-        @endif
+            <div class="bg-white/60 backdrop-blur-lg shadow-2xl rounded-2xl p-8 flex flex-col items-center hover:scale-105 transition-transform duration-300">
+                <div class="bg-green-200/70 rounded-full p-4 mb-4 animate-pulse">
+                    <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2a4 4 0 0 1 4-4h4"/></svg>
+                </div>
+                <div class="text-gray-500 text-base">Total Deliveries</div>
+                <div class="text-3xl font-extrabold text-green-700 mt-2">{{ $totalDeliveries }}</div>
+            </div>
+            <div class="bg-white/60 backdrop-blur-lg shadow-2xl rounded-2xl p-8 flex flex-col items-center hover:scale-105 transition-transform duration-300">
+                <div class="bg-yellow-200/70 rounded-full p-4 mb-4 animate-pulse">
+                    <svg class="w-10 h-10 text-yellow-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3"/></svg>
+                </div>
+                <div class="text-gray-500 text-base">Pending Orders</div>
+                <div class="text-3xl font-extrabold text-yellow-700 mt-2">{{ $pendingOrders }}</div>
+            </div>
+            <div class="bg-white/60 backdrop-blur-lg shadow-2xl rounded-2xl p-8 flex flex-col items-center hover:scale-105 transition-transform duration-300">
+                <div class="bg-indigo-200/70 rounded-full p-4 mb-4 animate-pulse">
+                    <svg class="w-10 h-10 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 17v-2a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v2"/></svg>
+                </div>
+                <div class="text-gray-500 text-base">Stock Levels</div>
+                <div class="text-3xl font-extrabold text-indigo-700 mt-2">{{ $stockLevels }}</div>
+            </div>
+            <div class="bg-white/60 backdrop-blur-lg shadow-2xl rounded-2xl p-8 flex flex-col items-center hover:scale-105 transition-transform duration-300">
+                <div class="bg-emerald-200/70 rounded-full p-4 mb-4 animate-pulse">
+                    <svg class="w-10 h-10 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 0V4m0 16v-4"/></svg>
+                </div>
+                <div class="text-gray-500 text-base">Total Revenue</div>
+                <div class="text-3xl font-extrabold text-emerald-700 mt-2">₦{{ number_format($totalRevenue, 2) }}</div>
+            </div>
+            <div class="bg-white/60 backdrop-blur-lg shadow-2xl rounded-2xl p-8 flex flex-col items-center hover:scale-105 transition-transform duration-300">
+                <div class="bg-red-200/70 rounded-full p-4 mb-4 animate-pulse">
+                    <svg class="w-10 h-10 text-red-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3"/></svg>
+                </div>
+                <div class="text-gray-500 text-base">Reorder Alerts</div>
+                <div class="text-3xl font-extrabold text-red-700 mt-2">{{ $reorderAlerts }}</div>
+            </div>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
