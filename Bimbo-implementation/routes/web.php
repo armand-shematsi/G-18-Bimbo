@@ -153,7 +153,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Order Processing AJAX/Form Endpoints
         Route::post('/order-processing/supplier-order', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'placeSupplierOrder'])->name('order-processing.supplier-order');
-        Route::get('/order-processing/retailer-orders', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'retailerOrders'])->name('order-processing.retailer-orders');
+        // Correct route for AJAX retailer orders
+        Route::get('/order-processing/retailer-orders', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'listRetailerOrders'])->name('order-processing.retailer-orders');
     });
 
     // Retail Manager Routes

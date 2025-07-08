@@ -327,31 +327,35 @@ $pendingOrders = Order::where('vendor_id', auth()->id())->where('status', 'pendi
             </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-100">
-            @foreach(\App\Models\SupplierOrder::where('supplier_id', auth()->id())->orderBy('created_at', 'desc')->get() as $order)
+            {{-- For testing, show orders for vendor_id = 1 --}}
+            @if($errors->any())
+                <div class="bg-red-100 text-red-700 p-2 rounded mb-4">
+                    <ul>
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            @foreach(\App\Models\Order::where('vendor_id', 1)->orderBy('created_at', 'desc')->get() as $order)
             <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $order->product->name ?? '-' }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $order->quantity }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm {{ $order->status === 'shipped' ? 'text-green-700 font-bold' : ($order->status === 'accepted' ? 'text-blue-700 font-bold' : 'text-yellow-700 font-bold') }}">{{ ucfirst($order->status) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $order->items->first()->product->name ?? '-' }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $order->items->first()->quantity ?? '-' }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm {{ $order->status === 'shipped' ? 'text-green-700 font-bold' : ($order->status === 'delivered' ? 'text-blue-700 font-bold' : 'text-yellow-700 font-bold') }}">{{ ucfirst($order->status) }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->created_at->format('M d, Y H:i') }}</td>
                 <td>
-                    @if($order->status === 'pending')
                     <form method="POST" action="{{ route('supplier.orders.updateStatus', $order) }}">
                         @csrf
                         @method('PATCH')
                         <select name="status" class="border rounded px-2 py-1 text-xs">
-                            <option value="accepted">Accept</option>
-                            <option value="rejected">Reject</option>
+                            <option value="pending" @if($order->status == 'pending') selected @endif>Pending</option>
+                            <option value="processing" @if($order->status == 'processing') selected @endif>Processing</option>
+                            <option value="shipped" @if($order->status == 'shipped') selected @endif>Shipped</option>
+                            <option value="delivered" @if($order->status == 'delivered') selected @endif>Delivered</option>
+                            <option value="cancelled" @if($order->status == 'cancelled') selected @endif>Cancelled</option>
                         </select>
                         <button type="submit" class="ml-2 bg-blue-500 text-white px-2 py-1 rounded text-xs">Update</button>
                     </form>
-                    @elseif($order->status === 'accepted')
-                    <form method="POST" action="{{ route('supplier.orders.updateStatus', $order) }}">
-                        @csrf
-                        @method('PATCH')
-                        <input type="hidden" name="status" value="shipped">
-                        <button type="submit" class="bg-green-500 text-white px-2 py-1 rounded text-xs">Mark Shipped</button>
-                    </form>
-                    @endif
                 </td>
             </tr>
             @endforeach

@@ -65,10 +65,10 @@ class OrderProcessingController extends Controller
         return response()->json(['success' => true, 'order' => $order]);
     }
 
-    // AJAX: List all retailer orders
+    // AJAX: List all retailer orders (now from orders table)
     public function listRetailerOrders()
     {
-        $orders = RetailerOrder::with('retailer')->orderBy('created_at', 'desc')->get();
+        $orders = \App\Models\Order::with(['user', 'items.product'])->orderBy('created_at', 'desc')->get();
         return response()->json(['orders' => $orders]);
     }
 

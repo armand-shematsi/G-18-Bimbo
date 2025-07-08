@@ -16,6 +16,16 @@
         </div>
         <form id="orderForm" method="POST" action="{{ route('retail.orders.store') }}" class="space-y-10 px-4 md:px-0 pb-10">
             @csrf
+            @if ($errors->any())
+                <div class="mb-6 p-4 rounded-lg bg-red-100 border border-red-400 text-red-700">
+                    <strong>There were some problems with your input:</strong>
+                    <ul class="mt-2 list-disc list-inside">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             <!-- Section Divider -->
             <div class="flex items-center my-6">
                 <span class="flex-grow border-t-4 border-blue-600"></span>

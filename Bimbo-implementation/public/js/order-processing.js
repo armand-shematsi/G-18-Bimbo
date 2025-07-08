@@ -65,7 +65,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     data.orders.forEach(order => {
                         let statusClass = order.status === 'received' ? 'text-green-700 font-bold' : 'text-yellow-700 font-bold';
                         let btn = order.status === 'pending' ? `<button data-order-id='${order.id}' class='bg-green-500 text-white px-2 py-1 rounded text-xs mark-received-btn'>Mark Received</button>` : '';
-                        tbody.innerHTML += `<tr><td class='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>${order.retailer && order.retailer.name ? order.retailer.name : '-'}<\/td><td class='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>${order.product}<\/td><td class='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>${order.quantity}<\/td><td class='px-6 py-4 whitespace-nowrap text-sm ${statusClass}'>${order.status.charAt(0).toUpperCase() + order.status.slice(1)}<\/td><td>${btn}<\/td><\/tr>`;
+                        // Get first item (if exists)
+                        let firstItem = order.items && order.items.length > 0 ? order.items[0] : null;
+                        let productName = firstItem && firstItem.product ? firstItem.product.name : (firstItem ? firstItem.product_name : 'N/A');
+                        let quantity = firstItem ? firstItem.quantity : 'N/A';
+                        let retailerName = order.user && order.user.name ? order.user.name : '-';
+                        tbody.innerHTML += `<tr>
+                            <td class='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>${retailerName}</td>
+                            <td class='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>${productName}</td>
+                            <td class='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>${quantity}</td>
+                            <td class='px-6 py-4 whitespace-nowrap text-sm ${statusClass}'>${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</td>
+                            <td>${btn}</td>
+                        </tr>`;
                     });
                 }
             });

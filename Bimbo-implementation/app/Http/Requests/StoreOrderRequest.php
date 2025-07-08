@@ -18,7 +18,7 @@ class StoreOrderRequest extends FormRequest
             'billing_address' => 'required|string',
             'payment_method' => 'required|string',
             'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|integer|exists:inventories,id',
+            'items.*.product_id' => 'required|integer|exists:products,id',
             'items.*.product_name' => 'required|string',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
