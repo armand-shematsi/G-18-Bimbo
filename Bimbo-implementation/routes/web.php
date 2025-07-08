@@ -49,31 +49,40 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/analytics/sales-predictions', [AnalyticsController::class, 'salesPredictions'])->name('analytics.sales_predictions');
     });
 
-    // Supplier routes
-    Route::prefix('supplier')->name('supplier.')->middleware('role:supplier')->group(function () {
-        Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
-        Route::get('/inventory/create', [InventoryController::class, 'create'])->name('inventory.create');
-        Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
-        Route::get('/inventory/{id}/edit', [InventoryController::class, 'edit'])->name('inventory.edit');
-        Route::put('/inventory/{id}', [InventoryController::class, 'update'])->name('inventory.update');
-        Route::delete('/inventory/{id}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
-        Route::post('/inventory/{id}/update-quantity', [InventoryController::class, 'updateQuantity'])->name('inventory.updateQuantity');
-        Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-        Route::get('/orders/new', [OrderController::class, 'create'])->name('orders.new');
-        Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
-        Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-        Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
-        Route::get('/chat', [ChatController::class, 'index'])->name('chat');
+    // Combine all supplier routes into a single group
+    Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier.')->group(function () {
+        // Inventory routes
+        Route::get('/inventory', [App\Http\Controllers\Supplier\InventoryController::class, 'index'])->name('inventory.index');
+        Route::get('/inventory/create', [App\Http\Controllers\Supplier\InventoryController::class, 'create'])->name('inventory.create');
+        Route::post('/inventory', [App\Http\Controllers\Supplier\InventoryController::class, 'store'])->name('inventory.store');
+        Route::get('/inventory/{id}/edit', [App\Http\Controllers\Supplier\InventoryController::class, 'edit'])->name('inventory.edit');
+        Route::put('/inventory/{id}', [App\Http\Controllers\Supplier\InventoryController::class, 'update'])->name('inventory.update');
+        Route::delete('/inventory/{id}', [App\Http\Controllers\Supplier\InventoryController::class, 'destroy'])->name('inventory.destroy');
+        Route::post('/inventory/{id}/update-quantity', [App\Http\Controllers\Supplier\InventoryController::class, 'updateQuantity'])->name('inventory.updateQuantity');
         Route::get('/inventory/dashboard', [App\Http\Controllers\Supplier\InventoryController::class, 'dashboard'])->name('inventory.dashboard');
+
+        // Orders routes
+        Route::get('/orders', [App\Http\Controllers\Supplier\OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/new', [App\Http\Controllers\Supplier\OrderController::class, 'create'])->name('orders.new');
+        Route::post('/orders', [App\Http\Controllers\Supplier\OrderController::class, 'store'])->name('orders.store');
+        Route::get('/orders/{order}', [App\Http\Controllers\Supplier\OrderController::class, 'show'])->name('orders.show');
+        Route::patch('/orders/{order}/status', [App\Http\Controllers\Supplier\OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+
+        // Stockin routes
         Route::get('/stockin', [App\Http\Controllers\Supplier\StockInController::class, 'index'])->name('stockin.index');
         Route::get('/stockin/create', [App\Http\Controllers\Supplier\StockInController::class, 'create'])->name('stockin.create');
         Route::post('/stockin', [App\Http\Controllers\Supplier\StockInController::class, 'store'])->name('stockin.store');
-        Route::post('/stockin/test', function () {
-            dd('Form submitted!');
-        })->name('stockin.test');
+        Route::post('/stockin/test', function () { dd('Form submitted!'); })->name('stockin.test');
+
+        // Stockout routes
         Route::get('/stockout', [App\Http\Controllers\Supplier\StockOutController::class, 'index'])->name('stockout.index');
         Route::get('/stockout/create', [App\Http\Controllers\Supplier\StockOutController::class, 'create'])->name('stockout.create');
         Route::post('/stockout', [App\Http\Controllers\Supplier\StockOutController::class, 'store'])->name('stockout.store');
+
+        // Chat routes
+        Route::get('/chat', [App\Http\Controllers\Supplier\ChatController::class, 'index'])->name('chat.index');
+        Route::post('/chat/send', [App\Http\Controllers\Supplier\ChatController::class, 'send'])->name('chat.send');
+        Route::get('/chat/messages', [App\Http\Controllers\Supplier\ChatController::class, 'getMessages'])->name('chat.get-messages');
     });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -224,8 +233,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/customer/orders/create', [\App\Http\Controllers\OrderController::class, 'create'])
         ->name('customer.orders.create');
 
-    Route::get('/supplier/orders', [\App\Http\Controllers\SupplierOrderController::class, 'index'])
-        ->name('supplier.orders');
+    // Remove this duplicate/conflicting route:
+    // Route::get('/supplier/orders', [\App\Http\Controllers\SupplierOrderController::class, 'index'])->name('supplier.orders');
 });
 
 // Vendor Registration Routes
@@ -233,8 +242,6 @@ Route::get('/vendor/register', [VendorController::class, 'register'])->name('ven
 Route::post('/vendor/register', [VendorController::class, 'store'])->name('vendor.store');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
-    Route::post('/profile/update', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
     Route::get('/password', [\App\Http\Controllers\Auth\PasswordController::class, 'edit'])->name('password.edit');
     Route::put('/password', [\App\Http\Controllers\Auth\PasswordController::class, 'update'])->name('password.update');
 });
