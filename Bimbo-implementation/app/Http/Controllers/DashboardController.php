@@ -14,7 +14,22 @@ class DashboardController extends Controller
         switch ($user->role) {
             case 'admin':
                 $activeVendorsCount = \App\Models\Vendor::where('status', 'active')->count();
-                return view('dashboard.admin', compact('activeVendorsCount'));
+                $totalBreadProduced = \App\Models\ProductionBatch::sum('quantity');
+                $totalDeliveries = \App\Models\Order::where('status', \App\Models\Order::STATUS_DELIVERED)->count();
+                $pendingOrders = \App\Models\Order::where('status', \App\Models\Order::STATUS_PENDING)->count();
+                $stockLevels = \App\Models\Inventory::sum('quantity');
+                $totalRevenue = \App\Models\Order::sum('total');
+                $reorderAlerts = \App\Models\Inventory::whereColumn('quantity', '<=', 'reorder_level')->count();
+
+                return view('dashboard.admin', compact(
+                    'activeVendorsCount',
+                    'totalBreadProduced',
+                    'totalDeliveries',
+                    'pendingOrders',
+                    'stockLevels',
+                    'totalRevenue',
+                    'reorderAlerts'
+                ));
             case 'supplier':
                 return view('dashboard.supplier');
             case 'bakery_manager':

@@ -19,8 +19,8 @@ use App\Http\Controllers\SupportRequestController;
 
 
 Route::get('/', function () {
-    return redirect()->route('admin.dashboard');
-});
+    return view('welcome');
+})->name('welcome');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -209,6 +209,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Workforce Overview Route
     Route::get('/workforce/overview', [WorkforceController::class, 'overview'])->name('workforce.overview');
+
+    Route::get('/customer/orders/create', [\App\Http\Controllers\OrderController::class, 'create'])
+        ->name('customer.orders.create');
+
+    Route::get('/supplier/orders', [\App\Http\Controllers\SupplierOrderController::class, 'index'])
+        ->name('supplier.orders');
 });
 
 // Vendor Registration Routes
@@ -243,4 +249,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     // If you have a controller method for import, you can use it instead:
     // Route::get('/customer-segments/import', [CustomerSegmentController::class, 'importForm'])->name('customer-segments.import.form');
     Route::post('/customer-segments/import', [App\Http\Controllers\CustomerSegmentImportController::class, 'import'])->name('customer-segments.import');
+});
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    // ... existing routes ...
+    Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/{type}/{filename}', [\App\Http\Controllers\ReportController::class, 'download'])->name('reports.download');
 });
