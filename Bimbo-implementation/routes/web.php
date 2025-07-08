@@ -51,7 +51,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Combine all supplier routes into a single group
     Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier.')->group(function () {
-        // Inventory routes
+// Inventory routes
         Route::get('/inventory', [App\Http\Controllers\Supplier\InventoryController::class, 'index'])->name('inventory.index');
         Route::get('/inventory/create', [App\Http\Controllers\Supplier\InventoryController::class, 'create'])->name('inventory.create');
         Route::post('/inventory', [App\Http\Controllers\Supplier\InventoryController::class, 'store'])->name('inventory.store');
@@ -136,7 +136,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/workforce/update-task/{task}', [\App\Http\Controllers\WorkforceController::class, 'updateTaskStatus'])->name('workforce.update-task');
         Route::get('/workforce/tasks', [\App\Http\Controllers\WorkforceController::class, 'getTasks'])->name('workforce.tasks');
         Route::post('/workforce/auto-reassign', [\App\Http\Controllers\WorkforceController::class, 'autoReassignAbsentees'])->name('workforce.auto-reassign');
-        Route::post('/workforce/assign-staff', [\App\Http\Controllers\WorkforceController::class, 'assignStaff'])->name('workforce.assign-staff');
+Route::post('/workforce/assign-staff', [\App\Http\Controllers\WorkforceController::class, 'assignStaff'])->name('workforce.assign-staff');
         Route::post('/workforce/assign-staff-bulk', [\App\Http\Controllers\WorkforceController::class, 'assignStaffBulk']);
         // Assign shift to batch
         Route::post('/shifts/assign', [\App\Http\Controllers\ShiftController::class, 'assignToBatch'])->name('shifts.assignToBatch');
@@ -150,7 +150,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/workforce/shifts', [\App\Http\Controllers\WorkforceController::class, 'shifts'])->name('workforce.shifts');
         Route::post('/workforce/shifts', [\App\Http\Controllers\WorkforceController::class, 'storeShift'])->name('workforce.shifts.store');
         Route::get('/workforce/assignment', [\App\Http\Controllers\WorkforceController::class, 'assignment'])->name('workforce.assignment');
-        Route::get('/workforce/availability', [\App\Http\Controllers\WorkforceController::class, 'availability'])->name('workforce.availability');
+                Route::get('/workforce/availability', [\App\Http\Controllers\WorkforceController::class, 'availability'])->name('workforce.availability');
 
         // Order Processing Route
         Route::get('/order-processing', function () {
@@ -162,7 +162,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Order Processing AJAX/Form Endpoints
         Route::post('/order-processing/supplier-order', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'placeSupplierOrder'])->name('order-processing.supplier-order');
-        // Correct route for AJAX retailer orders
+// Correct route for AJAX retailer orders
         Route::get('/order-processing/retailer-orders', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'listRetailerOrders'])->name('order-processing.retailer-orders');
     });
 
@@ -225,15 +225,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/order/store', [App\Http\Controllers\Customer\OrderController::class, 'store'])->name('order.store');
         Route::get('/orders', [App\Http\Controllers\Customer\OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [App\Http\Controllers\Customer\OrderController::class, 'show'])->name('orders.show');
-        Route::patch('/orders/{order}/cancel', [App\Http\Controllers\Customer\OrderController::class, 'cancel'])->name('orders.cancel');
+Route::patch('/orders/{order}/cancel', [App\Http\Controllers\Customer\OrderController::class, 'cancel'])->name('orders.cancel');
     });
 
     // Workforce Overview Route
     Route::get('/workforce/overview', [WorkforceController::class, 'overview'])->name('workforce.overview');
 
-    // Remove or comment out the following conflicting route:
-    // Route::get('/supplier/orders', [\App\Http\Controllers\SupplierOrderController::class, 'index'])
-    //     ->name('supplier.orders');
+    Route::get('/customer/orders/create', [\App\Http\Controllers\OrderController::class, 'create'])
+        ->name('customer.orders.create');
+
+    Route::get('/supplier/orders', [\App\Http\Controllers\SupplierOrderController::class, 'index'])
+        ->name('supplier.orders.index');
 });
 
 // Vendor Registration Routes
@@ -241,7 +243,7 @@ Route::get('/vendor/register', [VendorController::class, 'register'])->name('ven
 Route::post('/vendor/register', [VendorController::class, 'store'])->name('vendor.store');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/password', [\App\Http\Controllers\Auth\PasswordController::class, 'edit'])->name('password.edit');
+        Route::get('/password', [\App\Http\Controllers\Auth\PasswordController::class, 'edit'])->name('password.edit');
     Route::put('/password', [\App\Http\Controllers\Auth\PasswordController::class, 'update'])->name('password.update');
 });
 

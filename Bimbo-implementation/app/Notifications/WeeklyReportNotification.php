@@ -96,7 +96,7 @@ class WeeklyReportNotification extends Notification implements ShouldQueue
             ]);
 
             $filename = "weekly_report_{$notifiable->id}_" . now()->format('Y-m-d') . ".pdf";
-            $path = "reports/weekly/{$filename}";
+            $path = "sentreports/weeklyreports/{$filename}";
             
             Storage::put($path, $pdf->output());
             
