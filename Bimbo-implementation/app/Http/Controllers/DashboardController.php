@@ -20,6 +20,7 @@ class DashboardController extends Controller
                 $stockLevels = \App\Models\Inventory::sum('quantity');
                 $totalRevenue = \App\Models\Order::sum('total');
                 $reorderAlerts = \App\Models\Inventory::whereColumn('quantity', '<=', 'reorder_level')->count();
+                $recentOrders = \App\Models\Order::with(['user', 'vendor'])->latest()->take(5)->get();
 
                 return view('dashboard.admin', compact(
                     'activeVendorsCount',
@@ -28,7 +29,8 @@ class DashboardController extends Controller
                     'pendingOrders',
                     'stockLevels',
                     'totalRevenue',
-                    'reorderAlerts'
+                    'reorderAlerts',
+                    'recentOrders'
                 ));
             case 'supplier':
                 return view('dashboard.supplier');

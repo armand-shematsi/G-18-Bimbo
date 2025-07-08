@@ -39,7 +39,11 @@
 @section('content')
     <!-- Glassmorphism Cards Grid -->
     <div class="max-w-7xl mx-auto px-4 pb-12">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-2xl font-bold text-gray-800">Orders Overview</h3>
+            <a href="{{ route('admin.orders.index') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 transition">View All Orders</a>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
             <div class="bg-white/60 backdrop-blur-lg shadow-2xl rounded-2xl p-8 flex flex-col items-center hover:scale-105 transition-transform duration-300">
                 <div class="bg-blue-200/70 rounded-full p-4 mb-4 animate-pulse">
                     <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M3 12h18M3 17h18"/></svg>
@@ -106,6 +110,56 @@
         </div>
 
 
+        </div>
+    </div>
+    <!-- Recent Orders Table -->
+    <div class="max-w-7xl mx-auto px-4 pb-12">
+        <div class="bg-white shadow rounded-lg overflow-x-auto">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h4 class="text-lg font-bold text-gray-700">Recent Orders</h4>
+                <a href="{{ route('admin.orders.index') }}" class="text-blue-600 hover:underline">See All</a>
+            </div>
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order #</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vendor</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                        <th class="px-6 py-3"></th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse($recentOrders as $order)
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">#{{ $order->id }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $order->customer_name }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $order->vendor ? $order->vendor->name : '-' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-block px-2 py-1 rounded text-xs font-semibold
+                                    @if($order->status === 'pending') bg-yellow-100 text-yellow-800
+                                    @elseif($order->status === 'processing') bg-blue-100 text-blue-800
+                                    @elseif($order->status === 'delivered') bg-green-100 text-green-800
+                                    @elseif($order->status === 'cancelled') bg-red-100 text-red-800
+                                    @else bg-gray-100 text-gray-800 @endif">
+                                    {{ ucfirst($order->status) }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">₦{{ number_format($order->total, 2) }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $order->created_at->format('M d, Y') }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right">
+                                <a href="{{ route('admin.orders.show', $order) }}" class="text-blue-600 hover:underline">View</a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">No recent orders found.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 @endsection

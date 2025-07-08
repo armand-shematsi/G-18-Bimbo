@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('vendors', function (Blueprint $table) {
-//            $table->decimal('sales', 15, 2)->default(0);
+        Schema::table('inventories', function (Blueprint $table) {
+            $table->integer('reorder_level')->default(0);
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('vendors', function (Blueprint $table) {
-            $table->dropColumn('sales');
+        Schema::table('inventories', function (Blueprint $table) {
+            $table->dropColumn('reorder_level');
         });
     }
 };
