@@ -51,6 +51,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Supplier routes
     Route::prefix('supplier')->name('supplier.')->middleware('role:supplier')->group(function () {
+        Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
         Route::get('/inventory/create', [InventoryController::class, 'create'])->name('inventory.create');
         Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
@@ -58,10 +59,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/inventory/{id}', [InventoryController::class, 'update'])->name('inventory.update');
         Route::delete('/inventory/{id}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
         Route::post('/inventory/{id}/update-quantity', [InventoryController::class, 'updateQuantity'])->name('inventory.updateQuantity');
-        Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-        Route::get('/orders/new', [OrderController::class, 'create'])->name('orders.new');
-        Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
-        Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        // Supplier Order resource routes
+        Route::resource('orders', OrderController::class);
         Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
         Route::get('/chat', [ChatController::class, 'index'])->name('chat');
         Route::get('/inventory/dashboard', [App\Http\Controllers\Supplier\InventoryController::class, 'dashboard'])->name('inventory.dashboard');
@@ -213,8 +212,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/customer/orders/create', [\App\Http\Controllers\OrderController::class, 'create'])
         ->name('customer.orders.create');
 
-    Route::get('/supplier/orders', [\App\Http\Controllers\SupplierOrderController::class, 'index'])
-        ->name('supplier.orders');
+    // Remove or comment out the following conflicting route:
+    // Route::get('/supplier/orders', [\App\Http\Controllers\SupplierOrderController::class, 'index'])
+    //     ->name('supplier.orders');
 });
 
 // Vendor Registration Routes
