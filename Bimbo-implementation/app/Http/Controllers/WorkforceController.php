@@ -74,7 +74,7 @@ class WorkforceController extends Controller
     {
         $supplyCenters = \App\Models\SupplyCenter::all();
         $selectedCenter = $request->get('supply_center_id');
-        $staff = \App\Models\User::where('role', 'staff')->get();
+        $staff = \App\Models\User::all();
         return view('workforce.assignment', compact('supplyCenters', 'selectedCenter', 'staff'));
     }
 
@@ -94,10 +94,32 @@ class WorkforceController extends Controller
         ]);
     }
 
+    public function assignStaffBulk(Request $request)
+    {
+        $request->validate([
+            'staff_ids' => 'required|array',
+            'staff_ids.*' => 'exists:users,id',
+            'supply_center_id' => 'nullable|exists:supply_centers,id',
+        ]);
+        $count = 0;
+        foreach ($request->staff_ids as $userId) {
+            $user = \App\Models\User::find($userId);
+            if ($user) {
+                $user->supply_center_id = $request->supply_center_id;
+                $user->save();
+                $count++;
+            }
+        }
+        return response()->json([
+            'success' => true,
+            'message' => "Assigned $count staff to the selected supply center."
+        ]);
+    }
+
     public function shifts(Request $request)
     {
         $shifts = \App\Models\Shift::with(['user', 'supplyCenter'])->orderBy('start_time', 'desc')->get();
-        $staff = \App\Models\User::where('role', 'staff')->get();
+        $staff = \App\Models\User::all();
         $supplyCenters = \App\Models\SupplyCenter::all();
         return view('workforce.shifts', compact('shifts', 'staff', 'supplyCenters'));
     }

@@ -26,53 +26,6 @@
 @endsection
 
 @section('content')
-<!-- New/Assigned Orders Section -->
-<div class="bg-white rounded-xl shadow-lg mb-8 border-l-4 border-blue-600">
-    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-        <h2 class="text-xl font-bold text-gray-900">New & Assigned Orders</h2>
-        <span class="text-sm text-gray-500">(Pending & Processing)</span>
-    </div>
-    <div class="p-6">
-        @if($orders->count())
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 text-sm">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-2 text-left font-semibold">Order ID</th>
-                            <th class="px-4 py-2 text-left font-semibold">Customer</th>
-                            <th class="px-4 py-2 text-left font-semibold">Status</th>
-                            <th class="px-4 py-2 text-left font-semibold">Placed At</th>
-                            <th class="px-4 py-2 text-left font-semibold">Fulfillment</th>
-                            <th class="px-4 py-2 text-left font-semibold">Delivery</th>
-                            <th class="px-4 py-2 text-left font-semibold">Tracking #</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($orders as $order)
-                        <tr class="border-b">
-                            <td class="px-4 py-2">{{ $order->id }}</td>
-                            <td class="px-4 py-2">{{ $order->customer_name }}</td>
-                            <td class="px-4 py-2 capitalize">{{ $order->status }}</td>
-                            <td class="px-4 py-2">{{ $order->placed_at ? $order->placed_at->format('M d, Y H:i') : '-' }}</td>
-                            <td class="px-4 py-2">{{ $order->fulfillment_type ?? '-' }}</td>
-                            <td class="px-4 py-2">{{ $order->delivery_option ?? '-' }}</td>
-                            <td class="px-4 py-2">{{ $order->tracking_number ?? '-' }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @else
-            <div class="text-center text-gray-500 py-8">
-                <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                </svg>
-                <p class="mt-2 text-sm">No new or assigned orders at the moment.</p>
-            </div>
-        @endif
-    </div>
-</div>
-
 <!-- Welcome Banner -->
 <div class="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 rounded-lg shadow-lg mb-8">
     <div class="px-6 py-8">
@@ -164,40 +117,6 @@
 
 <!-- Main Content Grid -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <!-- Recent Batches (2/3) -->
-    <div class="lg:col-span-2 space-y-8">
-        <div class="bg-white rounded-xl shadow-lg">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">Recent Batches</h3>
-            </div>
-            <div class="p-6">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th>Batch Name</th>
-                                <th>Status</th>
-                                <th>Scheduled Start</th>
-                                <th>Actual Start</th>
-                                <th>Actual End</th>
-                                <th>Notes</th>
-                            </tr>
-                        </thead>
-                        <tbody class="production-batch-tbody">
-                            <tr>
-                                <td colspan="6" class="text-center text-gray-400 py-8">
-                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                                    </svg>
-                                    <p class="mt-2 text-sm text-gray-500">No recent batches</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
     <!-- Quick Actions & Alerts (1/3) -->
     <div class="lg:col-span-1 space-y-8">
         <div class="bg-white rounded-xl shadow-lg">
@@ -236,6 +155,28 @@
                     <div class="ml-4">
                         <p class="font-medium">Maintain Machines</p>
                         <p class="text-xs text-yellow-100">Log Maintenance</p>
+                    </div>
+                </a>
+                <a href="{{ route('bakery.order-processing') }}" class="flex items-center p-4 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg text-white w-full mb-2 hover:from-indigo-600 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="font-medium">Order Processing</p>
+                        <p class="text-xs text-indigo-100">Place/Receive Orders</p>
+                    </div>
+                </a>
+                <a href="{{ route('workforce.overview') }}" class="flex items-center p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg text-white w-full mb-2 hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 transform hover:scale-105">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="font-medium">Workforce Distribution</p>
+                        <p class="text-xs text-yellow-100">View & Manage Workforce</p>
                     </div>
                 </a>
             </div>
@@ -568,51 +509,5 @@
     // Initial fetch
     fetchTasks();
     fetchStaffOnDuty();
-
-    function fetchRecentBatches() {
-        const tbody = document.querySelector('.production-batch-tbody');
-        tbody.innerHTML = `<tr><td colspan='6' class='text-center text-gray-400 py-8'>Loading...</td></tr>`;
-        fetch('/bakery/api/production-batches')
-            .then(res => res.json())
-            .then(batches => {
-                tbody.innerHTML = '';
-                if (!batches || batches.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan='6' class='text-center text-gray-400 py-8'>
-                        <svg class='mx-auto h-12 w-12 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                            <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'></path>
-                        </svg>
-                        <p class='mt-2 text-sm text-gray-500'>No recent batches</p>
-                    </td></tr>`;
-                } else {
-                    batches.forEach(batch => {
-                        function fmt(dt) {
-                            if (!dt) return '-';
-                            const d = new Date(dt);
-                            if (isNaN(d)) return dt;
-                            return d.toLocaleString('en-US', {
-                                month: '2-digit',
-                                day: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            });
-                        }
-                        let badgeClass = 'bg-gray-200 text-gray-800';
-                        if (batch.status === 'active' || batch.status === 'Active') badgeClass = 'bg-blue-200 text-blue-800';
-                        if (batch.status === 'completed' || batch.status === 'Completed') badgeClass = 'bg-green-200 text-green-800';
-                        if (batch.status === 'delayed' || batch.status === 'Delayed') badgeClass = 'bg-red-200 text-red-800';
-                        tbody.innerHTML += `<tr>
-                            <td>${batch.name}</td>
-                            <td><span class='px-2 py-1 rounded ${badgeClass}'>${batch.status}</span></td>
-                            <td>${fmt(batch.scheduled_start)}</td>
-                            <td>${fmt(batch.actual_start)}</td>
-                            <td>${fmt(batch.actual_end)}</td>
-                            <td title='${batch.notes ?? ''}'>${batch.notes ? batch.notes.substring(0, 30) + (batch.notes.length > 30 ? '...' : '') : '-'}</td>
-                        </tr>`;
-                    });
-                }
-            });
-    }
-    fetchRecentBatches();
-    setInterval(fetchRecentBatches, 10000);
 </script>
 @endpush
