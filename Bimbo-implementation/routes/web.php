@@ -233,8 +233,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/customer/orders/create', [\App\Http\Controllers\OrderController::class, 'create'])
         ->name('customer.orders.create');
 
-    // Remove this duplicate/conflicting route:
-    // Route::get('/supplier/orders', [\App\Http\Controllers\SupplierOrderController::class, 'index'])->name('supplier.orders');
+    // Remove or comment out the following conflicting route:
+    // Route::get('/supplier/orders', [\App\Http\Controllers\SupplierOrderController::class, 'index'])
+    //     ->name('supplier.orders');
 });
 
 // Vendor Registration Routes

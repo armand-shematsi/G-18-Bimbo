@@ -95,7 +95,7 @@
             assignBtn.textContent = 'Assigning...';
             showMessage('', false); // Hide previous messages
             document.getElementById('assignment-error').classList.add('hidden');
-            fetch("{{ route('bakery.workforce.assign-staff') }}", {
+            fetch("{{ route('bakery.workforce.assign-task') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
