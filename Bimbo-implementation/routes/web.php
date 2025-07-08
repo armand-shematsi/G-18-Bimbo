@@ -217,7 +217,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Customer Routes
-    Route::middleware(['auth', 'role:customer'])->prefix('customer')->name('customer.')->group(function () {
+    Route::middleware(['web', 'auth', 'role:customer'])->prefix('customer')->name('customer.')->group(function () {
         Route::get('/chat', [App\Http\Controllers\Customer\ChatController::class, 'index'])->name('chat.index');
         Route::post('/chat/send', [App\Http\Controllers\Customer\ChatController::class, 'send'])->name('chat.send');
         // Customer order routes
@@ -225,13 +225,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/order/store', [App\Http\Controllers\Customer\OrderController::class, 'store'])->name('order.store');
         Route::get('/orders', [App\Http\Controllers\Customer\OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [App\Http\Controllers\Customer\OrderController::class, 'show'])->name('orders.show');
+        Route::patch('/orders/{order}/cancel', [App\Http\Controllers\Customer\OrderController::class, 'cancel'])->name('orders.cancel');
     });
 
     // Workforce Overview Route
     Route::get('/workforce/overview', [WorkforceController::class, 'overview'])->name('workforce.overview');
-
-    Route::get('/customer/orders/create', [\App\Http\Controllers\OrderController::class, 'create'])
-        ->name('customer.orders.create');
 
     // Remove or comment out the following conflicting route:
     // Route::get('/supplier/orders', [\App\Http\Controllers\SupplierOrderController::class, 'index'])

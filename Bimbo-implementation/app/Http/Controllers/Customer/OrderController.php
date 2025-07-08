@@ -8,13 +8,20 @@ use App\Models\Inventory;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Product;
 
 class OrderController extends Controller
 {
     // Show order placement form
     public function create()
     {
-        $products = Inventory::where('status', 'available')->where('quantity', '>', 0)->get();
+        $products = Product::all()->map(function($product) {
+            $inventory = \App\Models\Inventory::where('item_name', $product->name)->first();
+            $product->available = $inventory ? $inventory->quantity : 0;
+            $product->unit = $inventory ? $inventory->unit : '';
+            $product->inventory_id = $inventory ? $inventory->id : null;
+            return $product;
+        });
         return view('customer.order.create', compact('products'));
     }
 
@@ -43,14 +50,16 @@ class OrderController extends Controller
         $total = 0;
         $orderItems = [];
         foreach ($items as $item) {
-            $product = Inventory::findOrFail($item['id']);
-            $qty = min($item['quantity'], $product->quantity);
-            $total += $qty * $product->unit_price;
+            $inventory = Inventory::findOrFail($item['id']);
+            $product = \App\Models\Product::where('name', $inventory->item_name)->first();
+            $unit_price = $product ? $product->unit_price : 0;
+            $qty = min($item['quantity'], $inventory->quantity);
+            $total += $qty * $unit_price;
             $orderItems[] = [
-                'product_name' => $product->item_name,
+                'product_name' => $inventory->item_name,
                 'quantity' => $qty,
-                'unit_price' => $product->unit_price,
-                'total_price' => $qty * $product->unit_price,
+                'unit_price' => $unit_price,
+                'total_price' => $qty * $unit_price,
             ];
         }
         $order = Order::create([
@@ -64,7 +73,7 @@ class OrderController extends Controller
         foreach ($orderItems as $item) {
             $order->items()->create($item);
         }
-        return redirect()->route('dashboard.customer')->with('success', 'Order placed successfully!');
+        return redirect()->route('customer.orders.index')->with('success', 'Order placed successfully!');
     }
 
     /**
@@ -93,5 +102,16 @@ class OrderController extends Controller
         $order->load(['items']);
 
         return view('customer.orders.show', compact('order'));
+    }
+
+    public function cancel(Order $order)
+    {
+        // Ensure the order belongs to the authenticated customer
+        if ($order->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+        $order->status = 'cancelled';
+        $order->save();
+        return redirect()->route('customer.orders.index')->with('success', 'Order cancelled successfully!');
     }
 }
