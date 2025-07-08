@@ -196,6 +196,25 @@
             const etam = document.getElementById('end_time_ampm').value;
             document.getElementById('end_time').value = ed + 'T' + to24(et, etam);
         });
+
+        // --- AM/PM Dropdown Sync ---
+        function updateTimeInput(timeInput, ampmSelect) {
+            ampmSelect.addEventListener('change', function() {
+                let [h, m] = timeInput.value.split(':');
+                if (!h || !m) return;
+                h = parseInt(h);
+                if (this.value === 'PM' && h < 12) h += 12;
+                if (this.value === 'AM' && h === 12) h = 0;
+                h = (h < 10 ? '0' : '') + h;
+                timeInput.value = h + ':' + m;
+            });
+        }
+        const startTimeInput = document.getElementById('start_time_raw');
+        const startTimeAMPM = document.getElementById('start_time_ampm');
+        const endTimeInput = document.getElementById('end_time_raw');
+        const endTimeAMPM = document.getElementById('end_time_ampm');
+        if (startTimeInput && startTimeAMPM) updateTimeInput(startTimeInput, startTimeAMPM);
+        if (endTimeInput && endTimeAMPM) updateTimeInput(endTimeInput, endTimeAMPM);
     });
 </script>
 @endpush

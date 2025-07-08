@@ -129,6 +129,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/workforce/tasks', [\App\Http\Controllers\WorkforceController::class, 'getTasks'])->name('workforce.tasks');
         Route::post('/workforce/auto-reassign', [\App\Http\Controllers\WorkforceController::class, 'autoReassignAbsentees'])->name('workforce.auto-reassign');
         Route::post('/workforce/assign-staff', [\App\Http\Controllers\WorkforceController::class, 'assignStaff'])->name('workforce.assign-staff');
+        Route::post('/workforce/assign-staff-bulk', [\App\Http\Controllers\WorkforceController::class, 'assignStaffBulk']);
         // Assign shift to batch
         Route::post('/shifts/assign', [\App\Http\Controllers\ShiftController::class, 'assignToBatch'])->name('shifts.assignToBatch');
         Route::post('/shifts/assign-new', [\App\Http\Controllers\ShiftController::class, 'assignNewToBatch'])->name('shifts.assignNewToBatch');

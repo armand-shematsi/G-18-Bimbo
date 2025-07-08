@@ -176,17 +176,6 @@
                         <p class="text-xs text-indigo-100">Place/Receive Orders</p>
                     </div>
                 </a>
-                <button onclick="document.getElementById('assignShiftModal').style.display='flex'" class="flex items-center p-4 bg-gradient-to-r from-green-500 to-green-600 rounded-lg text-white w-full mb-2 hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105">
-                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                        </svg>
-                    </div>
-                    <div class="ml-4">
-                        <p class="font-medium">Assign Shift</p>
-                        <p class="text-xs text-green-100">Schedule Staff</p>
-                    </div>
-                </button>
                 <a href="{{ route('workforce.overview') }}" class="flex items-center p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg text-white w-full mb-2 hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 transform hover:scale-105">
                     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="bg-gradient-to-r from-sky-500 via-purple-500 to-pink-400 rounded-lg shadow-lg mb-8 flex items-center justify-between px-10 py-10">
+    <div class="bg-sky-400 rounded-lg shadow-lg mb-8 flex items-center justify-between px-10 py-10">
         <div>
             <h2 class="text-3xl font-bold text-white mb-2">Workforce Distribution Overview</h2>
             <p class="text-lg text-sky-100">Monitor staff allocation, shift coverage, and workforce trends</p>
