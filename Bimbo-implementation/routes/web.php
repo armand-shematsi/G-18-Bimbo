@@ -19,8 +19,8 @@ use App\Http\Controllers\SupportRequestController;
 
 
 Route::get('/', function () {
-    return redirect()->route('admin.dashboard');
-});
+    return view('welcome');
+})->name('welcome');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -127,10 +127,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/workforce/update-task/{task}', [\App\Http\Controllers\WorkforceController::class, 'updateTaskStatus'])->name('workforce.update-task');
         Route::get('/workforce/tasks', [\App\Http\Controllers\WorkforceController::class, 'getTasks'])->name('workforce.tasks');
         Route::post('/workforce/auto-reassign', [\App\Http\Controllers\WorkforceController::class, 'autoReassignAbsentees'])->name('workforce.auto-reassign');
-
-        // Workforce Management for Bakery Manager
-        Route::get('/workforce/assignment', [\App\Http\Controllers\WorkforceController::class, 'assignment'])->name('workforce.assignment');
+        Route::post('/workforce/assign-staff', [\App\Http\Controllers\WorkforceController::class, 'assignStaff'])->name('workforce.assign-staff');
+        Route::post('/workforce/assign-staff-bulk', [\App\Http\Controllers\WorkforceController::class, 'assignStaffBulk']);
+        // Assign shift to batch
+        Route::post('/shifts/assign', [\App\Http\Controllers\ShiftController::class, 'assignToBatch'])->name('shifts.assignToBatch');
+        Route::post('/shifts/assign-new', [\App\Http\Controllers\ShiftController::class, 'assignNewToBatch'])->name('shifts.assignNewToBatch');
+        // Assign shift to batch (AJAX)
+        Route::post('/batches/{batch}/assign-shift', [\App\Http\Controllers\ProductionBatchController::class, 'assignShift'])->name('batches.assignShift');
+        Route::get('/order-processing', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'index'])->name('order-processing');
+        Route::post('/order-processing/supplier-order', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'storeSupplierOrder'])->name('order-processing.supplier-order');
+        Route::get('/order-processing/retailer-orders', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'listRetailerOrders'])->name('order-processing.retailer-orders');
+        Route::post('/order-processing/retailer-orders/{id}/receive', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'receiveRetailerOrder'])->name('order-processing.retailer-orders.receive');
         Route::get('/workforce/shifts', [\App\Http\Controllers\WorkforceController::class, 'shifts'])->name('workforce.shifts');
+        Route::post('/workforce/shifts', [\App\Http\Controllers\WorkforceController::class, 'storeShift'])->name('workforce.shifts.store');
+        Route::get('/workforce/assignment', [\App\Http\Controllers\WorkforceController::class, 'assignment'])->name('workforce.assignment');
         Route::get('/workforce/availability', [\App\Http\Controllers\WorkforceController::class, 'availability'])->name('workforce.availability');
 
         // Order Processing Route
@@ -209,6 +219,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Workforce Overview Route
     Route::get('/workforce/overview', [WorkforceController::class, 'overview'])->name('workforce.overview');
+
+    Route::get('/customer/orders/create', [\App\Http\Controllers\OrderController::class, 'create'])
+        ->name('customer.orders.create');
+
+    Route::get('/supplier/orders', [\App\Http\Controllers\SupplierOrderController::class, 'index'])
+        ->name('supplier.orders');
 });
 
 // Vendor Registration Routes
@@ -237,10 +253,16 @@ Route::middleware(['auth'])->group(function () {
 
 // Add these routes for customer segments import
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/customer-segments/import', function() {
+    Route::get('/customer-segments/import', function () {
         return view('customer_segments.import');
     })->name('customer-segments.import.form');
     // If you have a controller method for import, you can use it instead:
     // Route::get('/customer-segments/import', [CustomerSegmentController::class, 'importForm'])->name('customer-segments.import.form');
     Route::post('/customer-segments/import', [App\Http\Controllers\CustomerSegmentImportController::class, 'import'])->name('customer-segments.import');
+});
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    // ... existing routes ...
+    Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/{type}/{filename}', [\App\Http\Controllers\ReportController::class, 'download'])->name('reports.download');
 });

@@ -1,5 +1,3 @@
-<div style="color: red; font-weight: bold;">DEBUG: This is the updated admin dashboard view.</div>
-
 @extends('layouts.dashboard')
 
 @section('header')
