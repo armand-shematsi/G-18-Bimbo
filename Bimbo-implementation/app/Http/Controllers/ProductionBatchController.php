@@ -12,7 +12,7 @@ class ProductionBatchController extends Controller
      */
     public function index()
     {
-        $batches = ProductionBatch::orderBy('scheduled_start', 'desc')->paginate(10);
+        $batches = ProductionBatch::orderBy('scheduled_start', 'desc')->get();
         return view('bakery.batches.index', compact('batches'));
     }
 
@@ -31,12 +31,8 @@ class ProductionBatchController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'status' => 'required|in:planned,active,completed,cancelled',
             'scheduled_start' => 'required|date',
-            'actual_start' => 'nullable|date',
-            'actual_end' => 'nullable|date',
-            'notes' => 'nullable|string',
-            'quantity' => 'nullable|integer|min:0',
+            'status' => 'required|in:planned,active,completed,cancelled',
         ]);
         ProductionBatch::create($validated);
         return redirect()->route('bakery.batches.index')->with('success', 'Production batch created successfully.');
@@ -56,7 +52,8 @@ class ProductionBatchController extends Controller
      */
     public function edit(ProductionBatch $batch)
     {
-        return view('bakery.batches.edit', compact('batch'));
+        $staff = \App\Models\User::where('role', 'staff')->orderBy('name')->get();
+        return view('bakery.batches.edit', compact('batch', 'staff'));
     }
 
     /**
@@ -74,6 +71,24 @@ class ProductionBatchController extends Controller
             'quantity' => 'nullable|integer|min:0',
         ]);
         $batch->update($validated);
+
+        // Sync staff assignments (remove old, add new)
+        if ($request->has('staff')) {
+            // Remove old shifts
+            $batch->shifts()->delete();
+            $start = \Carbon\Carbon::parse($batch->scheduled_start);
+            $end = $start->copy()->addHours(8);
+            foreach ($request->input('staff') as $userId) {
+                \App\Models\Shift::create([
+                    'user_id' => $userId,
+                    'production_batch_id' => $batch->id,
+                    'start_time' => $start,
+                    'end_time' => $end,
+                    'role' => 'staff',
+                ]);
+            }
+        }
+
         return redirect()->route('bakery.batches.index')->with('success', 'Production batch updated successfully.');
     }
 

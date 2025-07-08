@@ -34,41 +34,41 @@
     </div>
     <div class="p-6">
         @if($orders->count())
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 text-sm">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-2 text-left font-semibold">Order ID</th>
-                            <th class="px-4 py-2 text-left font-semibold">Customer</th>
-                            <th class="px-4 py-2 text-left font-semibold">Status</th>
-                            <th class="px-4 py-2 text-left font-semibold">Placed At</th>
-                            <th class="px-4 py-2 text-left font-semibold">Fulfillment</th>
-                            <th class="px-4 py-2 text-left font-semibold">Delivery</th>
-                            <th class="px-4 py-2 text-left font-semibold">Tracking #</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($orders as $order)
-                        <tr class="border-b">
-                            <td class="px-4 py-2">{{ $order->id }}</td>
-                            <td class="px-4 py-2">{{ $order->customer_name }}</td>
-                            <td class="px-4 py-2 capitalize">{{ $order->status }}</td>
-                            <td class="px-4 py-2">{{ $order->placed_at ? $order->placed_at->format('M d, Y H:i') : '-' }}</td>
-                            <td class="px-4 py-2">{{ $order->fulfillment_type ?? '-' }}</td>
-                            <td class="px-4 py-2">{{ $order->delivery_option ?? '-' }}</td>
-                            <td class="px-4 py-2">{{ $order->tracking_number ?? '-' }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-2 text-left font-semibold">Order ID</th>
+                        <th class="px-4 py-2 text-left font-semibold">Customer</th>
+                        <th class="px-4 py-2 text-left font-semibold">Status</th>
+                        <th class="px-4 py-2 text-left font-semibold">Placed At</th>
+                        <th class="px-4 py-2 text-left font-semibold">Fulfillment</th>
+                        <th class="px-4 py-2 text-left font-semibold">Delivery</th>
+                        <th class="px-4 py-2 text-left font-semibold">Tracking #</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($orders as $order)
+                    <tr class="border-b">
+                        <td class="px-4 py-2">{{ $order->id }}</td>
+                        <td class="px-4 py-2">{{ $order->customer_name }}</td>
+                        <td class="px-4 py-2 capitalize">{{ $order->status }}</td>
+                        <td class="px-4 py-2">{{ $order->placed_at ? $order->placed_at->format('M d, Y H:i') : '-' }}</td>
+                        <td class="px-4 py-2">{{ $order->fulfillment_type ?? '-' }}</td>
+                        <td class="px-4 py-2">{{ $order->delivery_option ?? '-' }}</td>
+                        <td class="px-4 py-2">{{ $order->tracking_number ?? '-' }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
         @else
-            <div class="text-center text-gray-500 py-8">
-                <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                </svg>
-                <p class="mt-2 text-sm">No new or assigned orders at the moment.</p>
-            </div>
+        <div class="text-center text-gray-500 py-8">
+            <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+            <p class="mt-2 text-sm">No new or assigned orders at the moment.</p>
+        </div>
         @endif
     </div>
 </div>
@@ -236,6 +236,28 @@
                     <div class="ml-4">
                         <p class="font-medium">Maintain Machines</p>
                         <p class="text-xs text-yellow-100">Log Maintenance</p>
+                    </div>
+                </a>
+                <a href="{{ route('bakery.order-processing') }}" class="flex items-center p-4 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg text-white w-full mb-2 hover:from-indigo-600 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="font-medium">Order Processing</p>
+                        <p class="text-xs text-indigo-100">Place/Receive Orders</p>
+                    </div>
+                </a>
+                <a href="{{ route('workforce.overview') }}" class="flex items-center p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg text-white w-full mb-2 hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 transform hover:scale-105">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="font-medium">Workforce Distribution</p>
+                        <p class="text-xs text-yellow-100">View & Manage Workforce</p>
                     </div>
                 </a>
             </div>
