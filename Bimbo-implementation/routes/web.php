@@ -214,7 +214,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('customer.orders.create');
 
     Route::get('/supplier/orders', [\App\Http\Controllers\SupplierOrderController::class, 'index'])
-        ->name('supplier.orders');
+        ->name('supplier.orders.index');
 });
 
 // Vendor Registration Routes

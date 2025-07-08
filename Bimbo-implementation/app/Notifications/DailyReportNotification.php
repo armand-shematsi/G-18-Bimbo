@@ -96,9 +96,10 @@ class DailyReportNotification extends Notification implements ShouldQueue
             ]);
 
             $filename = "daily_report_{$notifiable->id}_{$date}.pdf";
-            $path = "reports/daily/{$filename}";
+            $path = "sentreports/dailyreports/{$filename}";
             
             Storage::put($path, $pdf->output());
+            \Log::info('PDF report saved to: ' . $path);
             
             return $path;
         } catch (\Exception $e) {
