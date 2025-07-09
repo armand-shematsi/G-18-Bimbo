@@ -55,12 +55,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/inventory', [App\Http\Controllers\Supplier\InventoryController::class, 'index'])->name('inventory.index');
         Route::get('/inventory/create', [App\Http\Controllers\Supplier\InventoryController::class, 'create'])->name('inventory.create');
         Route::post('/inventory', [App\Http\Controllers\Supplier\InventoryController::class, 'store'])->name('inventory.store');
+        Route::get('/inventory/dashboard', [App\Http\Controllers\Supplier\InventoryController::class, 'dashboard'])->name('inventory.dashboard');
         Route::get('/inventory/{id}', [App\Http\Controllers\Supplier\InventoryController::class, 'show'])->name('inventory.show');
         Route::get('/inventory/{id}/edit', [App\Http\Controllers\Supplier\InventoryController::class, 'edit'])->name('inventory.edit');
         Route::put('/inventory/{id}', [App\Http\Controllers\Supplier\InventoryController::class, 'update'])->name('inventory.update');
         Route::delete('/inventory/{id}', [App\Http\Controllers\Supplier\InventoryController::class, 'destroy'])->name('inventory.destroy');
         Route::post('/inventory/{id}/update-quantity', [App\Http\Controllers\Supplier\InventoryController::class, 'updateQuantity'])->name('inventory.updateQuantity');
-        Route::get('/inventory/dashboard', [App\Http\Controllers\Supplier\InventoryController::class, 'dashboard'])->name('inventory.dashboard');
 
         // Orders resource route
         Route::resource('orders', OrderController::class);

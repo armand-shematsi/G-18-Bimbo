@@ -174,7 +174,7 @@ class InventoryController extends Controller
             'available' => $inventory->where('status', 'available')->count(),
             'low_stock' => $inventory->where('status', 'low_stock')->count(),
             'out_of_stock' => $inventory->where('status', 'out_of_stock')->count(),
-            'over_stock' => $inventory->where('status', 'available')->count(), // Over stock = available
+            'over_stock' => $inventory->where('quantity', '>', 100)->count(), // Items with quantity > 100
         ];
 
         // Total Stock In
@@ -195,10 +195,12 @@ class InventoryController extends Controller
         $stockInData = $dates->map(fn($date) => isset($stockInDaily[$date]) ? $stockInDaily[$date]->sum('quantity_received') : 0);
         $stockOutData = $dates->map(fn($date) => isset($stockOutDaily[$date]) ? $stockOutDaily[$date]->sum('quantity_removed') : 0);
 
-        // Top Selling Items (by quantity)
-        $topSelling = \App\Models\OrderItem::select('product_name')
-            ->selectRaw('SUM(quantity) as total_sold')
-            ->groupBy('product_name')
+        // Top Selling Items (by quantity) - only for current supplier's orders
+        $topSelling = \App\Models\OrderItem::join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->where('orders.vendor_id', \App\Models\Vendor::where('user_id', $userId)->value('id'))
+            ->select('order_items.product_name')
+            ->selectRaw('SUM(order_items.quantity) as total_sold')
+            ->groupBy('order_items.product_name')
             ->orderByDesc('total_sold')
             ->limit(5)
             ->get();
@@ -219,6 +221,18 @@ class InventoryController extends Controller
         $lowStockItems = $inventory->filter(function($item) {
             return $item->quantity <= $item->reorder_level && $item->quantity > 0;
         });
+
+        // Debug information
+        \Log::info('Dashboard Data for User ' . $userId, [
+            'inventory_count' => $inventory->count(),
+            'total_stock_in' => $totalStockIn,
+            'total_stock_out' => $totalStockOut,
+            'top_selling_count' => $topSelling->count(),
+            'total_inventory_value' => $totalInventoryValue,
+            'low_stock_items_count' => $lowStockItems->count(),
+            'inventory_items' => $inventory->pluck('item_name', 'quantity')->toArray(),
+            'top_selling_items' => $topSelling->pluck('product_name', 'total_sold')->toArray(),
+        ]);
 
         // Prepare for view
         return view('supplier.inventory.dashboard', [

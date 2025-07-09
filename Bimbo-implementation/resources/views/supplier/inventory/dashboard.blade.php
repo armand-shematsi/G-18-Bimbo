@@ -2,178 +2,363 @@
 
 @section('header')
     <div class="flex justify-between items-center">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Inventory Dashboard') }}
-        </h2>
-        <a href="{{ route('supplier.inventory.index') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-            View Full Inventory
-        </a>
+        <div>
+            <h2 class="font-bold text-2xl text-gray-800 leading-tight">
+                📊 Inventory Dashboard
+            </h2>
+            <p class="text-gray-600 mt-1">Monitor your inventory performance and stock levels</p>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{{ route('supplier.inventory.create') }}" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Add Item
+            </a>
+            <a href="{{ route('supplier.inventory.index') }}" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                View All
+            </a>
+        </div>
     </div>
 @endsection
 
 @section('content')
-    <h1>Supplier Inventory Dashboard</h1>
-
-    <!-- Low Stock Alert Banner for Supplier -->
+    <!-- Low Stock Alert Banner -->
     @if(isset($lowStockItems) && $lowStockItems->count() > 0)
-        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6">
-            <div class="font-bold mb-2">Low Stock Alert!</div>
-            <ul class="list-disc pl-6">
-                @foreach($lowStockItems as $item)
-                    <li>
-                        <span class="font-semibold">{{ $item->item_name }}</span> ({{ $item->quantity }} {{ $item->unit }}) is at or below its reorder level ({{ $item->reorder_level }} {{ $item->unit }})
-                    </li>
-                @endforeach
-            </ul>
+        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-500 rounded-r-lg p-6 mb-8 shadow-sm">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-8 w-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-yellow-800 mb-2">Low Stock Alert!</h3>
+                    <div class="text-yellow-700">
+                        <p class="mb-2">The following items need restocking:</p>
+                        <ul class="list-disc pl-5 space-y-1">
+                            @foreach($lowStockItems->take(3) as $item)
+                                <li>
+                                    <span class="font-medium">{{ $item->item_name }}</span>
+                                    <span class="text-sm">({{ $item->quantity }} {{ $item->unit }} remaining)</span>
+                                </li>
+                            @endforeach
+                            @if($lowStockItems->count() > 3)
+                                <li class="text-sm italic">... and {{ $lowStockItems->count() - 3 }} more items</li>
+                            @endif
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     @endif
 
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-        <div class="p-6 text-gray-900">
-            <!-- Stat Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div class="bg-white p-4 rounded shadow">
-                    <div class="text-sm font-medium text-gray-600">Total Stock In</div>
-                    <div class="text-2xl font-bold text-blue-900">{{ $totalStockIn }}</div>
+    <!-- Main Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Stock In -->
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-blue-100 text-sm font-medium">Total Stock In</p>
+                    <p class="text-3xl font-bold">{{ number_format($totalStockIn) }}</p>
                 </div>
-                <div class="bg-white p-4 rounded shadow">
-                    <div class="text-sm font-medium text-gray-600">Total Stock Out</div>
-                    <div class="text-2xl font-bold text-red-900">{{ $totalStockOut }}</div>
-                </div>
-                <div class="bg-white p-4 rounded shadow">
-                    <div class="text-sm font-medium text-gray-600">Current Stock Items</div>
-                    <div class="text-2xl font-bold text-green-900">{{ $stats['total'] ?? 0 }}</div>
-                </div>
-                <div class="bg-white p-4 rounded shadow">
-                    <div class="text-sm font-medium text-yellow-600">Low Stock Alerts</div>
-                    <div class="text-2xl font-bold text-yellow-900">{{ $stats['low_stock'] ?? 0 }}</div>
-                </div>
-                <div class="bg-white p-4 rounded shadow">
-                    <div class="text-sm font-medium text-red-600">Out of Stock</div>
-                    <div class="text-2xl font-bold text-red-900">{{ $stats['out_of_stock'] ?? 0 }}</div>
-                </div>
-                <div class="bg-white p-4 rounded shadow">
-                    <div class="text-sm font-medium text-indigo-600">Over Stock (Above Reorder Level)</div>
-                    <div class="text-2xl font-bold text-indigo-900">{{ $stats['over_stock'] ?? 0 }}</div>
+                <div class="bg-blue-400 bg-opacity-30 p-3 rounded-full">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"></path>
+                    </svg>
                 </div>
             </div>
+        </div>
 
-            <!-- Chart.js Pie Chart -->
-            <div class="mb-8 flex justify-center">
-                <canvas id="statusChart" width="300" height="300" style="max-width:300px;max-height:300px;"></canvas>
+        <!-- Total Stock Out -->
+        <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-xl p-6 text-white shadow-lg">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-red-100 text-sm font-medium">Total Stock Out</p>
+                    <p class="text-3xl font-bold">{{ number_format($totalStockOut) }}</p>
+                </div>
+                <div class="bg-red-400 bg-opacity-30 p-3 rounded-full">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"></path>
+                    </svg>
+                </div>
             </div>
+        </div>
 
-            <!-- Export Buttons -->
-            <div class="mb-6 flex space-x-4">
-                <form method="POST" action="#" onsubmit="exportCSV(event)">
-                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Export CSV</button>
-                </form>
-                <form method="POST" action="#" onsubmit="exportPDF(event)">
-                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Export PDF</button>
-                </form>
+        <!-- Current Stock Items -->
+        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-green-100 text-sm font-medium">Stock Items</p>
+                    <p class="text-3xl font-bold">{{ $stats['total'] ?? 0 }}</p>
+                </div>
+                <div class="bg-green-400 bg-opacity-30 p-3 rounded-full">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                </div>
             </div>
+        </div>
 
-            <!-- Recent Activity Log -->
-            <!-- Removed: Recent Activity section referencing $recentActivity -->
+        <!-- Total Inventory Value -->
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-purple-100 text-sm font-medium">Total Value</p>
+                    <p class="text-2xl font-bold">₦{{ number_format($totalInventoryValue, 0) }}</p>
+                </div>
+                <div class="bg-purple-400 bg-opacity-30 p-3 rounded-full">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                    </svg>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div class="bg-white p-4 rounded shadow">
-            <h3 class="text-lg font-semibold mb-2">Daily Stock Movement (Last 7 Days)</h3>
-            <canvas id="movementChart"></canvas>
+    <!-- Status Overview Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Available Stock -->
+        <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Available Stock</h3>
+                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    {{ $stats['available'] ?? 0 }} items
+                </span>
+            </div>
+            <div class="flex items-center">
+                <div class="flex-1">
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-green-500 h-2 rounded-full" style="width: {{ $stats['total'] > 0 ? ($stats['available'] / $stats['total']) * 100 : 0 }}%"></div>
+                    </div>
+                </div>
+                <span class="ml-3 text-sm text-gray-600">{{ $stats['total'] > 0 ? round(($stats['available'] / $stats['total']) * 100) : 0 }}%</span>
+            </div>
         </div>
-        <div class="bg-white p-4 rounded shadow">
-            <h3 class="text-lg font-semibold mb-2">Top Selling Items</h3>
-            <ul>
-                @foreach($topSelling as $item)
-                    <li class="flex justify-between border-b py-1">
-                        <span>{{ $item->product_name }}</span>
-                        <span class="font-bold">{{ $item->total_sold }}</span>
-                    </li>
-                @endforeach
-            </ul>
+
+        <!-- Low Stock -->
+        <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Low Stock</h3>
+                <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    {{ $stats['low_stock'] ?? 0 }} items
+                </span>
+            </div>
+            <div class="flex items-center">
+                <div class="flex-1">
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-yellow-500 h-2 rounded-full" style="width: {{ $stats['total'] > 0 ? ($stats['low_stock'] / $stats['total']) * 100 : 0 }}%"></div>
+                    </div>
+                </div>
+                <span class="ml-3 text-sm text-gray-600">{{ $stats['total'] > 0 ? round(($stats['low_stock'] / $stats['total']) * 100) : 0 }}%</span>
+            </div>
+        </div>
+
+        <!-- Out of Stock -->
+        <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Out of Stock</h3>
+                <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    {{ $stats['out_of_stock'] ?? 0 }} items
+                </span>
+            </div>
+            <div class="flex items-center">
+                <div class="flex-1">
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-red-500 h-2 rounded-full" style="width: {{ $stats['total'] > 0 ? ($stats['out_of_stock'] / $stats['total']) * 100 : 0 }}%"></div>
+                    </div>
+                </div>
+                <span class="ml-3 text-sm text-gray-600">{{ $stats['total'] > 0 ? round(($stats['out_of_stock'] / $stats['total']) * 100) : 0 }}%</span>
+            </div>
         </div>
     </div>
 
-    <div class="bg-white p-4 rounded shadow mb-8">
-        <h3 class="text-lg font-semibold mb-2">Current Stock Levels</h3>
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead>
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                @foreach($inventory as $item)
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $item->item_name }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $item->quantity }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $item->unit }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            @if($item->status === 'available')
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">In Stock</span>
-                            @elseif($item->status === 'low_stock')
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Low Stock</span>
-                            @else
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Out of Stock</span>
-                            @endif
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Stock Status Chart -->
+        <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                Stock Status Distribution
+            </h3>
+            <div class="flex justify-center">
+                <canvas id="statusChart" width="250" height="250" style="max-width:250px;max-height:250px;"></canvas>
+            </div>
+        </div>
+
+        <!-- Daily Movement Chart -->
+        <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                </svg>
+                Daily Stock Movement (Last 7 Days)
+            </h3>
+            <div class="relative" style="height: 200px;">
+                <canvas id="movementChart"></canvas>
+            </div>
+        </div>
     </div>
 
-    <!-- Analytics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div class="bg-white shadow rounded-lg p-5">
-            <h3 class="text-lg font-medium text-gray-900 mb-2">Total Inventory Value</h3>
-            <div class="text-2xl font-bold text-green-700">₦{{ number_format($totalInventoryValue, 2) }}</div>
+    <!-- Top Selling Items & Current Stock -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Top Selling Items -->
+        <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                </svg>
+                Top Selling Items
+            </h3>
+            @if($topSelling->count() > 0)
+                <div class="space-y-3">
+                    @foreach($topSelling as $index => $item)
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-sm font-bold mr-3">
+                                    {{ $index + 1 }}
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-800">{{ $item->product_name }}</p>
+                                    <p class="text-sm text-gray-500">{{ number_format($item->total_sold) }} units sold</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-lg font-bold text-orange-600">{{ number_format($item->total_sold) }}</span>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="text-center py-8 text-gray-500">
+                    <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    <p>No sales data available</p>
+                </div>
+            @endif
         </div>
-        <div class="bg-white shadow rounded-lg p-5">
-            <h3 class="text-lg font-medium text-gray-900 mb-2">Stock Level per Item</h3>
-            <canvas id="stockLevelBarChart" height="120"></canvas>
+
+        <!-- Current Stock Levels -->
+        <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
+                Current Stock Levels
+            </h3>
+            @if($inventory->count() > 0)
+                <div class="space-y-3 max-h-80 overflow-y-auto">
+                    @foreach($inventory as $item)
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex-1">
+                                <p class="font-medium text-gray-800">{{ $item->item_name }}</p>
+                                <p class="text-sm text-gray-500">{{ $item->quantity }} {{ $item->unit }}</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="px-2 py-1 text-xs font-medium rounded-full
+                                    @if($item->status === 'available') bg-green-100 text-green-800
+                                    @elseif($item->status === 'low_stock') bg-yellow-100 text-yellow-800
+                                    @else bg-red-100 text-red-800
+                                    @endif">
+                                    {{ ucfirst(str_replace('_', ' ', $item->status)) }}
+                                </span>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="text-center py-8 text-gray-500">
+                    <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                    <p>No inventory items found</p>
+                    <a href="{{ route('supplier.inventory.create') }}" class="text-blue-500 hover:text-blue-600 text-sm mt-2 inline-block">Add your first item</a>
+                </div>
+            @endif
         </div>
     </div>
-    <!-- End Analytics Cards -->
+
+    <!-- Stock Level Chart -->
+    <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-100 mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+            Stock Level Overview
+        </h3>
+        <canvas id="stockLevelBarChart" height="100"></canvas>
+    </div>
+
+    <!-- Export Section -->
+    <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 shadow-lg border border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            Export Data
+        </h3>
+        <div class="flex space-x-4">
+            <button onclick="exportCSV()" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Export CSV
+            </button>
+            <button onclick="exportPDF()" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Export PDF
+            </button>
+        </div>
+    </div>
 
     <!-- Chart.js Script -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // Status Chart
         const ctx = document.getElementById('statusChart').getContext('2d');
         const statusChart = new Chart(ctx, {
-            type: 'pie',
+            type: 'doughnut',
             data: {
                 labels: ['Available', 'Low Stock', 'Out of Stock'],
                 datasets: [{
                     data: [{{ $stats['available'] ?? 0 }}, {{ $stats['low_stock'] ?? 0 }}, {{ $stats['out_of_stock'] ?? 0 }}],
                     backgroundColor: [
-                        'rgba(16, 185, 129, 0.7)',
-                        'rgba(251, 191, 36, 0.7)',
-                        'rgba(239, 68, 68, 0.7)'
+                        'rgba(34, 197, 94, 0.8)',
+                        'rgba(251, 191, 36, 0.8)',
+                        'rgba(239, 68, 68, 0.8)'
                     ],
                     borderColor: [
-                        'rgba(16, 185, 129, 1)',
+                        'rgba(34, 197, 94, 1)',
                         'rgba(251, 191, 36, 1)',
                         'rgba(239, 68, 68, 1)'
                     ],
-                    borderWidth: 1
+                    borderWidth: 2
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         position: 'bottom',
-                    },
-                },
-            },
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
         });
 
+        // Movement Chart
         const ctxMovement = document.getElementById('movementChart').getContext('2d');
         const movementChart = new Chart(ctxMovement, {
             type: 'line',
@@ -183,69 +368,136 @@
                     {
                         label: 'Stock In',
                         data: {!! json_encode($stockInData) !!},
-                        borderColor: 'rgba(59, 130, 246, 1)',
-                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                        fill: true,
+                        borderColor: 'rgba(34, 197, 94, 1)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        fill: false,
+                        tension: 0.3,
+                        pointBackgroundColor: 'rgba(34, 197, 94, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        borderWidth: 3
                     },
                     {
                         label: 'Stock Out',
                         data: {!! json_encode($stockOutData) !!},
                         borderColor: 'rgba(239, 68, 68, 1)',
-                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
-                        fill: true,
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        fill: false,
+                        tension: 0.3,
+                        pointBackgroundColor: 'rgba(239, 68, 68, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        borderWidth: 3
                     }
                 ]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 11
+                            },
+                            color: 'rgba(0, 0, 0, 0.7)'
+                        }
                     },
-                    title: {
-                        display: true,
-                        text: 'Stock Movement Trends'
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 11
+                            },
+                            color: 'rgba(0, 0, 0, 0.7)',
+                            maxRotation: 45
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                elements: {
+                    point: {
+                        hoverBackgroundColor: 'rgba(255, 255, 255, 1)',
+                        hoverBorderColor: 'rgba(0, 0, 0, 0.8)',
+                        hoverBorderWidth: 2
                     }
                 }
             }
         });
 
         // Stock Level Bar Chart
-        new Chart(document.getElementById('stockLevelBarChart'), {
+        const ctxBar = document.getElementById('stockLevelBarChart').getContext('2d');
+        const stockLevelChart = new Chart(ctxBar, {
             type: 'bar',
             data: {
-                labels: {!! $stockLevelChartData->pluck('item_name')->toJson() !!},
+                labels: {!! json_encode($stockLevelChartData->pluck('item_name')) !!},
                 datasets: [{
                     label: 'Quantity',
-                    data: {!! $stockLevelChartData->pluck('quantity')->toJson() !!},
-                    backgroundColor: '#60a5fa',
+                    data: {!! json_encode($stockLevelChartData->pluck('quantity')) !!},
+                    backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                    borderColor: 'rgba(99, 102, 241, 1)',
+                    borderWidth: 1,
+                    borderRadius: 4
                 }]
             },
-            options: {responsive: true, indexAxis: 'y'}
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
         });
 
-        // Export CSV (client-side)
-        function exportCSV(event) {
-            event.preventDefault();
-            let csv = 'Item Name,Item Type,Quantity,Unit,Status,Reorder Level\n';
-            @foreach($inventory as $item)
-                csv += `"{{ $item->item_name }}","{{ $item->item_type }}",{{ $item->quantity }},"{{ $item->unit }}","{{ $item->status }}",{{ $item->reorder_level }}\n`;
-            @endforeach
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('hidden', '');
-            a.setAttribute('href', url);
-            a.setAttribute('download', 'inventory.csv');
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+        // Export functions
+        function exportCSV() {
+            alert('CSV export functionality will be implemented here');
         }
 
-        // Export PDF (client-side, simple print)
-        function exportPDF(event) {
-            event.preventDefault();
-            window.print();
+        function exportPDF() {
+            alert('PDF export functionality will be implemented here');
         }
     </script>
 @endsection
