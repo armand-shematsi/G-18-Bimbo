@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('vendors', function (Blueprint $table) {
-            if (!Schema::hasColumn('vendors', 'sales')) {
-                $table->decimal('sales', 15, 2)->default(0);
+            if (!Schema::hasColumn('vendors', 'years_in_business')) {
+                $table->integer('years_in_business')->after('annual_revenue')->default(0);
             }
         });
     }
@@ -24,8 +24,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('vendors', function (Blueprint $table) {
-            if (Schema::hasColumn('vendors', 'sales')) {
-                $table->dropColumn('sales');
+            if (Schema::hasColumn('vendors', 'years_in_business')) {
+                $table->dropColumn('years_in_business');
             }
         });
     }

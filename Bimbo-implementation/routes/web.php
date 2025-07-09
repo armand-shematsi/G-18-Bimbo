@@ -61,12 +61,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/inventory/{id}/update-quantity', [App\Http\Controllers\Supplier\InventoryController::class, 'updateQuantity'])->name('inventory.updateQuantity');
         Route::get('/inventory/dashboard', [App\Http\Controllers\Supplier\InventoryController::class, 'dashboard'])->name('inventory.dashboard');
 
-        // Orders routes
-        Route::get('/orders', [App\Http\Controllers\Supplier\OrderController::class, 'index'])->name('orders.index');
-        Route::get('/orders/new', [App\Http\Controllers\Supplier\OrderController::class, 'create'])->name('orders.new');
-        Route::post('/orders', [App\Http\Controllers\Supplier\OrderController::class, 'store'])->name('orders.store');
-        Route::get('/orders/{order}', [App\Http\Controllers\Supplier\OrderController::class, 'show'])->name('orders.show');
-        Route::patch('/orders/{order}/status', [App\Http\Controllers\Supplier\OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+        // Orders resource route
+        Route::resource('orders', OrderController::class);
+        Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
 
         // Stockin routes
         Route::get('/stockin', [App\Http\Controllers\Supplier\StockInController::class, 'index'])->name('stockin.index');
