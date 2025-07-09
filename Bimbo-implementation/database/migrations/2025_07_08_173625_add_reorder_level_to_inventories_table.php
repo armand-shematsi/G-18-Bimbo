@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('inventories', function (Blueprint $table) {
-            $table->integer('reorder_level')->default(0);
+            if (!Schema::hasColumn('inventories', 'reorder_level')) {
+                $table->integer('reorder_level')->default(0);
+            }
         });
     }
 
@@ -22,7 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('inventories', function (Blueprint $table) {
-            $table->dropColumn('reorder_level');
+            if (Schema::hasColumn('inventories', 'reorder_level')) {
+                $table->dropColumn('reorder_level');
+            }
         });
     }
 };

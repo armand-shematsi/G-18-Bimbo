@@ -16,8 +16,22 @@ class InventoryController extends Controller
      */
     public function index()
     {
-        $inventory = Inventory::where('user_id', auth()->id())->get();
-        return view('supplier.inventory.index', compact('inventory'));
+        $inventory = Inventory::where('user_id', auth()->id())
+            ->with(['movements' => function($query) {
+                $query->latest()->limit(5);
+            }])
+            ->orderBy('item_name')
+            ->get();
+
+        // Calculate summary statistics
+        $totalItems = $inventory->count();
+        $totalValue = $inventory->sum(function($item) {
+            return $item->quantity * $item->unit_price;
+        });
+        $lowStockItems = $inventory->where('status', 'low_stock')->count();
+        $outOfStockItems = $inventory->where('status', 'out_of_stock')->count();
+
+        return view('supplier.inventory.index', compact('inventory', 'totalItems', 'totalValue', 'lowStockItems', 'outOfStockItems'));
     }
 
     /**
@@ -220,5 +234,48 @@ class InventoryController extends Controller
             'stockLevelChartData' => $stockLevelChartData,
             'lowStockItems' => $lowStockItems,
         ]);
+    }
+
+    /**
+     * Display the specified inventory item with detailed stock movements.
+     */
+    public function show($id)
+    {
+        $item = Inventory::where('user_id', auth()->id())
+            ->with(['movements' => function($query) {
+                $query->orderByDesc('created_at');
+            }])
+            ->findOrFail($id);
+
+        // Get stock in/out history
+        $stockInHistory = \App\Models\StockIn::where('user_id', auth()->id())
+            ->where('inventory_id', $item->id)
+            ->orderByDesc('received_at')
+            ->get();
+
+        $stockOutHistory = \App\Models\StockOut::where('user_id', auth()->id())
+            ->where('inventory_id', $item->id)
+            ->orderByDesc('removed_at')
+            ->get();
+
+        // Calculate statistics
+        $totalStockIn = $stockInHistory->sum('quantity_received');
+        $totalStockOut = $stockOutHistory->sum('quantity_removed');
+        $currentStock = $item->quantity;
+        $totalValue = $currentStock * $item->unit_price;
+
+        // Get recent movements (last 10)
+        $recentMovements = $item->movements()->with('user')->orderByDesc('created_at')->limit(10)->get();
+
+        return view('supplier.inventory.show', compact(
+            'item',
+            'stockInHistory',
+            'stockOutHistory',
+            'totalStockIn',
+            'totalStockOut',
+            'currentStock',
+            'totalValue',
+            'recentMovements'
+        ));
     }
 }

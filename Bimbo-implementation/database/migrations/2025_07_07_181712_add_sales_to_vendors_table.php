@@ -13,15 +13,8 @@ return new class extends Migration
     {
         Schema::table('vendors', function (Blueprint $table) {
             if (!Schema::hasColumn('vendors', 'sales')) {
-                $table->decimal('sales', 15, 2)->default(0);
+            $table->decimal('sales', 15, 2)->default(0);
             }
-
-            if (!Schema::hasColumn('vendors', 'sales')) {
-                $table->decimal('sales', 15, 2)->default(0);
-            }
-
-//            $table->decimal('sales', 15, 2)->default(0);
-
         });
     }
 
@@ -32,7 +25,7 @@ return new class extends Migration
     {
         Schema::table('vendors', function (Blueprint $table) {
             if (Schema::hasColumn('vendors', 'sales')) {
-                $table->dropColumn('sales');
+            $table->dropColumn('sales');
             }
         });
     }
