@@ -26,30 +26,77 @@
 @endsection
 
 @section('content')
-    <!-- Low Stock Alert Banner -->
+        <!-- Low Stock Alert Banner -->
     @if(isset($lowStockItems) && $lowStockItems->count() > 0)
-        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-500 rounded-r-lg p-6 mb-8 shadow-sm">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <svg class="h-8 w-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                    </svg>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-semibold text-yellow-800 mb-2">Low Stock Alert!</h3>
-                    <div class="text-yellow-700">
-                        <p class="mb-2">The following items need restocking:</p>
-                        <ul class="list-disc pl-5 space-y-1">
-                            @foreach($lowStockItems->take(3) as $item)
-                                <li>
-                                    <span class="font-medium">{{ $item->item_name }}</span>
-                                    <span class="text-sm">({{ $item->quantity }} {{ $item->unit }} remaining)</span>
-                                </li>
-                            @endforeach
-                            @if($lowStockItems->count() > 3)
-                                <li class="text-sm italic">... and {{ $lowStockItems->count() - 3 }} more items</li>
+        <div class="bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 border border-red-200 rounded-xl p-6 mb-8 shadow-lg relative overflow-hidden">
+            <!-- Background Pattern -->
+            <div class="absolute inset-0 bg-gradient-to-r from-red-100/20 to-orange-100/20"></div>
+            <div class="absolute top-0 right-0 w-32 h-32 bg-red-200/10 rounded-full -translate-y-16 translate-x-16"></div>
+            <div class="absolute bottom-0 left-0 w-24 h-24 bg-orange-200/10 rounded-full translate-y-12 -translate-x-12"></div>
+
+            <div class="relative z-10">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                                <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center mb-3">
+                                <h3 class="text-xl font-bold text-red-800 mr-3">Low Stock Alert!</h3>
+                                <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-1 rounded-full border border-red-200">
+                                    {{ $lowStockItems->count() }} {{ $lowStockItems->count() === 1 ? 'Item' : 'Items' }}
+                                </span>
+                            </div>
+                            <p class="text-red-700 mb-4 font-medium">The following items need immediate restocking:</p>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                @foreach($lowStockItems->take(6) as $item)
+                                    <div class="bg-white/70 backdrop-blur-sm rounded-lg p-3 border border-red-200/50 shadow-sm">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex-1">
+                                                <h4 class="font-semibold text-gray-800 text-sm">{{ $item->item_name }}</h4>
+                                                <div class="flex items-center mt-1">
+                                                    <div class="flex-1 bg-gray-200 rounded-full h-2 mr-2">
+                                                        @php
+                                                            $percentage = $item->reorder_level > 0 ? ($item->quantity / $item->reorder_level) * 100 : 0;
+                                                            $percentage = min($percentage, 100);
+                                                        @endphp
+                                                        <div class="bg-gradient-to-r from-red-500 to-orange-500 h-2 rounded-full" style="width: {{ $percentage }}%"></div>
+                                                    </div>
+                                                    <span class="text-xs font-medium text-red-600">{{ round($percentage) }}%</span>
+                                                </div>
+                                            </div>
+                                            <div class="text-right ml-3">
+                                                <div class="text-sm font-bold text-red-600">{{ $item->quantity }}</div>
+                                                <div class="text-xs text-gray-500">{{ $item->unit }}</div>
+                                                <div class="text-xs text-gray-400">of {{ $item->reorder_level }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            @if($lowStockItems->count() > 6)
+                                <div class="mt-4 text-center">
+                                    <span class="text-sm text-red-600 font-medium">
+                                        ... and {{ $lowStockItems->count() - 6 }} more items need attention
+                                    </span>
+                                </div>
                             @endif
-                        </ul>
+                        </div>
+                    </div>
+
+                    <div class="flex-shrink-0 ml-4">
+                        <a href="{{ route('supplier.inventory.index') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-orange-500 text-white text-sm font-semibold rounded-lg shadow-md hover:from-red-600 hover:to-orange-600 transition-all duration-200 transform hover:scale-105">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Restock Now
+                        </a>
                     </div>
                 </div>
             </div>
@@ -108,7 +155,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-purple-100 text-sm font-medium">Total Value</p>
-                    <p class="text-2xl font-bold">₦{{ number_format($totalInventoryValue, 0) }}</p>
+                                            <p class="text-2xl font-bold">₦{{ number_format($totalInventoryValue, 2) }}</p>
                 </div>
                 <div class="bg-purple-400 bg-opacity-30 p-3 rounded-full">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -120,7 +167,7 @@
     </div>
 
     <!-- Status Overview Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <!-- Available Stock -->
         <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
             <div class="flex items-center justify-between mb-4">
@@ -172,6 +219,87 @@
                     </div>
                 </div>
                 <span class="ml-3 text-sm text-gray-600">{{ $stats['total'] > 0 ? round(($stats['out_of_stock'] / $stats['total']) * 100) : 0 }}%</span>
+            </div>
+        </div>
+
+        <!-- Efficient Stock -->
+        <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Efficient Stock</h3>
+                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    {{ $efficientStock ?? 0 }} items
+                </span>
+            </div>
+            <div class="flex items-center">
+                <div class="flex-1">
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-blue-500 h-2 rounded-full" style="width: {{ $stats['total'] > 0 ? ($efficientStock / $stats['total']) * 100 : 0 }}%"></div>
+                    </div>
+                </div>
+                <span class="ml-3 text-sm text-gray-600">{{ $stats['total'] > 0 ? round(($efficientStock / $stats['total']) * 100) : 0 }}%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Business Metrics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Monthly Stock In -->
+        <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl p-6 text-white shadow-lg">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-emerald-100 text-sm font-medium">Monthly Stock In</p>
+                    <p class="text-2xl font-bold">{{ number_format($monthlyStockIn) }}</p>
+                </div>
+                <div class="bg-emerald-400 bg-opacity-30 p-3 rounded-full">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Stock Out -->
+        <div class="bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl p-6 text-white shadow-lg">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-rose-100 text-sm font-medium">Monthly Stock Out</p>
+                    <p class="text-2xl font-bold">{{ number_format($monthlyStockOut) }}</p>
+                </div>
+                <div class="bg-rose-400 bg-opacity-30 p-3 rounded-full">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Turnover -->
+        <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl p-6 text-white shadow-lg">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-amber-100 text-sm font-medium">Turnover Rate</p>
+                    <p class="text-2xl font-bold">{{ $inventoryTurnover }}</p>
+                </div>
+                <div class="bg-amber-400 bg-opacity-30 p-3 rounded-full">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reorder Value -->
+        <div class="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl p-6 text-white shadow-lg">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-cyan-100 text-sm font-medium">Reorder Value</p>
+                                            <p class="text-xl font-bold">₦{{ number_format($totalReorderValue, 2) }}</p>
+                </div>
+                <div class="bg-cyan-400 bg-opacity-30 p-3 rounded-full">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
             </div>
         </div>
     </div>
@@ -292,7 +420,9 @@
             </svg>
             Stock Level Overview
         </h3>
-        <canvas id="stockLevelBarChart" height="100"></canvas>
+        <div class="relative" style="height: 120px;">
+            <canvas id="stockLevelBarChart"></canvas>
+        </div>
     </div>
 
     <!-- Export Section -->
@@ -461,10 +591,30 @@
                 datasets: [{
                     label: 'Quantity',
                     data: {!! json_encode($stockLevelChartData->pluck('quantity')) !!},
-                    backgroundColor: 'rgba(99, 102, 241, 0.8)',
-                    borderColor: 'rgba(99, 102, 241, 1)',
-                    borderWidth: 1,
-                    borderRadius: 4
+                    backgroundColor: [
+                        'rgba(34, 197, 94, 0.8)',
+                        'rgba(59, 130, 246, 0.8)',
+                        'rgba(251, 191, 36, 0.8)',
+                        'rgba(239, 68, 68, 0.8)',
+                        'rgba(168, 85, 247, 0.8)',
+                        'rgba(236, 72, 153, 0.8)',
+                        'rgba(14, 165, 233, 0.8)',
+                        'rgba(34, 197, 94, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(34, 197, 94, 1)',
+                        'rgba(59, 130, 246, 1)',
+                        'rgba(251, 191, 36, 1)',
+                        'rgba(239, 68, 68, 1)',
+                        'rgba(168, 85, 247, 1)',
+                        'rgba(236, 72, 153, 1)',
+                        'rgba(14, 165, 233, 1)',
+                        'rgba(34, 197, 94, 1)'
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                    maxBarThickness: 30
                 }]
             },
             options: {
@@ -473,19 +623,63 @@
                 plugins: {
                     legend: {
                         display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: 'rgba(255,255,255,0.2)',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        displayColors: false,
+                        callbacks: {
+                            title: function(context) {
+                                return context[0].label;
+                            },
+                            label: function(context) {
+                                return 'Quantity: ' + context.parsed.y;
+                            }
+                        }
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.1)'
+                            color: 'rgba(0,0,0,0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 11
+                            },
+                            color: 'rgba(0,0,0,0.7)',
+                            callback: function(value) {
+                                return value.toLocaleString();
+                            }
                         }
                     },
                     x: {
                         grid: {
                             display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 11
+                            },
+                            color: 'rgba(0,0,0,0.7)',
+                            maxRotation: 45,
+                            minRotation: 0
                         }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                elements: {
+                    bar: {
+                        borderSkipped: false
                     }
                 }
             }
