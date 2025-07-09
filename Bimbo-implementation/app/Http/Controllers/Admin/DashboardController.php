@@ -33,6 +33,7 @@ class DashboardController extends Controller
 
         // Reorder alerts (count of inventories needing reorder)
         $reorderAlerts = \App\Models\Inventory::whereColumn('quantity', '<=', 'reorder_level')->count();
+        $recentOrders = \App\Models\Order::with(['user', 'vendor'])->latest()->take(5)->get();
 
         return view('admin.dashboard', compact(
             'activeVendorsCount',
@@ -42,7 +43,8 @@ class DashboardController extends Controller
             'pendingOrders',
             'stockLevels',
             'totalRevenue',
-            'reorderAlerts'
+            'reorderAlerts',
+            'recentOrders'
         ));
     }
 

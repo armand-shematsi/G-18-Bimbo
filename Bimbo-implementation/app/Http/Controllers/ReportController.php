@@ -13,11 +13,10 @@ class ReportController extends Controller
         $user = Auth::user();
         $role = $user->role;
 
-        // You can adjust the path logic as needed for your report structure
-        $dailyPath = "reports/daily";
-        $weeklyPath = "reports/weekly";
+        // Update these paths to match your storage location
+        $dailyPath = "sentreports/dailyreports";
+        $weeklyPath = "sentreports/weeklyreports";
 
-        // Get all daily and weekly reports for this user (by user id in filename)
         $dailyReports = collect(Storage::files($dailyPath))
             ->filter(fn($file) => str_contains($file, "_{$user->id}_"))
             ->sortDesc();
@@ -31,7 +30,7 @@ class ReportController extends Controller
 
     public function download($type, $filename)
     {
-        $path = "reports/{$type}/{$filename}";
+        $path = "private/reports/{$type}/{$filename}";
         if (!Storage::exists($path)) {
             abort(404);
         }

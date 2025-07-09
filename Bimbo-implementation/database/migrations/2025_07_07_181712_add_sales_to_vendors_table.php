@@ -15,6 +15,13 @@ return new class extends Migration
             if (!Schema::hasColumn('vendors', 'sales')) {
                 $table->decimal('sales', 15, 2)->default(0);
             }
+
+            if (!Schema::hasColumn('vendors', 'sales')) {
+                $table->decimal('sales', 15, 2)->default(0);
+            }
+
+//            $table->decimal('sales', 15, 2)->default(0);
+
         });
     }
 
