@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -54,36 +56,90 @@ class DashboardController extends Controller
             case 'distributor':
                 return view('dashboard.distributor');
             case 'retail_manager':
-                $supplierInventory = \App\Models\Inventory::whereHas('user', function ($query) {
-                    $query->where('role', 'supplier');
-                })->get();
+                $today = Carbon::today();
 
-                $lowStockItems = $supplierInventory->filter(function ($item) {
-                    return $item->needsReorder();
-                });
+                try {
+                    // Debug: Check total orders in system
+                    $totalOrders = \App\Models\Order::count();
+                    $todayOrders = \App\Models\Order::whereDate('created_at', $today)->count();
 
-                // Compute order analytics for the last 7 days
-                $orderDays = [];
-                $orderCounts = [];
-                $userId = $user->id;
-                for ($i = 6; $i >= 0; $i--) {
-                    $date = now()->subDays($i)->toDateString();
-                    $orderDays[] = $date;
-                    $orderCounts[] = \App\Models\Order::where('user_id', $userId)
-                        ->whereDate('created_at', $date)
+                    // Calculate sales today - check both placed_at and created_at
+                    $salesToday = \App\Models\Order::where(function($query) use ($today) {
+                        $query->whereDate('placed_at', $today)
+                              ->orWhereDate('created_at', $today);
+                    })
+                    ->where('status', '!=', 'cancelled')
+                    ->sum('total') ?? 0;
+
+                    // Calculate orders today - check both placed_at and created_at
+                    $ordersToday = \App\Models\Order::where(function($query) use ($today) {
+                        $query->whereDate('placed_at', $today)
+                              ->orWhereDate('created_at', $today);
+                    })
+                    ->where('status', '!=', 'cancelled')
+                    ->count();
+
+                    // Calculate inventory value (only for current user's inventory)
+                    $inventoryValue = \App\Models\Inventory::where('user_id', auth()->id())
+                        ->whereNotNull('unit_price')
+                        ->sum(DB::raw('COALESCE(quantity, 0) * COALESCE(unit_price, 0)')) ?? 0;
+
+                    // Calculate low stock count
+                    $lowStockCount = \App\Models\Inventory::where('user_id', auth()->id())
+                        ->where('quantity', '<=', DB::raw('COALESCE(reorder_level, 0)'))
                         ->count();
+
+                    // Calculate pending orders
+                    $pendingOrders = \App\Models\Order::where('status', 'pending')
+                        ->count();
+
+                    // Calculate returns today
+                    $returnsToday = \App\Models\OrderReturn::whereDate('created_at', $today)
+                        ->sum('refund_amount') ?? 0;
+
+                    // Get top-selling products (last 30 days) - check both placed_at and created_at
+                    $topSellingProducts = \App\Models\OrderItem::select('product_id', 'product_name', DB::raw('SUM(quantity) as sold'))
+                        ->join('orders', 'order_items.order_id', '=', 'orders.id')
+                        ->where('orders.status', '!=', 'cancelled')
+                        ->where(function($query) use ($today) {
+                            $query->whereDate('orders.placed_at', '>=', $today->copy()->subDays(30))
+                                  ->orWhereDate('orders.created_at', '>=', $today->copy()->subDays(30));
+                        })
+                        ->groupBy('product_id', 'product_name')
+                        ->orderBy('sold', 'desc')
+                        ->limit(5)
+                        ->get()
+                        ->map(function ($item) {
+                            return (object) [
+                                'name' => $item->product_name ?: 'Unknown Product',
+                                'sold' => $item->sold ?? 0
+                            ];
+                        });
+
+                } catch (\Exception $e) {
+                    // Fallback values if there's an error
+                    $salesToday = 0;
+                    $ordersToday = 0;
+                    $inventoryValue = 0;
+                    $lowStockCount = 0;
+                    $pendingOrders = 0;
+                    $returnsToday = 0;
+                    $topSellingProducts = collect();
+                    $totalOrders = 0;
+                    $todayOrders = 0;
                 }
 
-                // Compute order status breakdown for this user
-                $statuses = ['pending', 'processing', 'shipped', 'completed', 'cancelled'];
-                $statusCounts = [];
-                foreach ($statuses as $status) {
-                    $statusCounts[$status] = \App\Models\Order::where('user_id', $userId)
-                        ->where('status', $status)
-                        ->count();
-                }
-
-                return view('dashboard.retail-manager', compact('supplierInventory', 'lowStockItems', 'orderDays', 'orderCounts', 'statusCounts'));
+                return view('dashboard.retail', compact(
+                    'salesToday',
+                    'ordersToday',
+                    'inventoryValue',
+                    'lowStockCount',
+                    'pendingOrders',
+                    'returnsToday',
+                    'topSellingProducts',
+                    'totalOrders',
+                    'todayOrders'
+                ));
                                     case 'customer':
                 // Get recent orders for the customer
                 try {
