@@ -26,57 +26,54 @@ class GenerateWeeklyReport extends Command
     /**
      * Execute the console command.
      */
-    public function handle(ReportService $reportService)
+    public function handle(\App\Services\ReportService $reportService)
     {
         $stakeholderType = $this->option('stakeholder');
-        
         $this->info('Generating weekly reports...');
-        
+
+        // Get all active users (or all users if you want to include inactive)
         if ($stakeholderType === 'all') {
-            $stakeholders = User::whereIn('role', ['admin', 'supplier', 'bakery_manager', 'distributor', 'retail_manager', 'customer'])
-                               ->where('status', 'active')
-                               ->get();
+            $stakeholders = \App\Models\User::where('status', 'active')->get();
         } else {
-            $stakeholders = User::where('role', $stakeholderType)
-                               ->where('status', 'active')
-                               ->get();
+            $stakeholders = \App\Models\User::where('role', $stakeholderType)->where('status', 'active')->get();
         }
-        
+
         if ($stakeholders->isEmpty()) {
-            $this->error("No active stakeholders found for role: {$stakeholderType}");
+            $this->error("No users found for role: {$stakeholderType}");
             return Command::FAILURE;
         }
-        
+
         $bar = $this->output->createProgressBar($stakeholders->count());
         $bar->start();
-        
+
         $successCount = 0;
         $errorCount = 0;
-        
+
         foreach ($stakeholders as $stakeholder) {
             try {
-                $reportData = $reportService->generateWeeklyReport($stakeholder->role);
-                $stakeholder->notify(new WeeklyReportNotification($reportData));
+                // Always generate a report, even if all values are zero
+                $reportData = $reportService->generateWeeklyReport($stakeholder->role, $stakeholder->id);
+                $stakeholder->notify(new \App\Notifications\WeeklyReportNotification($reportData));
                 $successCount++;
                 $bar->advance();
             } catch (\Exception $e) {
-                $this->error("Failed to send weekly report to {$stakeholder->name}: " . $e->getMessage());
+                $this->error("Failed to send report to {$stakeholder->name}: " . $e->getMessage());
                 $errorCount++;
                 $bar->advance();
             }
         }
-        
+
         $bar->finish();
         $this->newLine();
-        
+
         if ($successCount > 0) {
             $this->info("✅ Successfully sent {$successCount} weekly reports!");
         }
-        
+
         if ($errorCount > 0) {
             $this->warn("⚠️  Failed to send {$errorCount} reports. Check logs for details.");
         }
-        
+
         return Command::SUCCESS;
     }
 } 

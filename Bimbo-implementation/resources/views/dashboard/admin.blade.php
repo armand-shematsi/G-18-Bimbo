@@ -34,6 +34,14 @@
         <svg class="w-4 h-4 mr-1 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
         Import Customer Segments
     </a>
+    <div class="mb-3">
+        <a href="{{ route('reports.downloads') }}" class="btn btn-info">👁️ View Your Reports</a>
+        <span class="text-muted ml-2">See all your daily and weekly reports in one place.</span>
+    </div>
+    <div>
+        <a href="{{ route('reports.downloads') }}" class="btn btn-success">📄 Download Your Reports</a>
+        <span class="text-muted ml-2">Download any report as a PDF.</span>
+    </div>
 @endsection
 
 @section('content')
@@ -108,4 +116,24 @@
 
         </div>
     </div>
+
+<div class="card my-4 shadow-sm" style="border: 2px solid #007bff; background: linear-gradient(90deg, #e3f2fd 0%, #fff 100%);">
+    <div class="card-body">
+        <h4 class="card-title mb-3" style="font-size: 2rem; font-weight: bold; color: #007bff;">
+            <i class="fas fa-file-alt" style="font-size: 2.2rem; color: #007bff; vertical-align: middle;"></i>
+            Reports Center
+        </h4>
+        <div class="d-flex flex-wrap gap-3">
+            <a href="{{ route('reports.downloads') }}" class="btn btn-info btn-lg d-flex align-items-center" style="font-size: 1.3rem; font-weight: bold; background: #17a2b8; border: none; border-radius: 6px;">
+                <i class="fas fa-eye mr-2" style="font-size: 2rem; color: #fff;"></i> View Your Reports
+            </a>
+        </div>
+        <div class="d-flex flex-wrap gap-3 mt-3">
+            <a href="{{ route('reports.downloads') }}" class="btn btn-success btn-lg d-flex align-items-center" style="font-size: 1.3rem; font-weight: bold; background: #28a745; border: none; border-radius: 6px;">
+                <i class="fas fa-file-download mr-2" style="font-size: 2rem; color: #fff;"></i> Download Your Reports
+            </a>
+        </div>
+        <p class="text-muted mt-3 mb-0" style="font-size: 1.1rem; font-weight: 500; color: #333 !important;">Access all your daily and weekly reports in one place.</p>
+    </div>
+</div>
 @endsection

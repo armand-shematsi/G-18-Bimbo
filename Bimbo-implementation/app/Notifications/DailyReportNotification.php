@@ -60,6 +60,7 @@ class DailyReportNotification extends Notification implements ShouldQueue
                 'as' => "daily_report_{$date}.pdf",
                 'mime' => 'application/pdf',
             ]);
+            // Do NOT delete the PDF after sending, so users can download it later
         }
 
         return $mailMessage;
@@ -85,22 +86,28 @@ class DailyReportNotification extends Notification implements ShouldQueue
     private function generatePDFReport($notifiable): ?string
     {
         try {
-            $roleName = $this->getRoleDisplayName($this->role);
+            $role = $this->role; // e.g. 'bakery_manager_daily'
+            $roleView = match ($role) {
+                'bakery_manager_daily' => 'reports.bakery_manager',
+                'retail_manager_daily' => 'reports.retail_manager',
+                'distributor_daily' => 'reports.distributor',
+                'supplier_daily' => 'reports.supplier',
+                'customer_daily' => 'reports.customer',
+                'admin_daily' => 'reports.admin',
+                default => 'reports.daily',
+            };
+
             $date = $this->reportData['date'] ?? now()->format('Y-m-d');
-            
-            $pdf = PDF::loadView('reports.daily', [
+            $pdf = PDF::loadView($roleView, [
                 'reportData' => $this->reportData,
                 'user' => $notifiable,
-                'roleName' => $roleName,
+                'roleName' => $this->getRoleDisplayName($role),
                 'date' => $date,
             ]);
-
             $filename = "daily_report_{$notifiable->id}_{$date}.pdf";
             $path = "sentreports/dailyreports/{$filename}";
-            
             Storage::put($path, $pdf->output());
             \Log::info('PDF report saved to: ' . $path);
-            
             return $path;
         } catch (\Exception $e) {
             \Log::error('Failed to generate PDF report: ' . $e->getMessage());

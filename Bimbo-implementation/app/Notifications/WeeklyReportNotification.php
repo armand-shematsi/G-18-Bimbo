@@ -99,6 +99,7 @@ class WeeklyReportNotification extends Notification implements ShouldQueue
             $path = "sentreports/weeklyreports/{$filename}";
             
             Storage::put($path, $pdf->output());
+            \Log::info('PDF report saved to: ' . $path);
             
             return $path;
         } catch (\Exception $e) {
