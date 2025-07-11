@@ -26,6 +26,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // Route::get('/dashboard', [App\Http\Controllers\Retail\DashboardController::class, 'index'])->name('dashboard');
 
     // Admin Routes
     Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
@@ -131,6 +132,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/workforce/auto-reassign', [\App\Http\Controllers\WorkforceController::class, 'autoReassignAbsentees'])->name('workforce.auto-reassign');
 
         // Workforce Management for Bakery Manager
+        Route::post('/workforce/assign-staff', [\App\Http\Controllers\WorkforceController::class, 'assignStaff'])->name('workforce.assign-staff');
+        Route::post('/workforce/assign-staff-bulk', [\App\Http\Controllers\WorkforceController::class, 'assignStaffBulk']);
+        // Assign shift to batch
+        Route::post('/shifts/assign', [\App\Http\Controllers\ShiftController::class, 'assignToBatch'])->name('shifts.assignToBatch');
+        Route::post('/shifts/assign-new', [\App\Http\Controllers\ShiftController::class, 'assignNewToBatch'])->name('shifts.assignNewToBatch');
+        // Assign shift to batch (AJAX)
+        Route::post('/batches/{batch}/assign-shift', [\App\Http\Controllers\ProductionBatchController::class, 'assignShift'])->name('batches.assignShift');
+        Route::get('/order-processing', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'index'])->name('order-processing');
+        Route::post('/order-processing/supplier-order', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'storeSupplierOrder'])->name('order-processing.supplier-order');
+        Route::get('/order-processing/retailer-orders', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'listRetailerOrders'])->name('order-processing.retailer-orders');
+        Route::post('/order-processing/retailer-orders/{id}/receive', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'receiveRetailerOrder'])->name('order-processing.retailer-orders.receive');
+        Route::get('/workforce/shifts', [\App\Http\Controllers\WorkforceController::class, 'shifts'])->name('workforce.shifts');
+        Route::post('/workforce/shifts', [\App\Http\Controllers\WorkforceController::class, 'storeShift'])->name('workforce.shifts.store');
         Route::get('/workforce/assignment', [\App\Http\Controllers\WorkforceController::class, 'assignment'])->name('workforce.assignment');
         Route::get('/workforce/shifts', [\App\Http\Controllers\WorkforceController::class, 'shifts'])->name('workforce.shifts');
         Route::get('/workforce/availability', [\App\Http\Controllers\WorkforceController::class, 'availability'])->name('workforce.availability');
@@ -207,16 +221,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/order/store', [App\Http\Controllers\Customer\OrderController::class, 'store'])->name('order.store');
         Route::get('/orders', [App\Http\Controllers\Customer\OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [App\Http\Controllers\Customer\OrderController::class, 'show'])->name('orders.show');
+        Route::patch('/orders/{order}/cancel', [App\Http\Controllers\Customer\OrderController::class, 'cancel'])->name('orders.cancel');
     });
 
     // Workforce Overview Route
     Route::get('/workforce/overview', [WorkforceController::class, 'overview'])->name('workforce.overview');
 
-    Route::get('/customer/orders/create', [\App\Http\Controllers\OrderController::class, 'create'])
-        ->name('customer.orders.create');
-
-    Route::get('/supplier/orders', [\App\Http\Controllers\SupplierOrderController::class, 'index'])
-        ->name('supplier.orders.index');
+    // Remove or comment out the following conflicting route:
+    // Route::get('/supplier/orders', [\App\Http\Controllers\SupplierOrderController::class, 'index'])
+    //     ->name('supplier.orders');
 });
 
 // Vendor Registration Routes

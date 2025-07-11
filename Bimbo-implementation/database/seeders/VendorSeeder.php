@@ -27,7 +27,6 @@ class VendorSeeder extends Seeder
                 'status' => 'active',
                 'sales' => 100000.00,
                 'annual_revenue' => 500000.00,
-                'years_in_business' => 10,
                 'regulatory_certification' => 'FDA Approved',
                 'visit_scheduled' => null,
                 'approved_at' => now(),
@@ -46,7 +45,6 @@ class VendorSeeder extends Seeder
                 'status' => 'active',
                 'sales' => 80000.00,
                 'annual_revenue' => 400000.00,
-                'years_in_business' => 8,
                 'regulatory_certification' => 'FDA Approved',
                 'visit_scheduled' => null,
                 'approved_at' => now(),
@@ -65,7 +63,6 @@ class VendorSeeder extends Seeder
                 'status' => 'active',
                 'sales' => 90000.00,
                 'annual_revenue' => 450000.00,
-                'years_in_business' => 9,
                 'regulatory_certification' => 'FDA Approved',
                 'visit_scheduled' => null,
                 'approved_at' => now(),
@@ -84,7 +81,6 @@ class VendorSeeder extends Seeder
                 'status' => 'active',
                 'sales' => 95000.00,
                 'annual_revenue' => 470000.00,
-                'years_in_business' => 11,
                 'regulatory_certification' => 'FDA Approved',
                 'visit_scheduled' => null,
                 'approved_at' => now(),
@@ -103,7 +99,6 @@ class VendorSeeder extends Seeder
                 'status' => 'active',
                 'sales' => 85000.00,
                 'annual_revenue' => 420000.00,
-                'years_in_business' => 7,
                 'regulatory_certification' => 'FDA Approved',
                 'visit_scheduled' => null,
                 'approved_at' => now(),
@@ -117,4 +112,4 @@ class VendorSeeder extends Seeder
             );
         }
     }
-} 
+}

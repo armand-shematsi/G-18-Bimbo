@@ -43,6 +43,11 @@ class Order extends Model
         return $this->hasOne(Payment::class);
     }
 
+    public function vendor()
+    {
+        return $this->belongsTo(\App\Models\Vendor::class, 'vendor_id');
+    }
+
     // Example status transition method
     public function setStatus(string $status): void
     {

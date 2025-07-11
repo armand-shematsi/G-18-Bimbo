@@ -47,7 +47,11 @@
 @section('content')
     <!-- Glassmorphism Cards Grid -->
     <div class="max-w-7xl mx-auto px-4 pb-12">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-2xl font-bold text-gray-800">Orders Overview</h3>
+            <a href="{{ route('admin.orders.index') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 transition">View All Orders</a>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
             <div class="bg-white/60 backdrop-blur-lg shadow-2xl rounded-2xl p-8 flex flex-col items-center hover:scale-105 transition-transform duration-300">
                 <div class="bg-blue-200/70 rounded-full p-4 mb-4 animate-pulse">
                     <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M3 12h18M3 17h18"/></svg>
