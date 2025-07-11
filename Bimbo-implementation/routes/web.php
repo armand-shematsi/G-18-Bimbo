@@ -168,8 +168,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/orders/{order}/status', [App\Http\Controllers\Retail\OrderController::class, 'changeStatus'])->name('orders.changeStatus');
 
         Route::get('/inventory', [App\Http\Controllers\Retail\InventoryController::class, 'index'])->name('inventory.index');
-        Route::get('/inventory/check', [App\Http\Controllers\Retail\InventoryController::class, 'check'])->name('inventory.check');
+        Route::get('/inventory/create', [App\Http\Controllers\RetailInventoryController::class, 'create'])->name('inventory.create');
+        Route::post('/inventory', [App\Http\Controllers\RetailInventoryController::class, 'store'])->name('inventory.store');
         Route::post('/inventory/update', [App\Http\Controllers\Retail\InventoryController::class, 'update'])->name('inventory.update');
+        Route::get('/inventory/check', [App\Http\Controllers\RetailInventoryController::class, 'check'])->name('inventory.check');
+        Route::post('/inventory/check', [App\Http\Controllers\RetailInventoryController::class, 'updateStock'])->name('inventory.update');
 
         Route::get('/forecast', [App\Http\Controllers\Retail\ForecastController::class, 'index'])->name('forecast.index');
         Route::get('/forecast/generate', [App\Http\Controllers\Retail\ForecastController::class, 'generate'])->name('forecast.generate');
