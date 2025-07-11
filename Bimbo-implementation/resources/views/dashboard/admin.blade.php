@@ -34,6 +34,14 @@
         <svg class="w-4 h-4 mr-1 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
         Import Customer Segments
     </a>
+    <div class="mb-3">
+        <a href="{{ route('reports.downloads') }}" class="btn btn-info">👁️ View Your Reports</a>
+        <span class="text-muted ml-2">See all your daily and weekly reports in one place.</span>
+    </div>
+    <div>
+        <a href="{{ route('reports.downloads') }}" class="btn btn-success">📄 Download Your Reports</a>
+        <span class="text-muted ml-2">Download any report as a PDF.</span>
+    </div>
 @endsection
 
 @section('content')
@@ -112,54 +120,24 @@
 
         </div>
     </div>
-    <!-- Recent Orders Table -->
-    <div class="max-w-7xl mx-auto px-4 pb-12">
-        <div class="bg-white shadow rounded-lg overflow-x-auto">
-            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
-                <h4 class="text-lg font-bold text-gray-700">Recent Orders</h4>
-                <a href="{{ route('admin.orders.index') }}" class="text-blue-600 hover:underline">See All</a>
-            </div>
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead>
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order #</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vendor</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                        <th class="px-6 py-3"></th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($recentOrders as $order)
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">#{{ $order->id }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $order->customer_name }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $order->vendor ? $order->vendor->name : '-' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-block px-2 py-1 rounded text-xs font-semibold
-                                    @if($order->status === 'pending') bg-yellow-100 text-yellow-800
-                                    @elseif($order->status === 'processing') bg-blue-100 text-blue-800
-                                    @elseif($order->status === 'delivered') bg-green-100 text-green-800
-                                    @elseif($order->status === 'cancelled') bg-red-100 text-red-800
-                                    @else bg-gray-100 text-gray-800 @endif">
-                                    {{ ucfirst($order->status) }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">₦{{ number_format($order->total, 2) }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $order->created_at->format('M d, Y') }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right">
-                                <a href="{{ route('admin.orders.show', $order) }}" class="text-blue-600 hover:underline">View</a>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">No recent orders found.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+
+<div class="card my-4 shadow-sm" style="border: 2px solid #007bff; background: linear-gradient(90deg, #e3f2fd 0%, #fff 100%);">
+    <div class="card-body">
+        <h4 class="card-title mb-3" style="font-size: 2rem; font-weight: bold; color: #007bff;">
+            <i class="fas fa-file-alt" style="font-size: 2.2rem; color: #007bff; vertical-align: middle;"></i>
+            Reports Center
+        </h4>
+        <div class="d-flex flex-wrap gap-3">
+            <a href="{{ route('reports.downloads') }}" class="btn btn-info btn-lg d-flex align-items-center" style="font-size: 1.3rem; font-weight: bold; background: #17a2b8; border: none; border-radius: 6px;">
+                <i class="fas fa-eye mr-2" style="font-size: 2rem; color: #fff;"></i> View Your Reports
+            </a>
         </div>
+        <div class="d-flex flex-wrap gap-3 mt-3">
+            <a href="{{ route('reports.downloads') }}" class="btn btn-success btn-lg d-flex align-items-center" style="font-size: 1.3rem; font-weight: bold; background: #28a745; border: none; border-radius: 6px;">
+                <i class="fas fa-file-download mr-2" style="font-size: 2rem; color: #fff;"></i> Download Your Reports
+            </a>
+        </div>
+        <p class="text-muted mt-3 mb-0" style="font-size: 1.1rem; font-weight: 500; color: #333 !important;">Access all your daily and weekly reports in one place.</p>
     </div>
+</div>
 @endsection

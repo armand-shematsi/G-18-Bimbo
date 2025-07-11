@@ -7,7 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Inventory extends Model
 {
     protected $fillable = [
-        'item_name', 'item_type', 'quantity', 'unit', 'status', 'reorder_level', 'user_id', 'unit_price'
+        'item_name',
+        'quantity',
+        'unit_price',
+        'unit',
+        'item_type',
+        'reorder_level',
+        'location',
     ];
 
     protected static function boot()

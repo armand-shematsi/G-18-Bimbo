@@ -1,256 +1,198 @@
 @extends('layouts.retail-manager')
 
-{{-- Navigation Links at the very top for this page --}}
-<div class="w-full bg-white shadow z-50 sticky top-0">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex flex-wrap gap-2 justify-center">
-        <a href="{{ route('retail.orders.index') }}" class="flex items-center gap-1 px-3 py-2 rounded-lg transition {{ request()->routeIs('retail.orders.*') ? 'bg-indigo-100 text-indigo-700 font-semibold shadow' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700' }}">
-            Bread Orders
-        </a>
-        <a href="{{ route('retail.inventory.index') }}" class="flex items-center gap-1 px-3 py-2 rounded-lg transition {{ request()->routeIs('retail.inventory.index') ? 'bg-indigo-100 text-indigo-700 font-semibold shadow' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700' }}">
-            Inventory Levels
-        </a>
-        <a href="{{ route('retail.inventory.check') }}" class="flex items-center gap-1 px-3 py-2 rounded-lg transition {{ request()->routeIs('retail.inventory.check') ? 'bg-indigo-100 text-indigo-700 font-semibold shadow' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700' }}">
-            Check Inventory
-        </a>
-        <a href="{{ route('retail.forecast.index') }}" class="flex items-center gap-1 px-3 py-2 rounded-lg transition {{ request()->routeIs('retail.forecast.index') ? 'bg-indigo-100 text-indigo-700 font-semibold shadow' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700' }}">
-            Demand Forecast
-        </a>
-        <a href="{{ route('retail.chat.index') }}" class="flex items-center gap-1 px-3 py-2 rounded-lg transition {{ request()->routeIs('retail.chat.index') ? 'bg-indigo-100 text-indigo-700 font-semibold shadow' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700' }}">
-            Chat with Suppliers
-        </a>
-    </div>
-</div>
-
-{{-- Inventory Dashboard at the very top --}}
-<div class="w-full bg-white shadow-lg z-40 sticky top-0">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="bg-white shadow-lg rounded-xl p-6 flex items-center gap-4">
-                <div class="bg-blue-100 text-blue-600 rounded-full p-3">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M3 12h18M3 17h18"/></svg>
-                </div>
-                <div>
-                    <div class="text-gray-500 text-sm">Total Bread in Stock</div>
-                    <div class="text-2xl font-bold">{{ $totalBreadInStock }}</div>
-                </div>
-            </div>
-            <div class="bg-white shadow-lg rounded-xl p-6 flex items-center gap-4">
-                <div class="bg-green-100 text-green-600 rounded-full p-3">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2a4 4 0 0 1 4-4h4"/></svg>
-                </div>
-                <div>
-                    <div class="text-gray-500 text-sm">Today's Deliveries</div>
-                    <div class="text-2xl font-bold">{{ $todaysDeliveries }}</div>
-                </div>
-            </div>
-            <div class="bg-white shadow-lg rounded-xl p-6 flex items-center gap-4">
-                <div class="bg-emerald-100 text-emerald-600 rounded-full p-3">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 0V4m0 16v-4"/></svg>
-                </div>
-                <div>
-                    <div class="text-gray-500 text-sm">Today's Sales</div>
-                    <div class="text-2xl font-bold">₦{{ number_format($todaysSales, 2) }}</div>
-                </div>
-            </div>
-            <div class="bg-white shadow-lg rounded-xl p-6 flex items-center gap-4">
-                <div class="bg-red-100 text-red-600 rounded-full p-3">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3"/></svg>
-                </div>
-                <div>
-                    <div class="text-gray-500 text-sm">Reorder Alerts</div>
-                    <div class="text-2xl font-bold text-red-600">{{ $reorderAlerts }}</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 @section('header')
-    Check Inventory
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">Inventory Management</h1>
+        <p class="text-sm text-gray-500">Current stock levels and movement tracking</p>
+    </div>
+    <div>
+        <a href="{{ route('retail.inventory.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Add New Item
+        </a>
+    </div>
+</div>
 @endsection
 
 @section('content')
-<div class="py-12">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <!-- Inventory Dashboard -->
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6 text-gray-900">
-                <!-- Search and Filter -->
-                <div class="mb-8">
-                    <div class="flex flex-col md:flex-row gap-4">
-                        <div class="flex-1">
-                            <input type="text" id="inventory-search" placeholder="Search products..." class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary" onkeyup="filterInventory()">
-                        </div>
-                        <div class="flex gap-4">
-                            <select id="category-filter" class="rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary" onchange="filterInventory()">
-                                <option value="">All Categories</option>
-                                <option value="bread">Bread</option>
-                                <option value="pastries">Pastries</option>
-                                <option value="cakes">Cakes</option>
-                            </select>
-                            <select id="status-filter" class="rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary" onchange="filterInventory()">
-                                <option value="">All Status</option>
-                                <option value="in_stock">In Stock</option>
-                                <option value="low_stock">Low Stock</option>
-                                <option value="out_of_stock">Out of Stock</option>
-                            </select>
-                        </div>
-                        <button onclick="exportInventory()" class="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                            Export
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Total Stock Value -->
-                <div class="mb-4 text-lg font-bold text-blue-700">
-                    Total Stock Value: ₦{{ number_format($inventory->sum(fn($item) => $item->quantity * ($item->unit_price ?? 0)), 2) }}
-                </div>
-
-                <!-- Inventory Table -->
-                <div class="bg-white rounded-lg shadow overflow-hidden">
-                    <div class="overflow-x-auto max-h-96 overflow-y-auto sticky-table">
-                        <table id="inventory-table" class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50 sticky top-0 z-10">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Stock</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock Level</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reorder Level</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse($inventory as $item)
-                                <tr class="{{ $item->needsReorder() ? 'bg-red-50' : ($item->quantity > 0 && $item->quantity <= $item->reorder_level ? 'bg-yellow-50' : '') }}">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $item->item_name }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $item->item_type }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $item->quantity }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="w-32 bg-gray-200 rounded-full h-3">
-                                            <div class="h-3 rounded-full {{ $item->quantity == 0 ? 'bg-red-500' : ($item->quantity <= $item->reorder_level ? 'bg-yellow-400' : 'bg-green-500') }}" style="width: {{ min(100, ($item->quantity / max(1, $item->reorder_level * 2)) * 100) }}%"></div>
-                                        </div>
-                                        <span class="text-xs ml-2 font-bold {{ $item->quantity == 0 ? 'text-red-600' : ($item->quantity <= $item->reorder_level ? 'text-yellow-700' : 'text-green-700') }}">
-                                            {{ $item->quantity }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $item->reorder_level }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $item->updated_at ? $item->updated_at->format('Y-m-d H:i') : '-' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                                            {{ $item->quantity > $item->reorder_level ? 'bg-green-100 text-green-800' : ($item->quantity > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
-                                            {{ $item->quantity > $item->reorder_level ? 'In Stock' : ($item->quantity > 0 ? 'Low Stock' : 'Out of Stock') }}
-                                        </span>
-                                        @if($item->needsReorder())
-                                        <span class="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 animate-pulse">
-                                            Reorder Needed
-                                        </span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <button class="text-blue-600 hover:text-blue-800">Update</button>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="8" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                                        No inventory found.
-                                    </td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Inventory Trends Chart -->
-                <div class="mt-8 bg-white rounded-2xl shadow-lg p-6">
-                    <h4 class="text-lg font-bold text-blue-700 mb-2">Inventory Trends (Top 7 Items)</h4>
-                    <canvas id="inventoryTrendsChart" height="100"></canvas>
-                </div>
-
-                <!-- Pagination -->
-                <div class="mt-4 flex justify-between items-center">
-                    <div class="text-sm text-gray-500">
-                        Showing 1 to 2 of 24 results
-                    </div>
-                    <div class="flex space-x-2">
-                        <button class="px-3 py-1 rounded-md border border-gray-300 text-sm text-gray-500 hover:bg-gray-50">Previous</button>
-                        <button class="px-3 py-1 rounded-md border border-gray-300 text-sm text-gray-500 hover:bg-gray-50">Next</button>
-                    </div>
-                </div>
+<!-- Summary Cards -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+            <div class="p-2 bg-blue-100 rounded-lg">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">Total Items</p>
+                <p class="text-2xl font-semibold text-gray-900">{{ $items->count() }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+            <div class="p-2 bg-green-100 rounded-lg">
+                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                </svg>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">Total Value</p>
+                <p class="text-2xl font-semibold text-gray-900">${{ number_format($items->sum(function($item){ return $item->quantity * ($item->unit_price ?? 0); }), 2) }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+            <div class="p-2 bg-yellow-100 rounded-lg">
+                <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">Low Stock</p>
+                <p class="text-2xl font-semibold text-gray-900">{{ $items->where('quantity', '<=', function($item){ return $item->reorder_level ?? 0; })->count() }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+            <div class="p-2 bg-red-100 rounded-lg">
+                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">Out of Stock</p>
+                <p class="text-2xl font-semibold text-gray-900">{{ $items->where('quantity', 0)->count() }}</p>
             </div>
         </div>
     </div>
 </div>
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Inventory Table -->
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">Current Inventory Levels</h3>
+        <p class="text-sm text-gray-500">Stock levels are automatically updated when items are added or removed</p>
+    </div>
+
+    @if($items->count() > 0)
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Stock</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Price</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Value</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach($items as $item)
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div>
+                                <span class="text-sm font-medium text-blue-600">{{ $item->name }}</span>
+                                <div class="text-sm text-gray-500">{{ $item->item_type ?? 'N/A' }}</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <span class="text-sm font-medium text-gray-900">{{ $item->quantity }}</span>
+                                <span class="text-sm text-gray-500 ml-1">{{ $item->unit ?? '' }}</span>
+                            </div>
+                            @if($item->reorder_level > 0)
+                                <div class="text-xs text-gray-400">Reorder: {{ $item->reorder_level }} {{ $item->unit ?? '' }}</div>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                {{ $item->quantity === 0 ? 'bg-red-100 text-red-800' : ($item->quantity <= ($item->reorder_level ?? 0) ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800') }}">
+                                {{ $item->quantity === 0 ? 'Out of Stock' : ($item->quantity <= ($item->reorder_level ?? 0) ? 'Low Stock' : 'Available') }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${{ number_format($item->unit_price ?? 0, 2) }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            ${{ number_format($item->quantity * ($item->unit_price ?? 0), 2) }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ $item->updated_at ? $item->updated_at->diffForHumans() : 'N/A' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex space-x-2 justify-end">
+                                <button onclick="updateQuantity({{ $item->id }}, '{{ $item->name }}', {{ $item->quantity }})" class="text-green-600 hover:text-green-900">Update Qty</button>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @else
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No inventory items</h3>
+            <p class="mt-1 text-sm text-gray-500">Get started by adding your first inventory item.</p>
+        </div>
+    @endif
+</div>
+
+<!-- Quick Update Modal -->
+<div id="quantityModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Update Quantity</h3>
+            <form id="quantityForm" method="POST">
+                @csrf
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Item</label>
+                    <p id="itemName" class="text-sm text-gray-900"></p>
+                </div>
+                <div class="mb-4">
+                    <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2">New Quantity</label>
+                    <input type="number" id="quantity" name="quantity" min="0" step="1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Update
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
-    // Inventory Trends Data (simulate for now)
-    window.inventoryTrends = @json($inventory->map(fn($item) => $item->quantity)->take(7));
-    window.inventoryLabels = @json($inventory->map(fn($item) => $item->item_name)->take(7));
+function updateQuantity(itemId, itemName, currentQuantity) {
+    document.getElementById('itemName').textContent = itemName;
+    document.getElementById('quantity').value = currentQuantity;
+    document.getElementById('quantityForm').action = `/retail/inventory/update-quantity/${itemId}`;
+    document.getElementById('quantityModal').classList.remove('hidden');
+}
 
-    // Inventory Trends Chart
-    document.addEventListener('DOMContentLoaded', function() {
-        if (document.getElementById('inventoryTrendsChart')) {
-            new Chart(document.getElementById('inventoryTrendsChart').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: window.inventoryLabels,
-                    datasets: [{
-                        label: 'Stock Level',
-                        data: window.inventoryTrends,
-                        backgroundColor: 'rgba(59, 130, 246, 0.7)',
-                        borderRadius: 8,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
-                }
-            });
-        }
-    });
-    // Inventory Search/Filter
-    window.filterInventory = function() {
-        const input = document.getElementById('inventory-search').value.toLowerCase();
-        const category = document.getElementById('category-filter').value;
-        const status = document.getElementById('status-filter').value;
-        const rows = document.querySelectorAll('#inventory-table tbody tr');
-        rows.forEach(row => {
-            let show = true;
-            if (input && !row.innerText.toLowerCase().includes(input)) show = false;
-            if (category && !row.children[1].innerText.toLowerCase().includes(category)) show = false;
-            if (status) {
-                const stat = row.children[6].innerText.trim().toLowerCase();
-                if (status === 'in_stock' && stat !== 'in stock') show = false;
-                if (status === 'low_stock' && stat !== 'low stock') show = false;
-                if (status === 'out_of_stock' && stat !== 'out of stock') show = false;
-            }
-            row.style.display = show ? '' : 'none';
-        });
-    };
-    // Export Inventory to CSV
-    window.exportInventory = function() {
-        let csv = 'Product,Category,Current Stock,Stock Level,Reorder Level,Last Updated,Status\n';
-        document.querySelectorAll('#inventory-table tbody tr').forEach(row => {
-            if (row.style.display !== 'none') {
-                const cols = row.querySelectorAll('td');
-                csv += Array.from(cols).slice(0, 7).map(td => '"' + td.innerText.replace(/"/g, '""') + '"').join(',') + '\n';
-            }
-        });
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'retail_inventory.csv';
-        link.click();
-    };
+function closeModal() {
+    document.getElementById('quantityModal').classList.add('hidden');
+}
+
+document.getElementById('quantityModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeModal();
+    }
+});
 </script>
-@endpush
-
-@section('navigation-links')
 @endsection

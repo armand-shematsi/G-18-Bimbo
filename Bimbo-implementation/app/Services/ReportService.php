@@ -16,24 +16,24 @@ class ReportService
     /**
      * Generate daily report for specific stakeholder role
      */
-    public function generateDailyReport(string $role): array
+    public function generateDailyReport(string $role, int $userId): array
     {
         $today = Carbon::today();
         $yesterday = Carbon::yesterday();
         
         switch ($role) {
             case 'admin':
-                return $this->generateAdminDailyReport($today, $yesterday);
+                return $this->generateAdminDailyReport($today, $yesterday, $userId);
             case 'supplier':
-                return $this->generateSupplierDailyReport($today, $yesterday);
+                return $this->generateSupplierDailyReport($today, $yesterday, $userId);
             case 'bakery_manager':
-                return $this->generateBakeryManagerDailyReport($today, $yesterday);
+                return $this->generateBakeryManagerDailyReport($today, $yesterday, $userId);
             case 'distributor':
-                return $this->generateDistributorDailyReport($today, $yesterday);
+                return $this->generateDistributorDailyReport($today, $yesterday, $userId);
             case 'retail_manager':
-                return $this->generateRetailManagerDailyReport($today, $yesterday);
+                return $this->generateRetailManagerDailyReport($today, $yesterday, $userId);
             case 'customer':
-                return $this->generateCustomerDailyReport($today, $yesterday);
+                return $this->generateCustomerDailyReport($today, $yesterday, $userId);
             default:
                 return [];
         }
@@ -42,7 +42,7 @@ class ReportService
     /**
      * Generate weekly report for specific stakeholder role
      */
-    public function generateWeeklyReport(string $role): array
+    public function generateWeeklyReport(string $role, int $userId): array
     {
         $weekStart = Carbon::now()->startOfWeek();
         $weekEnd = Carbon::now()->endOfWeek();
@@ -51,17 +51,17 @@ class ReportService
         
         switch ($role) {
             case 'admin':
-                return $this->generateAdminWeeklyReport($weekStart, $weekEnd, $lastWeekStart, $lastWeekEnd);
+                return $this->generateAdminWeeklyReport($weekStart, $weekEnd, $lastWeekStart, $lastWeekEnd, $userId);
             case 'supplier':
-                return $this->generateSupplierWeeklyReport($weekStart, $weekEnd, $lastWeekStart, $lastWeekEnd);
+                return $this->generateSupplierWeeklyReport($weekStart, $weekEnd, $lastWeekStart, $lastWeekEnd, $userId);
             case 'bakery_manager':
-                return $this->generateBakeryManagerWeeklyReport($weekStart, $weekEnd, $lastWeekStart, $lastWeekEnd);
+                return $this->generateBakeryManagerWeeklyReport($weekStart, $weekEnd, $lastWeekStart, $lastWeekEnd, $userId);
             case 'distributor':
-                return $this->generateDistributorWeeklyReport($weekStart, $weekEnd, $lastWeekStart, $lastWeekEnd);
+                return $this->generateDistributorWeeklyReport($weekStart, $weekEnd, $lastWeekStart, $lastWeekEnd, $userId);
             case 'retail_manager':
-                return $this->generateRetailManagerWeeklyReport($weekStart, $weekEnd, $lastWeekStart, $lastWeekEnd);
+                return $this->generateRetailManagerWeeklyReport($weekStart, $weekEnd, $lastWeekStart, $lastWeekEnd, $userId);
             case 'customer':
-                return $this->generateCustomerWeeklyReport($weekStart, $weekEnd, $lastWeekStart, $lastWeekEnd);
+                return $this->generateCustomerWeeklyReport($weekStart, $weekEnd, $lastWeekStart, $lastWeekEnd, $userId);
             default:
                 return [];
         }
@@ -80,21 +80,21 @@ class ReportService
     /**
      * Generate admin daily report
      */
-    private function generateAdminDailyReport(Carbon $today, Carbon $yesterday): array
+    private function generateAdminDailyReport(Carbon $today, Carbon $yesterday, int $userId): array
     {
         return [
             'report_type' => 'admin_daily',
             'date' => $today->format('Y-m-d'),
             'summary' => [
-                'total_orders' => Order::whereDate('created_at', $today)->count(),
-                'total_revenue' => Order::whereDate('created_at', $today)->sum('total_amount'),
+                'total_orders' => Order::where('user_id', $userId)->whereDate('created_at', $today)->count(),
+                'total_revenue' => Order::where('user_id', $userId)->whereDate('created_at', $today)->sum('total_amount'),
                 'active_vendors' => Vendor::where('status', 'active')->count(),
                 'pending_orders' => Order::where('status', 'pending')->count(),
             ],
             'orders' => [
-                'today' => Order::whereDate('created_at', $today)->count(),
-                'yesterday' => Order::whereDate('created_at', $yesterday)->count(),
-                'by_status' => Order::whereDate('created_at', $today)
+                'today' => Order::where('user_id', $userId)->whereDate('created_at', $today)->count(),
+                'yesterday' => Order::where('user_id', $userId)->whereDate('created_at', $yesterday)->count(),
+                'by_status' => Order::where('user_id', $userId)->whereDate('created_at', $today)
                                    ->select('status', DB::raw('count(*) as count'))
                                    ->groupBy('status')
                                    ->pluck('count', 'status')
@@ -111,7 +111,7 @@ class ReportService
                 'out_of_stock_items' => Inventory::where('quantity', 0)->count(),
             ],
             'financial' => [
-                'daily_revenue' => Order::whereDate('created_at', $today)->sum('total_amount'),
+                'daily_revenue' => Order::where('user_id', $userId)->whereDate('created_at', $today)->sum('total_amount'),
                 'pending_payments' => Payment::where('status', 'pending')->sum('amount'),
             ],
         ];
@@ -120,16 +120,16 @@ class ReportService
     /**
      * Generate supplier daily report
      */
-    private function generateSupplierDailyReport(Carbon $today, Carbon $yesterday): array
+    private function generateSupplierDailyReport(Carbon $today, Carbon $yesterday, int $userId): array
     {
         return [
             'report_type' => 'supplier_daily',
             'date' => $today->format('Y-m-d'),
             'summary' => [
-                'orders_received' => Order::whereDate('created_at', $today)
+                'orders_received' => Order::where('user_id', $userId)->whereDate('created_at', $today)
                                         ->where('status', 'pending')
                                         ->count(),
-                'total_order_value' => Order::whereDate('created_at', $today)
+                'total_order_value' => Order::where('user_id', $userId)->whereDate('created_at', $today)
                                           ->where('status', 'pending')
                                           ->sum('total_amount'),
             ],
@@ -145,7 +145,7 @@ class ReportService
                                                        ];
                                                    }),
             ],
-            'recent_orders' => Order::whereDate('created_at', $today)
+            'recent_orders' => Order::where('user_id', $userId)->whereDate('created_at', $today)
                                    ->with(['items.product'])
                                    ->take(10)
                                    ->get()
@@ -164,7 +164,7 @@ class ReportService
     /**
      * Generate bakery manager daily report
      */
-    private function generateBakeryManagerDailyReport(Carbon $today, Carbon $yesterday): array
+    private function generateBakeryManagerDailyReport(Carbon $today, Carbon $yesterday, int $userId): array
     {
         return [
             'report_type' => 'bakery_manager_daily',
@@ -220,7 +220,7 @@ class ReportService
     /**
      * Generate distributor daily report
      */
-    private function generateDistributorDailyReport(Carbon $today, Carbon $yesterday): array
+    private function generateDistributorDailyReport(Carbon $today, Carbon $yesterday, int $userId): array
     {
         return [
             'report_type' => 'distributor_daily',
@@ -261,15 +261,15 @@ class ReportService
     /**
      * Generate retail manager daily report
      */
-    private function generateRetailManagerDailyReport(Carbon $today, Carbon $yesterday): array
+    private function generateRetailManagerDailyReport(Carbon $today, Carbon $yesterday, int $userId): array
     {
         return [
             'report_type' => 'retail_manager_daily',
             'date' => $today->format('Y-m-d'),
             'summary' => [
-                'orders_received' => Order::whereDate('created_at', $today)->count(),
-                'total_sales' => Order::whereDate('created_at', $today)->sum('total_amount'),
-                'average_order_value' => Order::whereDate('created_at', $today)->avg('total_amount'),
+                'orders_received' => Order::where('user_id', $userId)->whereDate('created_at', $today)->count(),
+                'total_sales' => Order::where('user_id', $userId)->whereDate('created_at', $today)->sum('total_amount'),
+                'average_order_value' => Order::where('user_id', $userId)->whereDate('created_at', $today)->avg('total_amount') ?? 0,
             ],
             'sales_analysis' => [
                 'top_products' => DB::table('order_items')
@@ -280,7 +280,7 @@ class ReportService
                                    ->orderBy('total_sold', 'desc')
                                    ->take(5)
                                    ->get(),
-                'sales_by_hour' => Order::whereDate('created_at', $today)
+                'sales_by_hour' => Order::where('user_id', $userId)->whereDate('created_at', $today)
                                       ->select(DB::raw('HOUR(created_at) as hour'), DB::raw('COUNT(*) as count'))
                                       ->groupBy('hour')
                                       ->orderBy('hour')
@@ -306,21 +306,22 @@ class ReportService
     /**
      * Generate customer daily report
      */
-    private function generateCustomerDailyReport(Carbon $today, Carbon $yesterday): array
+    private function generateCustomerDailyReport(Carbon $today, Carbon $yesterday, int $userId): array
     {
         return [
             'report_type' => 'customer_daily',
             'date' => $today->format('Y-m-d'),
             'summary' => [
-                'orders_placed' => Order::whereDate('created_at', $today)->count(),
-                'total_spent' => Order::whereDate('created_at', $today)->sum('total_amount'),
+                'orders_placed' => Order::where('user_id', $userId)->whereDate('created_at', $today)->count(),
+                'total_spent' => Order::where('user_id', $userId)->whereDate('created_at', $today)->sum('total_amount'),
+                'avg_order_value' => Order::where('user_id', $userId)->whereDate('created_at', $today)->avg('total_amount') ?? 0,
             ],
             'order_status' => [
                 'pending_orders' => Order::where('status', 'pending')->count(),
                 'processing_orders' => Order::where('status', 'processing')->count(),
                 'shipped_orders' => Order::where('status', 'shipped')->count(),
             ],
-            'recent_orders' => Order::whereDate('created_at', $today)
+            'recent_orders' => Order::where('user_id', $userId)->whereDate('created_at', $today)
                                    ->with(['items.product'])
                                    ->take(5)
                                    ->get()
@@ -342,15 +343,15 @@ class ReportService
     }
 
     // Weekly report methods follow similar pattern but with weekly data
-    private function generateAdminWeeklyReport(Carbon $weekStart, Carbon $weekEnd, Carbon $lastWeekStart, Carbon $lastWeekEnd): array
+    private function generateAdminWeeklyReport(Carbon $weekStart, Carbon $weekEnd, Carbon $lastWeekStart, Carbon $lastWeekEnd, int $userId): array
     {
         return [
             'report_type' => 'admin_weekly',
             'period' => $weekStart->format('Y-m-d') . ' to ' . $weekEnd->format('Y-m-d'),
             'summary' => [
-                'total_orders' => Order::whereBetween('created_at', [$weekStart, $weekEnd])->count(),
-                'total_revenue' => Order::whereBetween('created_at', [$weekStart, $weekEnd])->sum('total_amount'),
-                'avg_order_value' => Order::whereBetween('created_at', [$weekStart, $weekEnd])->avg('total_amount'),
+                'total_orders' => Order::where('user_id', $userId)->whereBetween('created_at', [$weekStart, $weekEnd])->count(),
+                'total_revenue' => Order::where('user_id', $userId)->whereBetween('created_at', [$weekStart, $weekEnd])->sum('total_amount'),
+                'avg_order_value' => Order::where('user_id', $userId)->whereBetween('created_at', [$weekStart, $weekEnd])->avg('total_amount'),
                 'growth_rate' => $this->calculateGrowthRate('orders', $weekStart, $weekEnd, $lastWeekStart, $lastWeekEnd),
             ],
             'trends' => [
@@ -360,16 +361,16 @@ class ReportService
         ];
     }
 
-    private function generateSupplierWeeklyReport(Carbon $weekStart, Carbon $weekEnd, Carbon $lastWeekStart, Carbon $lastWeekEnd): array
+    private function generateSupplierWeeklyReport(Carbon $weekStart, Carbon $weekEnd, Carbon $lastWeekStart, Carbon $lastWeekEnd, int $userId): array
     {
         return [
             'report_type' => 'supplier_weekly',
             'period' => $weekStart->format('Y-m-d') . ' to ' . $weekEnd->format('Y-m-d'),
             'summary' => [
-                'orders_fulfilled' => Order::whereBetween('created_at', [$weekStart, $weekEnd])
+                'orders_fulfilled' => Order::where('user_id', $userId)->whereBetween('created_at', [$weekStart, $weekEnd])
                                          ->whereIn('status', ['completed', 'shipped'])
                                          ->count(),
-                'total_order_value' => Order::whereBetween('created_at', [$weekStart, $weekEnd])
+                'total_order_value' => Order::where('user_id', $userId)->whereBetween('created_at', [$weekStart, $weekEnd])
                                           ->whereIn('status', ['completed', 'shipped'])
                                           ->sum('total_amount'),
                 'inventory_turnover' => $this->calculateInventoryTurnover($weekStart, $weekEnd),
@@ -377,13 +378,13 @@ class ReportService
         ];
     }
 
-    private function generateBakeryManagerWeeklyReport(Carbon $weekStart, Carbon $weekEnd, Carbon $lastWeekStart, Carbon $lastWeekEnd): array
+    private function generateBakeryManagerWeeklyReport(Carbon $weekStart, Carbon $weekEnd, Carbon $lastWeekStart, Carbon $lastWeekEnd, int $userId): array
     {
         return [
             'report_type' => 'bakery_manager_weekly',
             'period' => $weekStart->format('Y-m-d') . ' to ' . $weekEnd->format('Y-m-d'),
             'summary' => [
-                'batches_completed' => ProductionBatch::whereBetween('actual_end', [$weekStart, $weekEnd])
+                'batches_completed' => ProductionBatch::where('user_id', $userId)->whereBetween('actual_end', [$weekStart, $weekEnd])
                                                     ->where('status', 'Completed')
                                                     ->count(),
                 'production_efficiency' => $this->calculateProductionEfficiency($weekStart, $weekEnd),
@@ -392,13 +393,13 @@ class ReportService
         ];
     }
 
-    private function generateDistributorWeeklyReport(Carbon $weekStart, Carbon $weekEnd, Carbon $lastWeekStart, Carbon $lastWeekEnd): array
+    private function generateDistributorWeeklyReport(Carbon $weekStart, Carbon $weekEnd, Carbon $lastWeekStart, Carbon $lastWeekEnd, int $userId): array
     {
         return [
             'report_type' => 'distributor_weekly',
             'period' => $weekStart->format('Y-m-d') . ' to ' . $weekEnd->format('Y-m-d'),
             'summary' => [
-                'deliveries_completed' => Order::whereBetween('updated_at', [$weekStart, $weekEnd])
+                'deliveries_completed' => Order::where('user_id', $userId)->whereBetween('updated_at', [$weekStart, $weekEnd])
                                             ->where('status', 'shipped')
                                             ->count(),
                 'delivery_efficiency' => $this->calculateDeliveryEfficiency($weekStart, $weekEnd),
@@ -407,30 +408,30 @@ class ReportService
         ];
     }
 
-    private function generateRetailManagerWeeklyReport(Carbon $weekStart, Carbon $weekEnd, Carbon $lastWeekStart, Carbon $lastWeekEnd): array
+    private function generateRetailManagerWeeklyReport(Carbon $weekStart, Carbon $weekEnd, Carbon $lastWeekStart, Carbon $lastWeekEnd, int $userId): array
     {
         return [
             'report_type' => 'retail_manager_weekly',
             'period' => $weekStart->format('Y-m-d') . ' to ' . $weekEnd->format('Y-m-d'),
             'summary' => [
-                'total_sales' => Order::whereBetween('created_at', [$weekStart, $weekEnd])->sum('total_amount'),
-                'total_orders' => Order::whereBetween('created_at', [$weekStart, $weekEnd])->count(),
-                'avg_order_value' => Order::whereBetween('created_at', [$weekStart, $weekEnd])->avg('total_amount'),
+                'total_sales' => Order::where('user_id', $userId)->whereBetween('created_at', [$weekStart, $weekEnd])->sum('total_amount'),
+                'total_orders' => Order::where('user_id', $userId)->whereBetween('created_at', [$weekStart, $weekEnd])->count(),
+                'avg_order_value' => Order::where('user_id', $userId)->whereBetween('created_at', [$weekStart, $weekEnd])->avg('total_amount'),
                 'growth_rate' => $this->calculateGrowthRate('revenue', $weekStart, $weekEnd, $lastWeekStart, $lastWeekEnd),
             ],
             'top_products' => $this->getTopProducts($weekStart, $weekEnd),
         ];
     }
 
-    private function generateCustomerWeeklyReport(Carbon $weekStart, Carbon $weekEnd, Carbon $lastWeekStart, Carbon $lastWeekEnd): array
+    private function generateCustomerWeeklyReport(Carbon $weekStart, Carbon $weekEnd, Carbon $lastWeekStart, Carbon $lastWeekEnd, int $userId): array
     {
         return [
             'report_type' => 'customer_weekly',
             'period' => $weekStart->format('Y-m-d') . ' to ' . $weekEnd->format('Y-m-d'),
             'summary' => [
-                'orders_placed' => Order::whereBetween('created_at', [$weekStart, $weekEnd])->count(),
-                'total_spent' => Order::whereBetween('created_at', [$weekStart, $weekEnd])->sum('total_amount'),
-                'avg_order_value' => Order::whereBetween('created_at', [$weekStart, $weekEnd])->avg('total_amount'),
+                'orders_placed' => Order::where('user_id', $userId)->whereBetween('created_at', [$weekStart, $weekEnd])->count(),
+                'total_spent' => Order::where('user_id', $userId)->whereBetween('created_at', [$weekStart, $weekEnd])->sum('total_amount'),
+                'avg_order_value' => Order::where('user_id', $userId)->whereBetween('created_at', [$weekStart, $weekEnd])->avg('total_amount'),
             ],
         ];
     }
