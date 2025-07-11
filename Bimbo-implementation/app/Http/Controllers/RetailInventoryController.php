@@ -59,4 +59,16 @@ class RetailInventoryController extends Controller
         \App\Models\Inventory::create($data);
         return redirect()->route('retail.inventory.check')->with('status', 'Inventory item added successfully.');
     }
+
+    // Show a single inventory item and its adjustment/order history
+    public function show($id)
+    {
+        $item = \App\Models\Inventory::findOrFail($id);
+        // Example: fetch related orders if you have a relation, otherwise leave as empty collection
+        $orders = collect();
+        if (method_exists($item, 'orders')) {
+            $orders = $item->orders;
+        }
+        return view('retail.inventory.show', compact('item', 'orders'));
+    }
 }

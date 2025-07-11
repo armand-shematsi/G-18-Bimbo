@@ -55,7 +55,9 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-500">Low Stock</p>
-                <p class="text-2xl font-semibold text-gray-900">{{ $items->where('quantity', '<=', function($item){ return $item->reorder_level ?? 0; })->count() }}</p>
+                <p class="text-2xl font-semibold text-gray-900">
+                    {{ $items->filter(function($item) { return $item->quantity <= ($item->reorder_level ?? 0); })->count() }}
+                </p>
             </div>
         </div>
     </div>
@@ -100,7 +102,9 @@
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div>
-                                <span class="text-sm font-medium text-blue-600">{{ $item->name }}</span>
+                                <a href="{{ route('retail.inventory.show', $item->id) }}" class="text-sm font-medium text-blue-600 hover:underline">
+                                    {{ $item->item_name }}
+                                </a>
                                 <div class="text-sm text-gray-500">{{ $item->item_type ?? 'N/A' }}</div>
                             </div>
                         </td>
