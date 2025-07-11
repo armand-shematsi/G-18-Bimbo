@@ -22,7 +22,6 @@ Production Batches
                 <th class="px-4 py-2 text-left">Name</th>
                 <th class="px-4 py-2 text-left">Scheduled Start</th>
                 <th class="px-4 py-2 text-left">Status</th>
-                <th class="px-4 py-2 text-left">Assigned Staff</th>
                 <th class="px-4 py-2 text-left">Actions</th>
             </tr>
         </thead>
@@ -44,13 +43,6 @@ Production Batches
                     <span class="px-2 py-1 rounded-full text-xs font-semibold {{ $statusColors[$batch->status] ?? 'bg-gray-100 text-gray-800' }}">
                         {{ ucfirst($batch->status) }}
                     </span>
-                </td>
-                <td class="border px-4 py-2">
-                    @if($batch->shifts->count())
-                    {{ $batch->shifts->map(fn($shift) => $shift->user ? $shift->user->name : null)->filter()->join(', ') }}
-                    @else
-                    -
-                    @endif
                 </td>
                 <td class="border px-4 py-2 space-x-2">
                     <a href="{{ route('bakery.batches.show', $batch) }}" class="text-blue-600 hover:underline">View</a>

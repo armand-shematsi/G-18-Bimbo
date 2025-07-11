@@ -74,6 +74,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/stockin/test', function () {
             dd('Form submitted!');
         })->name('stockin.test');
+
+        // Stockout routes
         Route::get('/stockout', [App\Http\Controllers\Supplier\StockOutController::class, 'index'])->name('stockout.index');
         Route::get('/stockout/create', [App\Http\Controllers\Supplier\StockOutController::class, 'create'])->name('stockout.create');
         Route::post('/stockout', [App\Http\Controllers\Supplier\StockOutController::class, 'store'])->name('stockout.store');
@@ -124,6 +126,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/api/ingredients-live', [\App\Http\Controllers\DashboardController::class, 'ingredientsLive'])->name('bakery.ingredients-live');
         Route::get('/api/notifications-live', [\App\Http\Controllers\DashboardController::class, 'notificationsLive'])->name('bakery.notifications-live');
         Route::get('/api/chat-live', [\App\Http\Controllers\DashboardController::class, 'chatLive'])->name('bakery.chat-live');
+        Route::get('/api/stats-live', [\App\Http\Controllers\DashboardController::class, 'statsLive'])->name('bakery.stats-live');
 
         // Workforce Management
         Route::post('/workforce/assign-task', [\App\Http\Controllers\WorkforceController::class, 'assignTask'])->name('workforce.assign-task');
@@ -148,6 +151,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/workforce/assignment', [\App\Http\Controllers\WorkforceController::class, 'assignment'])->name('workforce.assignment');
         Route::get('/workforce/shifts', [\App\Http\Controllers\WorkforceController::class, 'shifts'])->name('workforce.shifts');
         Route::get('/workforce/availability', [\App\Http\Controllers\WorkforceController::class, 'availability'])->name('workforce.availability');
+        Route::post('/workforce/auto-assign', [\App\Http\Controllers\WorkforceController::class, 'autoAssignStaff'])->name('workforce.auto-assign');
+        Route::get('/workforce/assignments', [\App\Http\Controllers\WorkforceController::class, 'getAssignments'])->name('workforce.assignments');
 
         // Order Processing Route
         Route::get('/order-processing', function () {
@@ -262,7 +267,7 @@ Route::middleware(['auth'])->group(function () {
 
 // Add these routes for customer segments import
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/customer-segments/import', function() {
+    Route::get('/customer-segments/import', function () {
         return view('customer_segments.import');
     })->name('customer-segments.import.form');
     // If you have a controller method for import, you can use it instead:
@@ -276,7 +281,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/reports/{type}/{filename}', [\App\Http\Controllers\ReportController::class, 'download'])->name('reports.download');
 });
 
-// Example: Add this to routes/web.php
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('supply_centers')->name('supply_centers.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\SupplyCenterController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\SupplyCenterController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\SupplyCenterController::class, 'store'])->name('store');
+        Route::get('/{center}/edit', [\App\Http\Controllers\Admin\SupplyCenterController::class, 'edit'])->name('edit');
+        Route::put('/{center}', [\App\Http\Controllers\Admin\SupplyCenterController::class, 'update'])->name('update');
+    });
+});
 
 Route::get('/supplier/orders/create', [SupplierOrderController::class, 'create'])
     ->name('supplier.orders.create');

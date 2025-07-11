@@ -44,8 +44,9 @@ class DashboardController extends Controller
                 $orders = \App\Models\Order::whereIn('status', ['pending', 'processing'])->orderBy('created_at', 'desc')->get();
                 $staff = \App\Models\User::where('role', 'staff')->get();
                 $supplyCenters = \App\Models\SupplyCenter::all();
-                // Count active staff: those with a shift where now is between start_time and end_time
                 $now = now();
+                $today = now()->toDateString();
+                // Count active staff: those with a shift where now is between start_time and end_time
                 $activeStaffCount = \App\Models\Shift::whereNotNull('user_id')
                     ->where('start_time', '<=', $now)
                     ->where('end_time', '>=', $now)
@@ -54,8 +55,14 @@ class DashboardController extends Controller
                 // Fetch production target from settings
                 $productionTarget = optional(\App\Models\Setting::where('key', 'production_target')->first())->value;
                 // Sum today's output from production batches
-                $todaysOutput = \App\Models\ProductionBatch::whereDate('scheduled_start', now()->toDateString())->sum('quantity');
-                return view('dashboard.bakery-manager', compact('orders', 'staff', 'supplyCenters', 'activeStaffCount', 'productionTarget', 'todaysOutput'));
+                $todaysOutput = \App\Models\ProductionBatch::whereDate('scheduled_start', $today)->sum('quantity');
+                // --- New dashboard variables ---
+                $staffOnDuty = \App\Models\Attendance::where('date', $today)->where('status', 'present')->count();
+                $absentCount = \App\Models\Attendance::where('date', $today)->where('status', 'absent')->count();
+                $shiftFilled = \App\Models\Shift::whereDate('start_time', $today)->whereNotNull('user_id')->count();
+                $overtimeCount = \App\Models\Shift::whereDate('start_time', $today)
+                    ->whereRaw('TIMESTAMPDIFF(HOUR, start_time, end_time) > 8')->count();
+                return view('dashboard.bakery-manager', compact('orders', 'staff', 'supplyCenters', 'activeStaffCount', 'productionTarget', 'todaysOutput', 'staffOnDuty', 'absentCount', 'shiftFilled', 'overtimeCount'));
             case 'distributor':
                 return view('dashboard.distributor');
             case 'retail_manager':
@@ -92,13 +99,13 @@ class DashboardController extends Controller
                         });
 
                     // Fetch bread orders (all)
-                    $breadOrders = RetailerOrder::whereHas('items', function($query) {
+                    $breadOrders = RetailerOrder::whereHas('items', function ($query) {
                         $query->where('product_name', 'like', '%bread%');
                     })
-                    ->with(['items' => function($query) {
-                        $query->where('product_name', 'like', '%bread%');
-                    }])
-                    ->get();
+                        ->with(['items' => function ($query) {
+                            $query->where('product_name', 'like', '%bread%');
+                        }])
+                        ->get();
 
                     // Bread order trends (last 7 days)
                     $breadOrderTrends = collect();
@@ -169,7 +176,7 @@ class DashboardController extends Controller
                     'returnsToday',
                     'inventoryTrends'
                 ));
-                                    case 'customer':
+            case 'customer':
                 // Get recent orders for the customer
                 try {
                     $recentOrders = \App\Models\Order::where('user_id', $user->id)
@@ -226,7 +233,21 @@ class DashboardController extends Controller
      */
     public function productionLive()
     {
-        // Get batches for the last 7 days
+        // Auto-complete batches whose actual_end is in the past
+        \App\Models\ProductionBatch::where('status', 'active')
+            ->whereNotNull('actual_end')
+            ->where('actual_end', '<', now())
+            ->update(['status' => 'completed']);
+        $today = now()->toDateString();
+        // Batches scheduled today
+        $batchesToday = \App\Models\ProductionBatch::whereDate('scheduled_start', $today)->count();
+        // Active batches
+        $activeBatches = \App\Models\ProductionBatch::where('status', 'active')->whereDate('scheduled_start', $today)->count();
+        // Output: sum of quantity for completed batches today
+        $output = \App\Models\ProductionBatch::where('status', 'completed')->whereDate('scheduled_start', $today)->sum('quantity');
+        // Downtime: count of batches with status 'delayed' or 'cancelled' today
+        $downtime = \App\Models\ProductionBatch::whereIn('status', ['delayed', 'cancelled'])->whereDate('scheduled_start', $today)->count();
+        // Get recent batches for the last 7 days
         $batches = \App\Models\ProductionBatch::orderBy('scheduled_start', 'desc')->take(7)->get();
         $batchData = $batches->map(function ($batch) {
             return [
@@ -236,9 +257,6 @@ class DashboardController extends Controller
                 'actual_start' => $batch->actual_start,
                 'actual_end' => $batch->actual_end,
                 'notes' => $batch->notes,
-                'assigned_staff' => $batch->shifts->map(function ($shift) {
-                    return $shift->user ? $shift->user->name : 'Unassigned';
-                })->join(', '),
             ];
         });
         // Trends: batches completed per day for last 7 days
@@ -247,14 +265,14 @@ class DashboardController extends Controller
         for ($i = 6; $i >= 0; $i--) {
             $date = now()->subDays($i)->toDateString();
             $trendLabels[] = $date;
-            $count = \App\Models\ProductionBatch::whereDate('actual_end', $date)->where('status', 'Completed')->count();
+            $count = \App\Models\ProductionBatch::whereDate('actual_end', $date)->where('status', 'completed')->count();
             $trends[] = $count;
         }
-        $output = $batches->where('status', 'Completed')->count();
-        $target = 7; // Example: target is 1 batch per day for a week
         return response()->json([
+            'batches_today' => $batchesToday,
+            'active' => $activeBatches,
             'output' => $output,
-            'target' => $target,
+            'downtime' => $downtime,
             'batches' => $batchData,
             'trends' => $trends,
             'trend_labels' => $trendLabels,
@@ -330,6 +348,25 @@ class DashboardController extends Controller
                 ['user' => 'Jane', 'message' => 'Batch A is almost done!'],
                 ['user' => 'John', 'message' => 'Oven 2 needs a check.'],
             ],
+        ]);
+    }
+
+    /**
+     * API: Live stats for dashboard cards (staff on duty, absence, shift filled, overtime)
+     */
+    public function statsLive()
+    {
+        $today = now()->toDateString();
+        $staffOnDuty = \App\Models\Attendance::where('date', $today)->where('status', 'present')->count();
+        $absentCount = \App\Models\Attendance::where('date', $today)->where('status', 'absent')->count();
+        $shiftFilled = \App\Models\Shift::whereDate('start_time', $today)->whereNotNull('user_id')->count();
+        $overtimeCount = \App\Models\Shift::whereDate('start_time', $today)
+            ->whereRaw('TIMESTAMPDIFF(HOUR, start_time, end_time) > 8')->count();
+        return response()->json([
+            'staffOnDuty' => $staffOnDuty,
+            'absentCount' => $absentCount,
+            'shiftFilled' => $shiftFilled,
+            'overtimeCount' => $overtimeCount,
         ]);
     }
 }

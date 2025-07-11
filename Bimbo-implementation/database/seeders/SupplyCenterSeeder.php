@@ -3,7 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\SupplyCenter;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 
 class SupplyCenterSeeder extends Seeder
 {
@@ -12,31 +13,28 @@ class SupplyCenterSeeder extends Seeder
      */
     public function run(): void
     {
-        $supplyCenters = [
+        DB::table('supply_centers')->insert([
             [
-                'name' => 'Main Bakery Center',
-                'location' => 'Downtown Area',
+                'name' => 'Central Distribution',
+                'location' => 'Central City',
+                'required_role' => 'staff',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ],
             [
-                'name' => 'North Distribution Center',
+                'name' => 'Northside Hub',
                 'location' => 'North District',
+                'required_role' => 'driver',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ],
             [
-                'name' => 'South Distribution Center',
-                'location' => 'South District',
+                'name' => 'Bakery Main',
+                'location' => 'Bakery Block',
+                'required_role' => 'manager',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ],
-            [
-                'name' => 'East Supply Hub',
-                'location' => 'East District',
-            ],
-            [
-                'name' => 'West Supply Hub',
-                'location' => 'West District',
-            ],
-        ];
-
-        foreach ($supplyCenters as $center) {
-            SupplyCenter::create($center);
-        }
+        ]);
     }
-} 
+}
