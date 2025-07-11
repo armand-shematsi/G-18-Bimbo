@@ -44,9 +44,9 @@
 </div>
 
 <!-- Statistics Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-8 mb-12">
     <!-- Today's Output -->
-    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+    <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-blue-500 flex flex-col items-start">
         <div class="flex items-center">
             <div class="flex-shrink-0">
                 <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -63,7 +63,7 @@
         </div>
     </div>
     <!-- Production Target -->
-    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+    <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-green-500 flex flex-col items-start">
         <div class="flex items-center">
             <div class="flex-shrink-0">
                 <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -79,41 +79,77 @@
             </div>
         </div>
     </div>
-    <!-- Active Staff -->
-    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
+    <!-- Staff on Duty -->
+    <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-cyan-500 flex flex-col items-start">
         <div class="flex items-center">
             <div class="flex-shrink-0">
-                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                <div class="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m9-7a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
                 </div>
             </div>
             <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">Active Staff</p>
-                <p class="text-2xl font-bold text-gray-900 active-staff">-</p>
-                <p class="text-xs text-gray-500">On duty now</p>
+                <p class="text-sm font-medium text-gray-600">Staff on Duty</p>
+                <p class="text-2xl font-bold text-gray-900 live-staff-on-duty">{{ $staffOnDuty ?? '-' }}</p>
+                <p class="text-xs text-gray-500">Currently present</p>
             </div>
         </div>
     </div>
-    <!-- Machines Running -->
-    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
+    <!-- Absence -->
+    <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-red-500 flex flex-col items-start">
         <div class="flex items-center">
             <div class="flex-shrink-0">
-                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-1.414-1.414L12 9.172 7.05 4.222l-1.414 1.414L10.828 12l-5.192 5.192 1.414 1.414L12 14.828l4.95 4.95 1.414-1.414L13.172 12z" />
                     </svg>
                 </div>
             </div>
             <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">Machines Running</p>
-                <p class="text-2xl font-bold text-gray-900 machines-running">-</p>
-                <p class="text-xs text-gray-500">Ovens/mixers active</p>
+                <p class="text-sm font-medium text-gray-600">Absence</p>
+                <p class="text-2xl font-bold text-gray-900 live-absent-count">{{ $absentCount ?? '-' }}</p>
+                <p class="text-xs text-gray-500">Staff absent today</p>
+            </div>
+        </div>
+    </div>
+    <!-- Shift Filled -->
+    <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-emerald-500 flex flex-col items-start">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">Shift Filled</p>
+                <p class="text-2xl font-bold text-gray-900 live-shift-filled">{{ $shiftFilled ?? '-' }}</p>
+                <p class="text-xs text-gray-500">Shifts fully staffed</p>
+            </div>
+        </div>
+    </div>
+    <!-- Overtime -->
+    <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-orange-500 flex flex-col items-start">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">Overtime</p>
+                <p class="text-2xl font-bold text-gray-900 live-overtime-count">{{ $overtimeCount ?? '-' }}</p>
+                <p class="text-xs text-gray-500">Staff in overtime</p>
             </div>
         </div>
     </div>
 </div>
+{{-- Cards are now more spaced and visually distinct --}}
+{{-- Backend: Supply $staffOnDuty, $absentCount, $shiftFilled, $overtimeCount to this view for live data --}}
 
 <!-- Main Content Grid -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -133,17 +169,6 @@
                     <div class="ml-4">
                         <p class="font-medium">Start New Production</p>
                         <p class="text-xs text-blue-100">Start Batch</p>
-                    </div>
-                </a>
-                <a href="{{ route('bakery.schedule') }}" class="flex items-center p-4 bg-gradient-to-r from-green-500 to-green-600 rounded-lg text-white w-full mb-2 hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105">
-                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                        </svg>
-                    </div>
-                    <div class="ml-4">
-                        <p class="font-medium">Schedule Workforce</p>
-                        <p class="text-xs text-green-100">Assign Shifts</p>
                     </div>
                 </a>
                 <a href="{{ route('bakery.maintenance') }}" class="flex items-center p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg text-white w-full mb-2 hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 transform hover:scale-105">
@@ -509,5 +534,51 @@
     // Initial fetch
     fetchTasks();
     fetchStaffOnDuty();
+
+    // --- Auto-Assign Staff Button Logic ---
+    document.getElementById('autoAssignBtn').onclick = function() {
+        const btn = this;
+        btn.disabled = true;
+        btn.textContent = 'Assigning...';
+        fetch("{{ route('bakery.workforce.auto-assign') }}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    date: new Date().toISOString().slice(0, 10)
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.textContent = 'Auto-Assign Staff';
+                if (data.success) {
+                    window.location.href = '/workforce/distribution-overview';
+                } else {
+                    alert('Auto-assignment failed: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(() => {
+                btn.disabled = false;
+                btn.textContent = 'Auto-Assign Staff';
+                alert('Auto-assignment failed due to network or server error.');
+            });
+    };
+
+    // --- Live Stats for Dashboard Cards ---
+    function fetchStatsLive() {
+        fetch("{{ route('bakery.bakery.stats-live') }}")
+            .then(res => res.json())
+            .then(data => {
+                document.querySelector('.live-staff-on-duty').textContent = data.staffOnDuty ?? '-';
+                document.querySelector('.live-absent-count').textContent = data.absentCount ?? '-';
+                document.querySelector('.live-shift-filled').textContent = data.shiftFilled ?? '-';
+                document.querySelector('.live-overtime-count').textContent = data.overtimeCount ?? '-';
+            });
+    }
+    fetchStatsLive();
+    setInterval(fetchStatsLive, 10000);
 </script>
 @endpush

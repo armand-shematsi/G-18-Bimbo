@@ -71,13 +71,5 @@ class UserSeeder extends Seeder
         );
 
         // Demo Staff Users
-        $staff = [
-            ['name' => 'Alice Baker', 'email' => 'alice@bakery.com', 'password' => Hash::make('password'), 'role' => 'staff'],
-            ['name' => 'Bob Dough', 'email' => 'bob@bakery.com', 'password' => Hash::make('password'), 'role' => 'staff'],
-            ['name' => 'Charlie Crust', 'email' => 'charlie@bakery.com', 'password' => Hash::make('password'), 'role' => 'staff'],
-        ];
-        foreach ($staff as $user) {
-            User::firstOrCreate(['email' => $user['email']], $user);
-        }
     }
 }

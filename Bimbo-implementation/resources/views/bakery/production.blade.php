@@ -58,17 +58,6 @@
 <!-- Quick Actions -->
 <div class="mb-8">
     <div class="bg-white rounded-xl shadow-lg p-6 flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-        <a href="{{ route('bakery.production.start') }}" class="flex-1 flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105">
-            <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                </svg>
-            </div>
-            <div class="ml-4">
-                <p class="font-medium">Start Batch</p>
-                <p class="text-xs text-blue-100">Start New Production</p>
-            </div>
-        </a>
         <a href="{{ route('bakery.batches.index') }}" class="flex-1 flex items-center p-4 bg-gradient-to-r from-green-500 to-green-600 rounded-lg text-white hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105">
             <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -118,7 +107,6 @@
                         <th>Actual Start</th>
                         <th>Actual End</th>
                         <th>Notes</th>
-                        <th>Assigned Staff</th>
                     </tr>
                 </thead>
                 <tbody class="production-batch-tbody">
@@ -201,7 +189,7 @@
                 const tbody = document.querySelector('.production-batch-tbody');
                 tbody.innerHTML = '';
                 if (!data.batches || data.batches.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan='7' class='text-center text-gray-400 py-8'>No recent batches</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan='6' class='text-center text-gray-400 py-8'>No recent batches</td></tr>`;
                 } else {
                     data.batches.forEach(batch => {
                         function fmt(dt) {
@@ -226,7 +214,6 @@
                         <td>${fmt(batch.actual_start)}</td>
                         <td>${fmt(batch.actual_end)}</td>
                         <td title='${batch.notes ?? ''}'>${batch.notes ? batch.notes.substring(0, 30) + (batch.notes.length > 30 ? '...' : '') : '-'}</td>
-                        <td>${batch.assigned_staff ? batch.assigned_staff : '-'}</td>
                     </tr>`;
                     });
                 }

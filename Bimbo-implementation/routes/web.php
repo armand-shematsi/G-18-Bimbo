@@ -70,7 +70,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/stockin', [App\Http\Controllers\Supplier\StockInController::class, 'index'])->name('stockin.index');
         Route::get('/stockin/create', [App\Http\Controllers\Supplier\StockInController::class, 'create'])->name('stockin.create');
         Route::post('/stockin', [App\Http\Controllers\Supplier\StockInController::class, 'store'])->name('stockin.store');
-        Route::post('/stockin/test', function () { dd('Form submitted!'); })->name('stockin.test');
+        Route::post('/stockin/test', function () {
+            dd('Form submitted!');
+        })->name('stockin.test');
 
         // Stockout routes
         Route::get('/stockout', [App\Http\Controllers\Supplier\StockOutController::class, 'index'])->name('stockout.index');
@@ -128,6 +130,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/api/ingredients-live', [\App\Http\Controllers\DashboardController::class, 'ingredientsLive'])->name('bakery.ingredients-live');
         Route::get('/api/notifications-live', [\App\Http\Controllers\DashboardController::class, 'notificationsLive'])->name('bakery.notifications-live');
         Route::get('/api/chat-live', [\App\Http\Controllers\DashboardController::class, 'chatLive'])->name('bakery.chat-live');
+        Route::get('/api/stats-live', [\App\Http\Controllers\DashboardController::class, 'statsLive'])->name('bakery.stats-live');
 
         // Workforce Management
         Route::post('/workforce/assign-task', [\App\Http\Controllers\WorkforceController::class, 'assignTask'])->name('workforce.assign-task');
@@ -149,6 +152,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/workforce/shifts', [\App\Http\Controllers\WorkforceController::class, 'storeShift'])->name('workforce.shifts.store');
         Route::get('/workforce/assignment', [\App\Http\Controllers\WorkforceController::class, 'assignment'])->name('workforce.assignment');
         Route::get('/workforce/availability', [\App\Http\Controllers\WorkforceController::class, 'availability'])->name('workforce.availability');
+        Route::post('/workforce/auto-assign', [\App\Http\Controllers\WorkforceController::class, 'autoAssignStaff'])->name('workforce.auto-assign');
+        Route::get('/workforce/assignments', [\App\Http\Controllers\WorkforceController::class, 'getAssignments'])->name('workforce.assignments');
 
         // Order Processing Route
         Route::get('/order-processing', function () {
@@ -270,4 +275,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ... existing routes ...
     Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/{type}/{filename}', [\App\Http\Controllers\ReportController::class, 'download'])->name('reports.download');
+});
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('supply_centers')->name('supply_centers.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\SupplyCenterController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\SupplyCenterController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\SupplyCenterController::class, 'store'])->name('store');
+        Route::get('/{center}/edit', [\App\Http\Controllers\Admin\SupplyCenterController::class, 'edit'])->name('edit');
+        Route::put('/{center}', [\App\Http\Controllers\Admin\SupplyCenterController::class, 'update'])->name('update');
+    });
 });

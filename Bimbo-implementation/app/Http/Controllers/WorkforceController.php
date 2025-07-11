@@ -6,8 +6,11 @@ use App\Models\Task;
 use App\Models\User;
 use App\Models\Shift;
 use App\Models\Attendance;
+use App\Models\SupplyCenter;
+use App\Models\StaffSupplyCenterAssignment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use App\Services\StaffAssignmentService;
 
 class WorkforceController extends Controller
 {
@@ -197,5 +200,43 @@ class WorkforceController extends Controller
     public function overview(Request $request)
     {
         return view('workforce.overview');
+    }
+
+    /**
+     * Auto-assign staff to supply centers fairly (round-robin), create assignments for today.
+     */
+    public function autoAssignStaff(Request $request, StaffAssignmentService $service)
+    {
+        $date = $request->get('date', now()->toDateString());
+        $result = $service->autoAssignStaff($date);
+        return response()->json($result);
+    }
+
+    /**
+     * Get all staff assignments for the dashboard, with filtering.
+     */
+    public function getAssignments(Request $request)
+    {
+        $date = $request->get('date', now()->toDateString());
+        $users = \App\Models\User::all();
+        $assignments = \App\Models\StaffSupplyCenterAssignment::with(['user', 'supplyCenter', 'shift', 'createdByUser'])
+            ->where('assigned_date', $date)
+            ->get()
+            ->keyBy('user_id');
+        $attendance = \App\Models\Attendance::where('date', $date)->get()->keyBy('user_id');
+
+        $staffData = $users->map(function ($user) use ($assignments, $attendance) {
+            $assignment = $assignments->get($user->id);
+            $att = $attendance->get($user->id);
+            return [
+                'name' => $user->name,
+                'role' => $user->role,
+                'assignment' => $assignment ? optional($assignment->supplyCenter)->name : '-',
+                'shift' => $assignment && $assignment->shift ? ($assignment->shift->name ?? ($assignment->shift->start_time ? $assignment->shift->start_time : '')) : '-',
+                'assignment_status' => $assignment ? $assignment->status : 'unassigned',
+                'availability' => $att ? ucfirst($att->status) : 'Unknown',
+            ];
+        });
+        return response()->json($staffData);
     }
 }
