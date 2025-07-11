@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Models\RetailerOrder;
+use App\Models\Inventory;
+use App\Models\OrderReturn;
 
 class DashboardController extends Controller
 {
@@ -56,55 +59,27 @@ class DashboardController extends Controller
             case 'distributor':
                 return view('dashboard.distributor');
             case 'retail_manager':
-                $today = Carbon::today();
-
                 try {
-                    // Debug: Check total orders in system
-                    $totalOrders = \App\Models\Order::count();
-                    $todayOrders = \App\Models\Order::whereDate('created_at', $today)->count();
+                    $today = now()->startOfDay();
+                    // Calculate sales today
+                    $salesToday = RetailerOrder::whereDate('created_at', $today)
+                        ->where('status', '!=', 'cancelled')
+                        ->sum('total') ?? 0;
 
-                    // Calculate sales today - check both placed_at and created_at
-                    $salesToday = \App\Models\Order::where(function($query) use ($today) {
-                        $query->whereDate('placed_at', $today)
-                              ->orWhereDate('created_at', $today);
-                    })
-                    ->where('status', '!=', 'cancelled')
-                    ->sum('total') ?? 0;
-
-                    // Calculate orders today - check both placed_at and created_at
-                    $ordersToday = \App\Models\Order::where(function($query) use ($today) {
-                        $query->whereDate('placed_at', $today)
-                              ->orWhereDate('created_at', $today);
-                    })
-                    ->where('status', '!=', 'cancelled')
-                    ->count();
-
-                    // Calculate inventory value (only for current user's inventory)
-                    $inventoryValue = \App\Models\Inventory::where('user_id', auth()->id())
-                        ->whereNotNull('unit_price')
-                        ->sum(DB::raw('COALESCE(quantity, 0) * COALESCE(unit_price, 0)')) ?? 0;
-
-                    // Calculate low stock count
-                    $lowStockCount = \App\Models\Inventory::where('user_id', auth()->id())
-                        ->where('quantity', '<=', DB::raw('COALESCE(reorder_level, 0)'))
+                    // Calculate orders today
+                    $ordersToday = RetailerOrder::whereDate('created_at', $today)
+                        ->where('status', '!=', 'cancelled')
                         ->count();
 
                     // Calculate pending orders
-                    $pendingOrders = \App\Models\Order::where('status', 'pending')
+                    $pendingOrders = RetailerOrder::where('status', 'pending')
                         ->count();
 
-                    // Calculate returns today
-                    $returnsToday = \App\Models\OrderReturn::whereDate('created_at', $today)
-                        ->sum('refund_amount') ?? 0;
-
-                    // Get top-selling products (last 30 days) - check both placed_at and created_at
-                    $topSellingProducts = \App\Models\OrderItem::select('product_id', 'product_name', DB::raw('SUM(quantity) as sold'))
-                        ->join('orders', 'order_items.order_id', '=', 'orders.id')
-                        ->where('orders.status', '!=', 'cancelled')
-                        ->where(function($query) use ($today) {
-                            $query->whereDate('orders.placed_at', '>=', $today->copy()->subDays(30))
-                                  ->orWhereDate('orders.created_at', '>=', $today->copy()->subDays(30));
-                        })
+                    // Get top-selling products (last 30 days)
+                    $topSellingProducts = \App\Models\OrderItem::select('product_id', 'product_name', \DB::raw('SUM(quantity) as sold'))
+                        ->join('retailer_orders', 'order_items.order_id', '=', 'retailer_orders.id')
+                        ->where('retailer_orders.status', '!=', 'cancelled')
+                        ->whereDate('retailer_orders.created_at', '>=', $today->copy()->subDays(30))
                         ->groupBy('product_id', 'product_name')
                         ->orderBy('sold', 'desc')
                         ->limit(5)
@@ -116,29 +91,83 @@ class DashboardController extends Controller
                             ];
                         });
 
+                    // Fetch bread orders (all)
+                    $breadOrders = RetailerOrder::whereHas('items', function($query) {
+                        $query->where('product_name', 'like', '%bread%');
+                    })
+                    ->with(['items' => function($query) {
+                        $query->where('product_name', 'like', '%bread%');
+                    }])
+                    ->get();
+
+                    // Bread order trends (last 7 days)
+                    $breadOrderTrends = collect();
+                    for ($i = 6; $i >= 0; $i--) {
+                        $date = $today->copy()->subDays($i)->toDateString();
+                        $count = $breadOrders->where('created_at', '>=', $date . ' 00:00:00')
+                            ->where('created_at', '<=', $date . ' 23:59:59')
+                            ->count();
+                        $breadOrderTrends->push([
+                            'date' => $date,
+                            'count' => $count
+                        ]);
+                    }
+
+                    // Debug variables for dashboard
+                    $totalOrders = RetailerOrder::where('status', '!=', 'cancelled')->count();
+                    $todayOrders = RetailerOrder::whereDate('created_at', $today)->where('status', '!=', 'cancelled')->count();
+
+                    // Calculate inventory value (all inventory)
+                    $inventoryValue = Inventory::whereNotNull('unit_price')
+                        ->sum(\DB::raw('COALESCE(quantity, 0) * COALESCE(unit_price, 0)')) ?? 0;
+
+                    // Calculate low stock count (all inventory)
+                    $lowStockCount = Inventory::where('quantity', '<=', \DB::raw('COALESCE(reorder_level, 0)'))
+                        ->count();
+
+                    // Calculate returns today
+                    $returnsToday = OrderReturn::whereDate('created_at', $today)
+                        ->sum('refund_amount') ?? 0;
+
+                    // Inventory Trends (last 7 days)
+                    $inventoryTrends = collect();
+                    for ($i = 6; $i >= 0; $i--) {
+                        $date = $today->copy()->subDays($i);
+                        $total = Inventory::whereNotNull('unit_price')
+                            ->sum(\DB::raw('COALESCE(quantity, 0)'));
+                        $inventoryTrends->push([
+                            'date' => $date->toDateString(),
+                            'total' => $total
+                        ]);
+                    }
                 } catch (\Exception $e) {
-                    // Fallback values if there's an error
                     $salesToday = 0;
                     $ordersToday = 0;
-                    $inventoryValue = 0;
-                    $lowStockCount = 0;
                     $pendingOrders = 0;
-                    $returnsToday = 0;
                     $topSellingProducts = collect();
+                    $breadOrders = collect();
+                    $breadOrderTrends = collect();
                     $totalOrders = 0;
                     $todayOrders = 0;
+                    $inventoryValue = 0;
+                    $lowStockCount = 0;
+                    $returnsToday = 0;
+                    $inventoryTrends = collect();
                 }
 
                 return view('dashboard.retail', compact(
                     'salesToday',
                     'ordersToday',
+                    'pendingOrders',
+                    'topSellingProducts',
+                    'breadOrders',
+                    'breadOrderTrends',
+                    'totalOrders',
+                    'todayOrders',
                     'inventoryValue',
                     'lowStockCount',
-                    'pendingOrders',
                     'returnsToday',
-                    'topSellingProducts',
-                    'totalOrders',
-                    'todayOrders'
+                    'inventoryTrends'
                 ));
                                     case 'customer':
                 // Get recent orders for the customer

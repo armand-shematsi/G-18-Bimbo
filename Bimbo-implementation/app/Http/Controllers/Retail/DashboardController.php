@@ -9,6 +9,7 @@ use App\Models\Inventory;
 use App\Models\Product;
 use App\Models\OrderReturn;
 use App\Models\OrderItem;
+use App\Models\RetailerOrder;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -20,12 +21,12 @@ class DashboardController extends Controller
 
         try {
             // Calculate sales today
-            $salesToday = Order::whereDate('placed_at', $today)
+            $salesToday = RetailerOrder::whereDate('created_at', $today)
                 ->where('status', '!=', 'cancelled')
                 ->sum('total') ?? 0;
 
             // Calculate orders today
-            $ordersToday = Order::whereDate('placed_at', $today)
+            $ordersToday = RetailerOrder::whereDate('created_at', $today)
                 ->where('status', '!=', 'cancelled')
                 ->count();
 
@@ -40,7 +41,7 @@ class DashboardController extends Controller
                 ->count();
 
             // Calculate pending orders
-            $pendingOrders = Order::where('status', 'pending')
+            $pendingOrders = RetailerOrder::where('status', 'pending')
                 ->count();
 
             // Calculate returns today
@@ -49,9 +50,9 @@ class DashboardController extends Controller
 
             // Get top-selling products (last 30 days)
             $topSellingProducts = OrderItem::select('product_id', 'product_name', DB::raw('SUM(quantity) as sold'))
-                ->join('orders', 'order_items.order_id', '=', 'orders.id')
-                ->where('orders.status', '!=', 'cancelled')
-                ->whereDate('orders.placed_at', '>=', $today->copy()->subDays(30))
+                ->join('retailer_orders', 'order_items.order_id', '=', 'retailer_orders.id')
+                ->where('retailer_orders.status', '!=', 'cancelled')
+                ->whereDate('retailer_orders.created_at', '>=', $today->copy()->subDays(30))
                 ->groupBy('product_id', 'product_name')
                 ->orderBy('sold', 'desc')
                 ->limit(5)
@@ -63,6 +64,47 @@ class DashboardController extends Controller
                     ];
                 });
 
+            // Inventory Trends (last 7 days)
+            $inventoryTrends = collect();
+            for ($i = 6; $i >= 0; $i--) {
+                $date = $today->copy()->subDays($i);
+                $total = Inventory::where('user_id', auth()->id())
+                    ->sum(DB::raw('COALESCE(quantity, 0)'));
+                $inventoryTrends->push([
+                    'date' => $date->toDateString(),
+                    'total' => $total
+                ]);
+            }
+
+            // Fetch bread orders (all)
+            $breadOrders = RetailerOrder::whereHas('items', function($query) {
+                $query->where('product_name', 'like', '%bread%');
+            })
+            ->with(['items' => function($query) {
+                $query->where('product_name', 'like', '%bread%');
+            }])
+            ->get();
+
+            // Bread order trends (last 7 days)
+            $breadOrderTrends = collect();
+            for ($i = 6; $i >= 0; $i--) {
+                $date = $today->copy()->subDays($i)->toDateString();
+                $count = $breadOrders->where('created_at', '>=', $date . ' 00:00:00')
+                    ->where('created_at', '<=', $date . ' 23:59:59')
+                    ->count();
+                $breadOrderTrends->push([
+                    'date' => $date,
+                    'count' => $count
+                ]);
+            }
+
+            // Debug variables for dashboard
+            $totalOrders = RetailerOrder::where('status', '!=', 'cancelled')->count();
+            $todayOrders = RetailerOrder::whereDate('created_at', $today)->where('status', '!=', 'cancelled')->count();
+
+            // Debug: dump all retailer orders
+            dd(\App\Models\RetailerOrder::all());
+
         } catch (\Exception $e) {
             // Fallback values if there's an error
             $salesToday = 0;
@@ -72,6 +114,11 @@ class DashboardController extends Controller
             $pendingOrders = 0;
             $returnsToday = 0;
             $topSellingProducts = collect();
+            $inventoryTrends = collect();
+            $breadOrders = collect();
+            $breadOrderTrends = collect();
+            $totalOrders = 0;
+            $todayOrders = 0;
         }
 
         return view('dashboard.retail', compact(
@@ -81,7 +128,12 @@ class DashboardController extends Controller
             'lowStockCount',
             'pendingOrders',
             'returnsToday',
-            'topSellingProducts'
+            'topSellingProducts',
+            'inventoryTrends',
+            'breadOrders',
+            'breadOrderTrends',
+            'totalOrders',
+            'todayOrders'
         ));
     }
 }

@@ -63,6 +63,18 @@
                 <canvas id="salesTrendChart" height="300"></canvas>
             </div>
 
+            <!-- Inventory Trends Chart -->
+            <div class="bg-white p-8 rounded-2xl shadow">
+                <h2 class="text-xl font-bold mb-6 text-gray-800">Inventory Trends (Last 7 Days)</h2>
+                <canvas id="inventoryTrendsChart" height="300"></canvas>
+            </div>
+
+            <!-- Bread Orders Trend Chart -->
+            <div class="bg-white p-8 rounded-2xl shadow col-span-1 lg:col-span-2">
+                <h2 class="text-xl font-bold mb-6 text-gray-800">Bread Orders Trend (Last 7 Days)</h2>
+                <canvas id="breadOrdersTrendChart" height="300"></canvas>
+            </div>
+
             <!-- Order Status Distribution -->
             <div class="bg-white p-8 rounded-2xl shadow">
                 <h2 class="text-xl font-bold mb-6 text-gray-800">Order Status Distribution</h2>
@@ -122,6 +134,72 @@ document.addEventListener('DOMContentLoaded', function() {
                             return '$' + value.toLocaleString();
                         }
                     }
+                }
+            }
+        }
+    });
+
+    // Inventory Trends Chart
+    const inventoryTrendsData = @json($inventoryTrends);
+    const inventoryTrendsLabels = inventoryTrendsData.map(item => item.date);
+    const inventoryTrendsTotals = inventoryTrendsData.map(item => item.total);
+    const inventoryTrendsCtx = document.getElementById('inventoryTrendsChart').getContext('2d');
+    new Chart(inventoryTrendsCtx, {
+        type: 'line',
+        data: {
+            labels: inventoryTrendsLabels,
+            datasets: [{
+                label: 'Inventory Level',
+                data: inventoryTrendsTotals,
+                borderColor: 'rgb(139, 92, 246)',
+                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Bread Orders Trend Chart
+    const breadOrderTrendsData = @json($breadOrderTrends);
+    const breadOrderTrendsLabels = breadOrderTrendsData.map(item => item.date);
+    const breadOrderTrendsCounts = breadOrderTrendsData.map(item => item.count);
+    const breadOrdersTrendCtx = document.getElementById('breadOrdersTrendChart').getContext('2d');
+    new Chart(breadOrdersTrendCtx, {
+        type: 'line',
+        data: {
+            labels: breadOrderTrendsLabels,
+            datasets: [{
+                label: 'Bread Orders',
+                data: breadOrderTrendsCounts,
+                borderColor: 'rgb(251, 191, 36)',
+                backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
             }
         }
