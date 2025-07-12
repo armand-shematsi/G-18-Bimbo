@@ -138,7 +138,9 @@
                                         </div>
                                     </div>
                                     <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">{{ $item->item_name }}</div>
+                                        <a href="{{ route('bakery.inventory.show', $item) }}" class="text-sm font-medium text-blue-600 hover:text-blue-900 hover:underline">
+                                            {{ $item->item_name }}
+                                        </a>
                                         <div class="text-sm text-gray-500">{{ $item->unit }}</div>
                                     </div>
                                 </div>
@@ -154,7 +156,12 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ $item->quantity }}</div>
+                                <div class="flex items-center">
+                                    <div class="text-sm text-gray-900">{{ $item->quantity }}</div>
+                                    @if($item->updated_at->diffInMinutes(now()) < 5)
+                                        <div class="ml-2 w-2 h-2 bg-green-500 rounded-full animate-pulse" title="Recently updated"></div>
+                                    @endif
+                                </div>
                                 @if($item->quantity <= $item->reorder_level)
                                     <div class="text-xs text-red-600">Reorder: {{ $item->reorder_level }}</div>
                                 @endif

@@ -98,6 +98,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('inventory', \App\Http\Controllers\Bakery\InventoryController::class);
         Route::post('/inventory/{inventory}/update-stock', [\App\Http\Controllers\Bakery\InventoryController::class, 'updateStock'])->name('inventory.update-stock');
         Route::get('/api/inventory', [\App\Http\Controllers\Bakery\InventoryController::class, 'apiIndex'])->name('inventory.api');
+        Route::get('/api/inventory/{inventory}/live', [\App\Http\Controllers\Bakery\InventoryController::class, 'liveData'])->name('inventory.live');
+        Route::get('/api/inventory/{inventory}/recent-orders', [\App\Http\Controllers\Bakery\InventoryController::class, 'recentOrders'])->name('inventory.recent-orders');
+        Route::get('/api/inventory/{inventory}/chart-data', [\App\Http\Controllers\Bakery\InventoryController::class, 'chartData'])->name('inventory.chart-data');
         // Production Routes
         Route::get('/production', function () {
             return view('bakery.production');
