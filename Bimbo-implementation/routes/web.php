@@ -93,6 +93,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('machines', \App\Http\Controllers\MachineController::class);
         Route::resource('maintenance-tasks', \App\Http\Controllers\MaintenanceTaskController::class);
         Route::resource('shifts', \App\Http\Controllers\ShiftController::class);
+
+        // Inventory management routes
+        Route::resource('inventory', \App\Http\Controllers\Bakery\InventoryController::class);
+        Route::post('/inventory/{inventory}/update-stock', [\App\Http\Controllers\Bakery\InventoryController::class, 'updateStock'])->name('inventory.update-stock');
+        Route::get('/api/inventory', [\App\Http\Controllers\Bakery\InventoryController::class, 'apiIndex'])->name('inventory.api');
         // Production Routes
         Route::get('/production', function () {
             return view('bakery.production');

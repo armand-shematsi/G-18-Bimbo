@@ -17,6 +17,10 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        // Temporarily simplified to debug login issue
+        return view('dashboard.retail');
+
+        /*
         $today = Carbon::today();
 
         try {
@@ -144,5 +148,6 @@ class DashboardController extends Controller
             'todayOrders',
             'debugInfo'
         ));
+        */
     }
 }

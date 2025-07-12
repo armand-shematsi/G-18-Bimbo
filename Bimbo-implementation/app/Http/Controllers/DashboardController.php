@@ -66,6 +66,9 @@ class DashboardController extends Controller
             case 'distributor':
                 return view('dashboard.distributor');
             case 'retail_manager':
+                // Temporarily disabled to debug login issue
+                return view('dashboard.retail');
+                /*
                 try {
                     $today = now()->startOfDay();
                     // Calculate sales today
@@ -176,6 +179,7 @@ class DashboardController extends Controller
                     'returnsToday',
                     'inventoryTrends'
                 ));
+                */
             case 'customer':
                 // Get recent orders for the customer
                 try {
