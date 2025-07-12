@@ -20,39 +20,50 @@ class DashboardController extends Controller
         $today = Carbon::today();
 
         try {
-            // Calculate sales today
-            $salesToday = RetailerOrder::whereDate('created_at', $today)
+            // Debug: Check what data we have
+            $debugInfo = [
+                'total_orders' => Order::count(),
+                'orders_with_status' => Order::where('status', '!=', 'cancelled')->count(),
+                'orders_today' => Order::whereDate('created_at', $today)->count(),
+                'total_order_items' => OrderItem::count(),
+                'inventory_items' => Inventory::where('location', 'retail')->count(),
+                'auth_user_id' => auth()->id(),
+                'auth_user_role' => auth()->user()->role ?? 'not set'
+            ];
+
+            // Calculate sales today (using Order model instead of RetailerOrder)
+            $salesToday = Order::whereDate('created_at', $today)
                 ->where('status', '!=', 'cancelled')
                 ->sum('total') ?? 0;
 
-            // Calculate orders today
-            $ordersToday = RetailerOrder::whereDate('created_at', $today)
+            // Calculate orders today (using Order model instead of RetailerOrder)
+            $ordersToday = Order::whereDate('created_at', $today)
                 ->where('status', '!=', 'cancelled')
                 ->count();
 
-            // Calculate inventory value (only for current user's inventory)
-            $inventoryValue = Inventory::where('user_id', auth()->id())
+            // Calculate inventory value (for retail inventory)
+            $inventoryValue = Inventory::where('location', 'retail')
                 ->whereNotNull('unit_price')
                 ->sum(DB::raw('COALESCE(quantity, 0) * COALESCE(unit_price, 0)')) ?? 0;
 
-            // Calculate low stock count
-            $lowStockCount = Inventory::where('user_id', auth()->id())
+            // Calculate low stock count (for retail inventory)
+            $lowStockCount = Inventory::where('location', 'retail')
                 ->where('quantity', '<=', DB::raw('COALESCE(reorder_level, 0)'))
                 ->count();
 
-            // Calculate pending orders
-            $pendingOrders = RetailerOrder::where('status', 'pending')
+            // Calculate pending orders (using Order model instead of RetailerOrder)
+            $pendingOrders = Order::where('status', 'pending')
                 ->count();
 
             // Calculate returns today
             $returnsToday = OrderReturn::whereDate('created_at', $today)
                 ->sum('refund_amount') ?? 0;
 
-            // Get top-selling products (last 30 days)
+            // Get top-selling products (last 30 days) - using Order model
             $topSellingProducts = OrderItem::select('product_id', 'product_name', DB::raw('SUM(quantity) as sold'))
-                ->join('retailer_orders', 'order_items.order_id', '=', 'retailer_orders.id')
-                ->where('retailer_orders.status', '!=', 'cancelled')
-                ->whereDate('retailer_orders.created_at', '>=', $today->copy()->subDays(30))
+                ->join('orders', 'order_items.order_id', '=', 'orders.id')
+                ->where('orders.status', '!=', 'cancelled')
+                ->whereDate('orders.created_at', '>=', $today->copy()->subDays(30))
                 ->groupBy('product_id', 'product_name')
                 ->orderBy('sold', 'desc')
                 ->limit(5)
@@ -68,7 +79,7 @@ class DashboardController extends Controller
             $inventoryTrends = collect();
             for ($i = 6; $i >= 0; $i--) {
                 $date = $today->copy()->subDays($i);
-                $total = Inventory::where('user_id', auth()->id())
+                $total = Inventory::where('location', 'retail')
                     ->sum(DB::raw('COALESCE(quantity, 0)'));
                 $inventoryTrends->push([
                     'date' => $date->toDateString(),
@@ -76,8 +87,8 @@ class DashboardController extends Controller
                 ]);
             }
 
-            // Fetch bread orders (all)
-            $breadOrders = RetailerOrder::whereHas('items', function($query) {
+            // Fetch bread orders (all) - using Order model
+            $breadOrders = Order::whereHas('items', function($query) {
                 $query->where('product_name', 'like', '%bread%');
             })
             ->with(['items' => function($query) {
@@ -99,11 +110,8 @@ class DashboardController extends Controller
             }
 
             // Debug variables for dashboard
-            $totalOrders = RetailerOrder::where('status', '!=', 'cancelled')->count();
-            $todayOrders = RetailerOrder::whereDate('created_at', $today)->where('status', '!=', 'cancelled')->count();
-
-            // Debug: dump all retailer orders
-            dd(\App\Models\RetailerOrder::all());
+            $totalOrders = Order::where('status', '!=', 'cancelled')->count();
+            $todayOrders = Order::whereDate('created_at', $today)->where('status', '!=', 'cancelled')->count();
 
         } catch (\Exception $e) {
             // Fallback values if there's an error
@@ -133,7 +141,8 @@ class DashboardController extends Controller
             'breadOrders',
             'breadOrderTrends',
             'totalOrders',
-            'todayOrders'
+            'todayOrders',
+            'debugInfo'
         ));
     }
 }

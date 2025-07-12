@@ -173,12 +173,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/orders/{order}/status', [App\Http\Controllers\Retail\OrderController::class, 'changeStatus'])->name('orders.changeStatus');
 
         Route::get('/inventory', [App\Http\Controllers\Retail\InventoryController::class, 'index'])->name('inventory.index');
-        Route::get('/inventory/create', [App\Http\Controllers\RetailInventoryController::class, 'create'])->name('inventory.create');
-        Route::post('/inventory', [App\Http\Controllers\RetailInventoryController::class, 'store'])->name('inventory.store');
-        Route::post('/inventory/update', [App\Http\Controllers\Retail\InventoryController::class, 'update'])->name('inventory.update');
-        Route::get('/inventory/{id}', [App\Http\Controllers\RetailInventoryController::class, 'show'])->name('inventory.show');
-        Route::get('/inventory/check', [App\Http\Controllers\RetailInventoryController::class, 'check'])->name('inventory.check');
-        Route::post('/inventory/check', [App\Http\Controllers\RetailInventoryController::class, 'updateStock'])->name('inventory.update');
+        Route::get('/inventory/create', [App\Http\Controllers\Retail\InventoryController::class, 'create'])->name('inventory.create');
+        Route::post('/inventory', [App\Http\Controllers\Retail\InventoryController::class, 'store'])->name('inventory.store');
+        Route::get('/inventory/check', [App\Http\Controllers\Retail\InventoryController::class, 'check'])->name('inventory.check');
+        Route::post('/inventory/check', [App\Http\Controllers\Retail\InventoryController::class, 'updateStock'])->name('inventory.updateStock');
+        Route::get('/inventory/{id}', [App\Http\Controllers\Retail\InventoryController::class, 'show'])->name('inventory.show');
+        Route::get('/inventory/{id}/edit', [App\Http\Controllers\Retail\InventoryController::class, 'edit'])->name('inventory.edit');
+        Route::put('/inventory/{id}', [App\Http\Controllers\Retail\InventoryController::class, 'update'])->name('inventory.update');
+        Route::delete('/inventory/{id}', [App\Http\Controllers\Retail\InventoryController::class, 'destroy'])->name('inventory.destroy');
 
         Route::get('/forecast', [App\Http\Controllers\Retail\ForecastController::class, 'index'])->name('forecast.index');
         Route::get('/forecast/generate', [App\Http\Controllers\Retail\ForecastController::class, 'generate'])->name('forecast.generate');
