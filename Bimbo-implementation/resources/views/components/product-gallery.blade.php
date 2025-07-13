@@ -38,7 +38,7 @@
                     
                     <div class="flex items-center justify-between">
                         <span class="text-xl font-bold text-green-600">₦{{ number_format($product->price, 2) }}</span>
-                        <form action="{{ route('retail.cart.add') }}" method="POST" class="inline">
+                        <form action="{{ (auth()->check() && auth()->user()->role === 'customer') ? route('customer.cart.add') : route('retail.cart.add') }}" method="POST" class="inline">
                             @csrf
                             <input type="hidden" name="inventory_id" value="{{ $product->inventory_id }}">
                             <input type="hidden" name="product_id" value="{{ $product->id }}">

@@ -237,6 +237,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/orders', [App\Http\Controllers\Customer\OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [App\Http\Controllers\Customer\OrderController::class, 'show'])->name('orders.show');
         Route::patch('/orders/{order}/cancel', [App\Http\Controllers\Customer\OrderController::class, 'cancel'])->name('orders.cancel');
+        Route::get('/cart', [\App\Http\Controllers\Customer\CartController::class, 'index'])->name('cart.index');
+        Route::post('/cart/add', [\App\Http\Controllers\Customer\CartController::class, 'store'])->name('cart.add');
+        Route::put('/cart/{id}', [\App\Http\Controllers\Customer\CartController::class, 'update'])->name('cart.update');
+        Route::delete('/cart/{id}', [\App\Http\Controllers\Customer\CartController::class, 'destroy'])->name('cart.destroy');
+        Route::get('/cart/checkout', [\App\Http\Controllers\Customer\CartController::class, 'checkout'])->name('cart.checkout');
+        Route::post('/cart/place-order', [\App\Http\Controllers\Customer\CartController::class, 'placeOrder'])->name('cart.place-order');
     });
 
     // Workforce Overview Route
@@ -292,4 +298,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ... existing routes ...
     Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/{type}/{filename}', [\App\Http\Controllers\ReportController::class, 'download'])->name('reports.download');
+});
+
+// Add this route for report downloads
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/reports/downloads', [\App\Http\Controllers\ReportDownloadController::class, 'index'])->name('reports.downloads');
 });
