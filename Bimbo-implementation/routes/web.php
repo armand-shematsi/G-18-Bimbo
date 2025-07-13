@@ -267,6 +267,17 @@ Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier
     Route::get('/chat', [App\Http\Controllers\Supplier\ChatController::class, 'index'])->name('chat.index');
     Route::post('/chat/send', [App\Http\Controllers\Supplier\ChatController::class, 'send'])->name('chat.send');
     Route::get('/chat/messages', [App\Http\Controllers\Supplier\ChatController::class, 'getMessages'])->name('chat.get-messages');
+
+    // Supplier Inventory Routes
+    Route::resource('inventory', App\Http\Controllers\Supplier\InventoryController::class);
+    Route::get('/inventory/dashboard', [App\Http\Controllers\Supplier\InventoryController::class, 'dashboard'])->name('inventory.dashboard');
+    Route::get('/orders', [App\Http\Controllers\Supplier\OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [App\Http\Controllers\Supplier\OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/status', [App\Http\Controllers\Supplier\OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+
+    // Supplier Stock Management Routes
+    Route::resource('stockin', App\Http\Controllers\Supplier\StockInController::class);
+    Route::resource('stockout', App\Http\Controllers\Supplier\StockOutController::class);
 });
 
 require __DIR__ . '/auth.php';

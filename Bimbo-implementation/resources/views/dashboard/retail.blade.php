@@ -11,7 +11,7 @@
 <div class="flex min-h-screen bg-gradient-to-br from-blue-50 to-white items-center justify-center">
     <main class="w-full max-w-5xl mx-auto p-6">
         <!-- Debug Section -->
-        @if(isset($totalOrders) && isset($todayOrders))
+        @if(isset($totalOrders) && isset($todayOrders) && ($totalOrders ?? 0) > 0)
         <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-6">
             <strong>Debug Info:</strong> Total Orders in System: {{ $totalOrders }}, Orders Today: {{ $todayOrders }}
         </div>
@@ -19,34 +19,34 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
             <div class="bg-white p-8 rounded-2xl shadow flex flex-col items-center text-center">
-                <div class="text-2xl font-bold text-blue-700 mb-1">${{ number_format($salesToday, 2) }}</div>
+                <div class="text-2xl font-bold text-blue-700 mb-1">${{ number_format($salesToday ?? 0, 2) }}</div>
                 <div class="font-semibold text-gray-700">Total Sales Today</div>
             </div>
             <div class="bg-white p-8 rounded-2xl shadow flex flex-col items-center text-center">
-                <div class="text-2xl font-bold text-green-700 mb-1">{{ $ordersToday }}</div>
+                <div class="text-2xl font-bold text-green-700 mb-1">{{ $ordersToday ?? 0 }}</div>
                 <div class="font-semibold text-gray-700">Total Orders Today</div>
             </div>
             <div class="bg-white p-8 rounded-2xl shadow flex flex-col items-center text-center">
-                <div class="text-2xl font-bold text-purple-700 mb-1">${{ number_format($inventoryValue, 2) }}</div>
+                <div class="text-2xl font-bold text-purple-700 mb-1">${{ number_format($inventoryValue ?? 0, 2) }}</div>
                 <div class="font-semibold text-gray-700">Inventory Value</div>
             </div>
             <div class="bg-white p-8 rounded-2xl shadow flex flex-col items-center text-center">
-                <div class="text-2xl font-bold text-red-600 mb-1">{{ $lowStockCount }}</div>
+                <div class="text-2xl font-bold text-red-600 mb-1">{{ $lowStockCount ?? 0 }}</div>
                 <div class="font-semibold text-gray-700">Low Stock Items</div>
             </div>
             <div class="bg-white p-8 rounded-2xl shadow flex flex-col items-center text-center">
-                <div class="text-2xl font-bold text-yellow-600 mb-1">{{ $pendingOrders }}</div>
+                <div class="text-2xl font-bold text-yellow-600 mb-1">{{ $pendingOrders ?? 0 }}</div>
                 <div class="font-semibold text-gray-700">Pending Orders</div>
             </div>
             <div class="bg-white p-8 rounded-2xl shadow flex flex-col items-center text-center">
-                <div class="text-2xl font-bold text-gray-700 mb-1">${{ number_format($returnsToday, 2) }}</div>
+                <div class="text-2xl font-bold text-gray-700 mb-1">${{ number_format($returnsToday ?? 0, 2) }}</div>
                 <div class="font-semibold text-gray-700">Returns/Refunds Today</div>
             </div>
         </div>
         <div class="bg-white p-8 rounded-2xl shadow max-w-2xl mx-auto mb-8">
             <h2 class="text-xl font-bold mb-4 text-gray-800">Top-Selling Products</h2>
             <ul class="divide-y divide-gray-200">
-                @foreach($topSellingProducts as $product)
+                @foreach(($topSellingProducts ?? collect()) as $product)
                     <li class="py-2 flex justify-between">
                         <span>{{ $product->name }}</span>
                         <span class="font-semibold">{{ $product->sold }} sold</span>
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Inventory Trends Chart
-    const inventoryTrendsData = @json($inventoryTrends);
+    const inventoryTrendsData = @json($inventoryTrends ?? collect());
     const inventoryTrendsLabels = inventoryTrendsData.map(item => item.date);
     const inventoryTrendsTotals = inventoryTrendsData.map(item => item.total);
     const inventoryTrendsCtx = document.getElementById('inventoryTrendsChart').getContext('2d');
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Bread Orders Trend Chart
-    const breadOrderTrendsData = @json($breadOrderTrends);
+    const breadOrderTrendsData = @json($breadOrderTrends ?? collect());
     const breadOrderTrendsLabels = breadOrderTrendsData.map(item => item.date);
     const breadOrderTrendsCounts = breadOrderTrendsData.map(item => item.count);
     const breadOrdersTrendCtx = document.getElementById('breadOrdersTrendChart').getContext('2d');

@@ -17,24 +17,9 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Temporarily simplified to debug login issue
-        return view('dashboard.retail');
-
-        /*
         $today = Carbon::today();
 
         try {
-            // Debug: Check what data we have
-            $debugInfo = [
-                'total_orders' => Order::count(),
-                'orders_with_status' => Order::where('status', '!=', 'cancelled')->count(),
-                'orders_today' => Order::whereDate('created_at', $today)->count(),
-                'total_order_items' => OrderItem::count(),
-                'inventory_items' => Inventory::where('location', 'retail')->count(),
-                'auth_user_id' => auth()->id(),
-                'auth_user_role' => auth()->user()->role ?? 'not set'
-            ];
-
             // Calculate sales today (using Order model instead of RetailerOrder)
             $salesToday = Order::whereDate('created_at', $today)
                 ->where('status', '!=', 'cancelled')
@@ -145,9 +130,7 @@ class DashboardController extends Controller
             'breadOrders',
             'breadOrderTrends',
             'totalOrders',
-            'todayOrders',
-            'debugInfo'
+            'todayOrders'
         ));
-        */
     }
 }
