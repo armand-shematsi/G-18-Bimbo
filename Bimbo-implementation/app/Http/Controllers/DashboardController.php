@@ -4,15 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-<<<<<<< HEAD
-use App\Models\Product;
-=======
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Models\Product;
 use App\Models\RetailerOrder;
 use App\Models\Inventory;
 use App\Models\OrderReturn;
->>>>>>> d851bae951f2e42923c805e7580c48510ad1afd6
 
 class DashboardController extends Controller
 {
@@ -60,11 +57,6 @@ class DashboardController extends Controller
                 // Fetch production target from settings
                 $productionTarget = optional(\App\Models\Setting::where('key', 'production_target')->first())->value;
                 // Sum today's output from production batches
-<<<<<<< HEAD
-                $todaysOutput = \App\Models\ProductionBatch::whereDate('scheduled_start', now()->toDateString())->sum('quantity');
-                $products = \App\Models\Product::all();
-                return view('dashboard.bakery-manager', compact('orders', 'staff', 'supplyCenters', 'activeStaffCount', 'productionTarget', 'todaysOutput', 'products'));
-=======
                 $todaysOutput = \App\Models\ProductionBatch::whereDate('scheduled_start', $today)->sum('quantity');
                 // --- New dashboard variables ---
                 $staffOnDuty = \App\Models\Attendance::where('date', $today)->where('status', 'present')->count();
@@ -73,14 +65,10 @@ class DashboardController extends Controller
                 $overtimeCount = \App\Models\Shift::whereDate('start_time', $today)
                     ->whereRaw('TIMESTAMPDIFF(HOUR, start_time, end_time) > 8')->count();
                 return view('dashboard.bakery-manager', compact('orders', 'staff', 'supplyCenters', 'activeStaffCount', 'productionTarget', 'todaysOutput', 'staffOnDuty', 'absentCount', 'shiftFilled', 'overtimeCount'));
->>>>>>> d851bae951f2e42923c805e7580c48510ad1afd6
             case 'distributor':
                 $products = \App\Models\Product::all();
                 return view('dashboard.distributor', compact('products'));
             case 'retail_manager':
-<<<<<<< HEAD
-                return redirect()->route('retail.dashboard');
-=======
                 // Temporarily disabled to debug login issue
                 return view('dashboard.retail');
                 /*
@@ -195,7 +183,6 @@ class DashboardController extends Controller
                     'inventoryTrends'
                 ));
                 */
->>>>>>> d851bae951f2e42923c805e7580c48510ad1afd6
             case 'customer':
                 // Get recent orders for the customer
                 try {
