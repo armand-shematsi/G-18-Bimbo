@@ -12,7 +12,12 @@ class ProductionBatchController extends Controller
      */
     public function index()
     {
-        $batches = ProductionBatch::orderBy('scheduled_start', 'desc')->get();
+        // Auto-complete batches whose actual_end is in the past
+        \App\Models\ProductionBatch::where('status', 'active')
+            ->whereNotNull('actual_end')
+            ->where('actual_end', '<', now())
+            ->update(['status' => 'completed']);
+        $batches = \App\Models\ProductionBatch::orderBy('scheduled_start', 'desc')->get();
         return view('bakery.batches.index', compact('batches'));
     }
 
@@ -21,7 +26,8 @@ class ProductionBatchController extends Controller
      */
     public function create()
     {
-        return view('bakery.batches.create');
+        $productionLines = \App\Models\ProductionLine::all();
+        return view('bakery.batches.create', compact('productionLines'));
     }
 
     /**
@@ -31,8 +37,13 @@ class ProductionBatchController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'scheduled_start' => 'required|date',
             'status' => 'required|in:planned,active,completed,cancelled',
+            'scheduled_start' => 'required|date',
+            'actual_start' => 'nullable|date',
+            'actual_end' => 'nullable|date',
+            'quantity' => 'nullable|integer|min:0',
+            'notes' => 'nullable|string',
+            'production_line_id' => 'nullable|string|max:10',
         ]);
         ProductionBatch::create($validated);
         return redirect()->route('bakery.batches.index')->with('success', 'Production batch created successfully.');
@@ -52,8 +63,8 @@ class ProductionBatchController extends Controller
      */
     public function edit(ProductionBatch $batch)
     {
-        $staff = \App\Models\User::where('role', 'staff')->orderBy('name')->get();
-        return view('bakery.batches.edit', compact('batch', 'staff'));
+        $productionLines = \App\Models\ProductionLine::all();
+        return view('bakery.batches.edit', compact('batch', 'productionLines'));
     }
 
     /**
@@ -68,27 +79,9 @@ class ProductionBatchController extends Controller
             'actual_start' => 'nullable|date',
             'actual_end' => 'nullable|date',
             'notes' => 'nullable|string',
-            'quantity' => 'nullable|integer|min:0',
         ]);
         $batch->update($validated);
-
-        // Sync staff assignments (remove old, add new)
-        if ($request->has('staff')) {
-            // Remove old shifts
-            $batch->shifts()->delete();
-            $start = \Carbon\Carbon::parse($batch->scheduled_start);
-            $end = $start->copy()->addHours(8);
-            foreach ($request->input('staff') as $userId) {
-                \App\Models\Shift::create([
-                    'user_id' => $userId,
-                    'production_batch_id' => $batch->id,
-                    'start_time' => $start,
-                    'end_time' => $end,
-                    'role' => 'staff',
-                ]);
-            }
-        }
-
+        // Removed all staff sync logic
         return redirect()->route('bakery.batches.index')->with('success', 'Production batch updated successfully.');
     }
 

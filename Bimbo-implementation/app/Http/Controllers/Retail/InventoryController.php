@@ -3,52 +3,107 @@
 namespace App\Http\Controllers\Retail;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Inventory;
+use Illuminate\Support\Facades\DB;
 
 class InventoryController extends Controller
 {
     public function index()
     {
-        return view('retail.inventory');
+        $inventory = Inventory::where('location', 'retail')->get();
+        return view('retail.inventory.index', compact('inventory'));
     }
 
-    public function supplierInventory()
-    {
-        $supplierInventory = \App\Models\Inventory::whereHas('user', function($query) {
-            $query->where('role', 'supplier');
-        })->with('user')->get();
-
-        $lowStockItems = $supplierInventory->filter(function($item) {
-            return $item->needsReorder();
-        });
-
-        return view('retail.supplier-inventory', compact('supplierInventory', 'lowStockItems'));
-    }
-
+    // Show inventory and stock in/out form
     public function check()
     {
-        $user = auth()->user();
-        $inventory = \App\Models\Inventory::where('user_id', $user->id)->with('user')->get();
+        // Only get items available in the retail shop
+        $items = Inventory::where('location', 'retail')->get();
+        return view('retail.inventory.check', compact('items'));
+    }
 
-        // Total bread in stock (sum of quantity for bread items)
-        $totalBreadInStock = $inventory->where('item_type', 'bread')->sum('quantity');
+    // Handle stock in/out update
+    public function updateStock(Request $request)
+    {
+        $data = $request->validate([
+            'item_id' => 'required|exists:inventories,id',
+            'action' => 'required|in:in,out',
+            'quantity' => 'required|integer|min:1',
+        ]);
+        $item = Inventory::findOrFail($data['item_id']);
+        if ($data['action'] === 'in') {
+            $item->quantity += $data['quantity'];
+        } else {
+            if ($item->quantity < $data['quantity']) {
+                return back()->withErrors(['quantity' => 'Not enough stock to remove.']);
+            }
+            $item->quantity -= $data['quantity'];
+        }
+        $item->save();
+        // Optionally: log movement here
+        return redirect()->route('retail.inventory.check')->with('status', 'Stock updated successfully.');
+    }
 
-        // Today's deliveries (orders delivered today)
-        $todaysDeliveries = \App\Models\Order::where('user_id', $user->id)
-            ->whereDate('delivered_at', now()->toDateString())
-            ->where('status', \App\Models\Order::STATUS_DELIVERED)
-            ->count();
+    // Show form to add new inventory item
+    public function create()
+    {
+        return view('retail.inventory.create');
+    }
 
-        // Today's sales (sum of order totals delivered today)
-        $todaysSales = \App\Models\Order::where('user_id', $user->id)
-            ->whereDate('delivered_at', now()->toDateString())
-            ->where('status', \App\Models\Order::STATUS_DELIVERED)
-            ->sum('total');
+    // Store new inventory item
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'item_name' => 'required|string|max:255',
+            'quantity' => 'required|integer|min:0',
+            'unit_price' => 'required|numeric|min:0',
+            'unit' => 'required|string|max:50',
+            'item_type' => 'nullable|string|max:100',
+            'reorder_level' => 'required|integer|min:0',
+        ]);
+        $data['location'] = 'retail';
+        Inventory::create($data);
+        return redirect()->route('retail.inventory.check')->with('status', 'Inventory item added successfully.');
+    }
 
-        // Reorder alerts (count of inventory items at or below reorder level)
-        $reorderAlerts = $inventory->filter(function($item) {
-            return $item->needsReorder();
-        })->count();
+    // Show a single inventory item and its adjustment/order history
+    public function show($id)
+    {
+        $item = Inventory::findOrFail($id);
+        // Example: fetch related orders if you have a relation, otherwise leave as empty collection
+        $orders = collect();
+        if (method_exists($item, 'orders')) {
+            $orders = $item->orders;
+        }
+        return view('retail.inventory.show', compact('item', 'orders'));
+    }
 
-        return view('retail.inventory.check', compact('inventory', 'totalBreadInStock', 'todaysDeliveries', 'todaysSales', 'reorderAlerts'));
+    public function edit($id)
+    {
+        $item = Inventory::findOrFail($id);
+        return view('retail.inventory.edit', compact('item'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $item = Inventory::findOrFail($id);
+        $data = $request->validate([
+            'item_name' => 'required|string|max:255',
+            'quantity' => 'required|integer|min:0',
+            'unit_price' => 'required|numeric|min:0',
+            'unit' => 'required|string|max:50',
+            'item_type' => 'nullable|string|max:100',
+            'reorder_level' => 'required|integer|min:0',
+        ]);
+        $item->update($data);
+        return redirect()->route('retail.inventory.index')->with('status', 'Inventory item updated successfully.');
+    }
+
+    public function destroy($id)
+    {
+        $item = Inventory::findOrFail($id);
+        $item->delete();
+        return redirect()->route('retail.inventory.index')->with('status', 'Inventory item deleted successfully.');
     }
 }

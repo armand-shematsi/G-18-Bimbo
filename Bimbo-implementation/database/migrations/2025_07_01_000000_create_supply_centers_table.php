@@ -11,6 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->string('location')->nullable();
+            $table->string('required_role')->nullable(); // e.g., 'driver', 'baker', etc.
             $table->timestamps();
         });
     }

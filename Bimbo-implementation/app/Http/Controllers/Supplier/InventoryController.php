@@ -16,8 +16,22 @@ class InventoryController extends Controller
      */
     public function index()
     {
-        $inventory = Inventory::where('user_id', auth()->id())->get();
-        return view('supplier.inventory.index', compact('inventory'));
+        $inventory = Inventory::where('user_id', auth()->id())
+            ->with(['movements' => function($query) {
+                $query->latest()->limit(5);
+            }])
+            ->orderBy('item_name')
+            ->get();
+
+        // Calculate summary statistics
+        $totalItems = $inventory->count();
+        $totalValue = $inventory->sum(function($item) {
+            return $item->quantity * $item->unit_price;
+        });
+        $lowStockItems = $inventory->where('status', 'low_stock')->count();
+        $outOfStockItems = $inventory->where('status', 'out_of_stock')->count();
+
+        return view('supplier.inventory.index', compact('inventory', 'totalItems', 'totalValue', 'lowStockItems', 'outOfStockItems'));
     }
 
     /**
@@ -155,12 +169,16 @@ class InventoryController extends Controller
     {
         $userId = auth()->id();
         $inventory = \App\Models\Inventory::where('user_id', $userId)->get();
+        // Calculate overstock threshold based on average reorder level
+        $avgReorderLevel = $inventory->avg('reorder_level') ?: 50;
+        $overstockThreshold = $avgReorderLevel * 3; // 3x the average reorder level
+
         $stats = [
             'total' => $inventory->count(),
             'available' => $inventory->where('status', 'available')->count(),
             'low_stock' => $inventory->where('status', 'low_stock')->count(),
             'out_of_stock' => $inventory->where('status', 'out_of_stock')->count(),
-            'over_stock' => $inventory->where('status', 'available')->count(), // Over stock = available
+            'over_stock' => $inventory->where('quantity', '>', $overstockThreshold)->count(),
         ];
 
         // Total Stock In
@@ -181,18 +199,46 @@ class InventoryController extends Controller
         $stockInData = $dates->map(fn($date) => isset($stockInDaily[$date]) ? $stockInDaily[$date]->sum('quantity_received') : 0);
         $stockOutData = $dates->map(fn($date) => isset($stockOutDaily[$date]) ? $stockOutDaily[$date]->sum('quantity_removed') : 0);
 
-        // Top Selling Items (by quantity)
-        $topSelling = \App\Models\OrderItem::select('product_name')
+        // Top Selling Items (by quantity) - for current supplier's inventory items
+        $topSelling = \App\Models\OrderItem::whereIn('product_name', $inventory->pluck('item_name'))
+            ->select('product_name')
             ->selectRaw('SUM(quantity) as total_sold')
             ->groupBy('product_name')
             ->orderByDesc('total_sold')
             ->limit(5)
             ->get();
 
-        // Total inventory value
+        // Total inventory value - ensure we have valid data
         $totalInventoryValue = $inventory->sum(function($item) {
-            return $item->quantity * $item->unit_price;
+            $quantity = $item->quantity ?? 0;
+            $unitPrice = $item->unit_price ?? 0;
+            return $quantity * $unitPrice;
         });
+
+
+
+        // Additional business metrics
+        $totalReorderValue = $inventory->sum(function($item) {
+            return $item->reorder_level * $item->unit_price;
+        });
+
+        // Calculate monthly trends (last 30 days)
+        $monthlyStockIn = \App\Models\StockIn::where('user_id', $userId)
+            ->where('received_at', '>=', now()->subDays(30))
+            ->sum('quantity_received');
+
+        $monthlyStockOut = \App\Models\StockOut::where('user_id', $userId)
+            ->where('removed_at', '>=', now()->subDays(30))
+            ->sum('quantity_removed');
+
+        // Calculate inventory turnover rate
+        $avgInventory = $inventory->avg('quantity') ?: 1;
+        $inventoryTurnover = $monthlyStockOut / $avgInventory;
+
+        // Calculate stock efficiency (items with good stock levels)
+        $efficientStock = $inventory->filter(function($item) {
+            return $item->quantity > $item->reorder_level && $item->quantity <= ($item->reorder_level * 2);
+        })->count();
 
         // Stock level chart data
         $stockLevelChartData = $inventory->map(function($item) {
@@ -205,6 +251,8 @@ class InventoryController extends Controller
         $lowStockItems = $inventory->filter(function($item) {
             return $item->quantity <= $item->reorder_level && $item->quantity > 0;
         });
+
+
 
         // Prepare for view
         return view('supplier.inventory.dashboard', [
@@ -219,6 +267,56 @@ class InventoryController extends Controller
             'totalInventoryValue' => $totalInventoryValue,
             'stockLevelChartData' => $stockLevelChartData,
             'lowStockItems' => $lowStockItems,
+            // Additional business metrics
+            'totalReorderValue' => $totalReorderValue,
+            'monthlyStockIn' => $monthlyStockIn,
+            'monthlyStockOut' => $monthlyStockOut,
+            'inventoryTurnover' => round($inventoryTurnover, 2),
+            'efficientStock' => $efficientStock,
+            'overstockThreshold' => $overstockThreshold,
         ]);
+    }
+
+    /**
+     * Display the specified inventory item with detailed stock movements.
+     */
+    public function show($id)
+    {
+        $item = Inventory::where('user_id', auth()->id())
+            ->with(['movements' => function($query) {
+                $query->orderByDesc('created_at');
+            }])
+            ->findOrFail($id);
+
+        // Get stock in/out history
+        $stockInHistory = \App\Models\StockIn::where('user_id', auth()->id())
+            ->where('inventory_id', $item->id)
+            ->orderByDesc('received_at')
+            ->get();
+
+        $stockOutHistory = \App\Models\StockOut::where('user_id', auth()->id())
+            ->where('inventory_id', $item->id)
+            ->orderByDesc('removed_at')
+            ->get();
+
+        // Calculate statistics
+        $totalStockIn = $stockInHistory->sum('quantity_received');
+        $totalStockOut = $stockOutHistory->sum('quantity_removed');
+        $currentStock = $item->quantity;
+        $totalValue = $currentStock * $item->unit_price;
+
+        // Get recent movements (last 10)
+        $recentMovements = $item->movements()->with('user')->orderByDesc('created_at')->limit(10)->get();
+
+        return view('supplier.inventory.show', compact(
+            'item',
+            'stockInHistory',
+            'stockOutHistory',
+            'totalStockIn',
+            'totalStockOut',
+            'currentStock',
+            'totalValue',
+            'recentMovements'
+        ));
     }
 }

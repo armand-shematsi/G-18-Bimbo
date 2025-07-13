@@ -32,18 +32,15 @@ class GenerateDailyReport extends Command
         
         $this->info('Generating daily reports...');
         
+        // Get all active users (or all users if you want to include inactive)
         if ($stakeholderType === 'all') {
-            $stakeholders = User::whereIn('role', ['admin', 'supplier', 'bakery_manager', 'distributor', 'retail_manager', 'customer'])
-                               ->where('status', 'active')
-                               ->get();
+            $stakeholders = \App\Models\User::where('status', 'active')->get();
         } else {
-            $stakeholders = User::where('role', $stakeholderType)
-                               ->where('status', 'active')
-                               ->get();
+            $stakeholders = \App\Models\User::where('role', $stakeholderType)->where('status', 'active')->get();
         }
-        
+
         if ($stakeholders->isEmpty()) {
-            $this->error("No active stakeholders found for role: {$stakeholderType}");
+            $this->error("No users found for role: {$stakeholderType}");
             return Command::FAILURE;
         }
         
@@ -55,8 +52,9 @@ class GenerateDailyReport extends Command
         
         foreach ($stakeholders as $stakeholder) {
             try {
-                $reportData = $reportService->generateDailyReport($stakeholder->role);
-                $stakeholder->notify(new DailyReportNotification($reportData));
+                // Always generate a report, even if all values are zero
+                $reportData = $reportService->generateDailyReport($stakeholder->role, $stakeholder->id);
+                $stakeholder->notify(new \App\Notifications\DailyReportNotification($reportData));
                 $successCount++;
                 $bar->advance();
             } catch (\Exception $e) {

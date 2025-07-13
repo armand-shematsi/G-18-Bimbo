@@ -37,7 +37,11 @@ class OrderController extends Controller
      */
     public function create()
     {
-        return view('supplier.orders.create');
+        // You can fetch any data needed for the order form here, e.g. products, inventory, etc.
+        // $products = Product::all();
+
+        // Return a view for creating a new order
+        return view('supplier.orders.create'/*, compact('products')*/);
     }
 
     /**

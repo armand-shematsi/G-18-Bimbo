@@ -28,3 +28,40 @@ return new class extends Migration
         });
     }
 };
+
+// Migration: create_supply_centers_table.php
+return new class extends Migration {
+    public function up()
+    {
+        Schema::create('supply_centers', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('location')->nullable();
+            $table->timestamps();
+        });
+    }
+    public function down()
+    {
+        Schema::dropIfExists('supply_centers');
+    }
+};
+
+// Migration: create_staff_supply_center_assignments_table.php
+return new class extends Migration {
+    public function up()
+    {
+        Schema::create('staff_supply_center_assignments', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('supply_center_id')->constrained()->onDelete('cascade');
+            $table->foreignId('shift_id')->nullable()->constrained('shifts')->onDelete('set null');
+            $table->string('status')->default('assigned'); // assigned, on_shift, completed, etc.
+            $table->date('assigned_date');
+            $table->timestamps();
+        });
+    }
+    public function down()
+    {
+        Schema::dropIfExists('staff_supply_center_assignments');
+    }
+};

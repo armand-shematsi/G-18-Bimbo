@@ -12,7 +12,7 @@ class UserSeeder extends Seeder
     {
         // Admin User
         User::updateOrCreate(
-            ['email' => 'admin@bimbo.com'],
+            ['email' => 'armandshematsi@gmail.com'],
             [
                 'name' => 'Admin User',
                 'password' => Hash::make('admin123'),
@@ -22,7 +22,7 @@ class UserSeeder extends Seeder
 
         // Supplier User
         User::updateOrCreate(
-            ['email' => 'supplier@bimbo.com'],
+            ['email' => 'helenliz656@gmail.com'],
             [
                 'name' => 'Supplier User',
                 'password' => Hash::make('supplier123'),
@@ -32,7 +32,7 @@ class UserSeeder extends Seeder
 
         // Bakery Manager
         User::updateOrCreate(
-            ['email' => 'bakery@bimbo.com'],
+            ['email' => 'opetoisaac21@gmail.com'],
             [
                 'name' => 'Bakery Manager',
                 'password' => Hash::make('bakery123'),
@@ -42,7 +42,7 @@ class UserSeeder extends Seeder
 
         // Distributor
         User::updateOrCreate(
-            ['email' => 'distributor@bimbo.com'],
+            ['email' => 'hanesmwanabasa18@gmail.com'],
             [
                 'name' => 'Distributor User',
                 'password' => Hash::make('distributor123'),
@@ -52,7 +52,7 @@ class UserSeeder extends Seeder
 
         // Retail Manager
         User::updateOrCreate(
-            ['email' => 'retail@bimbo.com'],
+            ['email' => 'roykin451@gmail.com'],
             [
                 'name' => 'Retail Manager',
                 'password' => Hash::make('retail123'),
@@ -62,7 +62,7 @@ class UserSeeder extends Seeder
 
         // Customer User
         User::updateOrCreate(
-            ['email' => 'customer@bimbo.com'],
+            ['email' => 'hanesmwanabasa18@gmail.com'],
             [
                 'name' => 'Customer User',
                 'password' => Hash::make('customer123'),
@@ -71,13 +71,5 @@ class UserSeeder extends Seeder
         );
 
         // Demo Staff Users
-        $staff = [
-            ['name' => 'Alice Baker', 'email' => 'alice@bakery.com', 'password' => Hash::make('password'), 'role' => 'staff'],
-            ['name' => 'Bob Dough', 'email' => 'bob@bakery.com', 'password' => Hash::make('password'), 'role' => 'staff'],
-            ['name' => 'Charlie Crust', 'email' => 'charlie@bakery.com', 'password' => Hash::make('password'), 'role' => 'staff'],
-        ];
-        foreach ($staff as $user) {
-            User::firstOrCreate(['email' => $user['email']], $user);
-        }
     }
 }
