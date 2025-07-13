@@ -3,28 +3,23 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use App\Models\Staff;
 
 class StaffSeeder extends Seeder
 {
     public function run()
     {
         $staff = [
-            ['name' => 'Alice Baker', 'email' => 'alice.baker@example.com', 'role' => 'baker'],
-            ['name' => 'Bob Driver', 'email' => 'bob.driver@example.com', 'role' => 'driver'],
-            ['name' => 'Charlie Loader', 'email' => 'charlie.loader@example.com', 'role' => 'loader'],
-            ['name' => 'Diana Manager', 'email' => 'diana.manager@example.com', 'role' => 'manager'],
-            ['name' => 'Eve Staff', 'email' => 'eve.staff@example.com', 'role' => 'staff'],
+            ['name' => 'Alice Baker', 'role' => 'baker', 'status' => 'Present'],
+            ['name' => 'Bob Driver', 'role' => 'driver', 'status' => 'Present'],
+            ['name' => 'Charlie Loader', 'role' => 'loader', 'status' => 'Absent'],
+            ['name' => 'Diana Manager', 'role' => 'manager', 'status' => 'Present'],
+            ['name' => 'Eve Staff', 'role' => 'staff', 'status' => 'Absent'],
         ];
         foreach ($staff as $s) {
-            User::updateOrCreate(
-                ['email' => $s['email']],
-                [
-                    'name' => $s['name'],
-                    'role' => $s['role'],
-                    'password' => Hash::make('password'),
-                ]
+            Staff::updateOrCreate(
+                ['name' => $s['name'], 'role' => $s['role']],
+                ['status' => $s['status']]
             );
         }
     }

@@ -64,4 +64,17 @@ class ProductionController extends Controller
 
         return redirect()->route('bakery.batches.index')->with('success', 'Production batch created successfully.');
     }
+
+    // Add this method for production trends API
+    public function trends()
+    {
+        $trends = \App\Models\ProductionBatch::selectRaw('DATE(actual_end) as date, SUM(quantity) as total_output')
+            ->whereNotNull('actual_end')
+            ->where('status', 'completed')
+            ->groupBy('date')
+            ->orderBy('date', 'asc')
+            ->get();
+
+        return response()->json($trends);
+    }
 }

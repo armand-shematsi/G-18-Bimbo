@@ -181,6 +181,56 @@
                 document.querySelector('.downtime-today').textContent = data.downtime ?? '0';
             });
     }
+    // --- Production Trends Chart ---
+    function fetchProductionTrends() {
+        fetch('/api/production-trends')
+            .then(res => res.json())
+            .then(data => {
+                const labels = data.map(item => item.date);
+                const values = data.map(item => item.total_output);
+                const ctx = document.getElementById('productionTrendsChart').getContext('2d');
+                if (window.productionTrendsChart) window.productionTrendsChart.destroy();
+                window.productionTrendsChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Total Output',
+                            data: values,
+                            borderColor: '#6366f1',
+                            backgroundColor: 'rgba(99,102,241,0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#6366f1'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Date'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Output'
+                                },
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            });
+    }
     // --- Live Recent Batches Table ---
     function fetchRecentBatchesLive() {
         fetch('/api/production-live')
@@ -217,37 +267,6 @@
                     </tr>`;
                     });
                 }
-            });
-    }
-    // --- Live Production Trends Chart ---
-    function fetchProductionTrendsLive() {
-        fetch('/api/production-live')
-            .then(res => res.json())
-            .then(data => {
-                const ctx = document.getElementById('productionTrendsChart').getContext('2d');
-                if (window.productionTrendsChart) window.productionTrendsChart.destroy();
-                window.productionTrendsChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: data.trend_labels,
-                        datasets: [{
-                            label: 'Output',
-                            data: data.trends,
-                            backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                            borderColor: '#3b82f6',
-                            borderWidth: 2,
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        }
-                    }
-                });
             });
     }
     // --- Live Machine Alerts ---
@@ -307,7 +326,7 @@
     // --- Initial fetch and polling ---
     fetchProductionStatsLive();
     fetchRecentBatchesLive();
-    fetchProductionTrendsLive();
+    fetchProductionTrends();
     fetchMachineAlertsLive();
     fetchProductionActivityLive();
     // setInterval(fetchProductionStatsLive, 60000); // polling disabled

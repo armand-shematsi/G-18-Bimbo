@@ -199,7 +199,7 @@ class WorkforceController extends Controller
 
     public function overview(Request $request)
     {
-        return view('workforce.overview');
+        return view('workforce.distribution-overview');
     }
 
     /**
