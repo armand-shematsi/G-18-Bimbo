@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->string('fulfillment_type')->nullable();
-            $table->string('tracking_number')->nullable();
-            $table->string('delivery_option')->nullable();
+            // $table->string('fulfillment_type')->nullable();
+            // $table->string('tracking_number')->nullable();
+            // $table->string('delivery_option')->nullable();
         });
     }
 
@@ -24,7 +24,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn(['fulfillment_type', 'tracking_number', 'delivery_option']);
+            // $table->dropColumn(['fulfillment_type', 'tracking_number', 'delivery_option']);
         });
     }
 };

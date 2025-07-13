@@ -7,13 +7,13 @@ return new class extends Migration {
     public function up()
     {
         Schema::table('supply_centers', function (Blueprint $table) {
-            $table->string('required_role')->nullable()->after('location');
+            // $table->string('required_role')->nullable()->after('location');
         });
     }
     public function down()
     {
         Schema::table('supply_centers', function (Blueprint $table) {
-            $table->dropColumn('required_role');
+            // $table->dropColumn('required_role');
         });
     }
 }; 

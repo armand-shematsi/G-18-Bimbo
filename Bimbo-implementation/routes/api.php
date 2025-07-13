@@ -31,6 +31,7 @@ Route::get('/production-lines', [App\Http\Controllers\ProductionLineController::
 Route::get('/production-live', [App\Http\Controllers\DashboardController::class, 'productionLive']);
 Route::get('/machines-live', [App\Http\Controllers\DashboardController::class, 'machinesLive']);
 Route::get('/production-activity', [App\Http\Controllers\DashboardController::class, 'notificationsLive']);
+Route::get('/production-trends', [\App\Http\Controllers\Bakery\ProductionController::class, 'trends']);
 Route::get('/batches/{batch}/shifts', function ($batchId) {
     $batch = \App\Models\ProductionBatch::with(['shifts.user'])->findOrFail($batchId);
     return response()->json(
@@ -45,3 +46,8 @@ Route::get('/batches/{batch}/shifts', function ($batchId) {
         })
     );
 });
+
+// Add API resource routes for workforce management
+Route::apiResource('staff', App\Http\Controllers\Api\StaffController::class);
+Route::apiResource('supply-centers', App\Http\Controllers\Api\SupplyCenterController::class);
+Route::apiResource('assignments', App\Http\Controllers\Api\AssignmentController::class);
