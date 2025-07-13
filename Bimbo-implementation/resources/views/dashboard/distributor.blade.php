@@ -109,4 +109,7 @@
             </a>
         </div>
     </div>
+
+    <!-- Product Gallery -->
+    @include('components.product-gallery')
 @endsection 

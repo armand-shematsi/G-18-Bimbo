@@ -511,3 +511,6 @@
     fetchStaffOnDuty();
 </script>
 @endpush
+
+<!-- Product Gallery -->
+@include('components.product-gallery')

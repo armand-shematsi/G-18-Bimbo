@@ -13,36 +13,80 @@ class CartController extends Controller
 {
     public function index()
     {
-        // Implement the logic to display the cart page
+        $cart = Session::get('cart', []);
+        $total = collect($cart)->sum('total_price');
+        return view('retail.cart.index', compact('cart', 'total'));
     }
 
     public function store(Request $request)
     {
         $cart = Session::get('cart', []);
-        $item = $request->only(['product_id', 'product_name', 'quantity', 'unit_price']);
-        $inventory = Inventory::where('id', $item['product_id'])->first();
-        if (!$inventory || $inventory->quantity < $item['quantity']) {
+        $inventoryId = $request->input('inventory_id');
+        $quantity = $request->input('quantity');
+
+        // Fetch inventory and product
+        $inventory = \App\Models\Inventory::where('id', $inventoryId)->first();
+        if (!$inventory || $inventory->quantity < $quantity) {
             return redirect()->back()->with('error', 'Product is out of stock or insufficient quantity.');
         }
-        $item['total_price'] = $item['quantity'] * $item['unit_price'];
+
+        // Fetch product price
+        $product = \App\Models\Product::where('name', $inventory->item_name)->first();
+        if (!$product) {
+            return redirect()->back()->with('error', 'Product not found.');
+        }
+
+        $item = [
+            'product_id' => $product->id,
+            'product_name' => $inventory->item_name,
+            'quantity' => $quantity,
+            'unit_price' => $product->price,
+            'total_price' => $quantity * $product->price,
+        ];
+
         $cart[] = $item;
         Session::put('cart', $cart);
+
         return redirect()->route('retail.cart.index')->with('success', 'Item added to cart!');
     }
 
     public function update(Request $request, $id)
     {
-        // Implement the logic to update an item in the cart
+        $cart = Session::get('cart', []);
+        
+        if (isset($cart[$id])) {
+            $cart[$id]['quantity'] = $request->quantity;
+            $cart[$id]['total_price'] = $cart[$id]['quantity'] * $cart[$id]['unit_price'];
+            Session::put('cart', $cart);
+            return redirect()->route('retail.cart.index')->with('success', 'Cart updated successfully!');
+        }
+        
+        return redirect()->route('retail.cart.index')->with('error', 'Item not found in cart!');
     }
 
     public function destroy($id)
     {
-        // Implement the logic to remove an item from the cart
+        $cart = Session::get('cart', []);
+        
+        if (isset($cart[$id])) {
+            unset($cart[$id]);
+            Session::put('cart', $cart);
+            return redirect()->route('retail.cart.index')->with('success', 'Item removed from cart!');
+        }
+        
+        return redirect()->route('retail.cart.index')->with('error', 'Item not found in cart!');
     }
 
     public function checkout(Request $request)
     {
-        // Implement the logic to display the checkout page
+        $cart = Session::get('cart', []);
+        
+        if (empty($cart)) {
+            return redirect()->route('retail.cart.index')->with('error', 'Cart is empty!');
+        }
+        
+        $total = collect($cart)->sum('total_price');
+        return view('retail.cart.checkout', compact('cart', 'total'));
     }
 
     public function placeOrder(Request $request)

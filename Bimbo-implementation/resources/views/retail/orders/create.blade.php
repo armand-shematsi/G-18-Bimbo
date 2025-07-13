@@ -116,7 +116,7 @@
                         <select name="items[0][product_id]" class="product-select mt-1 block w-full rounded-lg border-2 border-green-700 shadow-sm focus:border-green-900 focus:ring-2 focus:ring-green-700 bg-green-100 text-green-900 font-semibold transition-all duration-150" required data-row="order-item-row-0">
                             <option value="">Select a product</option>
                             @foreach($products as $product)
-                                <option value="{{ $product->id }}" data-name="{{ $product->name }}" data-price="{{ $product->unit_price ?? '' }}">{{ $product->name }}</option>
+                                <option value="{{ $product->id }}" data-inventory-id="{{ $product->inventory_id }}" data-name="{{ $product->name }}" data-price="{{ $product->unit_price ?? '' }}">{{ $product->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -136,6 +136,7 @@
                         <label class="block text-base font-bold text-green-800">Unit Price</label>
                         <input type="number" name="items[0][unit_price]" class="unit-price mt-1 block w-full rounded-lg border-2 border-green-700 shadow-sm focus:border-green-900 focus:ring-2 focus:ring-green-700 bg-green-100 text-green-900 font-semibold transition-all duration-150" step="0.01" readonly required />
                     </div>
+                    <input type="hidden" name="items[0][inventory_id]" class="inventory-id" value="">
                 </div>
             </div>
             <button type="button" onclick="addOrderItem()" class="text-green-800 hover:text-green-900 font-bold transition flex items-center gap-2 mt-2">
@@ -204,13 +205,13 @@
     const productOptions = `
         <option value="">Select a product</option>
         @foreach($products as $product)
-            <option value="{{ $product->id }}" data-name="{{ $product->name }}" data-price="{{ $product->unit_price ?? '' }}">{{ $product->name }}</option>
+            <option value="{{ $product->id }}" data-inventory-id="{{ $product->inventory_id }}" data-name="{{ $product->name }}" data-price="{{ $product->unit_price ?? '' }}">{{ $product->name }}</option>
         @endforeach
     `;
     function addOrderItem() {
         const rowId = `order-item-row-${itemCount}`;
         const template = `
-            <div class=\"grid grid-cols-1 md:grid-cols-5 gap-4 mt-4\" id=\"${rowId}\">\n                <div>\n                    <label class=\"block text-sm font-medium text-gray-700\">Product</label>\n                    <select name=\"items[${itemCount}][product_id]\" class=\"product-select mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary\" required data-row=\"${rowId}\">${productOptions}</select>\n                </div>\n                <div>\n                    <label class=\"block text-sm font-medium text-gray-700\">Quantity</label>\n                    <input type=\"number\" name=\"items[${itemCount}][quantity]\" min=\"1\" class=\"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary\" required>\n                </div>\n                <div>\n                    <label class=\"block text-sm font-medium text-gray-700\">Notes</label>\n                    <input type=\"text\" name=\"items[${itemCount}][notes]\" class=\"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary\">\n                </div>\n                <div>\n                    <label class=\"block text-sm font-medium text-gray-700\">Product Name</label>\n                    <input type=\"text\" name=\"items[${itemCount}][product_name]\" class=\"product-name mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary\" readonly required>\n                </div>\n                <div>\n                    <label class=\"block text-sm font-medium text-gray-700\">Unit Price</label>\n                    <input type=\"number\" name=\"items[${itemCount}][unit_price]\" class=\"unit-price mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary\" step=\"0.01\" readonly required>\n                </div>\n            </div>\n        `;
+            <div class=\"grid grid-cols-1 md:grid-cols-5 gap-4 mt-4\" id=\"${rowId}\">\n                <div>\n                    <label class=\"block text-sm font-medium text-gray-700\">Product</label>\n                    <select name=\"items[${itemCount}][product_id]\" class=\"product-select mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary\" required data-row=\"${rowId}\">${productOptions}</select>\n                </div>\n                <div>\n                    <label class=\"block text-sm font-medium text-gray-700\">Quantity</label>\n                    <input type=\"number\" name=\"items[${itemCount}][quantity]\" min=\"1\" class=\"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary\" required>\n                </div>\n                <div>\n                    <label class=\"block text-sm font-medium text-gray-700\">Notes</label>\n                    <input type=\"text\" name=\"items[${itemCount}][notes]\" class=\"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary\">\n                </div>\n                <div>\n                    <label class=\"block text-sm font-medium text-gray-700\">Product Name</label>\n                    <input type=\"text\" name=\"items[${itemCount}][product_name]\" class=\"product-name mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary\" readonly required>\n                </div>\n                <div>\n                    <label class=\"block text-sm font-medium text-gray-700\">Unit Price</label>\n                    <input type=\"number\" name=\"items[${itemCount}][unit_price]\" class=\"unit-price mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary\" step=\"0.01\" readonly required>\n                </div>\n                <input type=\"hidden\" name=\"items[${itemCount}][inventory_id]\" class=\"inventory-id\" value=\"\">\n            </div>\n        `;
         document.getElementById('order-items').insertAdjacentHTML('beforeend', template);
         itemCount++;
     }
@@ -221,14 +222,17 @@
             const selected = e.target.options[e.target.selectedIndex];
             const name = selected.getAttribute('data-name') || '';
             const price = selected.getAttribute('data-price') || '';
+            const inventoryId = selected.getAttribute('data-inventory-id') || '';
             const rowId = e.target.getAttribute('data-row');
             if (rowId) {
                 const row = document.getElementById(rowId);
                 if (row) {
                     const nameInput = row.querySelector('.product-name');
                     const priceInput = row.querySelector('.unit-price');
+                    const inventoryIdInput = row.querySelector('.inventory-id');
                     if (nameInput) nameInput.value = name;
                     if (priceInput) priceInput.value = price;
+                    if (inventoryIdInput) inventoryIdInput.value = inventoryId;
                 }
             }
         }

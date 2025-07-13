@@ -231,4 +231,7 @@
     <!-- Footer -->
     <div class="mt-16 text-center text-gray-400 text-xs">Thank you for being a valued customer! &mdash; The Bimbo Team</div>
 </div>
+
+<!-- Product Gallery -->
+@include('components.product-gallery')
 @endsection

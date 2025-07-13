@@ -28,7 +28,11 @@ class OrderController extends Controller
     // Show order creation form
     public function create()
     {
-        $products = Product::all();
+        $products = Product::all()->map(function($product) {
+            $inventory = \App\Models\Inventory::where('item_name', $product->name)->first();
+            $product->inventory_id = $inventory ? $inventory->id : null;
+            return $product;
+        });
         return view('retail.orders.create', compact('products'));
     }
 
@@ -55,10 +59,20 @@ class OrderController extends Controller
             'tracking_number' => $request->tracking_number,
             'delivery_option' => $request->delivery_option,
         ]);
-        // Create order items
+        // Create order items and update inventory
         if ($request->has('items')) {
             foreach ($request->items as $item) {
                 $item['total_price'] = $item['quantity'] * $item['unit_price'];
+                // Inventory check and deduction
+                if (isset($item['inventory_id'])) {
+                    $inventory = \App\Models\Inventory::find($item['inventory_id']);
+                    if ($inventory && $inventory->quantity >= $item['quantity']) {
+                        $inventory->quantity -= $item['quantity'];
+                        $inventory->save();
+                    } else {
+                        return redirect()->back()->withErrors(['items' => 'Insufficient inventory for ' . ($item['product_name'] ?? 'product')])->withInput();
+                    }
+                }
                 $order->items()->create($item);
             }
         }

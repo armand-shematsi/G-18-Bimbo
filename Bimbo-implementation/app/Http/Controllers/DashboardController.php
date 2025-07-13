@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Product;
 
 class DashboardController extends Controller
 {
@@ -33,7 +34,8 @@ class DashboardController extends Controller
                     'recentOrders'
                 ));
             case 'supplier':
-                return view('dashboard.supplier');
+                $products = \App\Models\Product::all();
+                return view('dashboard.supplier', compact('products'));
             case 'bakery_manager':
                 // Fetch all new or assigned orders (pending or processing)
                 $orders = \App\Models\Order::whereIn('status', ['pending', 'processing'])->orderBy('created_at', 'desc')->get();
@@ -50,41 +52,14 @@ class DashboardController extends Controller
                 $productionTarget = optional(\App\Models\Setting::where('key', 'production_target')->first())->value;
                 // Sum today's output from production batches
                 $todaysOutput = \App\Models\ProductionBatch::whereDate('scheduled_start', now()->toDateString())->sum('quantity');
-                return view('dashboard.bakery-manager', compact('orders', 'staff', 'supplyCenters', 'activeStaffCount', 'productionTarget', 'todaysOutput'));
+                $products = \App\Models\Product::all();
+                return view('dashboard.bakery-manager', compact('orders', 'staff', 'supplyCenters', 'activeStaffCount', 'productionTarget', 'todaysOutput', 'products'));
             case 'distributor':
-                return view('dashboard.distributor');
+                $products = \App\Models\Product::all();
+                return view('dashboard.distributor', compact('products'));
             case 'retail_manager':
-                $supplierInventory = \App\Models\Inventory::whereHas('user', function ($query) {
-                    $query->where('role', 'supplier');
-                })->get();
-
-                $lowStockItems = $supplierInventory->filter(function ($item) {
-                    return $item->needsReorder();
-                });
-
-                // Compute order analytics for the last 7 days
-                $orderDays = [];
-                $orderCounts = [];
-                $userId = $user->id;
-                for ($i = 6; $i >= 0; $i--) {
-                    $date = now()->subDays($i)->toDateString();
-                    $orderDays[] = $date;
-                    $orderCounts[] = \App\Models\Order::where('user_id', $userId)
-                        ->whereDate('created_at', $date)
-                        ->count();
-                }
-
-                // Compute order status breakdown for this user
-                $statuses = ['pending', 'processing', 'shipped', 'completed', 'cancelled'];
-                $statusCounts = [];
-                foreach ($statuses as $status) {
-                    $statusCounts[$status] = \App\Models\Order::where('user_id', $userId)
-                        ->where('status', $status)
-                        ->count();
-                }
-
-                return view('dashboard.retail-manager', compact('supplierInventory', 'lowStockItems', 'orderDays', 'orderCounts', 'statusCounts'));
-                                    case 'customer':
+                return redirect()->route('retail.dashboard');
+            case 'customer':
                 // Get recent orders for the customer
                 try {
                     $recentOrders = \App\Models\Order::where('user_id', $user->id)
@@ -108,7 +83,8 @@ class DashboardController extends Controller
                     $recentMessages = collect([]);
                 }
 
-                return view('dashboard.customer', compact('recentOrders', 'recentMessages'));
+                $products = \App\Models\Product::all();
+                return view('dashboard.customer', compact('recentOrders', 'recentMessages', 'products'));
             default:
                 // Log out the user and redirect to login with error message
                 Auth::logout();

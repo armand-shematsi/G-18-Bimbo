@@ -6,9 +6,10 @@
         <h1 class="text-3xl font-bold text-gray-900">Supplier Dashboard</h1>
         <p class="mt-1 text-sm text-gray-600">Welcome back, {{ auth()->user()->name }}! Here's your business overview.</p>
     </div>
-    <div class="text-right">
+    <div class="text-right space-y-2">
         <p class="text-sm text-gray-500">Last updated</p>
         <p class="text-sm font-medium text-gray-900">{{ now()->format('M d, Y H:i') }}</p>
+        <a href="{{ route('supplier.raw-materials.catalog') }}" class="inline-block mt-2 bg-gradient-to-r from-green-500 to-blue-600 hover:from-blue-600 hover:to-green-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg text-lg transition-all">Order Raw Materials</a>
     </div>
 </div>
 @endsection
@@ -338,28 +339,31 @@ $pendingOrders = Order::where('vendor_id', auth()->id())->where('status', 'pendi
                 </div>
             @endif
             @foreach(\App\Models\Order::where('vendor_id', 1)->orderBy('created_at', 'desc')->get() as $order)
-            <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $order->items->first()->product->name ?? '-' }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $order->items->first()->quantity ?? '-' }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm {{ $order->status === 'shipped' ? 'text-green-700 font-bold' : ($order->status === 'delivered' ? 'text-blue-700 font-bold' : 'text-yellow-700 font-bold') }}">{{ ucfirst($order->status) }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->created_at->format('M d, Y H:i') }}</td>
-                <td>
-                    <form method="POST" action="{{ route('supplier.orders.updateStatus', $order) }}">
-                        @csrf
-                        @method('PATCH')
-                        <select name="status" class="border rounded px-2 py-1 text-xs">
-                            <option value="pending" @if($order->status == 'pending') selected @endif>Pending</option>
-                            <option value="processing" @if($order->status == 'processing') selected @endif>Processing</option>
-                            <option value="shipped" @if($order->status == 'shipped') selected @endif>Shipped</option>
-                            <option value="delivered" @if($order->status == 'delivered') selected @endif>Delivered</option>
-                            <option value="cancelled" @if($order->status == 'cancelled') selected @endif>Cancelled</option>
-                        </select>
-                        <button type="submit" class="ml-2 bg-blue-500 text-white px-2 py-1 rounded text-xs">Update</button>
-                    </form>
-                </td>
-            </tr>
+                @if($order->items->count() > 0)
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $order->items->first()->product_name }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $order->items->first()->quantity }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm {{ $order->status === 'shipped' ? 'text-green-700 font-bold' : ($order->status === 'delivered' ? 'text-blue-700 font-bold' : 'text-yellow-700 font-bold') }}">{{ ucfirst($order->status) }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->created_at->format('M d, Y H:i') }}</td>
+                    <td>
+                        <form method="POST" action="{{ route('supplier.orders.updateStatus', $order) }}">
+                            @csrf
+                            @method('PATCH')
+                            <select name="status" class="border rounded px-2 py-1 text-xs">
+                                <option value="pending" @if($order->status == 'pending') selected @endif>Pending</option>
+                                <option value="processing" @if($order->status == 'processing') selected @endif>Processing</option>
+                                <option value="shipped" @if($order->status == 'shipped') selected @endif>Shipped</option>
+                                <option value="delivered" @if($order->status == 'delivered') selected @endif>Delivered</option>
+                                <option value="cancelled" @if($order->status == 'cancelled') selected @endif>Cancelled</option>
+                            </select>
+                            <button type="submit" class="ml-2 bg-blue-500 text-white px-2 py-1 rounded text-xs">Update</button>
+                        </form>
+                    </td>
+                </tr>
+                @endif
             @endforeach
         </tbody>
     </table>
 </div>
+
 @endsection

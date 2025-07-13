@@ -63,7 +63,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Orders routes
         Route::get('/orders', [App\Http\Controllers\Supplier\OrderController::class, 'index'])->name('orders.index');
-        Route::get('/orders/new', [App\Http\Controllers\Supplier\OrderController::class, 'create'])->name('orders.new');
+        Route::get('/orders/new', [App\Http\Controllers\Supplier\OrderController::class, 'create'])->name('orders.create');
         Route::post('/orders', [App\Http\Controllers\Supplier\OrderController::class, 'store'])->name('orders.store');
         Route::get('/orders/{order}', [App\Http\Controllers\Supplier\OrderController::class, 'show'])->name('orders.show');
         Route::patch('/orders/{order}/status', [App\Http\Controllers\Supplier\OrderController::class, 'updateStatus'])->name('orders.updateStatus');
@@ -185,7 +185,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/payments/{payment}/confirm', [App\Http\Controllers\Retail\PaymentController::class, 'confirm'])->name('payments.confirm');
         Route::post('/payments/{payment}/refund', [App\Http\Controllers\Retail\PaymentController::class, 'refund'])->name('payments.refund');
 
-        Route::get('/dashboard', [App\Http\Controllers\Retail\DashboardController::class, 'index'])->name('dashboard.retail');
+        Route::get('/dashboard', [App\Http\Controllers\Retail\DashboardController::class, 'index'])->name('dashboard');
 
         Route::post('/orders/{order}/return', [\App\Http\Controllers\OrderReturnController::class, 'store'])->name('orders.return');
         Route::get('/returns', [\App\Http\Controllers\OrderReturnController::class, 'index'])->name('returns.index');
@@ -194,6 +194,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/support', [\App\Http\Controllers\SupportRequestController::class, 'store'])->name('support.store');
         Route::get('/support', [\App\Http\Controllers\SupportRequestController::class, 'index'])->name('support.index');
         Route::get('/support/{id}', [\App\Http\Controllers\SupportRequestController::class, 'show'])->name('support.show');
+
+        // Retail Bread Product Listing
+        Route::get('/products', [App\Http\Controllers\Retail\ProductController::class, 'index'])->name('retail.products.index');
+        
+        // Cart routes
+        Route::get('/cart', [App\Http\Controllers\Retail\CartController::class, 'index'])->name('cart.index');
+        Route::post('/cart/add', [App\Http\Controllers\Retail\CartController::class, 'store'])->name('cart.add');
+        Route::put('/cart/{id}', [App\Http\Controllers\Retail\CartController::class, 'update'])->name('cart.update');
+        Route::delete('/cart/{id}', [App\Http\Controllers\Retail\CartController::class, 'destroy'])->name('cart.destroy');
+        Route::post('/cart/checkout', [App\Http\Controllers\Retail\CartController::class, 'checkout'])->name('cart.checkout');
+        Route::post('/cart/place-order', [App\Http\Controllers\Retail\CartController::class, 'placeOrder'])->name('cart.place-order');
     });
 
     // Distributor Routes
@@ -250,6 +261,15 @@ Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier
     Route::get('/chat', [App\Http\Controllers\Supplier\ChatController::class, 'index'])->name('chat.index');
     Route::post('/chat/send', [App\Http\Controllers\Supplier\ChatController::class, 'send'])->name('chat.send');
     Route::get('/chat/messages', [App\Http\Controllers\Supplier\ChatController::class, 'getMessages'])->name('chat.get-messages');
+});
+
+// Supplier Raw Material Ordering
+Route::middleware(['auth', 'role:supplier'])->prefix('supplier/raw-materials')->name('supplier.raw-materials.')->group(function () {
+    Route::get('catalog', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'catalog'])->name('catalog');
+    Route::post('add-to-cart', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'addToCart'])->name('addToCart');
+    Route::get('cart', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'cart'])->name('cart');
+    Route::post('remove-from-cart/{index}', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'removeFromCart'])->name('removeFromCart');
+    Route::post('checkout', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'checkout'])->name('checkout');
 });
 
 require __DIR__ . '/auth.php';
