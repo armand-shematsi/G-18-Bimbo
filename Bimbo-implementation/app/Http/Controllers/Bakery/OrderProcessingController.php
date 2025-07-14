@@ -75,12 +75,31 @@ class OrderProcessingController extends Controller
     // AJAX: Mark a retailer order as received
     public function receiveRetailerOrder($id)
     {
-        $order = RetailerOrder::findOrFail($id);
+        $order = \App\Models\RetailerOrder::with('items')->findOrFail($id);
         $order->status = 'received';
         $order->save();
+
+        foreach ($order->items as $item) {
+            $inventory = \App\Models\Inventory::where('product_id', $item->product_id)
+                ->orWhere('item_name', 'like', '%' . $item->item_name . '%')
+                ->first();
+
+            if ($inventory && $inventory->quantity >= $item->quantity) {
+                $inventory->quantity -= $item->quantity;
+                $inventory->save();
+
+                $inventory->movements()->create([
+                    'quantity' => $item->quantity,
+                    'type' => 'out',
+                    'note' => 'Retailer Order #' . $order->id . ' received',
+                    'user_id' => auth()->id(),
+                ]);
+            }
+        }
+
         // Notify the retailer
         if ($order->retailer) {
-            $order->retailer->notify(new RetailerOrderReceived($order));
+            $order->retailer->notify(new \App\Notifications\RetailerOrderReceived($order));
         }
         return response()->json(['success' => true, 'order' => $order]);
     }
