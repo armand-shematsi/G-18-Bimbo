@@ -63,7 +63,7 @@
                             </div>
                         </button>
 
-                        <div x-show="open" @click.away="open = false" class="absolute right-0 z-50 mt-2 w-48 rounded-md shadow-lg origin-top-right">
+                        <div x-show="open" @click.away="open = false" class="absolute right-0 z-50 mb-2 w-48 rounded-md shadow-lg origin-bottom-right bottom-full">
                             <div class="rounded-md ring-1 ring-black ring-opacity-5 py-1 bg-white">
                                 <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                     {{ __('Profile') }}

@@ -6,7 +6,7 @@
         <!-- Header -->
         <div class="mb-8">
             <div class="flex items-center">
-                <a href="{{ route('bakery.inventory.index') }}" class="text-blue-600 hover:text-blue-800 mr-4">
+                <a href="{{ route('bakery.bakery.inventory.index') }}" class="text-blue-600 hover:text-blue-800 mr-4">
                     <i class="fas fa-arrow-left"></i> Back to Inventory
                 </a>
                 <div>
@@ -154,7 +154,7 @@
 
                 <!-- Form Actions -->
                 <div class="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200">
-                    <a href="{{ route('bakery.inventory.index') }}"
+                    <a href="{{ route('bakery.bakery.inventory.index') }}"
                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                         Cancel
                     </a>
