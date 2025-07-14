@@ -11,6 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasColumn('inventories', 'unit_price')) {
+            return;
+        }
         Schema::table('inventories', function (Blueprint $table) {
             $table->decimal('unit_price', 10, 2)->default(0);
         });

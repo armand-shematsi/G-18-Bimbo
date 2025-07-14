@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkforceController;
 use App\Http\Controllers\OrderReturnController;
 use App\Http\Controllers\SupportRequestController;
+// use App\Http\Controllers\Bakery\InventoryController;
 
 
 Route::get('/', function () {
@@ -197,7 +198,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Retail Bread Product Listing
         Route::get('/products', [App\Http\Controllers\Retail\ProductController::class, 'index'])->name('retail.products.index');
-        
+
         // Cart routes
         Route::get('/cart', [App\Http\Controllers\Retail\CartController::class, 'index'])->name('cart.index');
         Route::post('/cart/add', [App\Http\Controllers\Retail\CartController::class, 'store'])->name('cart.add');
@@ -304,3 +305,32 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/reports/downloads', [\App\Http\Controllers\ReportDownloadController::class, 'index'])->name('reports.downloads');
 });
+
+// Add this route for auto-assign
+Route::post('/bakery/workforce/auto-assign', [WorkforceController::class, 'autoAssignStaff'])->name('bakery.workforce.auto-assign');
+
+// Add this route for bakery stats live
+Route::get('/bakery/stats-live', [DashboardController::class, 'statsLive'])->name('bakery.bakery.stats-live');
+
+// Add this route for bakery inventory index
+Route::get('/bakery/inventory', [\App\Http\Controllers\Bakery\InventoryController::class, 'index'])->name('bakery.inventory.index');
+// Add this route for bakery inventory create
+Route::get('/bakery/inventory/create', [\App\Http\Controllers\Bakery\InventoryController::class, 'create'])->name('bakery.inventory.create');
+// Add this route for bakery inventory show
+Route::get('/bakery/inventory/{inventory}', [\App\Http\Controllers\Bakery\InventoryController::class, 'show'])->name('bakery.inventory.show');
+// Add this route for bakery inventory edit
+Route::get('/bakery/inventory/{inventory}/edit', [\App\Http\Controllers\Bakery\InventoryController::class, 'edit'])->name('bakery.inventory.edit');
+// Add this route for bakery inventory destroy
+Route::delete('/bakery/inventory/{id}', [\App\Http\Controllers\Bakery\InventoryController::class, 'destroy'])->name('bakery.inventory.destroy');
+
+// Add this route for bakery inventory update stock
+Route::post('/bakery/inventory/{inventory}/update-stock', [\App\Http\Controllers\Bakery\InventoryController::class, 'updateStock'])->name('bakery.inventory.update-stock');
+
+// Add this route for bakery inventory chart data
+Route::get('/bakery/inventory/{inventory}/chart-data', [\App\Http\Controllers\Bakery\InventoryController::class, 'chartData'])->name('bakery.inventory.chart-data');
+
+// Add this route for bakery inventory live data
+Route::get('/bakery/inventory/{inventory}/live-data', [\App\Http\Controllers\Bakery\InventoryController::class, 'liveData'])->name('bakery.inventory.live-data');
+
+// Add this route for bakery inventory recent orders
+Route::get('/bakery/inventory/{inventory}/recent-orders', [\App\Http\Controllers\Bakery\InventoryController::class, 'recentOrders'])->name('bakery.inventory.recent-orders');
