@@ -29,9 +29,10 @@ Route::post('/attendance', [AttendanceController::class, 'update']);
 Route::get('/workforce-analytics', [App\Http\Controllers\ApiUserController::class, 'workforceAnalytics']);
 Route::get('/production-lines', [App\Http\Controllers\ProductionLineController::class, 'index']);
 Route::get('/production-live', [App\Http\Controllers\DashboardController::class, 'productionLive']);
-Route::get('/machines-live', [App\Http\Controllers\DashboardController::class, 'machinesLive']);
 Route::get('/production-activity', [App\Http\Controllers\DashboardController::class, 'notificationsLive']);
 Route::get('/production-trends', [\App\Http\Controllers\Bakery\ProductionController::class, 'trends']);
+Route::get('/production-batch-output-trends', [\App\Http\Controllers\Bakery\ProductionController::class, 'batchOutputTrends']);
+Route::get('/production-batch-output-trends-week', [\App\Http\Controllers\Bakery\ProductionController::class, 'batchOutputTrendsWeek']);
 Route::get('/batches/{batch}/shifts', function ($batchId) {
     $batch = \App\Models\ProductionBatch::with(['shifts.user'])->findOrFail($batchId);
     return response()->json(

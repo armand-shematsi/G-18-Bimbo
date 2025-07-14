@@ -308,22 +308,6 @@ class DashboardController extends Controller
     }
 
     /**
-     * API: Live machine data (status, alerts)
-     */
-    public function machinesLive()
-    {
-        return response()->json([
-            'machines' => [
-                ['name' => 'Oven 1', 'status' => 'Running'],
-                ['name' => 'Oven 2', 'status' => 'Maintenance'],
-            ],
-            'alerts' => [
-                'Oven 2 scheduled for maintenance at 15:00.'
-            ],
-        ]);
-    }
-
-    /**
      * API: Live ingredient data (stock, alerts)
      */
     public function ingredientsLive()

@@ -1,12 +1,15 @@
 @extends('layouts.bakery-manager')
 
 @section('header')
-<div class="flex justify-between items-center">
-    <div>
-        <h1 class="text-3xl font-bold text-gray-900">Bakery Manager Dashboard</h1>
-        <p class="mt-1 text-sm text-gray-600">Welcome back, {{ auth()->user()->name ?? 'Bakery Manager' }}! Here's your bakery overview.</p>
+<div class="flex flex-col md:flex-row justify-between items-center mb-6">
+    <div class="flex items-center gap-3">
+        <img src="/images/baguette.jpg" alt="Bakery Logo" class="w-12 h-12 rounded-full shadow-md border-2 border-sky-400 bg-white object-cover">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Bakery Manager Dashboard</h1>
+            <p class="mt-1 text-base text-gray-600 font-medium">Welcome, Bakery Manager!</p>
+        </div>
     </div>
-    <div class="text-right">
+    <div class="text-right mt-4 md:mt-0">
         <p class="text-sm text-gray-500">Last updated</p>
         <p class="text-sm font-medium text-gray-900">{{ now()->format('M d, Y H:i') }}</p>
     </div>
@@ -14,229 +17,203 @@
 @endsection
 
 @section('navigation-links')
-<a href="{{ route('bakery.production') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
+<a href="{{ route('bakery.production') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-sky-700 hover:border-sky-400 focus:outline-none focus:text-sky-700 focus:border-sky-400 transition">
     Production Monitoring
 </a>
-<a href="{{ route('bakery.schedule') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
+<a href="{{ route('bakery.schedule') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-sky-700 hover:border-sky-400 focus:outline-none focus:text-sky-700 focus:border-sky-400 transition">
     Workforce Schedule
 </a>
-<a href="{{ route('bakery.maintenance') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
+<a href="{{ route('bakery.maintenance') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-sky-700 hover:border-sky-400 focus:outline-none focus:text-sky-700 focus:border-sky-400 transition">
     Machine Maintenance
 </a>
 @endsection
 
 @section('content')
 <!-- Welcome Banner -->
-<div class="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 rounded-lg shadow-lg mb-8">
-    <div class="px-6 py-8">
-        <div class="flex items-center justify-between">
-            <div class="text-white">
-                <h2 class="text-2xl font-bold mb-2">Good {{ now()->hour < 12 ? 'Morning' : (now()->hour < 17 ? 'Afternoon' : 'Evening') }}, {{ auth()->user()->name ?? 'Bakery Manager' }}!</h2>
-                <p class="text-pink-100">Monitor production, manage workforce, and keep your bakery running smoothly</p>
-            </div>
-            <div class="hidden md:block">
-                <svg class="w-24 h-24 text-pink-200" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                </svg>
-            </div>
-        </div>
+<div class="bg-gradient-to-r from-sky-400 to-sky-200 rounded-2xl shadow-xl mb-10 overflow-hidden flex flex-col md:flex-row items-center justify-between px-8 py-10 relative">
+    <div class="text-white z-10">
+        <h2 class="text-3xl md:text-4xl font-extrabold mb-2 drop-shadow">Welcome, Bakery Manager!</h2>
+        <p class="text-lg text-sky-100 font-medium">Monitor production, manage workforce, and keep your bakery running smoothly.</p>
+    </div>
+    <div class="hidden md:block absolute right-8 top-1/2 -translate-y-1/2 opacity-30 z-0">
+        <svg class="w-40 h-40" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+        </svg>
     </div>
 </div>
 
 <!-- Statistics Cards -->
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-8 mb-12">
-    <!-- Today's Output -->
-    <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-blue-500 flex flex-col items-start">
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-6 mb-12">
+    <!-- Card Example: repeat for each stat -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 border-b-4 border-blue-400 flex flex-col items-start hover:shadow-2xl transition-shadow duration-200 group">
         <div class="flex items-center">
-            <div class="flex-shrink-0">
-                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                    </svg>
-                </div>
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
             </div>
             <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">Today's Output</p>
-                <p class="text-2xl font-bold text-gray-900 production-output">-</p>
+                <p class="text-sm font-semibold text-gray-600">Today's Output</p>
+                <p class="text-2xl font-extrabold text-gray-900 production-output">-</p>
                 <p class="text-xs text-gray-500">Loaves produced</p>
             </div>
         </div>
     </div>
-    <!-- Production Target -->
-    <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-green-500 flex flex-col items-start">
+    <div class="bg-white rounded-2xl shadow-lg p-6 border-b-4 border-green-400 flex flex-col items-start hover:shadow-2xl transition-shadow duration-200 group">
         <div class="flex items-center">
-            <div class="flex-shrink-0">
-                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                </div>
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
             </div>
             <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">Production Target</p>
-                <p class="text-2xl font-bold text-gray-900 production-target">-</p>
+                <p class="text-sm font-semibold text-gray-600">Production Target</p>
+                <p class="text-2xl font-extrabold text-gray-900 production-target">-</p>
                 <p class="text-xs text-gray-500">Target for today</p>
             </div>
         </div>
     </div>
-    <!-- Staff on Duty -->
-    <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-cyan-500 flex flex-col items-start">
+    <div class="bg-white rounded-2xl shadow-lg p-6 border-b-4 border-cyan-400 flex flex-col items-start hover:shadow-2xl transition-shadow duration-200 group">
         <div class="flex items-center">
-            <div class="flex-shrink-0">
-                <div class="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m9-7a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                </div>
+            <div class="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m9-7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
             </div>
             <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">Staff on Duty</p>
-                <p class="text-2xl font-bold text-gray-900 live-staff-on-duty">{{ $staffOnDuty ?? '-' }}</p>
+                <p class="text-sm font-semibold text-gray-600">Staff on Duty</p>
+                <p class="text-2xl font-extrabold text-gray-900 live-staff-on-duty">{{ $staffOnDuty ?? '-' }}</p>
                 <p class="text-xs text-gray-500">Currently present</p>
             </div>
         </div>
     </div>
-    <!-- Absence -->
-    <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-red-500 flex flex-col items-start">
+    <div class="bg-white rounded-2xl shadow-lg p-6 border-b-4 border-red-400 flex flex-col items-start hover:shadow-2xl transition-shadow duration-200 group">
         <div class="flex items-center">
-            <div class="flex-shrink-0">
-                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-1.414-1.414L12 9.172 7.05 4.222l-1.414 1.414L10.828 12l-5.192 5.192 1.414 1.414L12 14.828l4.95 4.95 1.414-1.414L13.172 12z" />
-                    </svg>
-                </div>
+            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-1.414-1.414L12 9.172 7.05 4.222l-1.414 1.414L10.828 12l-5.192 5.192 1.414 1.414L12 14.828l4.95 4.95 1.414-1.414L13.172 12z" />
+                </svg>
             </div>
             <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">Absence</p>
-                <p class="text-2xl font-bold text-gray-900 live-absent-count">{{ $absentCount ?? '-' }}</p>
+                <p class="text-sm font-semibold text-gray-600">Absence</p>
+                <p class="text-2xl font-extrabold text-gray-900 live-absent-count">{{ $absentCount ?? '-' }}</p>
                 <p class="text-xs text-gray-500">Staff absent today</p>
             </div>
         </div>
     </div>
-    <!-- Shift Filled -->
-    <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-emerald-500 flex flex-col items-start">
+    <div class="bg-white rounded-2xl shadow-lg p-6 border-b-4 border-emerald-400 flex flex-col items-start hover:shadow-2xl transition-shadow duration-200 group">
         <div class="flex items-center">
-            <div class="flex-shrink-0">
-                <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                </div>
+            <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
             </div>
             <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">Shift Filled</p>
-                <p class="text-2xl font-bold text-gray-900 live-shift-filled">{{ $shiftFilled ?? '-' }}</p>
+                <p class="text-sm font-semibold text-gray-600">Shift Filled</p>
+                <p class="text-2xl font-extrabold text-gray-900 live-shift-filled">{{ $shiftFilled ?? '-' }}</p>
                 <p class="text-xs text-gray-500">Shifts fully staffed</p>
             </div>
         </div>
     </div>
-    <!-- Overtime -->
-    <div class="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-orange-500 flex flex-col items-start">
+    <div class="bg-white rounded-2xl shadow-lg p-6 border-b-4 border-orange-400 flex flex-col items-start hover:shadow-2xl transition-shadow duration-200 group">
         <div class="flex items-center">
-            <div class="flex-shrink-0">
-                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
+            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
             </div>
             <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">Overtime</p>
-                <p class="text-2xl font-bold text-gray-900 live-overtime-count">{{ $overtimeCount ?? '-' }}</p>
+                <p class="text-sm font-semibold text-gray-600">Overtime</p>
+                <p class="text-2xl font-extrabold text-gray-900 live-overtime-count">{{ $overtimeCount ?? '-' }}</p>
                 <p class="text-xs text-gray-500">Staff in overtime</p>
             </div>
         </div>
     </div>
 </div>
-{{-- Cards are now more spaced and visually distinct --}}
-{{-- Backend: Supply $staffOnDuty, $absentCount, $shiftFilled, $overtimeCount to this view for live data --}}
 
 <!-- Main Content Grid -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <!-- Quick Actions & Alerts (1/3) -->
-    <div class="lg:col-span-1 space-y-8">
-        <div class="bg-white rounded-xl shadow-lg">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">Quick Actions</h3>
+<div class="flex flex-col lg:flex-row gap-8">
+    <!-- Main Content (left) -->
+    <div class="flex-1">
+        <!-- (Reserved for future bakery widgets, charts, or news) -->
+    </div>
+    <!-- Quick Actions (right) -->
+    <div class="w-full lg:w-1/3 xl:w-1/4 lg:self-start">
+        <div class="bg-white rounded-2xl shadow-xl">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="text-lg font-bold text-gray-900">Quick Actions</h3>
             </div>
             <div class="p-6 space-y-4">
-                <a href="{{ route('bakery.production') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full mb-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105">
+                <a href="{{ route('bakery.production') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full mb-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
                     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="font-medium">Start New Production</p>
+                        <p class="font-semibold">Start New Production</p>
                         <p class="text-xs text-blue-100">Start Batch</p>
                     </div>
                 </a>
-                <a href="{{ route('bakery.maintenance') }}" class="flex items-center p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg text-white w-full mb-2 hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 transform hover:scale-105">
+                <a href="{{ route('bakery.maintenance') }}" class="flex items-center p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg text-white w-full mb-2 hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 transform hover:scale-105 shadow-md">
                     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="font-medium">Maintain Machines</p>
+                        <p class="font-semibold">Maintain Machines</p>
                         <p class="text-xs text-yellow-100">Log Maintenance</p>
                     </div>
                 </a>
-                <a href="{{ route('bakery.order-processing') }}" class="flex items-center p-4 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg text-white w-full mb-2 hover:from-indigo-600 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105">
+                <a href="{{ route('bakery.order-processing') }}" class="flex items-center p-4 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg text-white w-full mb-2 hover:from-indigo-600 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-md">
                     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="font-medium">Order Processing</p>
+                        <p class="font-semibold">Order Processing</p>
                         <p class="text-xs text-indigo-100">Place/Receive Orders</p>
                     </div>
                 </a>
-                <a href="{{ route('workforce.overview') }}" class="flex items-center p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg text-white w-full mb-2 hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 transform hover:scale-105">
+                <a href="{{ route('workforce.overview') }}" class="flex items-center p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg text-white w-full mb-2 hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 transform hover:scale-105 shadow-md">
                     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="font-medium">Workforce Distribution</p>
+                        <p class="font-semibold">Workforce Distribution</p>
                         <p class="text-xs text-yellow-100">View & Manage Workforce</p>
                     </div>
                 </a>
             </div>
         </div>
-        <!-- Ingredient Alerts and Machine Alerts removed; assign to their respective dashboards -->
-    </div>
-
-    <!-- Reports Center -->
-    <div class="lg:col-span-2">
-        <div class="card my-4 shadow-sm" style="border: 2px solid #007bff; background: linear-gradient(90deg, #e3f2fd 0%, #fff 100%);">
-            <div class="card-body">
-                <h4 class="card-title mb-3" style="font-size: 2rem; font-weight: bold; color: #007bff;">
-                    <i class="fas fa-file-alt" style="font-size: 2.2rem; color: #007bff; vertical-align: middle;"></i>
-                    Reports Center
-                </h4>
-                <div class="d-flex flex-wrap gap-3">
-                    <a href="{{ route('reports.downloads') }}" class="btn btn-info btn-lg d-flex align-items-center" style="font-size: 1.3rem; font-weight: bold; background: #17a2b8; border: none; border-radius: 6px;">
-                        <i class="fas fa-eye mr-2" style="font-size: 2rem; color: #fff;"></i> View Your Reports
-                    </a>
-                </div>
-                <div class="d-flex flex-wrap gap-3 mt-3">
-                    <a href="{{ route('reports.downloads') }}" class="btn btn-success btn-lg d-flex align-items-center" style="font-size: 1.3rem; font-weight: bold; background: #28a745; border: none; border-radius: 6px;">
-                        <i class="fas fa-file-download mr-2" style="font-size: 2rem; color: #fff;"></i> Download Your Reports
-                    </a>
-                </div>
-                <p class="text-muted mt-3 mb-0" style="font-size: 1.1rem; font-weight: 500; color: #333 !important;">Access all your daily and weekly reports in one place.</p>
-            </div>
-        </div>
     </div>
 </div>
 
-<!-- Activity Timeline -->
-<div class="mt-8 bg-white rounded-xl shadow-lg">
-    <div class="px-6 py-4 border-b border-gray-200">
-        <h3 class="text-lg font-semibold text-gray-900">Recent Activity</h3>
+<!-- Reports Center at the bottom, centered -->
+<div class="flex justify-center mt-14 mb-10">
+    <div class="w-full max-w-2xl bg-gradient-to-r from-sky-100 to-white rounded-2xl shadow-xl border-2 border-sky-400 p-8">
+        <div class="flex items-center mb-4">
+            <svg class="w-10 h-10 text-sky-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 014-4h4m0 0V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2h6" />
+            </svg>
+            <h4 class="text-2xl font-extrabold text-sky-600">Reports Center</h4>
+        </div>
+        <div class="flex flex-col md:flex-row gap-4 mb-4">
+            <a href="{{ route('reports.downloads') }}" class="flex-1 btn btn-info btn-lg flex items-center justify-center font-bold text-lg py-3 rounded-lg bg-sky-500 hover:bg-sky-600 text-white shadow-md transition">View Your Reports</a>
+            <a href="{{ route('reports.downloads') }}" class="flex-1 btn btn-success btn-lg flex items-center justify-center font-bold text-lg py-3 rounded-lg bg-green-500 hover:bg-green-600 text-white shadow-md transition">Download Your Reports</a>
+        </div>
+        <p class="text-gray-700 text-base font-medium">Access all your daily and weekly reports in one place.</p>
+    </div>
+</div>
+
+<!-- Recent Activity Timeline -->
+<div class="mt-8 bg-white rounded-2xl shadow-xl">
+    <div class="px-6 py-4 border-b border-gray-100">
+        <h3 class="text-lg font-bold text-gray-900">Recent Activity</h3>
     </div>
     <div class="p-6">
         <div class="flow-root">
@@ -244,7 +221,7 @@
                 <li class="relative pb-8">
                     <div class="relative flex space-x-3">
                         <div>
-                            <span class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white">
+                            <span class="h-8 w-8 rounded-full bg-sky-400 flex items-center justify-center ring-8 ring-white">
                                 <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                 </svg>
@@ -265,7 +242,7 @@
     </div>
 </div>
 
-<!-- Assign Task Modal -->
+<!-- Assign Task Modal (unchanged) -->
 <div id="assignTaskModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
         <h3 class="text-lg font-semibold mb-4">Assign Task</h3>
@@ -357,24 +334,6 @@
                 });
             });
     }
-    // --- Live Machines ---
-    function fetchMachinesLive() {
-        fetch("{{ route('bakery.bakery.machines-live') }}")
-            .then(res => res.json())
-            .then(data => {
-                const machineList = document.querySelector('.machine-status-list');
-                machineList.innerHTML = '';
-                data.machines.forEach(m => {
-                    let color = m.status === 'Running' ? 'text-green-600' : (m.status === 'Maintenance' ? 'text-yellow-600' : 'text-red-600');
-                    machineList.innerHTML += `<li>${m.name}: <span class='${color}'>${m.status}</span></li>`;
-                });
-                const alertList = document.querySelector('.machine-alert-list');
-                alertList.innerHTML = '';
-                data.alerts.forEach(alert => {
-                    alertList.innerHTML += `<li>${alert}</li>`;
-                });
-            });
-    }
     // --- Live Ingredients ---
     function fetchIngredientsLive() {
         fetch("{{ route('bakery.bakery.ingredients-live') }}")
@@ -418,7 +377,6 @@
     function fetchAllLive() {
         fetchProductionLive();
         fetchWorkforceLive();
-        fetchMachinesLive();
         fetchIngredientsLive();
         fetchNotificationsLive();
         fetchChatLive();
