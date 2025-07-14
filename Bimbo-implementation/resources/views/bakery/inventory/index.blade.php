@@ -197,6 +197,7 @@
                                        class="text-blue-600 hover:text-blue-900">
                                         <i class="fas fa-eye"></i>
                                     </a>
+                                    @if($item)
                                     <a href="{{ route('bakery.inventory.edit', $item) }}"
                                        class="text-indigo-600 hover:text-indigo-900">
                                         <i class="fas fa-edit"></i>
@@ -211,6 +212,7 @@
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasColumn('inventories', 'unit_price')) {
-            return;
-        }
-        Schema::table('inventories', function (Blueprint $table) {
-            $table->decimal('unit_price', 10, 2)->default(0);
+        Schema::table('inventory_movements', function (Blueprint $table) {
+            $table->index('inventory_id');
+            $table->index('created_at');
         });
     }
 
@@ -24,8 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('inventories', function (Blueprint $table) {
-            $table->dropColumn('unit_price');
+        Schema::table('inventory_movements', function (Blueprint $table) {
+            $table->dropIndex(['inventory_id']);
+            $table->dropIndex(['created_at']);
         });
     }
 };

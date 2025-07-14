@@ -21,15 +21,22 @@ class RetailerOrderController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1',
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
         ]);
         $order = RetailerOrder::create([
             'retailer_id' => auth()->id(),
-            'product_id' => $validated['product_id'],
-            'quantity' => $validated['quantity'],
             'status' => 'pending',
         ]);
+        foreach ($validated['items'] as $item) {
+            $product = \App\Models\Product::find($item['product_id']);
+            $order->items()->create([
+                'product_id' => $item['product_id'],
+                'item_name' => $product ? $product->name : null,
+                'quantity' => $item['quantity'],
+            ]);
+        }
         return redirect()->back()->with('success', 'Order placed successfully!');
     }
 }
