@@ -16,7 +16,7 @@ class OrderController extends Controller
     public function create()
     {
         $products = Product::all()->map(function($product) {
-            $inventory = \App\Models\Inventory::where('item_name', $product->name)->first();
+            $inventory = \App\Models\Inventory::where('product_id', $product->id)->first();
             $product->available = $inventory ? $inventory->quantity : 0;
             $product->unit = $inventory ? $inventory->unit : '';
             $product->inventory_id = $inventory ? $inventory->id : null;

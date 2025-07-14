@@ -18,7 +18,8 @@ class AddUserIdToOrdersTable extends Migration
     public function down()
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn('user_id');
+            $table->dropForeign(['user_id']); // Drop the foreign key first
+            $table->dropColumn('user_id');    // Then drop the column
         });
     }
 }

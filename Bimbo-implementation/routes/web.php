@@ -258,6 +258,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/cart/{id}', [\App\Http\Controllers\Customer\CartController::class, 'destroy'])->name('cart.destroy');
         Route::get('/cart/checkout', [\App\Http\Controllers\Customer\CartController::class, 'checkout'])->name('cart.checkout');
         Route::post('/cart/place-order', [\App\Http\Controllers\Customer\CartController::class, 'placeOrder'])->name('cart.place-order');
+        Route::get('/products', [App\Http\Controllers\Customer\ProductController::class, 'index'])->name('products');
     });
 
     // Workforce Overview Route
