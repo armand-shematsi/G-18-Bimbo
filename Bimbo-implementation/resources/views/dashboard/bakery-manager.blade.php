@@ -84,6 +84,7 @@
                 <p class="text-sm font-semibold text-gray-600">Staff on Duty</p>
                 <p class="text-2xl font-extrabold text-gray-900 live-staff-on-duty">{{ $staffOnDuty ?? '-' }}</p>
                 <p class="text-xs text-gray-500">Currently present</p>
+                <button class="text-xs text-blue-500 hover:underline mt-1" onclick="openDistributionModal()">View Distribution</button>
             </div>
         </div>
     </div>
@@ -270,10 +271,22 @@
         </form>
     </div>
 </div>
+<!-- Workforce Distribution Modal -->
+<div id="distributionModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl relative">
+        <button onclick="closeDistributionModal()" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700">&times;</button>
+        <h3 class="text-lg font-semibold mb-4">Workforce Distribution (Live)</h3>
+        <div id="distributionContent">
+            <p class="text-gray-500 text-center">Loading...</p>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/js/datepicker-full.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/css/datepicker.min.css">
 <script>
     // --- Live Production Monitoring ---
     function fetchProductionLive() {
@@ -561,6 +574,38 @@
     }
     fetchStatsLive();
     setInterval(fetchStatsLive, 10000);
+
+    function openDistributionModal() {
+        document.getElementById('distributionModal').classList.remove('hidden');
+        fetch('/api/workforce-distribution')
+            .then(res => res.json())
+            .then(data => {
+                const content = document.getElementById('distributionContent');
+                if (!data.length) {
+                    content.innerHTML = '<p class="text-gray-500 text-center">No distribution data available.</p>';
+                    return;
+                }
+                let html = '<table class="min-w-full text-sm"><thead><tr><th class="px-4 py-2 text-left">Center</th><th class="px-4 py-2 text-left">Staff</th></tr></thead><tbody>';
+                data.forEach(center => {
+                    html += `<tr><td class='px-4 py-2 font-bold'>${center.name}</td><td class='px-4 py-2'>`;
+                    if (center.users && center.users.length) {
+                        html += center.users.map(u => `${u.name} (${u.role})`).join(', ');
+                    } else {
+                        html += '<span class="text-gray-400">None</span>';
+                    }
+                    html += '</td></tr>';
+                });
+                html += '</tbody></table>';
+                content.innerHTML = html;
+            })
+            .catch(() => {
+                document.getElementById('distributionContent').innerHTML = '<p class="text-red-500 text-center">Failed to load data.</p>';
+            });
+    }
+
+    function closeDistributionModal() {
+        document.getElementById('distributionModal').classList.add('hidden');
+    }
 </script>
 @endpush
 

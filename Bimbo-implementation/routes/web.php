@@ -73,7 +73,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/stockin', [App\Http\Controllers\Supplier\StockInController::class, 'index'])->name('stockin.index');
         Route::get('/stockin/create', [App\Http\Controllers\Supplier\StockInController::class, 'create'])->name('stockin.create');
         Route::post('/stockin', [App\Http\Controllers\Supplier\StockInController::class, 'store'])->name('stockin.store');
-        Route::post('/stockin/test', function () { dd('Form submitted!'); })->name('stockin.test');
+        Route::post('/stockin/test', function () {
+            dd('Form submitted!');
+        })->name('stockin.test');
 
         // Stockout routes
         Route::get('/stockout', [App\Http\Controllers\Supplier\StockOutController::class, 'index'])->name('stockout.index');
@@ -318,7 +320,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // Add this route for auto-assign
-Route::post('/bakery/workforce/auto-assign', [WorkforceController::class, 'autoAssignStaff'])->name('bakery.workforce.auto-assign');
+Route::post('/bakery/workforce/auto-assign', [WorkforceController::class, 'autoAssignStaff'])->middleware('throttle:300,1')->name('bakery.workforce.auto-assign');
 
 // Add this route for bakery stats live
 Route::get('/bakery/stats-live', [DashboardController::class, 'statsLive'])->name('bakery.bakery.stats-live');
