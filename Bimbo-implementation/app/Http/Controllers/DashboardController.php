@@ -69,8 +69,7 @@ class DashboardController extends Controller
                 $products = \App\Models\Product::all();
                 return view('dashboard.distributor', compact('products'));
             case 'retail_manager':
-                // Temporarily disabled to debug login issue
-                return view('dashboard.retail');
+                return redirect()->route('retail.dashboard');
                 /*
                 try {
                     $today = now()->startOfDay();

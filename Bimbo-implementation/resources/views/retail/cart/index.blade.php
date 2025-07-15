@@ -7,7 +7,7 @@
             <p class="mt-1 text-sm text-gray-600">Review your items and proceed to checkout</p>
         </div>
         <div class="text-right">
-            <a href="{{ route('retail.retail.products.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
+            <a href="{{ route('retail.products.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
@@ -91,7 +91,7 @@
                             <p class="text-sm text-gray-600">{{ count($cart) }} item(s)</p>
                         </div>
                         <div class="flex space-x-4">
-                            <a href="{{ route('retail.retail.products.index') }}" 
+                            <a href="{{ route('retail.products.index') }}" 
                                class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                 Continue Shopping
                             </a>
@@ -111,7 +111,7 @@
                 <h3 class="mt-2 text-sm font-medium text-gray-900">Your cart is empty</h3>
                 <p class="mt-1 text-sm text-gray-500">Start shopping to add items to your cart.</p>
                 <div class="mt-6">
-                    <a href="{{ route('retail.retail.products.index') }}" 
+                    <a href="{{ route('retail.products.index') }}" 
                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         Start Shopping
                     </a>

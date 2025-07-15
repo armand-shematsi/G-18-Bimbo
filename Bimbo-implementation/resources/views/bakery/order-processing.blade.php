@@ -65,8 +65,7 @@
 </div>
 <div class="max-w-7xl mx-auto py-8"
     data-supplier-order-route="{{ route('bakery.order-processing.supplier-order') }}"
-    data-retailer-orders-route="{{ route('bakery.order-processing.retailer-orders') }}"
-    data-receive-order-base-url="/bakery/order-processing/retailer-orders">
+    data-retailer-orders-route="{{ route('bakery.order-processing.retailer-orders') }}">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Place Order to Supplier -->
         <div class="bg-white rounded-xl shadow-lg p-6">
@@ -118,11 +117,21 @@
                             <td class='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>{{ $order->retailer && $order->retailer->name ? $order->retailer->name : '-' }}</td>
                             <td class='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>{{ $order->product }}</td>
                             <td class='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>{{ $order->quantity }}</td>
-                            <td class='px-6 py-4 whitespace-nowrap text-sm {{ $order->status === 'received' ? 'text-green-700 font-bold' : 'text-yellow-700 font-bold' }}'>{{ ucfirst($order->status) }}</td>
+                            <td class='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
+                                <select class="order-status-dropdown border rounded px-2 py-1" data-order-id="{{ $order->id }}">
+                                    @foreach(['pending', 'processing', 'shipped', 'received'] as $status)
+                                        <option value="{{ $status }}" @if(strtolower($order->status) === $status) selected @endif>{{ ucfirst($status) }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
                             <td>
-                                @if($order->status === 'pending')
-                                <button data-order-id="{{ $order->id }}" class='bg-green-500 text-white px-2 py-1 rounded text-xs mark-received-btn'>Mark Received</button>
-                                @endif
+                                <button 
+                                    class="mark-as-received-btn bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
+                                    data-order-id="{{ $order->id }}"
+                                    type="button"
+                                >
+                                    Mark as Received
+                                </button>
                             </td>
                         </tr>
                         @empty
@@ -139,5 +148,79 @@
 @endsection
 
 @push('scripts')
+<script>
+    var updateOrderStatusUrl = "{{ url('/bakery/order-processing/retailer-orders') }}";
+    var csrfToken = "{{ csrf_token() }}";
+
+    document.addEventListener('change', function(e) {
+        if (e.target && e.target.classList.contains('order-status-dropdown')) {
+            const dropdown = e.target;
+            const orderId = dropdown.getAttribute('data-order-id');
+            const newStatus = dropdown.value;
+            dropdown.disabled = true;
+            fetch(`${updateOrderStatusUrl}/${orderId}/status`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Optionally show a message or update the row
+                } else {
+                    alert('Failed to update status: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(err => {
+                alert('AJAX error: ' + err);
+            })
+            .finally(() => {
+                dropdown.disabled = false;
+            });
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('mark-as-received-btn')) {
+            const button = e.target;
+            const orderId = button.getAttribute('data-order-id');
+            button.disabled = true;
+            fetch(`${updateOrderStatusUrl}/${orderId}/status`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: 'received' })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the dropdown to 'received'
+                    const row = button.closest('tr');
+                    if (row) {
+                        const dropdown = row.querySelector('.order-status-dropdown');
+                        if (dropdown) {
+                            dropdown.value = 'received';
+                        }
+                    }
+                    // Change button text and keep it disabled
+                    button.textContent = 'Received';
+                    button.disabled = true;
+                } else {
+                    alert('Failed to update status: ' + (data.message || 'Unknown error'));
+                    button.disabled = false;
+                }
+            })
+            .catch(err => {
+                alert('AJAX error: ' + err);
+                button.disabled = false;
+            });
+        }
+    });
+</script>
 <script src="{{ asset('js/order-processing.js') }}"></script>
 @endpush
