@@ -9,7 +9,9 @@
     <div class="text-right space-y-2">
         <p class="text-sm text-gray-500">Last updated</p>
         <p class="text-sm font-medium text-gray-900">{{ now()->format('M d, Y H:i') }}</p>
+        @if(auth()->user()->role === 'bakery_manager' || auth()->user()->role === 'supplier')
         <a href="{{ route('supplier.raw-materials.catalog') }}" class="inline-block mt-2 bg-gradient-to-r from-green-500 to-blue-600 hover:from-blue-600 hover:to-green-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg text-lg transition-all">Order Raw Materials</a>
+        @endif
     </div>
 </div>
 @endsection
@@ -213,6 +215,7 @@ $pendingOrders = Order::where('vendor_id', auth()->id())->where('status', 'pendi
                     </div>
                 </a>
 
+                @if(auth()->user()->role === 'bakery_manager' || auth()->user()->role === 'supplier')
                 <a href="{{ route('supplier.orders.create') }}" class="flex items-center p-4 bg-gradient-to-r from-green-500 to-green-600 rounded-lg text-white hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105">
                     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -224,6 +227,7 @@ $pendingOrders = Order::where('vendor_id', auth()->id())->where('status', 'pendi
                         <p class="text-sm text-green-100">Create order request</p>
                     </div>
                 </a>
+                @endif
 
                 <a href="{{ route('supplier.chat.index') }}" class="flex items-center p-4 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg text-white hover:from-purple-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 relative">
                     @if($unreadCount > 0)

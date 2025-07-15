@@ -23,7 +23,7 @@
                 </div>
             </div>
             <!-- Pending Orders -->
-            <div class="bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-xl rounded-2xl p-6 flex items-center">
+            <div class="bg-gradient-to-br from-green-400 to-blue-500 shadow-xl rounded-2xl p-6 flex items-center">
                 <div class="flex-shrink-0">
                     <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -37,7 +37,7 @@
                 </div>
             </div>
             <!-- Low Stock Items -->
-            <div class="bg-gradient-to-br from-red-400 to-pink-500 shadow-xl rounded-2xl p-6 flex items-center">
+            <div class="bg-gradient-to-br from-green-400 to-blue-500 shadow-xl rounded-2xl p-6 flex items-center">
                 <div class="flex-shrink-0">
                     <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -51,70 +51,26 @@
                 </div>
             </div>
         </div>
-        <!-- Supplier Inventory Table -->
-        <div class="mt-8">
-            <h3 class="text-2xl font-extrabold text-blue-800 mb-4">Supplier Inventory</h3>
-            <div class="mt-4 bg-white shadow-lg rounded-2xl overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-blue-200">
-                        <thead class="bg-gradient-to-r from-blue-700 to-green-600 text-white">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Item Name</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Supplier</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Quantity</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Unit</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Reorder Level</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-blue-100">
-                            @forelse($supplierInventory as $item)
-                            <tr class="hover:bg-blue-50 transition">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-900">{{ $item->item_name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-800 font-semibold">{{ $item->user->name ?? 'Unknown' }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-900">{{ $item->quantity }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-900">{{ $item->unit }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
-                                        {{ $item->status === 'available' ? 'bg-green-100 text-green-800' :
-                                           ($item->status === 'low_stock' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
-                                        {{ ucfirst(str_replace('_', ' ', $item->status)) }}
-                                    </span>
-                                    @if($item->needsReorder())
-                                        <span class="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                                            Reorder Needed
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-900">{{ $item->reorder_level }}</td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="6" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                                    No supplier inventory found.
-                                </td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+        {{-- Removed supplier inventory table and related code --}}
         <!-- Quick Actions -->
         <div class="mt-8">
             <h3 class="text-2xl font-extrabold text-green-700 mb-4">Quick Actions</h3>
             <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <a href="{{ route('retail.orders.create') }}" class="relative block w-full p-6 bg-gradient-to-br from-green-400 to-blue-400 border-2 border-green-500 rounded-2xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200">
+                <a href="{{ route('retail.orders.create') }}" class="relative block w-full p-6 bg-gradient-to-br from-green-400 to-blue-500 border-2 border-green-500 rounded-2xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200">
                     <h4 class="text-xl font-bold text-white">Place Order</h4>
                     <p class="mt-1 text-base text-white/90">Order new bread products</p>
                 </a>
-                <a href="{{ route('retail.inventory.check') }}" class="relative block w-full p-6 bg-gradient-to-br from-blue-400 to-green-400 border-2 border-blue-500 rounded-2xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200">
+                <a href="{{ route('retail.inventory.check') }}" class="relative block w-full p-6 bg-gradient-to-br from-green-400 to-blue-500 border-2 border-green-500 rounded-2xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200">
                     <h4 class="text-xl font-bold text-white">Check Inventory</h4>
                     <p class="mt-1 text-base text-white/90">View current stock levels</p>
                 </a>
-                <a href="{{ route('retail.forecast.index') }}" class="relative block w-full p-6 bg-gradient-to-br from-yellow-400 to-pink-400 border-2 border-yellow-500 rounded-2xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200">
+                <a href="{{ route('retail.forecast.index') }}" class="relative block w-full p-6 bg-gradient-to-br from-green-400 to-blue-500 border-2 border-green-500 rounded-2xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200">
                     <h4 class="text-xl font-bold text-white">View Forecast</h4>
                     <p class="mt-1 text-base text-white/90">Check demand predictions</p>
+                </a>
+                <a href="{{ route('retail.products.index') }}" class="relative block w-full p-6 bg-gradient-to-br from-green-400 to-blue-500 border-2 border-green-500 rounded-2xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200">
+                    <h4 class="text-xl font-bold text-white">View Bread Products</h4>
+                    <p class="mt-1 text-base text-white/90">Browse all bread products</p>
                 </a>
             </div>
         </div>
@@ -127,55 +83,6 @@
             <div class="bg-gradient-to-br from-yellow-100 to-pink-100 p-8 rounded-2xl shadow-xl">
                 <h3 class="text-xl font-bold text-yellow-700 mb-4">Order Status Breakdown</h3>
                 <canvas id="orderStatusChart" height="120"></canvas>
-            </div>
-        </div>
-        <!-- Bread Product Gallery Section -->
-        <div class="mt-12">
-            <h3 class="text-2xl font-extrabold text-blue-800 mb-6 flex items-center gap-2">
-                <svg class="w-7 h-7 text-yellow-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M3 12h18M3 17h18"/></svg>
-                Bread Products
-            </h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                @foreach($products as $product)
-                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col transition-transform hover:scale-105 hover:shadow-2xl border border-gray-100">
-                        <div class="h-48 w-full bg-gray-50 flex items-center justify-center overflow-hidden">
-                            <img src="{{ asset('images/' . strtolower(str_replace(' ', '_', $product->name)) . '.jpg') }}"
-                                 alt="{{ $product->name }}"
-                                 class="object-cover h-44 w-44 rounded-full border-4 border-white shadow-md"
-                                 onerror="this.onerror=null;this.src='https://via.placeholder.com/180?text=No+Image';">
-                        </div>
-                        <div class="p-6 flex-1 flex flex-col justify-between">
-                            <div>
-                                <h3 class="text-lg font-extrabold text-gray-900 mb-1">{{ $product->name }}</h3>
-                                <div class="flex items-center mb-2">
-                                    <!-- Static 5-star rating -->
-                                    <span class="flex text-yellow-400 mr-2">
-                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><polygon points="10 1.5 12.59 7.36 18.82 7.63 13.97 11.64 15.54 17.77 10 14.27 4.46 17.77 6.03 11.64 1.18 7.63 7.41 7.36 10 1.5"/></svg>
-                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><polygon points="10 1.5 12.59 7.36 18.82 7.63 13.97 11.64 15.54 17.77 10 14.27 4.46 17.77 6.03 11.64 1.18 7.63 7.41 7.36 10 1.5"/></svg>
-                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><polygon points="10 1.5 12.59 7.36 18.82 7.63 13.97 11.64 15.54 17.77 10 14.27 4.46 17.77 6.03 11.64 1.18 7.63 7.41 7.36 10 1.5"/></svg>
-                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><polygon points="10 1.5 12.59 7.36 18.82 7.63 13.97 11.64 15.54 17.77 10 14.27 4.46 17.77 6.03 11.64 1.18 7.63 7.41 7.36 10 1.5"/></svg>
-                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><polygon points="10 1.5 12.59 7.36 18.82 7.63 13.97 11.64 15.54 17.77 10 14.27 4.46 17.77 6.03 11.64 1.18 7.63 7.41 7.36 10 1.5"/></svg>
-                                    </span>
-                                    <span class="text-xs text-gray-500">5.0</span>
-                                </div>
-                                <p class="text-gray-600 text-sm mb-3">Delicious, fresh, and perfect for any meal. Try our {{ strtolower($product->name) }} today!</p>
-                                <p class="text-primary font-semibold text-lg mb-4">UGX {{ number_format($product->unit_price, 0) }}</p>
-                            </div>
-                            <form action="{{ route('retail.cart.add') }}" method="POST" class="mt-auto">
-                                @csrf
-                                <input type="hidden" name="inventory_id" value="{{ $product->inventory_id }}">
-                                <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                <input type="hidden" name="product_name" value="{{ $product->name }}">
-                                <input type="hidden" name="unit_price" value="{{ $product->unit_price }}">
-                                <div class="flex items-center mb-3">
-                                    <label for="quantity-{{ $product->id }}" class="mr-2 font-medium text-gray-700">Qty:</label>
-                                    <input type="number" name="quantity" id="quantity-{{ $product->id }}" value="1" min="1" class="w-20 border border-gray-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-primary focus:border-primary transition">
-                                </div>
-                                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white font-bold py-2 px-4 rounded-lg shadow transition-all duration-150 transform hover:scale-105">Add to Cart</button>
-                            </form>
-                        </div>
-                    </div>
-                @endforeach
             </div>
         </div>
     </div>

@@ -6,14 +6,8 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        if (Schema::hasTable('inventory_movements')) {
-            return;
-        }
         Schema::create('inventory_movements', function (Blueprint $table) {
             $table->id();
             $table->foreignId('inventory_id')->constrained()->onDelete('cascade');
@@ -25,9 +19,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('inventory_movements');

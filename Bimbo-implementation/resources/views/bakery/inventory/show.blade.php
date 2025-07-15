@@ -8,7 +8,7 @@
     <div class="mb-8">
         <div class="flex items-center justify-between">
             <div class="flex items-center">
-                <a href="{{ route('bakery.inventory.index') }}" class="text-blue-600 hover:text-blue-800 mr-4">
+                <a href="{{ route('bakery.bakery.inventory.index') }}" class="text-blue-600 hover:text-blue-800 mr-4">
                     <i class="fas fa-arrow-left"></i> Back to Inventory
                 </a>
                 <div>
@@ -17,10 +17,12 @@
                 </div>
             </div>
             <div class="flex space-x-3">
+                @if($inventory)
                 <a href="{{ route('bakery.inventory.edit', $inventory) }}"
                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
                     <i class="fas fa-edit mr-2"></i>Edit
                 </a>
+                @endif
                 <button onclick="openStockModal()"
                         class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
                     <i class="fas fa-plus mr-2"></i>Update Stock

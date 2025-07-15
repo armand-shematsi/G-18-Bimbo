@@ -70,13 +70,13 @@ class InventoryController extends Controller
     // Show a single inventory item and its adjustment/order history
     public function show($id)
     {
-        $item = Inventory::findOrFail($id);
-        // Example: fetch related orders if you have a relation, otherwise leave as empty collection
-        $orders = collect();
-        if (method_exists($item, 'orders')) {
-            $orders = $item->orders;
-        }
-        return view('retail.inventory.show', compact('item', 'orders'));
+        $inventory = \App\Models\Inventory::findOrFail($id);
+        // Get all order items that affected this inventory
+        $orderItems = \App\Models\OrderItem::with('order')
+            ->where('product_id', $inventory->product_id)
+            ->orderByDesc('created_at')
+            ->get();
+        return view('retail.inventory.show', compact('inventory', 'orderItems'));
     }
 
     public function edit($id)

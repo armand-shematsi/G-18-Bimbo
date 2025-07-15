@@ -32,7 +32,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('vendors', function (Blueprint $table) {
-            $table->dropColumn([
+            $columns = [
                 'city',
                 'state',
                 'zip_code',
@@ -43,8 +43,13 @@ return new class extends Migration
                 'annual_revenue',
                 'years_in_business',
                 'regulatory_certification'
-            ]);
+            ];
+            foreach ($columns as $column) {
+                if (Schema::hasColumn('vendors', $column)) {
+                    $table->dropColumn($column);
+                }
+            }
             $table->string('status')->default('active')->change();
         });
     }
-}; 
+};

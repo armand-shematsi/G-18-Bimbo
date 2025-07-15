@@ -40,7 +40,7 @@ class SupplyCenterController extends Controller
     public function update(Request $request, $id)
     {
         $center = SupplyCenter::findOrFail($id);
-        $center->update($request->only(['name', 'location', 'required_role']));
+        $center->update($request->only(['name', 'location', 'required_role', 'shift_time']));
         return response()->json($center);
     }
 

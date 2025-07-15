@@ -12,15 +12,31 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <a href="{{ route('dashboard') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('dashboard') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none focus:border-primary">
-                        {{ __('Dashboard') }}
+                    <a href="{{ route('dashboard') }}"
+                       class="inline-flex items-center px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm mx-1
+                              {{ request()->routeIs('dashboard') ? 'bg-blue-500 text-white shadow-lg scale-105' : 'bg-blue-100 text-blue-700 hover:bg-blue-200 hover:text-blue-900' }}"
+                       style="box-shadow: 0 2px 8px 0 rgba(59, 130, 246, 0.10);">
+                        <svg class="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a4 4 0 004 4h10a4 4 0 004-4V7a4 4 0 00-4-4H7a4 4 0 00-4 4z" /></svg>
+                        Dashboard
                     </a>
                     @auth
                         @if(auth()->user()->role === 'customer')
-                            <a href="{{ route('customer.order.create') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('customer.orders.*') ? 'border-primary text-gray-900' : 'border-transparent text-green-600 hover:text-green-800 hover:border-green-600' }} text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none focus:border-green-600">
-                                <svg class="w-4 h-4 mr-1 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                            <a href="{{ route('customer.order.create') }}"
+                               class="inline-flex items-center px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm mx-1
+                                      {{ request()->routeIs('customer.orders.*') ? 'bg-green-500 text-white shadow-lg scale-105' : 'bg-green-100 text-green-700 hover:bg-green-200 hover:text-green-900' }}"
+                               style="box-shadow: 0 2px 8px 0 rgba(16, 185, 129, 0.10);">
+                                <svg class="w-5 h-5 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                                 Place Order
                             </a>
+                            @if(auth()->user()->role === 'customer')
+                                <a href="{{ route('customer.products') }}"
+                                   class="inline-flex items-center px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm mx-1
+                                          {{ request()->routeIs('customer.products') ? 'bg-yellow-400 text-white shadow-lg scale-105' : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200 hover:text-yellow-900' }}"
+                                   style="box-shadow: 0 2px 8px 0 rgba(255, 193, 7, 0.10);">
+                                    <svg class="w-5 h-5 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" /></svg>
+                                    Fresh Bread Products
+                                </a>
+                            @endif
                         @endif
                         @if(auth()->user()->role === 'admin')
                             <a href="{{ route('customer-segments.import.form') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('customer-segments.import.form') ? 'border-primary text-gray-900' : 'border-transparent text-blue-600 hover:text-blue-700 hover:border-blue-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none focus:border-blue-600">
@@ -63,7 +79,7 @@
                             </div>
                         </button>
 
-                        <div x-show="open" @click.away="open = false" class="absolute right-0 z-50 mt-2 w-48 rounded-md shadow-lg origin-top-right">
+                        <div x-show="open" @click.away="open = false" class="absolute right-0 z-50 mb-2 w-48 rounded-md shadow-lg origin-bottom-right bottom-full">
                             <div class="rounded-md ring-1 ring-black ring-opacity-5 py-1 bg-white">
                                 <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                     {{ __('Profile') }}
@@ -96,15 +112,31 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': !open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <a href="{{ route('dashboard') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('dashboard') ? 'border-primary text-primary bg-primary/10' : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300' }} text-base font-medium transition duration-150 ease-in-out focus:outline-none focus:text-gray-800 focus:bg-gray-50 focus:border-gray-300">
-                {{ __('Dashboard') }}
+            <a href="{{ route('dashboard') }}"
+               class="block pl-3 pr-4 py-2 rounded-xl font-semibold text-base transition-all duration-200 shadow-sm my-1
+                      {{ request()->routeIs('dashboard') ? 'bg-blue-500 text-white shadow-lg scale-105' : 'bg-blue-100 text-blue-700 hover:bg-blue-200 hover:text-blue-900' }}"
+               style="box-shadow: 0 2px 8px 0 rgba(59, 130, 246, 0.10);">
+                <svg class="w-5 h-5 mr-2 inline text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a4 4 0 004 4h10a4 4 0 004-4V7a4 4 0 00-4-4H7a4 4 0 00-4 4z" /></svg>
+                Dashboard
             </a>
             @auth
                 @if(auth()->user()->role === 'customer')
-                    <a href="{{ route('customer.order.create') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('customer.orders.*') ? 'border-green-600 text-green-700 bg-green-50' : 'border-transparent text-green-600 hover:text-green-800 hover:bg-green-50' }} text-base font-medium transition duration-150 ease-in-out focus:outline-none focus:text-green-800 focus:bg-green-50 focus:border-green-300">
-                        <svg class="w-4 h-4 mr-1 inline text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                    <a href="{{ route('customer.order.create') }}"
+                       class="block pl-3 pr-4 py-2 rounded-xl font-semibold text-base transition-all duration-200 shadow-sm my-1
+                              {{ request()->routeIs('customer.orders.*') ? 'bg-green-500 text-white shadow-lg scale-105' : 'bg-green-100 text-green-700 hover:bg-green-200 hover:text-green-900' }}"
+                       style="box-shadow: 0 2px 8px 0 rgba(16, 185, 129, 0.10);">
+                        <svg class="w-5 h-5 mr-2 inline text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                         Place Order
                     </a>
+                    @if(auth()->user()->role === 'customer')
+                        <a href="{{ route('customer.products') }}"
+                           class="block pl-3 pr-4 py-2 rounded-xl font-semibold text-base transition-all duration-200 shadow-sm my-1
+                                  {{ request()->routeIs('customer.products') ? 'bg-yellow-400 text-white shadow-lg scale-105' : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200 hover:text-yellow-900' }}"
+                           style="box-shadow: 0 2px 8px 0 rgba(255, 193, 7, 0.10);">
+                            <svg class="w-5 h-5 mr-2 inline text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" /></svg>
+                            Fresh Bread Products
+                        </a>
+                    @endif
                 @endif
             @endauth
             @guest

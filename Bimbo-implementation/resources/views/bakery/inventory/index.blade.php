@@ -70,7 +70,7 @@
     <!-- Filters and Search -->
     <div class="bg-white rounded-lg shadow mb-6">
         <div class="p-6">
-            <form method="GET" action="{{ route('bakery.inventory.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <form method="GET" action="{{ route('bakery.bakery.inventory.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                     <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search Items</label>
                     <input type="text"
@@ -197,6 +197,7 @@
                                        class="text-blue-600 hover:text-blue-900">
                                         <i class="fas fa-eye"></i>
                                     </a>
+                                    @if($item)
                                     <a href="{{ route('bakery.inventory.edit', $item) }}"
                                        class="text-indigo-600 hover:text-indigo-900">
                                         <i class="fas fa-edit"></i>
@@ -211,6 +212,7 @@
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

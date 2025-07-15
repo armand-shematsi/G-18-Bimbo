@@ -66,7 +66,7 @@
 <div class="max-w-7xl mx-auto py-8"
     data-supplier-order-route="{{ route('bakery.order-processing.supplier-order') }}"
     data-retailer-orders-route="{{ route('bakery.order-processing.retailer-orders') }}"
-    data-receive-order-base-url="{{ url('bakery/order-processing/retailer-orders') }}">
+    data-receive-order-base-url="/bakery/order-processing/retailer-orders">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Place Order to Supplier -->
         <div class="bg-white rounded-xl shadow-lg p-6">

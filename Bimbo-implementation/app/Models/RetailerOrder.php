@@ -17,4 +17,9 @@ class RetailerOrder extends Model
     {
         return $this->belongsTo(User::class, 'retailer_id');
     }
+
+    public function items()
+    {
+        return $this->hasMany(RetailerOrderItem::class);
+    }
 }

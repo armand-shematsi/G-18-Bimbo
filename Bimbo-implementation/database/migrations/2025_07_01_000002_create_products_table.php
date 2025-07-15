@@ -18,6 +18,13 @@ return new class extends Migration {
 
     public function down()
     {
+        // Drop foreign keys referencing products
+        Schema::table('inventories', function (Blueprint $table) {
+            try { $table->dropForeign(['product_id']); } catch (\Exception $e) {}
+        });
+        Schema::table('order_items', function (Blueprint $table) {
+            try { $table->dropForeign(['product_id']); } catch (\Exception $e) {}
+        });
         Schema::dropIfExists('products');
     }
 };

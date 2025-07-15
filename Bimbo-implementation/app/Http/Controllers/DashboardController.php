@@ -9,7 +9,6 @@ use Carbon\Carbon;
 use App\Models\RetailerOrder;
 use App\Models\Inventory;
 use App\Models\OrderReturn;
-use App\Models\Product;
 
 class DashboardController extends Controller
 {
@@ -39,126 +38,67 @@ class DashboardController extends Controller
                     'recentOrders'
                 ));
             case 'supplier':
-                $products = \App\Models\Product::all();
-                return view('dashboard.supplier', compact('products'));
-            case 'distributor':
-                $products = \App\Models\Product::all();
-                return view('dashboard.distributor', compact('products'));
-            case 'retail_manager':
-                // Temporarily disabled to debug login issue
-                return view('dashboard.retail');
-                /*
-                try {
-                    $today = now()->startOfDay();
-                    // Calculate sales today
-                    $salesToday = RetailerOrder::whereDate('created_at', $today)
-                        ->where('status', '!=', 'cancelled')
-                        ->sum('total') ?? 0;
+                // Get supplier's inventory data
+                $inventory = \App\Models\Inventory::where('user_id', $user->id)->get();
+                $totalInventory = $inventory->count();
+                $availableItems = $inventory->where('status', 'available')->count();
+                $lowStockItems = $inventory->where('status', 'low_stock')->count();
 
-                    // Calculate orders today
-                    $ordersToday = RetailerOrder::whereDate('created_at', $today)
-                        ->where('status', '!=', 'cancelled')
-                        ->count();
-
-                    // Calculate pending orders
-                    $pendingOrders = RetailerOrder::where('status', 'pending')
-                        ->count();
-
-                    // Get top-selling products (last 30 days)
-                    $topSellingProducts = \App\Models\OrderItem::select('product_id', 'product_name', \DB::raw('SUM(quantity) as sold'))
-                        ->join('retailer_orders', 'order_items.order_id', '=', 'retailer_orders.id')
-                        ->where('retailer_orders.status', '!=', 'cancelled')
-                        ->whereDate('retailer_orders.created_at', '>=', $today->copy()->subDays(30))
-                        ->groupBy('product_id', 'product_name')
-                        ->orderBy('sold', 'desc')
-                        ->limit(5)
-                        ->get()
-                        ->map(function ($item) {
-                            return (object) [
-                                'name' => $item->product_name ?: 'Unknown Product',
-                                'sold' => $item->sold ?? 0
-                            ];
-                        });
-
-                    // Fetch bread orders (all)
-                    $breadOrders = RetailerOrder::whereHas('items', function ($query) {
-                        $query->where('product_name', 'like', '%bread%');
-                    })
-                        ->with(['items' => function ($query) {
-                            $query->where('product_name', 'like', '%bread%');
-                        }])
-                        ->get();
-
-                    // Bread order trends (last 7 days)
-                    $breadOrderTrends = collect();
-                    for ($i = 6; $i >= 0; $i--) {
-                        $date = $today->copy()->subDays($i)->toDateString();
-                        $count = $breadOrders->where('created_at', '>=', $date . ' 00:00:00')
-                            ->where('created_at', '<=', $date . ' 23:59:59')
-                            ->count();
-                        $breadOrderTrends->push([
-                            'date' => $date,
-                            'count' => $count
-                        ]);
-                    }
-
-                    // Debug variables for dashboard
-                    $totalOrders = RetailerOrder::where('status', '!=', 'cancelled')->count();
-                    $todayOrders = RetailerOrder::whereDate('created_at', $today)->where('status', '!=', 'cancelled')->count();
-
-                    // Calculate inventory value (all inventory)
-                    $inventoryValue = Inventory::whereNotNull('unit_price')
-                        ->sum(\DB::raw('COALESCE(quantity, 0) * COALESCE(unit_price, 0)')) ?? 0;
-
-                    // Calculate low stock count (all inventory)
-                    $lowStockCount = Inventory::where('quantity', '<=', \DB::raw('COALESCE(reorder_level, 0)'))
-                        ->count();
-
-                    // Calculate returns today
-                    $returnsToday = OrderReturn::whereDate('created_at', $today)
-                        ->sum('refund_amount') ?? 0;
-
-                    // Inventory Trends (last 7 days)
-                    $inventoryTrends = collect();
-                    for ($i = 6; $i >= 0; $i--) {
-                        $date = $today->copy()->subDays($i);
-                        $total = Inventory::whereNotNull('unit_price')
-                            ->sum(\DB::raw('COALESCE(quantity, 0)'));
-                        $inventoryTrends->push([
-                            'date' => $date->toDateString(),
-                            'total' => $total
-                        ]);
-                    }
-                } catch (\Exception $e) {
-                    $salesToday = 0;
-                    $ordersToday = 0;
-                    $pendingOrders = 0;
-                    $topSellingProducts = collect();
-                    $breadOrders = collect();
-                    $breadOrderTrends = collect();
-                    $totalOrders = 0;
-                    $todayOrders = 0;
-                    $inventoryValue = 0;
-                    $lowStockCount = 0;
-                    $returnsToday = 0;
-                    $inventoryTrends = collect();
+                // Get supplier's orders data
+                $vendorId = \App\Models\Vendor::where('user_id', $user->id)->value('id');
+                if (!$vendorId) {
+                    // If no vendor record, try to get the first vendor (fallback)
+                    $vendorId = \App\Models\Vendor::query()->value('id');
                 }
 
-                return view('dashboard.retail', compact(
-                    'salesToday',
-                    'ordersToday',
+                $pendingOrders = 0;
+                $recentOrders = collect();
+
+                if ($vendorId) {
+                    $pendingOrders = \App\Models\Order::where('vendor_id', $vendorId)
+                        ->where('status', 'pending')
+                        ->count();
+
+                    $recentOrders = \App\Models\Order::where('vendor_id', $vendorId)
+                        ->with(['user', 'items'])
+                        ->latest()
+                        ->take(5)
+                        ->get();
+                }
+
+                return view('dashboard.supplier', compact(
+                    'totalInventory',
+                    'availableItems',
+                    'lowStockItems',
                     'pendingOrders',
-                    'topSellingProducts',
-                    'breadOrders',
-                    'breadOrderTrends',
-                    'totalOrders',
-                    'todayOrders',
-                    'inventoryValue',
-                    'lowStockCount',
-                    'returnsToday',
-                    'inventoryTrends'
+                    'recentOrders'
                 ));
-                */
+            case 'bakery_manager':
+                // Fetch all new or assigned orders (pending or processing)
+                $orders = \App\Models\Order::whereIn('status', ['pending', 'processing'])->orderBy('created_at', 'desc')->get();
+                $staff = \App\Models\User::where('role', 'staff')->get();
+                $supplyCenters = \App\Models\SupplyCenter::all();
+                $now = now();
+                $today = now()->toDateString();
+                // Count active staff: those with a shift where now is between start_time and end_time
+                $activeStaffCount = \App\Models\Shift::whereNotNull('user_id')
+                    ->where('start_time', '<=', $now)
+                    ->where('end_time', '>=', $now)
+                    ->distinct('user_id')
+                    ->count('user_id');
+                // Fetch production target from settings
+                $productionTarget = optional(\App\Models\Setting::where('key', 'production_target')->first())->value;
+                // Sum today's output from production batches
+                $todaysOutput = \App\Models\ProductionBatch::whereDate('scheduled_start', $today)->sum('quantity');
+                // --- New dashboard variables ---
+                $staffOnDuty = \App\Models\Attendance::where('date', $today)->where('status', 'present')->count();
+                $absentCount = \App\Models\Attendance::where('date', $today)->where('status', 'absent')->count();
+                $shiftFilled = \App\Models\Shift::whereDate('start_time', $today)->whereNotNull('user_id')->count();
+                $overtimeCount = \App\Models\Shift::whereDate('start_time', $today)
+                    ->whereRaw('TIMESTAMPDIFF(HOUR, start_time, end_time) > 8')->count();
+                return view('dashboard.bakery-manager', compact('orders', 'staff', 'supplyCenters', 'activeStaffCount', 'productionTarget', 'todaysOutput', 'staffOnDuty', 'absentCount', 'shiftFilled', 'overtimeCount'));
+            case 'distributor':
+                return view('dashboard.distributor');
             case 'customer':
                 // Get recent orders for the customer
                 try {

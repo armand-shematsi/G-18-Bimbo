@@ -77,4 +77,79 @@ class ProductionController extends Controller
 
         return response()->json($trends);
     }
+
+    // API endpoint for batch output per day for the last N days (for production trends chart)
+    public function batchOutputTrends(Request $request)
+    {
+        $days = $request->query('days', 7); // default to 7, allow 30
+        $startDate = now()->subDays($days - 1)->startOfDay();
+        $batches = \App\Models\ProductionBatch::whereNotNull('actual_end')
+            ->where('status', 'completed')
+            ->where('actual_end', '>=', $startDate)
+            ->orderBy('actual_end', 'asc')
+            ->get(['quantity', 'actual_end']);
+        $grouped = [];
+        foreach ($batches as $batch) {
+            $date = \Carbon\Carbon::parse($batch->actual_end)->toDateString();
+            if (!isset($grouped[$date])) $grouped[$date] = 0;
+            $grouped[$date] += $batch->quantity;
+        }
+        $result = [];
+        for ($i = 0; $i < $days; $i++) {
+            $date = now()->subDays($days - 1 - $i)->toDateString();
+            $result[] = [
+                'date' => $date,
+                'total_output' => $grouped[$date] ?? 0,
+            ];
+        }
+        return response()->json($result);
+    }
+
+    // API endpoint for batch output per day for a given week in a month (for production trends chart)
+    public function batchOutputTrendsWeek(Request $request)
+    {
+        $month = $request->query('month'); // format: YYYY-MM
+        $week = (int) $request->query('week');
+        if (!$month || !$week) {
+            return response()->json([], 400);
+        }
+        $year = (int)substr($month, 0, 4);
+        $mon = (int)substr($month, 5, 2);
+        $firstDay = \Carbon\Carbon::create($year, $mon, 1)->startOfDay();
+        // Find the start of the requested week
+        $start = $firstDay->copy();
+        $weekNum = 1;
+        while ($weekNum < $week && $start->month == $mon) {
+            $end = $start->copy()->addDays(6 - $start->dayOfWeek);
+            $start = $end->copy()->addDay();
+            $weekNum++;
+        }
+        $end = $start->copy()->addDays(6 - $start->dayOfWeek);
+        if ($end->month != $mon) $end = $start->copy()->endOfMonth();
+        // Build all days in the week
+        $days = [];
+        $cur = $start->copy();
+        while ($cur <= $end) {
+            $days[] = $cur->toDateString();
+            $cur->addDay();
+        }
+        $batches = \App\Models\ProductionBatch::whereNotNull('actual_end')
+            ->where('status', 'completed')
+            ->whereBetween('actual_end', [$start->toDateString().' 00:00:00', $end->toDateString().' 23:59:59'])
+            ->get(['quantity', 'actual_end']);
+        $grouped = [];
+        foreach ($batches as $batch) {
+            $date = \Carbon\Carbon::parse($batch->actual_end)->toDateString();
+            if (!isset($grouped[$date])) $grouped[$date] = 0;
+            $grouped[$date] += $batch->quantity;
+        }
+        $result = [];
+        foreach ($days as $date) {
+            $result[] = [
+                'date' => $date,
+                'total_output' => $grouped[$date] ?? 0,
+            ];
+        }
+        return response()->json($result);
+    }
 }
