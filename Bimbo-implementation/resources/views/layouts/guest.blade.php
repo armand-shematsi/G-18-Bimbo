@@ -45,7 +45,7 @@
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
             <div class="flex items-center justify-center mb-8">
                 <a href="/" class="flex items-center space-x-3 hover-scale">
-                    <img src="{{ asset('images/k-Photo-Recipe Ramp Up-2021-11-Potato-Bread-potato_bread_01.jpeg') }}" 
+                    <img src="{{ asset('images/k-photo-recipe_ramp_up-2021-11-potato-bread-potato_bread_01.jpeg') }}" 
                          alt="Bimbo Logo" 
                          class="w-20 h-20 object-cover rounded-full shadow-lg"
                          style="object-position: center;">

@@ -107,11 +107,10 @@ class DashboardController extends Controller
                         ->take(5)
                         ->get();
                 } catch (\Exception $e) {
-                    // If Order model doesn't exist or table doesn't exist, use empty collection
                     $recentOrders = collect([]);
                 }
 
-                // Get recent messages for the customer (handle case where Message model might not exist)
+                // Get recent messages for the customer
                 try {
                     $recentMessages = \App\Models\Message::where('receiver_id', $user->id)
                         ->orWhere('sender_id', $user->id)
@@ -119,11 +118,32 @@ class DashboardController extends Controller
                         ->take(5)
                         ->get();
                 } catch (\Exception $e) {
-                    // If Message model doesn't exist or table doesn't exist, use empty collection
                     $recentMessages = collect([]);
                 }
 
-                return view('dashboard.customer', compact('recentOrders', 'recentMessages'));
+                $products = \App\Models\Product::all()->map(function($product) {
+                    $inventory = \App\Models\Inventory::where('item_name', $product->name)->first();
+                    $product->inventory_id = $inventory ? $inventory->id : null;
+                    return $product;
+                });
+
+                // Fetch recommendations for this customer's segment
+                $recommendations = null;
+                if ($user->segment !== null) {
+                    $recFile = storage_path('app/ml/segment_recommendations.csv');
+                    if (file_exists($recFile)) {
+                        $rows = array_map('str_getcsv', file($recFile));
+                        $header = array_shift($rows);
+                        foreach ($rows as $row) {
+                            $data = array_combine($header, $row);
+                            if ($data['segment'] == $user->segment) {
+                                $recommendations = (object)$data;
+                                break;
+                            }
+                        }
+                    }
+                }
+                return view('dashboard.customer', compact('recentOrders', 'recentMessages', 'products', 'recommendations'));
             default:
                 // Log out the user and redirect to login with error message
                 Auth::logout();

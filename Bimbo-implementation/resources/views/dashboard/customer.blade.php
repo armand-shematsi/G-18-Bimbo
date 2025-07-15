@@ -43,7 +43,17 @@
         </div>
     @endif
 @endif
-<div class="py-12 min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800">
+@if(isset($recommendations) && $recommendations)
+    <div class="alert alert-info mb-4">
+        <h4>Recommended for you:</h4>
+        <ul>
+            @foreach(explode(';', $recommendations->recommendations) as $rec)
+                <li>{{ $rec }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+<div class="py-12 min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
             <!-- Edit Profile Card -->
@@ -160,12 +170,106 @@
                         </div>
                         <p class="text-muted mt-3 mb-0" style="font-size: 1.1rem; font-weight: 500; color: #333 !important;">Access all your daily and weekly reports in one place.</p>
                     </div>
+
+                <!-- Main Content Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Recent Orders -->
+                    <div class="lg:col-span-2">
+                        <div class="bg-white rounded-xl shadow-lg">
+                            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-900">Recent Orders</h3>
+                                <a href="{{ route('customer.order.create') }}" class="inline-flex items-center px-3 py-1.5 bg-green-600 text-white rounded hover:bg-green-700 text-xs font-bold">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                                    Place Order
+                                </a>
+                            </div>
+                            <div class="p-6">
+                                @if($recentOrders && $recentOrders->count() > 0)
+                                    <div class="space-y-4">
+                                        @foreach($recentOrders as $order)
+                                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                            <div class="flex items-center">
+                                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                                                    </svg>
+                                                </div>
+                                                <div class="ml-4">
+                                                    <p class="text-sm font-medium text-gray-900">Order #{{ $order->id }}</p>
+                                                    <p class="text-sm text-gray-500">{{ $order->created_at->format('M d, Y') }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <span class="px-2 py-1 text-xs font-semibold rounded-full
+                                                    {{ $order->status === 'delivered' ? 'bg-green-100 text-green-800' :
+                                                       ($order->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800') }}">
+                                                    {{ ucfirst($order->status) }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="text-center py-8">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                        </svg>
+                                        <p class="mt-2 text-sm text-gray-500">No recent orders</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Recent Messages -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-xl shadow-lg">
+                            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-900">Recent Messages</h3>
+                                <a href="{{ route('customer.chat.index') }}" class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-bold">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2h2m10-4H7a2 2 0 00-2 2v2a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2z" /></svg>
+                                    Go to Messages
+                                </a>
+                            </div>
+                            <div class="p-6">
+                                @if($recentMessages && $recentMessages->count() > 0)
+                                    <div class="space-y-4">
+                                        @foreach($recentMessages as $message)
+                                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-900">{{ $message->sender->name ?? 'Supplier' }}</p>
+                                                <p class="text-xs text-gray-500">{{ $message->created_at->format('M d, Y H:i') }}</p>
+                                                <div class="text-xs text-gray-700 mt-1">{{ \Illuminate\Support\Str::limit($message->content, 40) }}</div>
+                                            </div>
+                                            @if(!$message->is_read)
+                                                <span class="ml-2 px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 font-semibold">New</span>
+                                            @endif
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="text-center py-8">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2h2m10-4H7a2 2 0 00-2 2v2a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2z" /></svg>
+                                        <p class="mt-2 text-sm text-gray-500">No recent messages</p>
+                                    </div>
+                                @endif
+                            </div>
+                            <!-- Footer -->
+                            <div class="mt-16 text-center text-gray-400 text-xs">Thank you for being a valued customer! &mdash; The Bimbo Team</div>
+                        </div>
+                    </div>
                 </div>
+                {{-- Reports Button at the bottom --}}
+                <div class="w-full flex justify-center mt-8 mb-4">
+                    <a href="{{ route('reports.downloads') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg text-xl transition-all duration-200">
+                        <i class="fas fa-file-alt mr-2"></i> Reports
+                    </a>
+                </div>
+                <!-- Footer -->
+                <div class="mt-16 text-center text-gray-400 text-xs">Thank you for being a valued customer! &mdash; The Bimbo Team</div>
             </main>
         </div>
     </div>
-    <!-- Footer -->
-    <div class="mt-16 text-center text-gray-400 text-xs">Thank you for being a valued customer! &mdash; The Bimbo Team</div>
-</div>
-
+    <!-- Product Gallery -->
+    @include('components.product-gallery')
 @endsection
