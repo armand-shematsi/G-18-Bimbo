@@ -187,8 +187,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/orders/{order}/status', [App\Http\Controllers\Retail\OrderController::class, 'changeStatus'])->name('orders.changeStatus');
 
         Route::get('/inventory', [App\Http\Controllers\Retail\InventoryController::class, 'index'])->name('inventory.index');
+        Route::get('/inventory/create', [App\Http\Controllers\Retail\InventoryController::class, 'create'])->name('inventory.create');
         Route::get('/inventory/check', [App\Http\Controllers\Retail\InventoryController::class, 'check'])->name('inventory.check');
         Route::post('/inventory/update', [App\Http\Controllers\Retail\InventoryController::class, 'update'])->name('inventory.update');
+        Route::get('/inventory/{inventory}', [App\Http\Controllers\Retail\InventoryController::class, 'show'])->name('inventory.show');
 
         Route::get('/forecast', [App\Http\Controllers\Retail\ForecastController::class, 'index'])->name('forecast.index');
         Route::get('/forecast/generate', [App\Http\Controllers\Retail\ForecastController::class, 'generate'])->name('forecast.generate');
@@ -211,7 +213,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/support/{id}', [\App\Http\Controllers\SupportRequestController::class, 'show'])->name('support.show');
 
         // Retail Bread Product Listing
-        Route::get('/products', [App\Http\Controllers\Retail\ProductController::class, 'index'])->name('retail.products.index');
+        Route::get('/products', [App\Http\Controllers\Retail\ProductController::class, 'index'])->name('products.index');
 
         // Cart routes
         Route::get('/cart', [App\Http\Controllers\Retail\CartController::class, 'index'])->name('cart.index');

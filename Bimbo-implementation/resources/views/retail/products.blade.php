@@ -1,7 +1,10 @@
 @extends('layouts.retail-manager')
 
 @section('header')
-    Bread Products
+    <h2 class="text-2xl font-extrabold text-blue-800 mb-6 flex items-center gap-2">
+        <svg class="w-7 h-7 text-yellow-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M3 12h18M3 17h18"/></svg>
+        Bread Products
+    </h2>
 @endsection
 
 @section('content')
@@ -44,4 +47,4 @@
         </div>
     @endforeach
 </div>
-@endsection 
+@endsection

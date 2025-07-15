@@ -133,7 +133,22 @@ class OrderController extends Controller
     public function changeStatus(Request $request, $id)
     {
         $order = Order::findOrFail($id);
-        $order->setStatus($request->input('status'));
+        $newStatus = $request->input('status');
+        $order->setStatus($newStatus);
+
+        // Adjust inventory only when order is received or completed
+        if (in_array($newStatus, ['received', 'completed'])) {
+            foreach ($order->items as $item) {
+                if ($item->inventory_id) {
+                    $inventory = \App\Models\Inventory::find($item->inventory_id);
+                    if ($inventory && $inventory->quantity >= $item->quantity) {
+                        $inventory->quantity -= $item->quantity;
+                        $inventory->save();
+                    }
+                }
+            }
+        }
+
         // Notify customer
         if ($order->user) {
             $order->user->notify(new OrderStatusUpdated($order));
@@ -148,4 +163,4 @@ class OrderController extends Controller
         ]);
         return redirect()->route('retail.orders.show', $order->id)->with('success', 'Order status updated!');
     }
-} 
+}
