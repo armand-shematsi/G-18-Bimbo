@@ -51,7 +51,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Combine all supplier routes into a single group
-    Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier.')->group(function () {
+    Route::middleware(['auth', 'role:supplier|bakery_manager'])->prefix('supplier')->name('supplier.')->group(function () {
         // Inventory routes
         Route::get('/inventory', [App\Http\Controllers\Supplier\InventoryController::class, 'index'])->name('inventory.index');
         Route::get('/inventory/create', [App\Http\Controllers\Supplier\InventoryController::class, 'create'])->name('inventory.create');
@@ -100,6 +100,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('machines', \App\Http\Controllers\MachineController::class);
         Route::resource('maintenance-tasks', \App\Http\Controllers\MaintenanceTaskController::class);
         Route::resource('shifts', \App\Http\Controllers\ShiftController::class);
+        Route::resource('inventory', \App\Http\Controllers\Bakery\InventoryController::class)->names('bakery.inventory');
         // Production Routes
         Route::get('/production', function () {
             return view('bakery.production');
@@ -132,6 +133,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/api/ingredients-live', [\App\Http\Controllers\DashboardController::class, 'ingredientsLive'])->name('bakery.ingredients-live');
         Route::get('/api/notifications-live', [\App\Http\Controllers\DashboardController::class, 'notificationsLive'])->name('bakery.notifications-live');
         Route::get('/api/chat-live', [\App\Http\Controllers\DashboardController::class, 'chatLive'])->name('bakery.chat-live');
+        Route::get('/stats-live', [\App\Http\Controllers\DashboardController::class, 'statsLive'])->name('bakery.stats-live');
 
         // Workforce Management
         Route::post('/workforce/assign-task', [\App\Http\Controllers\WorkforceController::class, 'assignTask'])->name('workforce.assign-task');
@@ -153,6 +155,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/workforce/shifts', [\App\Http\Controllers\WorkforceController::class, 'storeShift'])->name('workforce.shifts.store');
         Route::get('/workforce/assignment', [\App\Http\Controllers\WorkforceController::class, 'assignment'])->name('workforce.assignment');
         Route::get('/workforce/availability', [\App\Http\Controllers\WorkforceController::class, 'availability'])->name('workforce.availability');
+        // Route::post('/workforce/auto-assign', [\App\Http\Controllers\WorkforceController::class, 'autoAssignStaff'])->name('bakery.workforce.auto-assign');
 
         // Order Processing Route
         Route::get('/order-processing', function () {
@@ -257,6 +260,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/cart/{id}', [\App\Http\Controllers\Customer\CartController::class, 'destroy'])->name('cart.destroy');
         Route::get('/cart/checkout', [\App\Http\Controllers\Customer\CartController::class, 'checkout'])->name('cart.checkout');
         Route::post('/cart/place-order', [\App\Http\Controllers\Customer\CartController::class, 'placeOrder'])->name('cart.place-order');
+        Route::get('/products', [App\Http\Controllers\Customer\ProductController::class, 'index'])->name('products');
     });
 
     // Workforce Overview Route
@@ -265,6 +269,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Remove or comment out the following conflicting route:
     // Route::get('/supplier/orders', [\App\Http\Controllers\SupplierOrderController::class, 'index'])
     //     ->name('supplier.orders');
+
+    // Make auto-assign available to dashboard (not just /bakery/* URLs)
+    Route::post('/workforce/auto-assign', [\App\Http\Controllers\WorkforceController::class, 'autoAssignStaff'])
+        ->middleware('role:bakery_manager')
+        ->name('bakery.workforce.auto-assign');
 });
 
 // Vendor Registration Routes
@@ -284,7 +293,7 @@ Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier
 });
 
 // Supplier Raw Material Ordering
-Route::middleware(['auth', 'role:supplier'])->prefix('supplier/raw-materials')->name('supplier.raw-materials.')->group(function () {
+Route::middleware(['auth', 'role:supplier|bakery_manager'])->prefix('supplier/raw-materials')->name('supplier.raw-materials.')->group(function () {
     Route::get('catalog', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'catalog'])->name('catalog');
     Route::post('add-to-cart', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'addToCart'])->name('addToCart');
     Route::get('cart', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'cart'])->name('cart');
@@ -318,9 +327,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/reports/downloads', [\App\Http\Controllers\ReportDownloadController::class, 'index'])->name('reports.downloads');
 });
+// No code to insert. The insertion point is likely a result of a merge conflict marker or placeholder, but there is no actual conflict or duplicate code to resolve here.
 
-// Add this route for auto-assign
-Route::post('/bakery/workforce/auto-assign', [WorkforceController::class, 'autoAssignStaff'])->middleware('throttle:300,1')->name('bakery.workforce.auto-assign');
+Route::post('/workforce/auto-assign', [\App\Http\Controllers\WorkforceController::class, 'autoAssignStaff'])
+    ->middleware(['auth', 'verified', 'role:bakery_manager', 'throttle:300,1'])
+    ->name('bakery.workforce.auto-assign');
 
 // Add this route for bakery stats live
 Route::get('/bakery/stats-live', [DashboardController::class, 'statsLive'])->name('bakery.bakery.stats-live');

@@ -20,6 +20,8 @@ return new class extends Migration
 
     public function down(): void
     {
+        // Set all NULL product_id values to a valid default before making NOT NULL
+        \DB::table('order_items')->whereNull('product_id')->update(['product_id' => 1]); // Change 1 to a valid product ID if needed
         Schema::table('order_items', function (Blueprint $table) {
             // $table->dropForeign(['product_id']);
             $table->unsignedBigInteger('product_id')->nullable(false)->change();

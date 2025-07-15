@@ -27,9 +27,21 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropForeign(['user_id']);
-            $table->dropColumn('user_id');
-            $table->unsignedBigInteger('supplier_id')->nullable();
+            // Ensure user_id column exists
+            if (!Schema::hasColumn('orders', 'user_id')) {
+                $table->unsignedBigInteger('user_id')->nullable();
+            }
+            // Add the foreign key if it doesn't exist
+            try { $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade'); } catch (\Exception $e) {}
+            // Now drop the foreign key
+            try { $table->dropForeign(['user_id']); } catch (\Exception $e) {}
+            // Drop the column
+            if (Schema::hasColumn('orders', 'user_id')) {
+                $table->dropColumn('user_id');
+            }
+            if (!Schema::hasColumn('orders', 'supplier_id')) {
+                $table->unsignedBigInteger('supplier_id')->nullable();
+            }
         });
     }
 };

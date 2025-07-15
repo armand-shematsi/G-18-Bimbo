@@ -22,7 +22,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('inventories', function (Blueprint $table) {
-            $table->dropColumn('reorder_level');
+            if (Schema::hasColumn('inventories', 'reorder_level')) {
+                $table->dropColumn('reorder_level');
+            }
         });
     }
 };
