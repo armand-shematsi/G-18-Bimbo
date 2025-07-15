@@ -37,7 +37,7 @@
             <!-- Logo and Title -->
             <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
                 <div class="flex flex-col items-center mb-6">
-                    <img src="{{ asset('images/k-Photo-Recipe Ramp Up-2021-11-Potato-Bread-potato_bread_01.jpeg') }}" 
+                    <img src="{{ asset('images/k-photo-recipe_ramp_up-2021-11-potato-bread-potato_bread_01.jpeg') }}" 
                          alt="Bimbo Logo" 
                          class="h-20 w-20 rounded-full object-cover shadow-lg mb-4">
                     <h2 class="text-2xl font-bold text-gradient">Welcome Back</h2>

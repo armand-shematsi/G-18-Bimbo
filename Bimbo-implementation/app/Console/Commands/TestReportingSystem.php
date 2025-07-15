@@ -58,7 +58,7 @@ class TestReportingSystem extends Command
         try {
             switch ($type) {
                 case 'daily':
-                    $reportData = $reportService->generateDailyReport($stakeholder);
+                    $reportData = $reportService->generateDailyReport($stakeholder, $user->id);
                     break;
                 case 'weekly':
                     $reportData = $reportService->generateWeeklyReport($stakeholder);

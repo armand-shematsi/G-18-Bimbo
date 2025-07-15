@@ -116,7 +116,7 @@
                         <select name="items[0][product_id]" class="product-select mt-1 block w-full rounded-lg border-2 border-green-700 shadow-sm focus:border-green-900 focus:ring-2 focus:ring-green-700 bg-green-100 text-green-900 font-semibold transition-all duration-150" required data-row="order-item-row-0">
                             <option value="">Select a product</option>
                             @foreach($products as $product)
-                                <option value="{{ $product->id }}" data-inventory-id="{{ $product->inventory_id }}" data-name="{{ $product->name }}" data-price="{{ $product->unit_price ?? '' }}">{{ $product->name }}</option>
+                                <option value="{{ $product->id }}" data-inventory-id="{{ $product->inventory_id ?? '' }}" data-name="{{ $product->name }}" data-price="{{ $product->unit_price ?? '' }}">{{ $product->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -205,7 +205,7 @@
     const productOptions = `
         <option value="">Select a product</option>
         @foreach($products as $product)
-            <option value="{{ $product->id }}" data-inventory-id="{{ $product->inventory_id }}" data-name="{{ $product->name }}" data-price="{{ $product->unit_price ?? '' }}">{{ $product->name }}</option>
+            <option value="{{ $product->id }}" data-inventory-id="{{ $product->inventory_id ?? '' }}" data-name="{{ $product->name }}" data-price="{{ $product->unit_price ?? '' }}">{{ $product->name }}</option>
         @endforeach
     `;
     function addOrderItem() {
@@ -247,6 +247,20 @@
         btnText.classList.add('hidden');
         btnSpinner.classList.remove('hidden');
     });
+
+    // On form submit, check all inventory-id fields are set
+    document.getElementById('orderForm').addEventListener('submit', function(e) {
+        let valid = true;
+        document.querySelectorAll('.inventory-id').forEach(function(input) {
+            if (!input.value) {
+                valid = false;
+            }
+        });
+        if (!valid) {
+            e.preventDefault();
+            alert('Please select a valid product for each order item.');
+        }
+    });
 </script>
 @endpush
-@endsection 
+@endsection

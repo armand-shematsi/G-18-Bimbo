@@ -16,7 +16,9 @@ return new class extends Migration
     public function down()
     {
         Schema::table('inventories', function (Blueprint $table) {
-            $table->dropColumn('unit_price');
+            if (Schema::hasColumn('inventories', 'unit_price')) {
+                $table->dropColumn('unit_price');
+            }
         });
     }
-}; 
+};

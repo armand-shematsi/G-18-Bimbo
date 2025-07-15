@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('inventories', function (Blueprint $table) {
-            $table->integer('reorder_level')->default(5)->after('quantity');
+        Schema::table('order_items', function (Blueprint $table) {
+            //
         });
     }
 
@@ -21,10 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('inventories', function (Blueprint $table) {
-            if (Schema::hasColumn('inventories', 'reorder_level')) {
-                $table->dropColumn('reorder_level');
-            }
+        Schema::table('order_items', function (Blueprint $table) {
+            //
         });
     }
 };

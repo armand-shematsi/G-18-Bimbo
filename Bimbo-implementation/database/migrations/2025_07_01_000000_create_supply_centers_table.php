@@ -12,6 +12,7 @@ return new class extends Migration {
             $table->string('name');
             $table->string('location')->nullable();
             $table->string('required_role')->nullable(); // e.g., 'driver', 'baker', etc.
+            $table->string('shift_time')->nullable(); // Add this line
             $table->timestamps();
         });
     }

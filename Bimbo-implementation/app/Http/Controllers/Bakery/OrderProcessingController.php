@@ -84,14 +84,14 @@ class OrderProcessingController extends Controller
                 ->orWhere('item_name', 'like', '%' . $item->item_name . '%')
                 ->first();
 
-            if ($inventory && $inventory->quantity >= $item->quantity) {
-                $inventory->quantity -= $item->quantity;
+            if ($inventory) {
+                $inventory->quantity += $item->quantity; // INCREASE inventory on delivery
                 $inventory->save();
 
                 $inventory->movements()->create([
                     'quantity' => $item->quantity,
-                    'type' => 'out',
-                    'note' => 'Retailer Order #' . $order->id . ' received',
+                    'type' => 'in',
+                    'note' => 'Retailer Order #' . $order->id . ' delivered to retail',
                     'user_id' => auth()->id(),
                 ]);
             }
