@@ -91,7 +91,11 @@
                             <p class="text-sm text-gray-600">{{ count($cart) }} item(s)</p>
                         </div>
                         <div class="flex space-x-4">
+<<<<<<< HEAD
+                            <a href="{{ route('retail.products.index') }}" 
+=======
                             <a href="{{ route('retail.products.index') }}"
+>>>>>>> b320dfac9fbd030be7c009597aea5317fa6beeed
                                class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                 Continue Shopping
                             </a>
@@ -111,7 +115,11 @@
                 <h3 class="mt-2 text-sm font-medium text-gray-900">Your cart is empty</h3>
                 <p class="mt-1 text-sm text-gray-500">Start shopping to add items to your cart.</p>
                 <div class="mt-6">
+<<<<<<< HEAD
+                    <a href="{{ route('retail.products.index') }}" 
+=======
                     <a href="{{ route('retail.products.index') }}"
+>>>>>>> b320dfac9fbd030be7c009597aea5317fa6beeed
                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         Start Shopping
                     </a>

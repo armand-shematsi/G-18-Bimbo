@@ -9,7 +9,7 @@
     <div class="text-right space-y-2">
         <p class="text-sm text-gray-500">Last updated</p>
         <p class="text-sm font-medium text-gray-900">{{ now()->format('M d, Y H:i') }}</p>
-        @if(auth()->user()->role === 'bakery_manager' || auth()->user()->role === 'supplier')
+        @if(auth()->user()->role === 'bakery_manager')
         <a href="{{ route('supplier.raw-materials.catalog') }}" class="inline-block mt-2 bg-gradient-to-r from-green-500 to-blue-600 hover:from-blue-600 hover:to-green-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg text-lg transition-all">Order Raw Materials</a>
         @endif
     </div>

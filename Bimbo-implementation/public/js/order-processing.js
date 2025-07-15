@@ -9,8 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!wrapper) return;
     const supplierOrderRoute = wrapper.dataset.supplierOrderRoute;
     const retailerOrdersRoute = wrapper.dataset.retailerOrdersRoute;
-    const receiveOrderBaseUrl = wrapper.dataset.receiveOrderBaseUrl;
-    const csrfToken = document.querySelector('meta[name=csrf-token]').content;
+    // Use global receiveOrderBaseUrl and csrfToken from Blade, do not redeclare here
 
     // --- Supplier Order Form AJAX ---
     const supplierOrderForm = document.getElementById('supplierOrderForm');
@@ -64,7 +63,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     data.orders.forEach(order => {
                         let statusClass = order.status === 'received' ? 'text-green-700 font-bold' : 'text-yellow-700 font-bold';
-                        let btn = order.status === 'pending' ? `<button data-order-id='${order.id}' class='bg-green-500 text-white px-2 py-1 rounded text-xs mark-received-btn'>Mark Received</button>` : '';
+                        // Add a status dropdown for all orders
+                        let statusOptions = ['pending', 'processing', 'shipped', 'received'];
+                        let dropdown = `<select class='order-status-dropdown border rounded px-2 py-1' data-order-id='${order.id}'>`;
+                        statusOptions.forEach(opt => {
+                            dropdown += `<option value='${opt}' ${order.status === opt ? 'selected' : ''}>${opt.charAt(0).toUpperCase() + opt.slice(1)}</option>`;
+                        });
+                        dropdown += `</select>`;
                         // Get first item (if exists)
                         let firstItem = order.items && order.items.length > 0 ? order.items[0] : null;
                         let productName = firstItem && firstItem.product ? firstItem.product.name : (firstItem ? firstItem.product_name : 'N/A');
@@ -74,30 +79,49 @@ document.addEventListener('DOMContentLoaded', function() {
                             <td class='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>${retailerName}</td>
                             <td class='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>${productName}</td>
                             <td class='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>${quantity}</td>
-                            <td class='px-6 py-4 whitespace-nowrap text-sm ${statusClass}'>${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</td>
-                            <td>${btn}</td>
+                            <td class='px-6 py-4 whitespace-nowrap text-sm ${statusClass} status-cell'>${dropdown}</td>
+                            <td></td>
                         </tr>`;
                     });
                 }
             });
     }
 
-    // Event delegation for Mark Received buttons
-    document.addEventListener('click', function(e) {
-        if (e.target && e.target.classList.contains('mark-received-btn')) {
-            const btn = e.target;
-            const orderId = btn.getAttribute('data-order-id');
-            if (!orderId) return;
-            btn.disabled = true;
-            fetch(`${receiveOrderBaseUrl}/${orderId}/receive`, {
+    // Event delegation for status dropdown
+    document.addEventListener('change', function(e) {
+        if (e.target && e.target.classList.contains('order-status-dropdown')) {
+            const dropdown = e.target;
+            const orderId = dropdown.getAttribute('data-order-id');
+            const newStatus = dropdown.value;
+            dropdown.disabled = true;
+            fetch(`${updateOrderStatusUrl}/${orderId}/status`, {
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': csrfToken
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(res => res.json().catch(() => ({ success: false, message: 'Invalid JSON response' })))
+            .then(data => {
+                if (data.success) {
+                    // Optionally update the status cell style
+                    const row = dropdown.closest('tr');
+                    if (row) {
+                        const statusCell = row.querySelector('.status-cell');
+                        if (statusCell) {
+                            statusCell.className = `px-6 py-4 whitespace-nowrap text-sm ${(newStatus === 'received') ? 'text-green-700 font-bold' : 'text-yellow-700 font-bold'} status-cell`;
+                        }
+                    }
+                } else {
+                    alert('Failed to update status: ' + (data.message || 'Unknown error'));
                 }
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) fetchRetailerOrders();
+            .catch(err => {
+                alert('AJAX error: ' + err);
+            })
+            .finally(() => {
+                dropdown.disabled = false;
             });
         }
     });

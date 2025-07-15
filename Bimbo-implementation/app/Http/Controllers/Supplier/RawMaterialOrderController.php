@@ -15,10 +15,19 @@ class RawMaterialOrderController extends Controller
     // Show catalog of raw materials from other suppliers
     public function catalog()
     {
-        $supplierId = Auth::id();
-        $rawMaterials = Inventory::whereHas('user', function($query) use ($supplierId) {
-            $query->where('role', 'supplier')->where('id', '!=', $supplierId);
-        })->where('status', 'available')->get();
+        $user = Auth::user();
+        if ($user->role === 'retail_manager') {
+            // Retail managers see all available raw materials from suppliers
+            $rawMaterials = \App\Models\Inventory::whereHas('user', function($query) {
+                $query->where('role', 'supplier');
+            })->where('status', 'available')->where('item_type', 'raw_material')->get();
+        } else {
+            // Existing logic for suppliers/bakery managers
+            $supplierId = $user->id;
+            $rawMaterials = \App\Models\Inventory::whereHas('user', function($query) use ($supplierId) {
+                $query->where('role', 'supplier')->where('id', '!=', $supplierId);
+            })->where('status', 'available')->where('item_type', 'raw_material')->get();
+        }
         return view('supplier.raw-materials.catalog', compact('rawMaterials'));
     }
 
@@ -75,6 +84,7 @@ class RawMaterialOrderController extends Controller
         // Create order
         $order = Order::create([
             'user_id' => Auth::id(),
+            'customer_name' => Auth::user()->name,
             'status' => 'pending',
             'total' => $total,
             'payment_status' => 'unpaid',
