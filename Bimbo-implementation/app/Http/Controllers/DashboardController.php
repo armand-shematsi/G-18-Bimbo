@@ -383,48 +383,48 @@ class DashboardController extends Controller
     }
 
     /**
-     * API: Live notifications Live notifications
-     */*/
-    public function notificationsLive()    public function notificationsLive()
+     * API: Live notifications
+     */
+    public function notificationsLive()
     {
-        return response()->json([n([
-            'notifications' => [     'notifications' => [
-                'Batch A completed successfully.',essfully.',
-                'Batch B scheduled to start at 13:00.',           'Batch B scheduled to start at 13:00.',
-                'John Smith assigned to Batch B.',ned to Batch B.',
+        return response()->json([
+            'notifications' => [
+                'Batch A completed successfully.',
+                'Batch B scheduled to start at 13:00.',
+                'John Smith assigned to Batch B.',
             ],
         ]);
     }
 
     /**
-     * API: Live chat messages Live chat messages
-     */*/
-    public function chatLive()    public function chatLive()
+     * API: Live chat messages
+     */
+    public function chatLive()
     {
-        return response()->json([n([
-            'messages' => [     'messages' => [
-                ['user' => 'Jane', 'message' => 'Batch A is almost done!'],ne', 'message' => 'Batch A is almost done!'],
-                ['user' => 'John', 'message' => 'Oven 2 needs a check.'],           ['user' => 'John', 'message' => 'Oven 2 needs a check.'],
+        return response()->json([
+            'messages' => [
+                ['user' => 'Jane', 'message' => 'Batch A is almost done!'],
+                ['user' => 'John', 'message' => 'Oven 2 needs a check.'],
             ],
         ]);
     }
 
     /**
-     * API: Live stats for dashboard cards (staff on duty, absence, shift filled, overtime) Live stats for dashboard cards (staff on duty, absence, shift filled, overtime)
-     */*/
-    public function statsLive()    public function statsLive()
+     * API: Live stats for dashboard cards (staff on duty, absence, shift filled, overtime)
+     */
+    public function statsLive()
     {
         $today = now()->toDateString();
-        $staffOnDuty = \App\Models\Attendance::where('date', $today)->where('status', 'present')->count(); $staffOnDuty = \App\Models\Attendance::where('date', $today)->where('status', 'present')->count();
-        $absentCount = \App\Models\Attendance::where('date', $today)->where('status', 'absent')->count();els\Attendance::where('date', $today)->where('status', 'absent')->count();
-        $shiftFilled = \App\Models\Shift::whereDate('start_time', $today)->whereNotNull('user_id')->count();   $shiftFilled = \App\Models\Shift::whereDate('start_time', $today)->whereNotNull('user_id')->count();
-        $overtimeCount = \App\Models\Shift::whereDate('start_time', $today)ift::whereDate('start_time', $today)
+        $staffOnDuty = \App\Models\Attendance::where('date', $today)->where('status', 'present')->count();
+        $absentCount = \App\Models\Attendance::where('date', $today)->where('status', 'absent')->count();
+        $shiftFilled = \App\Models\Shift::whereDate('start_time', $today)->whereNotNull('user_id')->count();
+        $overtimeCount = \App\Models\Shift::whereDate('start_time', $today)
             ->whereRaw('TIMESTAMPDIFF(HOUR, start_time, end_time) > 8')->count();
         return response()->json([
             'staffOnDuty' => $staffOnDuty,
             'absentCount' => $absentCount,
             'shiftFilled' => $shiftFilled,
-            'overtimeCount' => $overtimeCount,vertimeCount,
+            'overtimeCount' => $overtimeCount,
         ]);
     }
 }
