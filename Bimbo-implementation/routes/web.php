@@ -73,7 +73,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/stockin', [App\Http\Controllers\Supplier\StockInController::class, 'index'])->name('stockin.index');
         Route::get('/stockin/create', [App\Http\Controllers\Supplier\StockInController::class, 'create'])->name('stockin.create');
         Route::post('/stockin', [App\Http\Controllers\Supplier\StockInController::class, 'store'])->name('stockin.store');
-        Route::post('/stockin/test', function () { dd('Form submitted!'); })->name('stockin.test');
+        Route::post('/stockin/test', function () {
+            dd('Form submitted!');
+        })->name('stockin.test');
 
         // Stockout routes
         Route::get('/stockout', [App\Http\Controllers\Supplier\StockOutController::class, 'index'])->name('stockout.index');
@@ -329,9 +331,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 // No code to insert. The insertion point is likely a result of a merge conflict marker or placeholder, but there is no actual conflict or duplicate code to resolve here.
 
-// Make bakery.workforce.auto-assign available globally for dashboard
 Route::post('/workforce/auto-assign', [\App\Http\Controllers\WorkforceController::class, 'autoAssignStaff'])
-    ->middleware(['auth', 'verified', 'role:bakery_manager'])
+    ->middleware(['auth', 'verified', 'role:bakery_manager', 'throttle:300,1'])
     ->name('bakery.workforce.auto-assign');
 
 // Add this route for bakery stats live

@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class SupplyCenter extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'location', 'required_role'];
+    protected $fillable = ['name', 'location', 'required_role', 'shift_time'];
 }
