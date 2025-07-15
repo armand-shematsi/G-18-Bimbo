@@ -8,7 +8,7 @@
     <div class="mb-8">
         <div class="flex items-center justify-between">
             <div class="flex items-center">
-                <a href="{{ route('bakery.bakery.inventory.index') }}" class="text-blue-600 hover:text-blue-800 mr-4">
+                <a href="{{ route('bakery.inventory.index') }}" class="text-blue-600 hover:text-blue-800 mr-4">
                     <i class="fas fa-arrow-left"></i> Back to Inventory
                 </a>
                 <div>

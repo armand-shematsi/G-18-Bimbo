@@ -83,7 +83,7 @@ class OrderController extends Controller
 
                 OrderItem::create([
                     'order_id' => $order->id,
-                    'product_id' => null, // Custom product, not from inventory
+                    'product_id' => $item['product_id'], // Set product_id from request
                     'product_name' => $item['product_name'],
                     'quantity' => $item['quantity'],
                     'unit_price' => $item['unit_price'],
@@ -163,6 +163,36 @@ class OrderController extends Controller
         ]);
 
         $order->update(['status' => $validated['status']]);
+
+        // If delivered, transfer inventory
+        if ($validated['status'] === 'delivered') {
+            foreach ($order->items as $item) {
+                // Decrease supplier inventory
+                $supplierInventory = \App\Models\Inventory::where('product_id', $item->product_id)
+                    ->where('location', 'supplier')
+                    ->first();
+                if ($supplierInventory && $supplierInventory->quantity >= $item->quantity) {
+                    $supplierInventory->quantity -= $item->quantity;
+                    $supplierInventory->save();
+                }
+                // Increase bakery inventory
+                $bakeryInventory = \App\Models\Inventory::where('product_id', $item->product_id)
+                    ->where('location', 'bakery')
+                    ->first();
+                if ($bakeryInventory) {
+                    $bakeryInventory->quantity += $item->quantity;
+                    $bakeryInventory->save();
+                } else {
+                    // Optionally create new bakery inventory record
+                    \App\Models\Inventory::create([
+                        'product_id' => $item->product_id,
+                        'quantity' => $item->quantity,
+                        'location' => 'bakery',
+                        // add other required fields as needed
+                    ]);
+                }
+            }
+        }
 
         return redirect()->back()->with('success', 'Order status updated successfully.');
     }

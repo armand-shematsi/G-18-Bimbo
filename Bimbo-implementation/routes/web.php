@@ -187,8 +187,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['auth', 'role:retail_manager'])->prefix('retail')->name('retail.')->group(function () {
         Route::resource('orders', App\Http\Controllers\Retail\OrderController::class);
         Route::post('/orders/{order}/status', [App\Http\Controllers\Retail\OrderController::class, 'changeStatus'])->name('orders.changeStatus');
+        Route::post('/orders/{id}/status', [App\Http\Controllers\Retail\RetailerOrderController::class, 'updateStatus'])->name('orders.updateStatus');
 
         Route::get('/inventory', [App\Http\Controllers\Retail\InventoryController::class, 'index'])->name('inventory.index');
+        Route::post('/inventory', [App\Http\Controllers\Retail\InventoryController::class, 'store'])->name('inventory.store');
         Route::get('/inventory/create', [App\Http\Controllers\Retail\InventoryController::class, 'create'])->name('inventory.create');
         Route::get('/inventory/check', [App\Http\Controllers\Retail\InventoryController::class, 'check'])->name('inventory.check');
         Route::post('/inventory/update', [App\Http\Controllers\Retail\InventoryController::class, 'update'])->name('inventory.update');
@@ -224,6 +226,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/cart/{id}', [App\Http\Controllers\Retail\CartController::class, 'destroy'])->name('cart.destroy');
         Route::post('/cart/checkout', [App\Http\Controllers\Retail\CartController::class, 'checkout'])->name('cart.checkout');
         Route::post('/cart/place-order', [App\Http\Controllers\Retail\CartController::class, 'placeOrder'])->name('cart.place-order');
+        Route::post('/retailer-orders/{id}/fulfill', [App\Http\Controllers\Retail\RetailerOrderController::class, 'fulfill'])->name('retailer-orders.fulfill');
+        Route::post('/retailer-orders/{id}/deliver', [App\Http\Controllers\Retail\RetailerOrderController::class, 'deliver'])->name('retailer-orders.deliver');
     });
 
     // Distributor Routes
