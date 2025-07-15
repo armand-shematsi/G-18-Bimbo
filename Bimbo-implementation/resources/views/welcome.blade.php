@@ -76,7 +76,7 @@
                     <div class="flex justify-between h-16">
                         <div class="flex items-center">
                             <!-- Logo image -->
-                            <img src="{{ asset('images/k-Photo-Recipe Ramp Up-2021-11-Potato-Bread-potato_bread_01.jpeg') }}" 
+                            <img src="{{ asset('images/k-photo-recipe_ramp_up-2021-11-potato-bread-potato_bread_01.jpeg') }}" 
                                  alt="Bimbo Logo" 
                                  class="h-10 w-10 rounded-full object-cover">
                             <span class="ml-3 text-xl font-semibold text-gray-800">Bimbo Bread Management</span>

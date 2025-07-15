@@ -97,6 +97,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('machines', \App\Http\Controllers\MachineController::class);
         Route::resource('maintenance-tasks', \App\Http\Controllers\MaintenanceTaskController::class);
         Route::resource('shifts', \App\Http\Controllers\ShiftController::class);
+        // Add resourceful routes for bakery inventory
+        Route::resource('inventory', \App\Http\Controllers\Bakery\InventoryController::class);
         // Production Routes
         Route::get('/production', function () {
             return view('bakery.production');
@@ -130,6 +132,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/api/ingredients-live', [\App\Http\Controllers\DashboardController::class, 'ingredientsLive'])->name('bakery.ingredients-live');
         Route::get('/api/notifications-live', [\App\Http\Controllers\DashboardController::class, 'notificationsLive'])->name('bakery.notifications-live');
         Route::get('/api/chat-live', [\App\Http\Controllers\DashboardController::class, 'chatLive'])->name('bakery.chat-live');
+        // Add missing stats-live route for bakery dashboard cards
+        Route::get('/api/stats-live', [\App\Http\Controllers\Bakery\DashboardController::class, 'statsLive'])->name('bakery.stats-live');
 
         // Workforce Management
         Route::post('/workforce/assign-task', [\App\Http\Controllers\WorkforceController::class, 'assignTask'])->name('workforce.assign-task');
@@ -164,6 +168,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/order-processing/supplier-order', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'placeSupplierOrder'])->name('order-processing.supplier-order');
         // Correct route for AJAX retailer orders
         Route::get('/order-processing/retailer-orders', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'listRetailerOrders'])->name('order-processing.retailer-orders');
+        Route::get('/dashboard', [App\Http\Controllers\Bakery\DashboardController::class, 'index'])->name('dashboard');
     });
 
     // Retail Manager Routes
@@ -304,3 +309,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/reports/downloads', [\App\Http\Controllers\ReportDownloadController::class, 'index'])->name('reports.downloads');
 });
+
+// Placeholder route for bakery.workforce.auto-assign
+Route::get('/bakery/workforce/auto-assign', function() {
+    return 'Auto-assign workforce placeholder.';
+})->name('bakery.workforce.auto-assign');

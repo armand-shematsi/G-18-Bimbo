@@ -41,30 +41,6 @@ class DashboardController extends Controller
             case 'supplier':
                 $products = \App\Models\Product::all();
                 return view('dashboard.supplier', compact('products'));
-            case 'bakery_manager':
-                // Fetch all new or assigned orders (pending or processing)
-                $orders = \App\Models\Order::whereIn('status', ['pending', 'processing'])->orderBy('created_at', 'desc')->get();
-                $staff = \App\Models\User::where('role', 'staff')->get();
-                $supplyCenters = \App\Models\SupplyCenter::all();
-                $now = now();
-                $today = now()->toDateString();
-                // Count active staff: those with a shift where now is between start_time and end_time
-                $activeStaffCount = \App\Models\Shift::whereNotNull('user_id')
-                    ->where('start_time', '<=', $now)
-                    ->where('end_time', '>=', $now)
-                    ->distinct('user_id')
-                    ->count('user_id');
-                // Fetch production target from settings
-                $productionTarget = optional(\App\Models\Setting::where('key', 'production_target')->first())->value;
-                // Sum today's output from production batches
-                $todaysOutput = \App\Models\ProductionBatch::whereDate('scheduled_start', $today)->sum('quantity');
-                // --- New dashboard variables ---
-                $staffOnDuty = \App\Models\Attendance::where('date', $today)->where('status', 'present')->count();
-                $absentCount = \App\Models\Attendance::where('date', $today)->where('status', 'absent')->count();
-                $shiftFilled = \App\Models\Shift::whereDate('start_time', $today)->whereNotNull('user_id')->count();
-                $overtimeCount = \App\Models\Shift::whereDate('start_time', $today)
-                    ->whereRaw('TIMESTAMPDIFF(HOUR, start_time, end_time) > 8')->count();
-                return view('dashboard.bakery-manager', compact('orders', 'staff', 'supplyCenters', 'activeStaffCount', 'productionTarget', 'todaysOutput', 'staffOnDuty', 'absentCount', 'shiftFilled', 'overtimeCount'));
             case 'distributor':
                 $products = \App\Models\Product::all();
                 return view('dashboard.distributor', compact('products'));
@@ -191,11 +167,10 @@ class DashboardController extends Controller
                         ->take(5)
                         ->get();
                 } catch (\Exception $e) {
-                    // If Order model doesn't exist or table doesn't exist, use empty collection
                     $recentOrders = collect([]);
                 }
 
-                // Get recent messages for the customer (handle case where Message model might not exist)
+                // Get recent messages for the customer
                 try {
                     $recentMessages = \App\Models\Message::where('receiver_id', $user->id)
                         ->orWhere('sender_id', $user->id)
@@ -203,7 +178,6 @@ class DashboardController extends Controller
                         ->take(5)
                         ->get();
                 } catch (\Exception $e) {
-                    // If Message model doesn't exist or table doesn't exist, use empty collection
                     $recentMessages = collect([]);
                 }
 
@@ -212,7 +186,24 @@ class DashboardController extends Controller
                     $product->inventory_id = $inventory ? $inventory->id : null;
                     return $product;
                 });
-                return view('dashboard.customer', compact('recentOrders', 'recentMessages', 'products'));
+
+                // Fetch recommendations for this customer's segment
+                $recommendations = null;
+                if ($user->segment !== null) {
+                    $recFile = storage_path('app/ml/segment_recommendations.csv');
+                    if (file_exists($recFile)) {
+                        $rows = array_map('str_getcsv', file($recFile));
+                        $header = array_shift($rows);
+                        foreach ($rows as $row) {
+                            $data = array_combine($header, $row);
+                            if ($data['segment'] == $user->segment) {
+                                $recommendations = (object)$data;
+                                break;
+                            }
+                        }
+                    }
+                }
+                return view('dashboard.customer', compact('recentOrders', 'recentMessages', 'products', 'recommendations'));
             default:
                 // Log out the user and redirect to login with error message
                 Auth::logout();

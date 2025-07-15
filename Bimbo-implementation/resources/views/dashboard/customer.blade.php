@@ -43,6 +43,16 @@
         </div>
     @endif
 @endif
+@if(isset($recommendations) && $recommendations)
+    <div class="alert alert-info mb-4">
+        <h4>Recommended for you:</h4>
+        <ul>
+            @foreach(explode(';', $recommendations->recommendations) as $rec)
+                <li>{{ $rec }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 <div class="py-12 min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-10">
@@ -239,32 +249,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="card my-4 shadow-sm" style="border: 2px solid #007bff; background: linear-gradient(90deg, #e3f2fd 0%, #fff 100%);">
-                    <div class="card-body">
-                        <h4 class="card-title mb-3" style="font-size: 2rem; font-weight: bold; color: #007bff;">
-                            <i class="fas fa-file-alt" style="font-size: 2.2rem; color: #007bff; vertical-align: middle;"></i>
-                            Reports Center
-                        </h4>
-                        <div class="d-flex flex-wrap gap-3">
-                            <a href="{{ route('reports.downloads') }}" class="btn btn-info btn-lg d-flex align-items-center" style="font-size: 1.3rem; font-weight: bold; background: #17a2b8; border: none; border-radius: 6px;">
-                                <i class="fas fa-eye mr-2" style="font-size: 2rem; color: #fff;"></i> View Your Reports
-                            </a>
-                        </div>
-                        <div class="d-flex flex-wrap gap-3 mt-3">
-                            <a href="{{ route('reports.downloads') }}" class="btn btn-success btn-lg d-flex align-items-center" style="font-size: 1.3rem; font-weight: bold; background: #28a745; border: none; border-radius: 6px;">
-                                <i class="fas fa-file-download mr-2" style="font-size: 2rem; color: #fff;"></i> Download Your Reports
-                            </a>
-                        </div>
-                        <p class="text-muted mt-3 mb-0" style="font-size: 1.1rem; font-weight: 500; color: #333 !important;">Access all your daily and weekly reports in one place.</p>
-                    </div>
+                {{-- Reports Button at the bottom --}}
+                <div class="w-full flex justify-center mt-8 mb-4">
+                    <a href="{{ route('reports.downloads') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg text-xl transition-all duration-200">
+                        <i class="fas fa-file-alt mr-2"></i> Reports
+                    </a>
                 </div>
+                <!-- Footer -->
+                <div class="mt-16 text-center text-gray-400 text-xs">Thank you for being a valued customer! &mdash; The Bimbo Team</div>
             </main>
         </div>
     </div>
-    <!-- Footer -->
-    <div class="mt-16 text-center text-gray-400 text-xs">Thank you for being a valued customer! &mdash; The Bimbo Team</div>
-</div>
-
-<!-- Product Gallery -->
-@include('components.product-gallery')
+    <!-- Product Gallery -->
+    @include('components.product-gallery')
 @endsection

@@ -8,6 +8,9 @@
 
 @section('content')
     <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded text-blue-900 text-lg font-semibold">
+            Access all your daily and weekly reports in one place.
+        </div>
         <div class="px-4 py-6 sm:px-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div class="bg-white shadow rounded-lg p-6">
                 <h3 class="text-lg font-medium text-gray-900">Total Bread Produced</h3>
