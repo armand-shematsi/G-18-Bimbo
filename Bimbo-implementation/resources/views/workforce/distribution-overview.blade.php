@@ -169,9 +169,9 @@
             <td>${c.name}</td>
             <td>${c.required_role}</td>
             <td>
-                <select onchange='updateCenterShiftTime(${c.id}, this.value)' class='border rounded px-2 py-1 w-32'>
-                    <option value='Day' ${c.shift_time === 'Day' ? 'selected' : ''}>Day</option>
-                    <option value='Night' ${c.shift_time === 'Night' ? 'selected' : ''}>Night</option>
+                <select onchange='updateCenterShiftTime(${c.id}, this.value)' class='border rounded px-2 py-1 w-40'>
+                    <option value='8:00AM-17:00PM' ${c.shift_time === '8:00AM-17:00PM' ? 'selected' : ''}>8:00AM-17:00PM</option>
+                    <option value='6:00PM-6:00AM' ${c.shift_time === '6:00PM-6:00AM' ? 'selected' : ''}>6:00PM-6:00AM</option>
                 </select>
             </td>
             <td>
@@ -334,9 +334,9 @@
         if (!name) return;
         const required_role = prompt('Edit role needed:', c.required_role);
         if (!required_role) return;
-        let shift_time = c.shift_time || 'Day';
-        shift_time = prompt('Edit shift time (Day/Night):', shift_time);
-        if (shift_time !== 'Day' && shift_time !== 'Night') shift_time = 'Day';
+        let shift_time = c.shift_time || '8:00AM-17:00PM';
+        shift_time = prompt('Edit shift time (8:00AM-17:00PM or 6:00PM-6:00AM):', shift_time);
+        if (!["8:00AM-17:00PM", "6:00PM-6:00AM"].includes(shift_time)) shift_time = '8:00AM-17:00PM';
         try {
             const res = await fetch(`${centersApi}/${id}`, {
                 method: 'PUT',
@@ -385,7 +385,7 @@
             })));
             // Assign all available staff with the same role to each center, using center's shift_time
             for (const center of centers) {
-                const shiftTime = center.shift_time || 'Day';
+                const shiftTime = center.shift_time || '8:00AM-17:00PM';
                 const availableStaff = staff.filter(s =>
                     s.role === center.required_role &&
                     s.status === 'Present'

@@ -189,6 +189,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/orders/{order}/status', [App\Http\Controllers\Retail\OrderController::class, 'changeStatus'])->name('orders.changeStatus');
 
         Route::get('/inventory', [App\Http\Controllers\Retail\InventoryController::class, 'index'])->name('inventory.index');
+        Route::get('/inventory/create', [App\Http\Controllers\Retail\InventoryController::class, 'create'])->name('inventory.create');
         Route::get('/inventory/check', [App\Http\Controllers\Retail\InventoryController::class, 'check'])->name('inventory.check');
         Route::post('/inventory/update', [App\Http\Controllers\Retail\InventoryController::class, 'update'])->name('inventory.update');
 
@@ -358,3 +359,6 @@ Route::get('/bakery/api/inventory/{id}/live', [\App\Http\Controllers\Bakery\Inve
 
 // Add this route for bakery inventory recent orders
 Route::get('/bakery/api/inventory/{id}/recent-orders', [\App\Http\Controllers\Bakery\InventoryController::class, 'recentOrders'])->name('bakery.inventory.recent-orders');
+
+// Real-time production stats for dashboard cards
+Route::get('/api/production-stats-live', [\App\Http\Controllers\DashboardController::class, 'productionStatsLive']);

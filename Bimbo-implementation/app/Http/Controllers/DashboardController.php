@@ -207,7 +207,7 @@ class DashboardController extends Controller
                     $recentMessages = collect([]);
                 }
 
-                $products = \App\Models\Product::all()->map(function($product) {
+                $products = \App\Models\Product::all()->map(function ($product) {
                     $inventory = \App\Models\Inventory::where('item_name', $product->name)->first();
                     $product->inventory_id = $inventory ? $inventory->id : null;
                     return $product;
@@ -325,12 +325,45 @@ class DashboardController extends Controller
      */
     public function notificationsLive()
     {
+        // Get recent batches (last 7 days)
+        $batches = \App\Models\ProductionBatch::orderBy('scheduled_start', 'desc')->take(7)->get();
+        $notifications = [];
+        foreach ($batches as $batch) {
+            // Batch scheduled
+            if ($batch->scheduled_start) {
+                $notifications[] = "Batch {$batch->name} scheduled to start at " . date('m/d, h:i A', strtotime($batch->scheduled_start)) . ".";
+            }
+            // Batch started
+            if ($batch->actual_start) {
+                $notifications[] = "Batch {$batch->name} started at " . date('m/d, h:i A', strtotime($batch->actual_start)) . ".";
+            }
+            // Batch completed
+            if ($batch->status === 'completed' && $batch->actual_end) {
+                $notifications[] = "Batch {$batch->name} completed at " . date('m/d, h:i A', strtotime($batch->actual_end)) . ".";
+            }
+            // Batch delayed
+            if ($batch->status === 'delayed') {
+                $notifications[] = "Batch {$batch->name} is delayed.";
+            }
+            // Batch cancelled
+            if ($batch->status === 'cancelled') {
+                $notifications[] = "Batch {$batch->name} was cancelled.";
+            }
+            // Notes
+            if ($batch->notes) {
+                $notifications[] = "Batch {$batch->name} note: {$batch->notes}";
+            }
+            // Staff assignments (via shifts)
+            foreach ($batch->shifts as $shift) {
+                if ($shift->user) {
+                    $notifications[] = "{$shift->user->name} assigned to Batch {$batch->name}.";
+                }
+            }
+        }
+        // Only keep the 10 most recent notifications
+        $notifications = array_slice($notifications, 0, 10);
         return response()->json([
-            'notifications' => [
-                'Batch A completed successfully.',
-                'Batch B scheduled to start at 13:00.',
-                'John Smith assigned to Batch B.',
-            ],
+            'notifications' => $notifications,
         ]);
     }
 
@@ -363,6 +396,21 @@ class DashboardController extends Controller
             'absentCount' => $absentCount,
             'shiftFilled' => $shiftFilled,
             'overtimeCount' => $overtimeCount,
+        ]);
+    }
+
+    /**
+     * API: Real-time production stats for dashboard cards
+     */
+    public function productionStatsLive()
+    {
+        $today = now()->toDateString();
+        $todaysOutput = \App\Models\ProductionBatch::whereDate('scheduled_start', $today)->sum('quantity') ?? 0;
+        $productionTarget = optional(\App\Models\Setting::where('key', 'production_target')->first())->value;
+        $productionTarget = is_numeric($productionTarget) ? $productionTarget : 0;
+        return response()->json([
+            'todaysOutput' => $todaysOutput,
+            'productionTarget' => $productionTarget,
         ]);
     }
 }
