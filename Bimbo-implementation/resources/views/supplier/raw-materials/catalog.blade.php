@@ -7,6 +7,7 @@
 
 @section('content')
 <div class="py-8">
+    {{-- Debug print removed --}}
     @if(session('success'))
         <div class="mb-4 p-4 bg-green-100 text-green-800 rounded-lg shadow">{{ session('success') }}</div>
     @endif

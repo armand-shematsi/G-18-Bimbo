@@ -15,7 +15,7 @@
                     <img src="{{ asset('images/' . $imageName) }}" 
                          alt="{{ $product->name }}" 
                          class="w-full h-48 object-cover rounded-t-xl"
-                         onerror="this.src='{{ asset('images/k-Photo-Recipe Ramp Up-2021-11-Potato-Bread-potato_bread_01.jpeg') }}'">
+                         onerror="this.src='{{ asset('images/k-photo-recipe_ramp_up-2021-11-potato-bread-potato_bread_01.jpeg') }}'">
                     <div class="absolute top-2 right-2">
                         <span class="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">Fresh</span>
                     </div>

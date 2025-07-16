@@ -65,7 +65,7 @@ class OrderProcessingController extends Controller
         return response()->json(['success' => true, 'order' => $order]);
     }
 
-    // AJAX: List all retailer orders (now from orders table)
+    // AJAX: List all retailer orders (from orders table)
     public function listRetailerOrders()
     {
         $orders = \App\Models\Order::with(['user', 'items.product'])->orderBy('created_at', 'desc')->get();
@@ -75,32 +75,54 @@ class OrderProcessingController extends Controller
     // AJAX: Mark a retailer order as received
     public function receiveRetailerOrder($id)
     {
-        $order = \App\Models\RetailerOrder::with('items')->findOrFail($id);
+        $order = \App\Models\Order::with('items')->findOrFail($id);
         $order->status = 'received';
         $order->save();
 
         foreach ($order->items as $item) {
-            $inventory = \App\Models\Inventory::where('product_id', $item->product_id)
-                ->orWhere('item_name', 'like', '%' . $item->item_name . '%')
+            // Find bakery inventory for this product
+            $bakeryInventory = \App\Models\Inventory::where('product_id', $item->product_id)
+                ->where('location', 'bakery')
                 ->first();
 
-            if ($inventory && $inventory->quantity >= $item->quantity) {
-                $inventory->quantity -= $item->quantity;
-                $inventory->save();
+            // Find or create retail inventory for this product
+            $retailInventory = \App\Models\Inventory::firstOrCreate(
+                [
+                    'product_id' => $item->product_id,
+                    'location' => 'retail',
+                ],
+                [
+                    'item_name' => $item->product ? $item->product->name : $item->item_name,
+                    'unit_price' => $bakeryInventory ? $bakeryInventory->unit_price : 0,
+                ]
+            );
 
-                $inventory->movements()->create([
-                    'quantity' => $item->quantity,
-                    'type' => 'out',
-                    'note' => 'Retailer Order #' . $order->id . ' received',
-                    'user_id' => auth()->id(),
-                ]);
-            }
+            // Always sync name and price from bakery
+            $retailInventory->item_name = $item->product ? $item->product->name : $item->item_name;
+            $retailInventory->unit_price = $bakeryInventory ? $bakeryInventory->unit_price : $retailInventory->unit_price;
+            $retailInventory->quantity += $item->quantity;
+            $retailInventory->save();
         }
 
         // Notify the retailer
-        if ($order->retailer) {
-            $order->retailer->notify(new \App\Notifications\RetailerOrderReceived($order));
+        if ($order->user) {
+            $order->user->notify(new \App\Notifications\RetailerOrderReceived($order));
         }
+        return response()->json(['success' => true, 'order' => $order]);
+    }
+
+    // AJAX: Update retailer order status
+    public function updateRetailerOrderStatus(Request $request, $id)
+    {
+        $order = \App\Models\Order::findOrFail($id);
+        $newStatus = $request->input('status');
+        $allowed = ['pending', 'processing', 'shipped', 'received'];
+        if (!in_array($newStatus, $allowed)) {
+            return response()->json(['success' => false, 'message' => 'Invalid status'], 400);
+        }
+        $order->status = $newStatus;
+        $order->save();
+        // Optionally: notify retailer, update inventory, etc.
         return response()->json(['success' => true, 'order' => $order]);
     }
 }

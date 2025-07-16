@@ -52,7 +52,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="customer_name" class="block text-sm font-medium text-gray-700">Customer Name *</label>
-                        <input type="text" name="customer_name" id="customer_name" value="{{ old('customer_name') }}" required
+                        <input type="text" name="customer_name" id="customer_name" value="{{ old('customer_name', $customerName ?? '') }}" required
                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                         @error('customer_name')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -61,7 +61,7 @@
 
                     <div>
                         <label for="customer_email" class="block text-sm font-medium text-gray-700">Customer Email *</label>
-                        <input type="email" name="customer_email" id="customer_email" value="{{ old('customer_email') }}" required
+                        <input type="email" name="customer_email" id="customer_email" value="{{ old('customer_email', $customerEmail ?? '') }}" required
                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                         @error('customer_email')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

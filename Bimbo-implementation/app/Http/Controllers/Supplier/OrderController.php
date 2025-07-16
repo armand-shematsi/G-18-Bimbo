@@ -16,18 +16,16 @@ class OrderController extends Controller
      */
     public function index()
     {
-        // Get the first vendor's id (used when creating orders)
-        $vendorId = \App\Models\Vendor::query()->value('id');
-        $orders = Order::where('vendor_id', $vendorId)
-            ->with(['user', 'items', 'payment'])
-            ->latest()
-            ->paginate(10);
+        $vendor = \App\Models\Vendor::where('user_id', auth()->id())->first();
+        $orders = $vendor
+            ? Order::where('vendor_id', $vendor->id)->with(['user', 'items', 'payment'])->latest()->paginate(10)
+            : collect();
 
         // Get order statistics
-        $totalOrders = Order::where('vendor_id', $vendorId)->count();
-        $pendingOrders = Order::where('vendor_id', $vendorId)->where('status', 'pending')->count();
-        $processingOrders = Order::where('vendor_id', $vendorId)->where('status', 'processing')->count();
-        $completedOrders = Order::where('vendor_id', $vendorId)->whereIn('status', ['delivered', 'shipped'])->count();
+        $totalOrders = $vendor ? Order::where('vendor_id', $vendor->id)->count() : 0;
+        $pendingOrders = $vendor ? Order::where('vendor_id', $vendor->id)->where('status', 'pending')->count() : 0;
+        $processingOrders = $vendor ? Order::where('vendor_id', $vendor->id)->where('status', 'processing')->count() : 0;
+        $completedOrders = $vendor ? Order::where('vendor_id', $vendor->id)->whereIn('status', ['delivered', 'shipped'])->count() : 0;
 
         return view('supplier.orders.index', compact('orders', 'totalOrders', 'pendingOrders', 'processingOrders', 'completedOrders'));
     }
@@ -37,11 +35,14 @@ class OrderController extends Controller
      */
     public function create()
     {
-        // You can fetch any data needed for the order form here, e.g. products, inventory, etc.
-        // $products = Product::all();
-
+        $user = auth()->user();
+        $customerName = $user ? $user->name : '';
+        $customerEmail = $user ? $user->email : '';
         // Return a view for creating a new order
-        return view('supplier.orders.create'/*, compact('products')*/);
+        return view('supplier.orders.create', [
+            'customerName' => $customerName,
+            'customerEmail' => $customerEmail
+        ]);
     }
 
     /**
@@ -83,7 +84,7 @@ class OrderController extends Controller
 
                 OrderItem::create([
                     'order_id' => $order->id,
-                    'product_id' => null, // Custom product, not from inventory
+                    'product_id' => $item['product_id'], // Set product_id from request
                     'product_name' => $item['product_name'],
                     'quantity' => $item['quantity'],
                     'unit_price' => $item['unit_price'],
@@ -109,10 +110,9 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        // Use the first vendor's id (used when creating orders)
-        $vendorId = \App\Models\Vendor::query()->value('id');
-        // Ensure the order belongs to the current supplier
-        if ($order->vendor_id !== $vendorId) {
+        // Find the vendor linked to the logged-in supplier user
+        $vendor = \App\Models\Vendor::where('user_id', auth()->id())->first();
+        if (!$vendor || $order->vendor_id !== $vendor->id) {
             abort(403, 'Unauthorized access to this order.');
         }
 
@@ -163,6 +163,36 @@ class OrderController extends Controller
         ]);
 
         $order->update(['status' => $validated['status']]);
+
+        // If delivered, transfer inventory
+        if ($validated['status'] === 'delivered') {
+            foreach ($order->items as $item) {
+                // Decrease supplier inventory
+                $supplierInventory = \App\Models\Inventory::where('product_id', $item->product_id)
+                    ->where('location', 'supplier')
+                    ->first();
+                if ($supplierInventory && $supplierInventory->quantity >= $item->quantity) {
+                    $supplierInventory->quantity -= $item->quantity;
+                    $supplierInventory->save();
+                }
+                // Increase bakery inventory
+                $bakeryInventory = \App\Models\Inventory::where('product_id', $item->product_id)
+                    ->where('location', 'bakery')
+                    ->first();
+                if ($bakeryInventory) {
+                    $bakeryInventory->quantity += $item->quantity;
+                    $bakeryInventory->save();
+                } else {
+                    // Optionally create new bakery inventory record
+                    \App\Models\Inventory::create([
+                        'product_id' => $item->product_id,
+                        'quantity' => $item->quantity,
+                        'location' => 'bakery',
+                        // add other required fields as needed
+                    ]);
+                }
+            }
+        }
 
         return redirect()->back()->with('success', 'Order status updated successfully.');
     }

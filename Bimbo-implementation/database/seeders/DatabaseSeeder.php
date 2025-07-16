@@ -29,6 +29,18 @@ class DatabaseSeeder extends Seeder
             CustomerUserSeeder::class,
         ]);
 
+        // Backfill product_id for inventories
+        \App\Models\Inventory::query()->each(function($inventory) {
+            $product = \App\Models\Product::where('name', $inventory->item_name)->first();
+            if ($product) {
+                $inventory->product_id = $product->id;
+                $inventory->save();
+                echo "Updated inventory #{$inventory->id} with product_id {$product->id}\n";
+            } else {
+                echo "No product found for inventory #{$inventory->id} ({$inventory->item_name})\n";
+            }
+        });
+
         // --- Demo Attendance for Workforce Overview ---
         $today = now()->toDateString();
         $staff = \App\Models\User::where('role', 'staff')->get();

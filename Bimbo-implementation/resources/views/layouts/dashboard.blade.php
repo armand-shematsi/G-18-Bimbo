@@ -23,7 +23,7 @@
                     <div class="flex items-center gap-4">
                         <!-- Logo -->
                         <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
-                            <img class="h-10 w-auto rounded shadow" src="{{ asset('images/k-Photo-Recipe Ramp Up-2021-11-Potato-Bread-potato_bread_01.jpeg') }}" alt="Bimbo Logo">
+                            <img class="h-10 w-auto rounded shadow" src="{{ asset('images/k-photo-recipe_ramp_up-2021-11-potato-bread-potato_bread_01.jpeg') }}" alt="Bimbo Logo">
                             <span class="font-bold text-xl text-indigo-700 tracking-tight hidden sm:inline">Bimbo Admin</span>
                         </a>
                         <!-- Hamburger (mobile) -->

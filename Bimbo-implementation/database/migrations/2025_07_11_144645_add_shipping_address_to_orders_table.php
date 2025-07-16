@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
+            if (!Schema::hasColumn('orders', 'shipping_address')) {
             $table->string('shipping_address')->nullable()->after('payment_status');
+            }
         });
     }
 
@@ -22,7 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('orders', function (Blueprint $table) {
+            if (Schema::hasColumn('orders', 'shipping_address')) {
             $table->dropColumn('shipping_address');
+            }
         });
     }
 };

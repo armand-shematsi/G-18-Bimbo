@@ -19,7 +19,7 @@
                     <div class="flex">
                         <div class="shrink-0 flex items-center">
                             <a href="{{ route('dashboard') }}">
-                                <img class="h-8 w-auto" src="{{ asset('images/k-Photo-Recipe Ramp Up-2021-11-Potato-Bread-potato_bread_01.jpeg') }}" alt="Bimbo Logo">
+                                <img class="h-8 w-auto" src="{{ asset('images/k-photo-recipe_ramp_up-2021-11-potato-bread-potato_bread_01.jpeg') }}" alt="Bimbo Logo">
                             </a>
                         </div>
                         <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">

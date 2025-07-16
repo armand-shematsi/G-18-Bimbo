@@ -40,6 +40,9 @@
                             <a href="{{ route('bakery.inventory.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('bakery.inventory.*') ? 'border-indigo-400 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 focus:outline-none focus:border-indigo-700 transition duration-150 ease-in-out">
                                 Inventory Management
                             </a>
+                            <a href="{{ url('/supplier/raw-materials/catalog') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->is('supplier/raw-materials/catalog') ? 'border-indigo-400 text-gray-900' : 'border-transparent text-green-600 hover:text-green-800 hover:border-green-600' }} text-sm font-medium leading-5 focus:outline-none focus:border-green-700 transition duration-150 ease-in-out">
+                                Order Raw Materials
+                            </a>
                             <a href="{{ route('bakery.maintenance') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('bakery.maintenance') ? 'border-indigo-400 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 focus:outline-none focus:border-indigo-700 transition duration-150 ease-in-out">
                                 Machine Maintenance
                             </a>
