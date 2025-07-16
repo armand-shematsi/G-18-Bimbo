@@ -16,24 +16,12 @@
 </div>
 @endsection
 
-@section('navigation-links')
-<a href="{{ route('bakery.production') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-sky-700 hover:border-sky-400 focus:outline-none focus:text-sky-700 focus:border-sky-400 transition">
-    Production Monitoring
-</a>
-<a href="{{ route('bakery.schedule') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-sky-700 hover:border-sky-400 focus:outline-none focus:text-sky-700 focus:border-sky-400 transition">
-    Workforce Schedule
-</a>
-<a href="{{ route('bakery.maintenance') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-sky-700 hover:border-sky-400 focus:outline-none focus:text-sky-700 focus:border-sky-400 transition">
-    Machine Maintenance
-</a>
-@endsection
-
 @section('content')
 <!-- Welcome Banner -->
-<div class="bg-gradient-to-r from-sky-400 to-sky-200 rounded-2xl shadow-xl mb-10 overflow-hidden flex flex-col md:flex-row items-center justify-between px-8 py-10 relative">
+<div class="bg-blue-500 rounded-2xl shadow-xl mb-10 overflow-hidden flex flex-col md:flex-row items-center justify-between px-8 py-10 relative">
     <div class="text-white z-10">
         <h2 class="text-3xl md:text-4xl font-extrabold mb-2 drop-shadow">Welcome, Bakery Manager!</h2>
-        <p class="text-lg text-sky-100 font-medium">Monitor production, manage workforce, and keep your bakery running smoothly.</p>
+        <p class="text-lg text-blue-100 font-medium">Monitor production, manage workforce, and keep your bakery running smoothly.</p>
     </div>
     <div class="hidden md:block absolute right-8 top-1/2 -translate-y-1/2 opacity-30 z-0">
         <svg class="w-40 h-40" fill="currentColor" viewBox="0 0 24 24">
@@ -44,8 +32,8 @@
 
 <!-- Statistics Cards -->
 <div class="w-full overflow-x-auto">
-    <div class="flex flex-row gap-6 mb-12 min-w-max">
-        <!-- Card Example: repeat for each stat -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 mb-12">
+        <!-- First Row -->
         <div class="bg-white rounded-2xl shadow-lg p-6 border-b-4 border-blue-400 flex flex-col items-start hover:shadow-2xl transition-shadow duration-200 group min-w-[220px]">
             <div class="flex items-center">
                 <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -89,6 +77,7 @@
                 </div>
             </div>
         </div>
+        <!-- Second Row -->
         <div class="bg-white rounded-2xl shadow-lg p-6 border-b-4 border-red-400 flex flex-col items-start hover:shadow-2xl transition-shadow duration-200 group min-w-[220px]">
             <div class="flex items-center">
                 <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -158,7 +147,7 @@
                         <p class="text-xs text-blue-100">Start Batch</p>
                     </div>
                 </a>
-                <a href="{{ route('bakery.maintenance') }}" class="flex items-center p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg text-white w-full mb-2 hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                <a href="{{ route('bakery.maintenance') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full mb-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
                     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
@@ -166,10 +155,10 @@
                     </div>
                     <div class="ml-4">
                         <p class="font-semibold">Maintain Machines</p>
-                        <p class="text-xs text-yellow-100">Log Maintenance</p>
+                        <p class="text-xs text-blue-100">Log Maintenance</p>
                     </div>
                 </a>
-                <a href="{{ route('bakery.order-processing') }}" class="flex items-center p-4 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg text-white w-full mb-2 hover:from-indigo-600 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                <a href="{{ route('bakery.order-processing') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full mb-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
                     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />
@@ -177,10 +166,10 @@
                     </div>
                     <div class="ml-4">
                         <p class="font-semibold">Order Processing</p>
-                        <p class="text-xs text-indigo-100">Place/Receive Orders</p>
+                        <p class="text-xs text-blue-100">Place/Receive Orders</p>
                     </div>
                 </a>
-                <a href="{{ route('workforce.overview') }}" class="flex items-center p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg text-white w-full mb-2 hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                <a href="{{ route('workforce.overview') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full mb-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
                     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -188,7 +177,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="font-semibold">Workforce Distribution</p>
-                        <p class="text-xs text-yellow-100">View & Manage Workforce</p>
+                        <p class="text-xs text-blue-100">View & Manage Workforce</p>
                     </div>
                 </a>
             </div>

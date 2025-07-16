@@ -19,13 +19,15 @@ class SupplyCenterController extends Controller
     }
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'name' => 'required|string',
-            'location' => 'nullable|string',
-            'required_role' => 'nullable|string',
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'location' => 'nullable|string|max:255',
+            'required_role' => 'nullable|string|max:255',
+            'shift_time' => 'nullable|string|max:255',
+            'required_staff_count' => 'required|integer|min:1',
         ]);
-        SupplyCenter::create($data);
-        return redirect()->route('admin.supply_centers.index')->with('success', 'Supply center created!');
+        $center = SupplyCenter::create($validated);
+        return redirect()->route('admin.supply_centers.index')->with('success', 'Supply Center created successfully.');
     }
     public function edit(SupplyCenter $center)
     {
@@ -33,12 +35,14 @@ class SupplyCenterController extends Controller
     }
     public function update(Request $request, SupplyCenter $center)
     {
-        $data = $request->validate([
-            'name' => 'required|string',
-            'location' => 'nullable|string',
-            'required_role' => 'nullable|string',
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'location' => 'nullable|string|max:255',
+            'required_role' => 'nullable|string|max:255',
+            'shift_time' => 'nullable|string|max:255',
+            'required_staff_count' => 'required|integer|min:1',
         ]);
-        $center->update($data);
-        return redirect()->route('admin.supply_centers.index')->with('success', 'Supply center updated!');
+        $center->update($validated);
+        return redirect()->route('admin.supply_centers.index')->with('success', 'Supply Center updated successfully.');
     }
 }

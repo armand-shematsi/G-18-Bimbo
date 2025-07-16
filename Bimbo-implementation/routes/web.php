@@ -284,6 +284,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('bakery.workforce.auto-assign');
 });
 
+Route::prefix('admin')->name('admin.')->middleware(['web', 'auth', 'verified'])->group(function () {
+    Route::resource('supply_centers', \App\Http\Controllers\Admin\SupplyCenterController::class);
+});
+
 // Vendor Registration Routes
 Route::get('/vendor/register', [VendorController::class, 'register'])->name('vendor.register');
 Route::post('/vendor/register', [VendorController::class, 'store'])->name('vendor.store');
