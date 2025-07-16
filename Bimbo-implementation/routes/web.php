@@ -55,7 +55,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Combine all supplier routes into a single group
-    Route::middleware(['auth', 'role:supplier|bakery_manager'])->prefix('supplier')->name('supplier.')->group(function () {
+    Route::middleware(['auth', 'role:supplier,bakery_manager'])->prefix('supplier')->name('supplier.')->group(function () {
         // Inventory routes
         Route::get('/inventory', [App\Http\Controllers\Supplier\InventoryController::class, 'index'])->name('inventory.index');
         Route::get('/inventory/create', [App\Http\Controllers\Supplier\InventoryController::class, 'create'])->name('inventory.create');
@@ -88,6 +88,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/chat', [App\Http\Controllers\Supplier\ChatController::class, 'index'])->name('chat.index');
         Route::post('/chat/send', [App\Http\Controllers\Supplier\ChatController::class, 'send'])->name('chat.send');
         Route::get('/chat/messages', [App\Http\Controllers\Supplier\ChatController::class, 'getMessages'])->name('chat.get-messages');
+
+        // Raw materials cart and checkout
+        Route::get('/raw-materials/catalog', [App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'catalog'])->name('raw-materials.catalog');
+        Route::get('/raw-materials/cart', [App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'cart'])->name('raw-materials.cart');
+        Route::post('/raw-materials/checkout', [App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'checkout'])->name('raw-materials.checkout');
+        Route::post('/raw-materials/cart/remove/{index}', [App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'removeFromCart'])->name('raw-materials.removeFromCart');
     });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -300,14 +306,13 @@ Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier
 });
 
 // Supplier Raw Material Ordering
-Route::middleware(['auth', 'role:supplier,bakery_manager,retail_manager'])->prefix('supplier/raw-materials')->name('supplier.raw-materials.')->group(function () {
+Route::middleware(['auth', 'role:supplier,bakery_manager'])->prefix('supplier/raw-materials')->name('supplier.raw-materials.')->group(function () {
     Route::get('catalog', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'catalog'])->name('catalog');
     Route::post('add-to-cart', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'addToCart'])->name('addToCart');
     Route::get('cart', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'cart'])->name('cart');
     Route::post('remove-from-cart/{index}', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'removeFromCart'])->name('removeFromCart');
     Route::post('checkout', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'checkout'])->name('checkout');
 });
-
 require __DIR__ . '/auth.php';
 
 Route::middleware(['auth'])->group(function () {
@@ -366,3 +371,7 @@ Route::get('/bakery/api/inventory/{id}/live', [\App\Http\Controllers\Bakery\Inve
 
 // Add this route for bakery inventory recent orders
 Route::get('/bakery/api/inventory/{id}/recent-orders', [\App\Http\Controllers\Bakery\InventoryController::class, 'recentOrders'])->name('bakery.inventory.recent-orders');
+
+Route::get('/test-simple-form', function () {
+    return view('test-simple-form');
+});
