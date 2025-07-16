@@ -86,10 +86,37 @@ class WorkforceController extends Controller
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'supply_center_id' => 'nullable|exists:supply_centers,id',
+            'shift_start' => 'nullable|date_format:H:i',
+            'shift_end' => 'nullable|date_format:H:i',
         ]);
         $user = \App\Models\User::findOrFail($request->user_id);
         $user->supply_center_id = $request->supply_center_id;
         $user->save();
+        $date = now()->toDateString();
+        $start = $date . ' ' . ($request->shift_start ?? '08:00') . ':00';
+        // If end time is before start time, assume it's next day
+        if ($request->shift_end && $request->shift_start && $request->shift_end < $request->shift_start) {
+            $endDate = now()->copy()->addDay()->toDateString();
+        } else {
+            $endDate = $date;
+        }
+        $end = $endDate . ' ' . ($request->shift_end ?? '17:00') . ':00';
+        $centerId = $request->supply_center_id;
+        $role = $user->role;
+        \App\Models\Shift::firstOrCreate([
+            'user_id' => $user->id,
+            'supply_center_id' => $centerId,
+            'start_time' => $start,
+            'end_time' => $end,
+        ], [
+            'role' => $role,
+        ]);
+        \App\Models\Attendance::updateOrCreate([
+            'user_id' => $user->id,
+            'date' => $date,
+        ], [
+            'status' => 'present',
+        ]);
         return response()->json([
             'success' => true,
             'message' => 'Staff assignment updated!',
@@ -103,13 +130,38 @@ class WorkforceController extends Controller
             'staff_ids' => 'required|array',
             'staff_ids.*' => 'exists:users,id',
             'supply_center_id' => 'nullable|exists:supply_centers,id',
+            'shift_start' => 'nullable|date_format:H:i',
+            'shift_end' => 'nullable|date_format:H:i',
         ]);
         $count = 0;
+        $date = now()->toDateString();
+        $start = $date . ' ' . ($request->shift_start ?? '08:00') . ':00';
+        if ($request->shift_end && $request->shift_start && $request->shift_end < $request->shift_start) {
+            $endDate = now()->copy()->addDay()->toDateString();
+        } else {
+            $endDate = $date;
+        }
+        $end = $endDate . ' ' . ($request->shift_end ?? '17:00') . ':00';
+        $centerId = $request->supply_center_id;
         foreach ($request->staff_ids as $userId) {
             $user = \App\Models\User::find($userId);
             if ($user) {
-                $user->supply_center_id = $request->supply_center_id;
+                $user->supply_center_id = $centerId;
                 $user->save();
+                \App\Models\Shift::firstOrCreate([
+                    'user_id' => $user->id,
+                    'supply_center_id' => $centerId,
+                    'start_time' => $start,
+                    'end_time' => $end,
+                ], [
+                    'role' => $user->role,
+                ]);
+                \App\Models\Attendance::updateOrCreate([
+                    'user_id' => $user->id,
+                    'date' => $date,
+                ], [
+                    'status' => 'present',
+                ]);
                 $count++;
             }
         }
