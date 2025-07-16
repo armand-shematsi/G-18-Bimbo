@@ -6,13 +6,14 @@
 @endsection
 
 @section('content')
+<div class="mb-6 p-4 bg-yellow-100 rounded">
+    <form action="{{ route('supplier.raw-materials.checkout') }}" method="POST">
+        @csrf
+        <input type="text" name="test" value="hello">
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Test Submit</button>
+    </form>
+</div>
 <div class="py-8 max-w-4xl mx-auto">
-    @if(session('success'))
-        <div class="mb-4 p-4 bg-green-100 text-green-800 rounded-lg shadow">{{ session('success') }}</div>
-    @endif
-    @if(session('error'))
-        <div class="mb-4 p-4 bg-red-100 text-red-800 rounded-lg shadow">{{ session('error') }}</div>
-    @endif
     <div class="bg-white rounded-2xl shadow-lg p-6">
         @if(count($cart) > 0)
             <table class="min-w-full divide-y divide-gray-200 mb-6">
@@ -35,7 +36,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-green-700">₦{{ number_format($item['unit_price'], 2) }}</td>
                             <td class="px-6 py-4 whitespace-nowrap font-bold">₦{{ number_format($item['total_price'], 2) }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <form action="{{ route('supplier.raw-materials.removeFromCart', $index) }}" method="POST">
+                                <form action="{{ route('supplier.raw-materials.removeFromCart', $index) }}" method="POST" style="display:inline">
                                     @csrf
                                     <button type="submit" class="text-red-600 hover:text-red-800 font-bold">Remove</button>
                                 </form>
@@ -48,16 +49,20 @@
                 <div class="text-lg font-bold text-gray-700">Total: <span class="text-green-700">₦{{ number_format($total, 2) }}</span></div>
                 <a href="{{ route('supplier.raw-materials.catalog') }}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow transition-all">Continue Shopping</a>
             </div>
-            <form action="{{ route('supplier.raw-materials.checkout') }}" method="POST" class="bg-gray-50 rounded-lg p-6 shadow-inner">
+            <form action="{{ route('supplier.raw-materials.checkout') }}" method="POST" class="bg-gray-50 rounded-lg p-6 shadow-inner mt-8">
                 @csrf
+                <div class="mb-4">
+                    <div class="text-gray-700 font-bold">Customer Name: <span class="font-normal">{{ $customerName }}</span></div>
+                    <div class="text-gray-700 font-bold">Customer Email: <span class="font-normal">{{ $customerEmail }}</span></div>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                     <div>
                         <label class="block text-gray-700 font-bold mb-2">Shipping Address</label>
-                        <input type="text" name="shipping_address" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400" required>
+                        <input type="text" name="shipping_address" value="{{ old('shipping_address', $defaultAddress) }}" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400" required>
                     </div>
                     <div>
                         <label class="block text-gray-700 font-bold mb-2">Billing Address</label>
-                        <input type="text" name="billing_address" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400" required>
+                        <input type="text" name="billing_address" value="{{ old('billing_address', $defaultAddress) }}" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400" required>
                     </div>
                 </div>
                 <button type="submit" class="w-full bg-gradient-to-r from-green-600 to-blue-500 hover:from-blue-700 hover:to-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg text-lg transition-all">Place Order</button>

@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use App\Models\RetailerOrder;
 use App\Models\Inventory;
 use App\Models\OrderReturn;
+use App\Models\Product;
 
 class DashboardController extends Controller
 {
@@ -38,41 +39,8 @@ class DashboardController extends Controller
                     'recentOrders'
                 ));
             case 'supplier':
-                // Get supplier's inventory data
-                $inventory = \App\Models\Inventory::where('user_id', $user->id)->get();
-                $totalInventory = $inventory->count();
-                $availableItems = $inventory->where('status', 'available')->count();
-                $lowStockItems = $inventory->where('status', 'low_stock')->count();
-
-                // Get supplier's orders data
-                $vendorId = \App\Models\Vendor::where('user_id', $user->id)->value('id');
-                if (!$vendorId) {
-                    // If no vendor record, try to get the first vendor (fallback)
-                    $vendorId = \App\Models\Vendor::query()->value('id');
-                }
-
-                $pendingOrders = 0;
-                $recentOrders = collect();
-
-                if ($vendorId) {
-                    $pendingOrders = \App\Models\Order::where('vendor_id', $vendorId)
-                        ->where('status', 'pending')
-                        ->count();
-
-                    $recentOrders = \App\Models\Order::where('vendor_id', $vendorId)
-                        ->with(['user', 'items'])
-                        ->latest()
-                        ->take(5)
-                        ->get();
-                }
-
-                return view('dashboard.supplier', compact(
-                    'totalInventory',
-                    'availableItems',
-                    'lowStockItems',
-                    'pendingOrders',
-                    'recentOrders'
-                ));
+                $products = \App\Models\Product::all();
+                return view('dashboard.supplier', compact('products'));
             case 'bakery_manager':
                 // Fetch all new or assigned orders (pending or processing)
                 $orders = \App\Models\Order::whereIn('status', ['pending', 'processing'])->orderBy('created_at', 'desc')->get();
@@ -222,10 +190,11 @@ class DashboardController extends Controller
                         ->take(5)
                         ->get();
                 } catch (\Exception $e) {
+                    // If Order model doesn't exist or table doesn't exist, use empty collection
                     $recentOrders = collect([]);
                 }
 
-                // Get recent messages for the customer
+                // Get recent messages for the customer (handle case where Message model might not exist)
                 try {
                     $recentMessages = \App\Models\Message::where('receiver_id', $user->id)
                         ->orWhere('sender_id', $user->id)
@@ -233,6 +202,7 @@ class DashboardController extends Controller
                         ->take(5)
                         ->get();
                 } catch (\Exception $e) {
+                    // If Message model doesn't exist or table doesn't exist, use empty collection
                     $recentMessages = collect([]);
                 }
 
@@ -241,24 +211,7 @@ class DashboardController extends Controller
                     $product->inventory_id = $inventory ? $inventory->id : null;
                     return $product;
                 });
-
-                // Fetch recommendations for this customer's segment
-                $recommendations = null;
-                if ($user->segment !== null) {
-                    $recFile = storage_path('app/ml/segment_recommendations.csv');
-                    if (file_exists($recFile)) {
-                        $rows = array_map('str_getcsv', file($recFile));
-                        $header = array_shift($rows);
-                        foreach ($rows as $row) {
-                            $data = array_combine($header, $row);
-                            if ($data['segment'] == $user->segment) {
-                                $recommendations = (object)$data;
-                                break;
-                            }
-                        }
-                    }
-                }
-                return view('dashboard.customer', compact('recentOrders', 'recentMessages', 'products', 'recommendations'));
+                return view('dashboard.customer', compact('recentOrders', 'recentMessages', 'products'));
             default:
                 // Log out the user and redirect to login with error message
                 Auth::logout();
@@ -349,22 +302,6 @@ class DashboardController extends Controller
             ],
             'assignments' => [
                 ['staff' => 'John Smith', 'batch' => 'Batch B'],
-            ],
-        ]);
-    }
-
-    /**
-     * API: Live machine data (status, alerts)
-     */
-    public function machinesLive()
-    {
-        return response()->json([
-            'machines' => [
-                ['name' => 'Oven 1', 'status' => 'Running'],
-                ['name' => 'Oven 2', 'status' => 'Maintenance'],
-            ],
-            'alerts' => [
-                'Oven 2 scheduled for maintenance at 15:00.'
             ],
         ]);
     }

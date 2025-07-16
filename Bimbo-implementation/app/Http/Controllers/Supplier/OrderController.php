@@ -16,18 +16,16 @@ class OrderController extends Controller
      */
     public function index()
     {
-        // Get the first vendor's id (used when creating orders)
-        $vendorId = \App\Models\Vendor::query()->value('id');
-        $orders = Order::where('vendor_id', $vendorId)
-            ->with(['user', 'items', 'payment'])
-            ->latest()
-            ->paginate(10);
+        $vendor = \App\Models\Vendor::where('user_id', auth()->id())->first();
+        $orders = $vendor
+            ? Order::where('vendor_id', $vendor->id)->with(['user', 'items', 'payment'])->latest()->paginate(10)
+            : collect();
 
         // Get order statistics
-        $totalOrders = Order::where('vendor_id', $vendorId)->count();
-        $pendingOrders = Order::where('vendor_id', $vendorId)->where('status', 'pending')->count();
-        $processingOrders = Order::where('vendor_id', $vendorId)->where('status', 'processing')->count();
-        $completedOrders = Order::where('vendor_id', $vendorId)->whereIn('status', ['delivered', 'shipped'])->count();
+        $totalOrders = $vendor ? Order::where('vendor_id', $vendor->id)->count() : 0;
+        $pendingOrders = $vendor ? Order::where('vendor_id', $vendor->id)->where('status', 'pending')->count() : 0;
+        $processingOrders = $vendor ? Order::where('vendor_id', $vendor->id)->where('status', 'processing')->count() : 0;
+        $completedOrders = $vendor ? Order::where('vendor_id', $vendor->id)->whereIn('status', ['delivered', 'shipped'])->count() : 0;
 
         return view('supplier.orders.index', compact('orders', 'totalOrders', 'pendingOrders', 'processingOrders', 'completedOrders'));
     }
@@ -37,11 +35,14 @@ class OrderController extends Controller
      */
     public function create()
     {
-        // You can fetch any data needed for the order form here, e.g. products, inventory, etc.
-        // $products = Product::all();
-
+        $user = auth()->user();
+        $customerName = $user ? $user->name : '';
+        $customerEmail = $user ? $user->email : '';
         // Return a view for creating a new order
-        return view('supplier.orders.create'/*, compact('products')*/);
+        return view('supplier.orders.create', [
+            'customerName' => $customerName,
+            'customerEmail' => $customerEmail
+        ]);
     }
 
     /**
@@ -109,10 +110,9 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        // Use the first vendor's id (used when creating orders)
-        $vendorId = \App\Models\Vendor::query()->value('id');
-        // Ensure the order belongs to the current supplier
-        if ($order->vendor_id !== $vendorId) {
+        // Find the vendor linked to the logged-in supplier user
+        $vendor = \App\Models\Vendor::where('user_id', auth()->id())->first();
+        if (!$vendor || $order->vendor_id !== $vendor->id) {
             abort(403, 'Unauthorized access to this order.');
         }
 

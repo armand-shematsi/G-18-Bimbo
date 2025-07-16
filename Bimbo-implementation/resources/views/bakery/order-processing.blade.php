@@ -70,7 +70,8 @@
         <!-- Place Order to Supplier -->
         <div class="bg-white rounded-xl shadow-lg p-6">
             <h2 class="text-xl font-bold text-blue-700 mb-4">Place Order to Supplier</h2>
-            <form id="supplierOrderForm">
+            <form action="{{ route('bakery.order-processing.supplier-order') }}" method="POST">
+                @csrf
                 <div class="mb-4">
                     <label class="block text-gray-700 font-semibold mb-2">Product</label>
                     <select name="product_id" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>

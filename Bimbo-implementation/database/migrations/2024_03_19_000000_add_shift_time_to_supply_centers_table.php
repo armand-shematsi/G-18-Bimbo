@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up()
     {
         Schema::table('supply_centers', function (Blueprint $table) {
-            $table->string('shift_time')->nullable()->after('required_role');
+            $table->string('shift_time')->nullable();
         });
     }
     public function down()
