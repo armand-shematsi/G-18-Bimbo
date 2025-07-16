@@ -184,9 +184,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/api/inventory/{id}/chart-data', [\App\Http\Controllers\Bakery\InventoryController::class, 'chartData'])->name('inventory.chart-data');
         Route::get('/api/inventory/{id}/live', [\App\Http\Controllers\Bakery\InventoryController::class, 'liveData'])->name('inventory.live-data');
         Route::get('/api/inventory/{id}/recent-orders', [\App\Http\Controllers\Bakery\InventoryController::class, 'recentOrders'])->name('inventory.recent-orders');
-        Route::get('/dashboard', function() {
-            return view('dashboard.bakery-manager');
-        })->name('dashboard');
+
+        Route::get('/dashboard', [App\Http\Controllers\Bakery\DashboardController::class, 'index'])->name('dashboard');
     });
 
     // Retail Manager Routes
@@ -218,6 +217,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/support', [\App\Http\Controllers\SupportRequestController::class, 'store'])->name('support.store');
         Route::get('/support', [\App\Http\Controllers\SupportRequestController::class, 'index'])->name('support.index');
         Route::get('/support/{id}', [\App\Http\Controllers\SupportRequestController::class, 'show'])->name('support.show');
+
+
+        // Retail Bread Product Listing
+        Route::get('/products', [App\Http\Controllers\Retail\ProductController::class, 'index'])->name('products.index');
+
 
         // Cart routes
         Route::get('/cart', [App\Http\Controllers\Retail\CartController::class, 'index'])->name('cart.index');
