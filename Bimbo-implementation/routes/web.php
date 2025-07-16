@@ -372,3 +372,42 @@ Route::get('/bakery/api/inventory/{id}/live', [\App\Http\Controllers\Bakery\Inve
 
 // Add this route for bakery inventory recent orders
 Route::get('/bakery/api/inventory/{id}/recent-orders', [\App\Http\Controllers\Bakery\InventoryController::class, 'recentOrders'])->name('bakery.inventory.recent-orders');
+
+// Supplier routes
+Route::prefix('supplier')->middleware(['auth', 'role:supplier'])->group(function () {
+    // Inventory
+    Route::get('/inventory', [\App\Http\Controllers\Supplier\InventoryController::class, 'index'])->name('supplier.inventory.index');
+    Route::get('/inventory/create', [\App\Http\Controllers\Supplier\InventoryController::class, 'create'])->name('supplier.inventory.create');
+    Route::post('/inventory', [\App\Http\Controllers\Supplier\InventoryController::class, 'store'])->name('supplier.inventory.store');
+    Route::get('/inventory/{id}', [\App\Http\Controllers\Supplier\InventoryController::class, 'show'])->name('supplier.inventory.show');
+    Route::get('/inventory/{id}/edit', [\App\Http\Controllers\Supplier\InventoryController::class, 'edit'])->name('supplier.inventory.edit');
+    Route::post('/inventory/{id}', [\App\Http\Controllers\Supplier\InventoryController::class, 'update'])->name('supplier.inventory.update');
+
+    // Stock In
+    Route::get('/stockin', [\App\Http\Controllers\Supplier\StockInController::class, 'index'])->name('supplier.stockin.index');
+    Route::get('/stockin/create', [\App\Http\Controllers\Supplier\StockInController::class, 'create'])->name('supplier.stockin.create');
+    Route::post('/stockin', [\App\Http\Controllers\Supplier\StockInController::class, 'store'])->name('supplier.stockin.store');
+
+    // Stock Out
+    Route::get('/stockout', [\App\Http\Controllers\Supplier\StockOutController::class, 'index'])->name('supplier.stockout.index');
+    Route::get('/stockout/create', [\App\Http\Controllers\Supplier\StockOutController::class, 'create'])->name('supplier.stockout.create');
+    Route::post('/stockout', [\App\Http\Controllers\Supplier\StockOutController::class, 'store'])->name('supplier.stockout.store');
+
+    // Orders
+    Route::get('/orders', [\App\Http\Controllers\Supplier\SupplierOrderController::class, 'index'])->name('supplier.orders.index');
+    Route::get('/orders/create', [\App\Http\Controllers\Supplier\SupplierOrderController::class, 'create'])->name('supplier.orders.create');
+    Route::post('/orders', [\App\Http\Controllers\Supplier\SupplierOrderController::class, 'store'])->name('supplier.orders.store');
+    Route::get('/orders/{order}', [\App\Http\Controllers\Supplier\SupplierOrderController::class, 'show'])->name('supplier.orders.show');
+    Route::post('/orders/{order}/update-status', [\App\Http\Controllers\Supplier\SupplierOrderController::class, 'updateStatus'])->name('supplier.orders.updateStatus');
+
+    // Chat
+    Route::get('/chat', [\App\Http\Controllers\Supplier\ChatController::class, 'index'])->name('supplier.chat.index');
+    Route::post('/chat/send', [\App\Http\Controllers\Supplier\ChatController::class, 'send'])->name('supplier.chat.send');
+
+    // Raw Materials (Cart)
+    Route::get('/raw-materials/catalog', [\App\Http\Controllers\Supplier\RawMaterialController::class, 'catalog'])->name('supplier.raw-materials.catalog');
+    Route::post('/raw-materials/add-to-cart', [\App\Http\Controllers\Supplier\RawMaterialController::class, 'addToCart'])->name('supplier.raw-materials.addToCart');
+    Route::get('/raw-materials/cart', [\App\Http\Controllers\Supplier\RawMaterialController::class, 'cart'])->name('supplier.raw-materials.cart');
+    Route::post('/raw-materials/remove-from-cart/{index}', [\App\Http\Controllers\Supplier\RawMaterialController::class, 'removeFromCart'])->name('supplier.raw-materials.removeFromCart');
+    Route::post('/raw-materials/checkout', [\App\Http\Controllers\Supplier\RawMaterialController::class, 'checkout'])->name('supplier.raw-materials.checkout');
+});
