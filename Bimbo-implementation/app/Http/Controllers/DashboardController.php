@@ -187,7 +187,7 @@ class DashboardController extends Controller
                 try {
                     $recentOrders = \App\Models\Order::where('user_id', $user->id)
                         ->orderBy('created_at', 'desc')
-                        ->take(5)
+                        ->take(10)
                         ->get();
                 } catch (\Exception $e) {
                     // If Order model doesn't exist or table doesn't exist, use empty collection
@@ -394,7 +394,7 @@ class DashboardController extends Controller
             'staffOnDuty' => $staffOnDuty,
             'absentCount' => $absentCount,
             'shiftFilled' => $shiftFilled,
-            'overtimeCount' => $overtimeCount,
+            'overtimeCount' => $overtimeCount
         ]);
     }
 
@@ -413,3 +413,4 @@ class DashboardController extends Controller
         ]);
     }
 }
+
