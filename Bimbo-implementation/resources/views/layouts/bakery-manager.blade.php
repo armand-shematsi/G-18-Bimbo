@@ -25,7 +25,7 @@
             </svg>
         </button>
         <!-- Sidebar -->
-        <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-gray-50 border-r border-gray-200 min-h-screen sticky md:static top-0 z-40 transition-all duration-300">
+        <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-blue-600 text-white border-r border-gray-200 min-h-screen sticky md:static top-0 z-40 transition-all duration-300">
             <div class="flex items-center h-16 px-6 border-b border-gray-100">
                 <a href="{{ route('dashboard') }}">
                     <img class="h-10 w-auto" src="{{ asset('images/k-Photo-Recipe Ramp Up-2021-11-Potato-Bread-potato_bread_01.jpeg') }}" alt="Bimbo Logo">
@@ -51,10 +51,10 @@
                         </div>
                         <!-- Settings Dropdown -->
                         <div class="hidden sm:flex sm:items-center sm:ml-6">
-                            <div class="relative ml-3" x-data="{ open: false }">
+                            <div class="relative ml-3">
                                 <button @click="open = !open" type="button" class="flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-full text-gray-700 bg-white hover:text-gray-900 focus:outline-none transition ease-in-out duration-150" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
                                     <span class="flex items-center">
-                                        <span class="inline-flex items-center justify-center w-10 h-10 rounded-full border-2 border-yellow-400 bg-yellow-400 text-white font-bold text-lg mr-2">
+                                        <span class="inline-flex items-center justify-center w-10 h-10 rounded-full border-2 border-blue-400 bg-blue-400 text-white font-bold text-lg mr-2">
                                             {{ strtoupper(collect(auth()->user()->name)->map(fn($word) => $word[0])->join('')) }}
                                         </span>
                                         <span class="flex flex-col items-start">
@@ -66,7 +66,7 @@
                                         <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                     </svg>
                                 </button>
-                                <div x-show="open" @click.away="open = false" class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1" id="user-menu">
+                                <div class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1" id="user-menu">
                                     <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1">Edit Profile</a>
                                     <a href="{{ route('password.update') }}" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1">Change Password</a>
                                     <form method="POST" action="{{ route('logout') }}">

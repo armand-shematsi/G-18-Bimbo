@@ -73,7 +73,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/stockin', [App\Http\Controllers\Supplier\StockInController::class, 'index'])->name('stockin.index');
         Route::get('/stockin/create', [App\Http\Controllers\Supplier\StockInController::class, 'create'])->name('stockin.create');
         Route::post('/stockin', [App\Http\Controllers\Supplier\StockInController::class, 'store'])->name('stockin.store');
-        Route::post('/stockin/test', function () { dd('Form submitted!'); })->name('stockin.test');
+        Route::post('/stockin/test', function () {
+            dd('Form submitted!');
+        })->name('stockin.test');
 
         // Stockout routes
         Route::get('/stockout', [App\Http\Controllers\Supplier\StockOutController::class, 'index'])->name('stockout.index');
@@ -162,111 +164,112 @@ Route::middleware(['auth', 'verified'])->group(function () {
         })->name('order-processing');
 
         // Order Processing AJAX/Form Endpoints
-        Route::post('/order-processing/supplier-order', [\App.Http\Controllers\Bakery\OrderProcessingController::class, 'placeSupplierOrder'])->name('order-processing.supplier-order');
+        Route::post('/order-processing/supplier-order', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'placeSupplierOrder'])->name('order-processing.supplier-order');
         // Correct route for AJAX retailer orders
-        Route::get('/order-processing/retailer-orders', [\App.Http\Controllers\Bakery\OrderProcessingController::class, 'listRetailerOrders'])->name('order-processing.retailer-orders');
-        Route::post('/order-processing/retailer-orders/{id}/status', [\App.Http\Controllers\Bakery\OrderProcessingController::class, 'updateRetailerOrderStatus'])->name('order-processing.retailer-orders.update-status');
+        Route::get('/order-processing/retailer-orders', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'listRetailerOrders'])->name('order-processing.retailer-orders');
+        Route::post('/order-processing/retailer-orders/{id}/status', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'updateRetailerOrderStatus'])->name('order-processing.retailer-orders.update-status');
 
         // Inventory routes
-        Route::get('/inventory', [\App.Http\Controllers\Bakery\InventoryController::class, 'index'])->name('inventory.index');
-        Route::get('/inventory/create', [\App.Http\Controllers\Bakery\InventoryController::class, 'create'])->name('inventory.create');
-        Route::post('/inventory', [\App.Http\Controllers\Bakery\InventoryController::class, 'store'])->name('inventory.store');
-        Route::get('/inventory/{inventory}', [\App.Http\Controllers\Bakery\InventoryController::class, 'show'])->name('inventory.show');
-        Route::get('/inventory/{inventory}/edit', [\App.Http\Controllers\Bakery\InventoryController::class, 'edit'])->name('inventory.edit');
-        Route::delete('/inventory/{id}', [\App.Http\Controllers\Bakery\InventoryController::class, 'destroy'])->name('inventory.destroy');
-        Route::post('/inventory/{inventory}/update-stock', [\App.Http\Controllers\Bakery\InventoryController::class, 'updateStock'])->name('inventory.update-stock');
-        Route::get('/api/inventory/{id}/chart-data', [\App.Http\Controllers\Bakery\InventoryController::class, 'chartData'])->name('inventory.chart-data');
-        Route::get('/api/inventory/{id}/live', [\App.Http\Controllers\Bakery\InventoryController::class, 'liveData'])->name('inventory.live-data');
-        Route::get('/api/inventory/{id}/recent-orders', [\App.Http\Controllers\Bakery\InventoryController::class, 'recentOrders'])->name('inventory.recent-orders');
+        Route::get('/inventory', [\App\Http\Controllers\Bakery\InventoryController::class, 'index'])->name('inventory.index');
+        Route::get('/inventory/create', [\App\Http\Controllers\Bakery\InventoryController::class, 'create'])->name('inventory.create');
+        Route::post('/inventory', [\App\Http\Controllers\Bakery\InventoryController::class, 'store'])->name('inventory.store');
+        Route::get('/inventory/{inventory}', [\App\Http\Controllers\Bakery\InventoryController::class, 'show'])->name('inventory.show');
+        Route::get('/inventory/{inventory}/edit', [\App\Http\Controllers\Bakery\InventoryController::class, 'edit'])->name('inventory.edit');
+        Route::delete('/inventory/{id}', [\App\Http\Controllers\Bakery\InventoryController::class, 'destroy'])->name('inventory.destroy');
+        Route::post('/inventory/{inventory}/update-stock', [\App\Http\Controllers\Bakery\InventoryController::class, 'updateStock'])->name('inventory.update-stock');
+        Route::get('/api/inventory/{id}/chart-data', [\App\Http\Controllers\Bakery\InventoryController::class, 'chartData'])->name('inventory.chart-data');
+        Route::get('/api/inventory/{id}/live', [\App\Http\Controllers\Bakery\InventoryController::class, 'liveData'])->name('inventory.live-data');
+        Route::get('/api/inventory/{id}/recent-orders', [\App\Http\Controllers\Bakery\InventoryController::class, 'recentOrders'])->name('inventory.recent-orders');
 
-        Route::get('/dashboard', [App.Http\Controllers\Bakery\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [App\Http\Controllers\Bakery\DashboardController::class, 'index'])->name('dashboard');
     });
 
     // Retail Manager Routes
     Route::middleware(['auth', 'role:retail_manager'])->prefix('retail')->name('retail.')->group(function () {
-        Route::resource('orders', App.Http\Controllers\Retail\OrderController::class);
-        Route::post('/orders/{order}/status', [App.Http\Controllers\Retail\OrderController::class, 'changeStatus'])->name('orders.changeStatus');
+        Route::resource('orders', App\Http\Controllers\Retail\OrderController::class);
+        Route::post('/orders/{order}/status', [App\Http\Controllers\Retail\OrderController::class, 'changeStatus'])->name('orders.changeStatus');
 
-        Route::get('/inventory', [App.Http\Controllers\Retail\InventoryController::class, 'index'])->name('inventory.index');
-        Route::get('/inventory/check', [App.Http\Controllers\Retail\InventoryController::class, 'check'])->name('inventory.check');
-        Route::post('/inventory/update', [App.Http\Controllers\Retail\InventoryController::class, 'update'])->name('inventory.update');
+        Route::get('/inventory', [App\Http\Controllers\Retail\InventoryController::class, 'index'])->name('inventory.index');
+        Route::get('/inventory/create', [\App\Http\Controllers\Retail\InventoryController::class, 'create'])->name('inventory.create');
+        Route::get('/inventory/check', [App\Http\Controllers\Retail\InventoryController::class, 'check'])->name('inventory.check');
+        Route::post('/inventory/update', [App\Http\Controllers\Retail\InventoryController::class, 'update'])->name('inventory.update');
 
-        Route::get('/forecast', [App.Http\Controllers\Retail\ForecastController::class, 'index'])->name('forecast.index');
-        Route::get('/forecast/generate', [App.Http\Controllers\Retail\ForecastController::class, 'generate'])->name('forecast.generate');
+        Route::get('/forecast', [App\Http\Controllers\Retail\ForecastController::class, 'index'])->name('forecast.index');
+        Route::get('/forecast/generate', [App\Http\Controllers\Retail\ForecastController::class, 'generate'])->name('forecast.generate');
 
-        Route::get('/chat', [App.Http\Controllers\Retail\ChatController::class, 'index'])->name('chat.index');
-        Route::post('/chat/send', [App.Http\Controllers\Retail\ChatController::class, 'send'])->name('chat.send');
-        Route::get('/chat/messages', [App.Http\Controllers\Retail\ChatController::class, 'getMessages'])->name('chat.get-messages');
+        Route::get('/chat', [App\Http\Controllers\Retail\ChatController::class, 'index'])->name('chat.index');
+        Route::post('/chat/send', [App\Http\Controllers\Retail\ChatController::class, 'send'])->name('chat.send');
+        Route::get('/chat/messages', [App\Http\Controllers\Retail\ChatController::class, 'getMessages'])->name('chat.get-messages');
 
-        Route::post('/payments/{payment}/confirm', [App.Http\Controllers\Retail\PaymentController::class, 'confirm'])->name('payments.confirm');
-        Route::post('/payments/{payment}/refund', [App.Http\Controllers\Retail\PaymentController::class, 'refund'])->name('payments.refund');
+        Route::post('/payments/{payment}/confirm', [App\Http\Controllers\Retail\PaymentController::class, 'confirm'])->name('payments.confirm');
+        Route::post('/payments/{payment}/refund', [App\Http\Controllers\Retail\PaymentController::class, 'refund'])->name('payments.refund');
 
-        Route::get('/dashboard', [App.Http\Controllers\Retail\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [App\Http\Controllers\Retail\DashboardController::class, 'index'])->name('dashboard');
 
-        Route::post('/orders/{order}/return', [\App.Http\Controllers\OrderReturnController::class, 'store'])->name('orders.return');
-        Route::get('/returns', [\App.Http\Controllers\OrderReturnController::class, 'index'])->name('returns.index');
-        Route::get('/returns/{id}', [\App.Http\Controllers\OrderReturnController::class, 'show'])->name('returns.show');
+        Route::post('/orders/{order}/return', [\App\Http\Controllers\OrderReturnController::class, 'store'])->name('orders.return');
+        Route::get('/returns', [\App\Http\Controllers\OrderReturnController::class, 'index'])->name('returns.index');
+        Route::get('/returns/{id}', [\App\Http\Controllers\OrderReturnController::class, 'show'])->name('returns.show');
 
-        Route::post('/support', [\App.Http\Controllers\SupportRequestController::class, 'store'])->name('support.store');
-        Route::get('/support', [\App.Http\Controllers\SupportRequestController::class, 'index'])->name('support.index');
-        Route::get('/support/{id}', [\App.Http\Controllers\SupportRequestController::class, 'show'])->name('support.show');
+        Route::post('/support', [\App\Http\Controllers\SupportRequestController::class, 'store'])->name('support.store');
+        Route::get('/support', [\App\Http\Controllers\SupportRequestController::class, 'index'])->name('support.index');
+        Route::get('/support/{id}', [\App\Http\Controllers\SupportRequestController::class, 'show'])->name('support.show');
 
         // Retail Bread Product Listing
-        Route::get('/products', [App.Http\Controllers\Retail\ProductController::class, 'index'])->name('products.index');
+        Route::get('/products', [App\Http\Controllers\Retail\ProductController::class, 'index'])->name('products.index');
 
 
         // Cart routes
-        Route::get('/cart', [App.Http\Controllers\Retail\CartController::class, 'index'])->name('cart.index');
-        Route::post('/cart/add', [App.Http\Controllers\Retail\CartController::class, 'store'])->name('cart.add');
-        Route::put('/cart/{id}', [App.Http\Controllers\Retail\CartController::class, 'update'])->name('cart.update');
-        Route::delete('/cart/{id}', [App.Http\Controllers\Retail\CartController::class, 'destroy'])->name('cart.destroy');
-        Route::post('/cart/checkout', [App.Http\Controllers\Retail\CartController::class, 'checkout'])->name('cart.checkout');
-        Route::post('/cart/place-order', [App.Http\Controllers\Retail\CartController::class, 'placeOrder'])->name('cart.place-order');
+        Route::get('/cart', [App\Http\Controllers\Retail\CartController::class, 'index'])->name('cart.index');
+        Route::post('/cart/add', [App\Http\Controllers\Retail\CartController::class, 'store'])->name('cart.add');
+        Route::put('/cart/{id}', [App\Http\Controllers\Retail\CartController::class, 'update'])->name('cart.update');
+        Route::delete('/cart/{id}', [App\Http\Controllers\Retail\CartController::class, 'destroy'])->name('cart.destroy');
+        Route::post('/cart/checkout', [App\Http\Controllers\Retail\CartController::class, 'checkout'])->name('cart.checkout');
+        Route::post('/cart/place-order', [App\Http\Controllers\Retail\CartController::class, 'placeOrder'])->name('cart.place-order');
     });
 
     // Distributor Routes
     Route::middleware(['auth', 'role:distributor'])->prefix('distributor')->name('distributor.')->group(function () {
-        Route::get('/routes', [\App.Http\Controllers\Distributor\RouteController::class, 'index'])->name('routes');
-        Route::get('/routes/create', [\App.Http\Controllers\Distributor\RouteController::class, 'create'])->name('routes.create');
-        Route::post('/routes', [\App.Http\Controllers\Distributor\RouteController::class, 'store'])->name('routes.store');
-        Route::get('/vehicles', [\App.Http\Controllers\Distributor\VehicleController::class, 'index'])->name('vehicles');
-        Route::get('/vehicles/assign', [\App.Http\Controllers\Distributor\VehicleController::class, 'assign'])->name('vehicles.assign');
-        Route::post('/vehicles/assign', [\App.Http\Controllers\Distributor\VehicleController::class, 'storeAssignment'])->name('vehicles.storeAssignment');
-        Route::get('/deliveries', [\App.Http\Controllers\Distributor\DeliveryController::class, 'index'])->name('deliveries');
-        Route::get('/deliveries/confirm', [\App.Http\Controllers\Distributor\DeliveryController::class, 'confirm'])->name('deliveries.confirm');
-        Route::post('/deliveries/confirm', [\App.Http\Controllers\Distributor\DeliveryController::class, 'storeConfirmation'])->name('deliveries.storeConfirmation');
+        Route::get('/routes', [\App\Http\Controllers\Distributor\RouteController::class, 'index'])->name('routes');
+        Route::get('/routes/create', [\App\Http\Controllers\Distributor\RouteController::class, 'create'])->name('routes.create');
+        Route::post('/routes', [\App\Http\Controllers\Distributor\RouteController::class, 'store'])->name('routes.store');
+        Route::get('/vehicles', [\App\Http\Controllers\Distributor\VehicleController::class, 'index'])->name('vehicles');
+        Route::get('/vehicles/assign', [\App\Http\Controllers\Distributor\VehicleController::class, 'assign'])->name('vehicles.assign');
+        Route::post('/vehicles/assign', [\App\Http\Controllers\Distributor\VehicleController::class, 'storeAssignment'])->name('vehicles.storeAssignment');
+        Route::get('/deliveries', [\App\Http\Controllers\Distributor\DeliveryController::class, 'index'])->name('deliveries');
+        Route::get('/deliveries/confirm', [\App\Http\Controllers\Distributor\DeliveryController::class, 'confirm'])->name('deliveries.confirm');
+        Route::post('/deliveries/confirm', [\App\Http\Controllers\Distributor\DeliveryController::class, 'storeConfirmation'])->name('deliveries.storeConfirmation');
         // Order management for distributors
-        Route::get('/orders', [\App.Http\Controllers\Distributor\OrderController::class, 'index'])->name('orders.index');
-        Route::get('/orders/{order}', [\App.Http\Controllers\Distributor\OrderController::class, 'show'])->name('orders.show');
-        Route::post('/orders/{order}/delivery-status', [\App.Http\Controllers\Distributor\OrderController::class, 'updateDeliveryStatus'])->name('orders.updateDeliveryStatus');
-        Route::get('/api/orders/route', [\App.Http\Controllers\Distributor\OrderController::class, 'routeOrders'])->name('orders.route');
-        Route::get('/api/orders/stats', [\App.Http\Controllers\Distributor\OrderController::class, 'deliveryStats'])->name('orders.stats');
-        Route::get('/api/orders', [\App.Http\Controllers\Distributor\OrderController::class, 'apiOrders'])->name('orders.api');
+        Route::get('/orders', [\App\Http\Controllers\Distributor\OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [\App\Http\Controllers\Distributor\OrderController::class, 'show'])->name('orders.show');
+        Route::post('/orders/{order}/delivery-status', [\App\Http\Controllers\Distributor\OrderController::class, 'updateDeliveryStatus'])->name('orders.updateDeliveryStatus');
+        Route::get('/api/orders/route', [\App\Http\Controllers\Distributor\OrderController::class, 'routeOrders'])->name('orders.route');
+        Route::get('/api/orders/stats', [\App\Http\Controllers\Distributor\OrderController::class, 'deliveryStats'])->name('orders.stats');
+        Route::get('/api/orders', [\App\Http\Controllers\Distributor\OrderController::class, 'apiOrders'])->name('orders.api');
     });
 
     // Customer Routes
     Route::middleware(['web', 'auth', 'role:customer'])->prefix('customer')->name('customer.')->group(function () {
-        Route::get('/chat', [App.Http\Controllers\Customer\ChatController::class, 'index'])->name('chat.index');
-        Route::post('/chat/send', [App.Http\Controllers\Customer\ChatController::class, 'send'])->name('chat.send');
+        Route::get('/chat', [App\Http\Controllers\Customer\ChatController::class, 'index'])->name('chat.index');
+        Route::post('/chat/send', [App\Http\Controllers\Customer\ChatController::class, 'send'])->name('chat.send');
         // Customer order routes
-        Route::get('/order/create', [App.Http\Controllers\Customer\OrderController::class, 'create'])->name('order.create');
-        Route::post('/order/store', [App.Http\Controllers\Customer\OrderController::class, 'store'])->name('order.store');
-        Route::get('/orders', [App.Http\Controllers\Customer\OrderController::class, 'index'])->name('orders.index');
-        Route::get('/orders/{order}', [App.Http\Controllers\Customer\OrderController::class, 'show'])->name('orders.show');
-        Route::patch('/orders/{order}/cancel', [App.Http\Controllers\Customer\OrderController::class, 'cancel'])->name('orders.cancel');
-        Route::get('/cart', [\App.Http\Controllers\Customer\CartController::class, 'index'])->name('cart.index');
-        Route::post('/cart/add', [\App.Http\Controllers\Customer\CartController::class, 'store'])->name('cart.add');
-        Route::put('/cart/{id}', [\App.Http\Controllers\Customer\CartController::class, 'update'])->name('cart.update');
-        Route::delete('/cart/{id}', [\App.Http\Controllers\Customer\CartController::class, 'destroy'])->name('cart.destroy');
-        Route::get('/cart/checkout', [\App.Http\Controllers\Customer\CartController::class, 'checkout'])->name('cart.checkout');
-        Route::post('/cart/place-order', [\App.Http\Controllers\Customer\CartController::class, 'placeOrder'])->name('cart.place-order');
+        Route::get('/order/create', [App\Http\Controllers\Customer\OrderController::class, 'create'])->name('order.create');
+        Route::post('/order/store', [App\Http\Controllers\Customer\OrderController::class, 'store'])->name('order.store');
+        Route::get('/orders', [App\Http\Controllers\Customer\OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [App\Http\Controllers\Customer\OrderController::class, 'show'])->name('orders.show');
+        Route::patch('/orders/{order}/cancel', [App\Http\Controllers\Customer\OrderController::class, 'cancel'])->name('orders.cancel');
+        Route::get('/cart', [\App\Http\Controllers\Customer\CartController::class, 'index'])->name('cart.index');
+        Route::post('/cart/add', [\App\Http\Controllers\Customer\CartController::class, 'store'])->name('cart.add');
+        Route::put('/cart/{id}', [\App\Http\Controllers\Customer\CartController::class, 'update'])->name('cart.update');
+        Route::delete('/cart/{id}', [\App\Http\Controllers\Customer\CartController::class, 'destroy'])->name('cart.destroy');
+        Route::get('/cart/checkout', [\App\Http\Controllers\Customer\CartController::class, 'checkout'])->name('cart.checkout');
+        Route::post('/cart/place-order', [\App\Http\Controllers\Customer\CartController::class, 'placeOrder'])->name('cart.place-order');
     });
 
     // Workforce Overview Route
     Route::get('/workforce/overview', [WorkforceController::class, 'overview'])->name('workforce.overview');
 
     // Remove or comment out the following conflicting route:
-    // Route::get('/supplier/orders', [\App.Http\Controllers\SupplierOrderController::class, 'index'])
+    // Route::get('/supplier/orders', [\App\Http\Controllers\SupplierOrderController::class, 'index'])
     //     ->name('supplier.orders');
 });
 
@@ -285,24 +288,24 @@ Route::middleware(['auth'])->group(function () {
 
 // Supplier Chat Routes
 Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier.')->group(function () {
-    Route::get('/chat', [App.Http\Controllers\Supplier\ChatController::class, 'index'])->name('chat.index');
-    Route::post('/chat/send', [App.Http\Controllers\Supplier\ChatController::class, 'send'])->name('chat.send');
-    Route::get('/chat/messages', [App.Http\Controllers\Supplier\ChatController::class, 'getMessages'])->name('chat.get-messages');
+    Route::get('/chat', [App\Http\Controllers\Supplier\ChatController::class, 'index'])->name('chat.index');
+    Route::post('/chat/send', [App\Http\Controllers\Supplier\ChatController::class, 'send'])->name('chat.send');
+    Route::get('/chat/messages', [App\Http\Controllers\Supplier\ChatController::class, 'getMessages'])->name('chat.get-messages');
 });
 
 // Supplier Raw Material Ordering
 Route::middleware(['auth', 'role:supplier,bakery_manager,retail_manager'])->prefix('supplier/raw-materials')->name('supplier.raw-materials.')->group(function () {
-    Route::get('catalog', [\App.Http\Controllers\Supplier\RawMaterialOrderController::class, 'catalog'])->name('catalog');
-    Route::post('add-to-cart', [\App.Http\Controllers\Supplier\RawMaterialOrderController::class, 'addToCart'])->name('addToCart');
-    Route::get('cart', [\App.Http\Controllers\Supplier\RawMaterialOrderController::class, 'cart'])->name('cart');
-    Route::post('remove-from-cart/{index}', [\App.Http\Controllers\Supplier\RawMaterialOrderController::class, 'removeFromCart'])->name('removeFromCart');
-    Route::post('checkout', [\App.Http\Controllers\Supplier\RawMaterialOrderController::class, 'checkout'])->name('checkout');
+    Route::get('catalog', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'catalog'])->name('catalog');
+    Route::post('add-to-cart', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'addToCart'])->name('addToCart');
+    Route::get('cart', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'cart'])->name('cart');
+    Route::post('remove-from-cart/{index}', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'removeFromCart'])->name('removeFromCart');
+    Route::post('checkout', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'checkout'])->name('checkout');
 });
 
 require __DIR__ . '/auth.php';
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/chat-dashboard', [App.Http\Controllers\ChatDashboardController::class, 'index'])->name('chat.dashboard');
+    Route::get('/chat-dashboard', [App\Http\Controllers\ChatDashboardController::class, 'index'])->name('chat.dashboard');
 });
 
 // Add these routes for customer segments import
@@ -312,23 +315,23 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     })->name('customer-segments.import.form');
     // If you have a controller method for import, you can use it instead:
     // Route::get('/customer-segments/import', [CustomerSegmentController::class, 'importForm'])->name('customer-segments.import.form');
-    Route::post('/customer-segments/import', [App.Http\Controllers\CustomerSegmentImportController::class, 'import'])->name('customer-segments.import');
+    Route::post('/customer-segments/import', [App\Http\Controllers\CustomerSegmentImportController::class, 'import'])->name('customer-segments.import');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // ... existing routes ...
-    Route::get('/reports', [\App.Http\Controllers\ReportController::class, 'index'])->name('reports.index');
-    Route::get('/reports/{type}/{filename}', [\App.Http\Controllers\ReportController::class, 'download'])->name('reports.download');
+    Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/{type}/{filename}', [\App\Http\Controllers\ReportController::class, 'download'])->name('reports.download');
 });
 
 // Add this route for report downloads
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/reports/downloads', [\App.Http\Controllers\ReportDownloadController::class, 'index'])->name('reports.downloads');
+    Route::get('/reports/downloads', [\App\Http\Controllers\ReportDownloadController::class, 'index'])->name('reports.downloads');
 });
 // No code to insert. The insertion point is likely a result of a merge conflict marker or placeholder, but there is no actual conflict or duplicate code to resolve here.
 
 // Make bakery.workforce.auto-assign available globally for dashboard
-Route::post('/workforce/auto-assign', [\App.Http\Controllers\WorkforceController::class, 'autoAssignStaff'])
+Route::post('/workforce/auto-assign', [\App\Http\Controllers\WorkforceController::class, 'autoAssignStaff'])
     ->middleware(['auth', 'verified', 'role:bakery_manager'])
     ->name('bakery.workforce.auto-assign');
 
@@ -336,24 +339,24 @@ Route::post('/workforce/auto-assign', [\App.Http\Controllers\WorkforceController
 Route::get('/bakery/stats-live', [DashboardController::class, 'statsLive'])->name('bakery.bakery.stats-live');
 
 // Add this route for bakery inventory index
-Route::get('/bakery/inventory', [\App.Http\Controllers\Bakery\InventoryController::class, 'index'])->name('bakery.inventory.index');
+Route::get('/bakery/inventory', [\App\Http\Controllers\Bakery\InventoryController::class, 'index'])->name('bakery.inventory.index');
 // Add this route for bakery inventory create
-Route::get('/bakery/inventory/create', [\App.Http\Controllers\Bakery\InventoryController::class, 'create'])->name('bakery.inventory.create');
+Route::get('/bakery/inventory/create', [\App\Http\Controllers\Bakery\InventoryController::class, 'create'])->name('bakery.inventory.create');
 // Add this route for bakery inventory show
-Route::get('/bakery/inventory/{inventory}', [\App.Http\Controllers\Bakery\InventoryController::class, 'show'])->name('bakery.inventory.show');
+Route::get('/bakery/inventory/{inventory}', [\App\Http\Controllers\Bakery\InventoryController::class, 'show'])->name('bakery.inventory.show');
 // Add this route for bakery inventory edit
-Route::get('/bakery/inventory/{inventory}/edit', [\App.Http\Controllers\Bakery\InventoryController::class, 'edit'])->name('bakery.inventory.edit');
+Route::get('/bakery/inventory/{inventory}/edit', [\App\Http\Controllers\Bakery\InventoryController::class, 'edit'])->name('bakery.inventory.edit');
 // Add this route for bakery inventory destroy
-Route::delete('/bakery/inventory/{id}', [\App.Http\Controllers\Bakery\InventoryController::class, 'destroy'])->name('bakery.inventory.destroy');
+Route::delete('/bakery/inventory/{id}', [\App\Http\Controllers\Bakery\InventoryController::class, 'destroy'])->name('bakery.inventory.destroy');
 
 // Add this route for bakery inventory update stock
-Route::post('/bakery/inventory/{inventory}/update-stock', [\App.Http\Controllers\Bakery\InventoryController::class, 'updateStock'])->name('bakery.inventory.update-stock');
+Route::post('/bakery/inventory/{inventory}/update-stock', [\App\Http\Controllers\Bakery\InventoryController::class, 'updateStock'])->name('bakery.inventory.update-stock');
 
 // Add this route for bakery inventory chart data
-Route::get('/bakery/api/inventory/{id}/chart-data', [\App.Http\Controllers\Bakery\InventoryController::class, 'chartData'])->name('bakery.inventory.chart-data');
+Route::get('/bakery/api/inventory/{id}/chart-data', [\App\Http\Controllers\Bakery\InventoryController::class, 'chartData'])->name('bakery.inventory.chart-data');
 
 // Add this route for bakery inventory live data
-Route::get('/bakery/api/inventory/{id}/live', [\App.Http\Controllers\Bakery\InventoryController::class, 'liveData'])->name('bakery.inventory.live-data');
+Route::get('/bakery/api/inventory/{id}/live', [\App\Http\Controllers\Bakery\InventoryController::class, 'liveData'])->name('bakery.inventory.live-data');
 
 // Add this route for bakery inventory recent orders
-Route::get('/bakery/api/inventory/{id}/recent-orders', [\App.Http\Controllers\Bakery\InventoryController::class, 'recentOrders'])->name('bakery.inventory.recent-orders');
+Route::get('/bakery/api/inventory/{id}/recent-orders', [\App\Http\Controllers\Bakery\InventoryController::class, 'recentOrders'])->name('bakery.inventory.recent-orders');

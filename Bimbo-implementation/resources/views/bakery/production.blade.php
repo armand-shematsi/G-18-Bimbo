@@ -87,7 +87,7 @@
 <!-- Quick Actions -->
 <div class="mb-8">
     <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-        <a href="{{ route('bakery.batches.index') }}" class="flex-1 flex items-center p-4 bg-gradient-to-r from-teal-400 to-teal-500 rounded-lg text-white hover:from-teal-500 hover:to-teal-600 transition-all duration-200 transform hover:scale-105 shadow-md">
+        <a href="{{ route('bakery.batches.index') }}" class="flex-1 flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
             <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
@@ -95,10 +95,10 @@
             </div>
             <div class="ml-4">
                 <p class="font-semibold">View All Batches</p>
-                <p class="text-xs text-teal-100">Production List</p>
+                <p class="text-xs text-blue-100">Production List</p>
             </div>
         </a>
-        <button onclick="downloadProductionReport()" class="flex-1 flex items-center p-4 bg-gradient-to-r from-purple-400 to-purple-500 rounded-lg text-white hover:from-purple-500 hover:to-purple-600 transition-all duration-200 transform hover:scale-105 shadow-md">
+        <button onclick="downloadProductionReport()" class="flex-1 flex items-center p-4 bg-gradient-to-r from-blue-400 to-blue-500 rounded-lg text-white hover:from-blue-500 hover:to-blue-600 transition-all duration-200 transform hover:scale-105 shadow-md">
             <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
@@ -106,7 +106,7 @@
             </div>
             <div class="ml-4">
                 <p class="font-semibold">Download Report</p>
-                <p class="text-xs text-purple-100">Export Data</p>
+                <p class="text-xs text-blue-100">Export Data</p>
             </div>
         </button>
     </div>
@@ -158,7 +158,7 @@
         </div>
     </div>
 </div>
-<!-- Activity Timeline -->
+<!-- Activity Timeline (Real-time) -->
 <div class="mt-8 bg-white rounded-2xl shadow-xl">
     <div class="px-6 py-4 border-b border-gray-100">
         <h3 class="text-lg font-bold text-gray-900">Recent Activity</h3>
