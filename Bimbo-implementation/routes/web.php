@@ -48,6 +48,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/api/orders', [\App\Http\Controllers\Admin\OrderController::class, 'apiOrders'])->name('orders.api');
         Route::get('/api/orders/stats', [\App\Http\Controllers\Admin\OrderController::class, 'apiStats'])->name('orders.stats');
         Route::get('/analytics/sales-predictions', [AnalyticsController::class, 'salesPredictions'])->name('analytics.sales_predictions');
+        Route::get('/analytics/realtime-prediction', [\App\Http\Controllers\Admin\AnalyticsController::class, 'getRealTimePrediction'])->name('analytics.realtime-prediction');
+        Route::get('/analytics/prediction-graph', [\App\Http\Controllers\Admin\AnalyticsController::class, 'showPredictionGraph'])->name('analytics.prediction-graph');
     });
 
     // Combine all supplier routes into a single group
@@ -303,11 +305,11 @@ Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier
 
 // Supplier Raw Material Ordering
 Route::middleware(['auth', 'role:supplier,bakery_manager,retail_manager'])->prefix('supplier/raw-materials')->name('supplier.raw-materials.')->group(function () {
-    Route::get('catalog', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'catalog'])->name('catalog');
-    Route::post('add-to-cart', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'addToCart'])->name('addToCart');
-    Route::get('cart', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'cart'])->name('cart');
-    Route::post('remove-from-cart/{index}', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'removeFromCart'])->name('removeFromCart');
-    Route::post('checkout', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'checkout'])->name('checkout');
+    // Route::get('catalog', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'catalog'])->name('catalog');
+    // Route::post('add-to-cart', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'addToCart'])->name('addToCart');
+    // Route::get('cart', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'cart'])->name('cart');
+    // Route::post('remove-from-cart/{index}', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'removeFromCart'])->name('removeFromCart');
+    // Route::post('checkout', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'checkout'])->name('checkout');
 });
 
 require __DIR__ . '/auth.php';
@@ -405,9 +407,9 @@ Route::prefix('supplier')->middleware(['auth', 'role:supplier'])->group(function
     Route::post('/chat/send', [\App\Http\Controllers\Supplier\ChatController::class, 'send'])->name('supplier.chat.send');
 
     // Raw Materials (Cart)
-    Route::get('/raw-materials/catalog', [\App\Http\Controllers\Supplier\RawMaterialController::class, 'catalog'])->name('supplier.raw-materials.catalog');
-    Route::post('/raw-materials/add-to-cart', [\App\Http\Controllers\Supplier\RawMaterialController::class, 'addToCart'])->name('supplier.raw-materials.addToCart');
-    Route::get('/raw-materials/cart', [\App\Http\Controllers\Supplier\RawMaterialController::class, 'cart'])->name('supplier.raw-materials.cart');
-    Route::post('/raw-materials/remove-from-cart/{index}', [\App\Http\Controllers\Supplier\RawMaterialController::class, 'removeFromCart'])->name('supplier.raw-materials.removeFromCart');
-    Route::post('/raw-materials/checkout', [\App\Http\Controllers\Supplier\RawMaterialController::class, 'checkout'])->name('supplier.raw-materials.checkout');
+    // Route::get('/raw-materials/catalog', [\App\Http\Controllers\Supplier\RawMaterialController::class, 'catalog'])->name('supplier.raw-materials.catalog');
+    // Route::post('/raw-materials/add-to-cart', [\App\Http\Controllers\Supplier\RawMaterialController::class, 'addToCart'])->name('supplier.raw-materials.addToCart');
+    // Route::get('/raw-materials/cart', [\App\Http\Controllers\Supplier\RawMaterialController::class, 'cart'])->name('supplier.raw-materials.cart');
+    // Route::post('/raw-materials/remove-from-cart/{index}', [\App\Http\Controllers\Supplier\RawMaterialController::class, 'removeFromCart'])->name('supplier.raw-materials.removeFromCart');
+    // Route::post('/raw-materials/checkout', [\App\Http\Controllers\Supplier\RawMaterialController::class, 'checkout'])->name('supplier.raw-materials.checkout');
 });
