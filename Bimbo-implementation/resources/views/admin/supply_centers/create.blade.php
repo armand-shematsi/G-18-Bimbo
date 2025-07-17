@@ -27,6 +27,11 @@
                 <option value="staff">Staff</option>
             </select>
         </div>
+        <div class="mb-4">
+            <label for="required_staff_count" class="block text-sm font-medium text-gray-700">Required Staffs Number</label>
+            <input type="number" name="required_staff_count" id="required_staff_count" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" min="1" required value="{{ old('required_staff_count', 1) }}">
+            @error('required_staff_count')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
+        </div>
         <div class="flex items-center justify-end">
             <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Add Center</button>
         </div>

@@ -114,7 +114,7 @@ class OrderProcessingController extends Controller
     // AJAX: Update retailer order status
     public function updateRetailerOrderStatus(Request $request, $id)
     {
-        $order = \App\Models\Order::findOrFail($id);
+        $order = \App\Models\Order::with('items')->findOrFail($id);
         $newStatus = $request->input('status');
         $allowed = ['pending', 'processing', 'shipped', 'received'];
         if (!in_array($newStatus, $allowed)) {
@@ -122,7 +122,35 @@ class OrderProcessingController extends Controller
         }
         $order->status = $newStatus;
         $order->save();
-        // Optionally: notify retailer, update inventory, etc.
+        // If status is received, update retail inventory (call receiveRetailerOrder logic)
+        if ($newStatus === 'received') {
+            foreach ($order->items as $item) {
+                // Find bakery inventory for this product
+                $bakeryInventory = \App\Models\Inventory::where('product_id', $item->product_id)
+                    ->where('location', 'bakery')
+                    ->first();
+                // Find or create retail inventory for this product
+                $retailInventory = \App\Models\Inventory::firstOrCreate(
+                    [
+                        'product_id' => $item->product_id,
+                        'location' => 'retail',
+                    ],
+                    [
+                        'item_name' => $item->product ? $item->product->name : $item->item_name,
+                        'unit_price' => $bakeryInventory ? $bakeryInventory->unit_price : 0,
+                    ]
+                );
+                // Always sync name and price from bakery
+                $retailInventory->item_name = $item->product ? $item->product->name : $item->item_name;
+                $retailInventory->unit_price = $bakeryInventory ? $bakeryInventory->unit_price : $retailInventory->unit_price;
+                $retailInventory->quantity += $item->quantity;
+                $retailInventory->save();
+            }
+            // Notify the retailer
+            if ($order->user) {
+                $order->user->notify(new \App\Notifications\RetailerOrderReceived($order));
+            }
+        }
         return response()->json(['success' => true, 'order' => $order]);
     }
 }

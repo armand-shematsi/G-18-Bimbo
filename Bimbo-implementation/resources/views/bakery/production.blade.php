@@ -18,10 +18,10 @@
 
 @section('content')
 <!-- Banner -->
-<div class="bg-gradient-to-r from-sky-400 to-sky-200 rounded-2xl shadow-xl mb-10 overflow-hidden flex flex-col md:flex-row items-center justify-between px-8 py-10 relative">
+<div class="bg-blue-500 rounded-2xl shadow-xl mb-10 overflow-hidden flex flex-col md:flex-row items-center justify-between px-8 py-10 relative">
     <div class="text-white z-10">
         <h2 class="text-3xl md:text-4xl font-extrabold mb-2 drop-shadow">Production Overview</h2>
-        <p class="text-lg text-sky-100 font-medium">Monitor batches, trends, and machine status.</p>
+        <p class="text-lg text-blue-100 font-medium">Monitor batches, trends, and machine status.</p>
     </div>
     <div class="hidden md:block absolute right-8 top-1/2 -translate-y-1/2 opacity-30 z-0">
         <svg class="w-40 h-40" fill="currentColor" viewBox="0 0 24 24">

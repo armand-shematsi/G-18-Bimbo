@@ -26,8 +26,27 @@ class ProductionBatchController extends Controller
      */
     public function create()
     {
+        // Get all bread product names for the dropdown
+        $breadProducts = \App\Models\Product::where(function ($q) {
+            $q->where('name', 'like', '%bread%')
+                ->orWhere('name', 'like', '%baguette%')
+                ->orWhere('name', 'like', '%brioche%')
+                ->orWhere('name', 'like', '%focaccia%')
+                ->orWhere('name', 'like', '%potato%')
+                ->orWhere('name', 'like', '%honey oat%')
+                ->orWhere('name', 'like', '%challah%')
+                ->orWhere('name', 'like', '%pita%')
+                ->orWhere('name', 'like', '%bagel%')
+                ->orWhere('name', 'like', '%muffin%')
+                ->orWhere('name', 'like', '%roll%')
+                ->orWhere('name', 'like', '%cinnamon%')
+                ->orWhere('name', 'like', '%gluten%')
+                ->orWhere('name', 'like', '%rustic%')
+                ->orWhere('name', 'like', '%ciabatta%');
+        })->orderBy('name')->pluck('name')->toArray();
+        // By default, show all lines
         $productionLines = \App\Models\ProductionLine::all();
-        return view('bakery.batches.create', compact('productionLines'));
+        return view('bakery.batches.create', compact('productionLines', 'breadProducts'));
     }
 
     /**
@@ -63,8 +82,26 @@ class ProductionBatchController extends Controller
      */
     public function edit(ProductionBatch $batch)
     {
+        $breadProducts = \App\Models\Product::where(function ($q) {
+            $q->where('name', 'like', '%bread%')
+                ->orWhere('name', 'like', '%baguette%')
+                ->orWhere('name', 'like', '%brioche%')
+                ->orWhere('name', 'like', '%focaccia%')
+                ->orWhere('name', 'like', '%potato%')
+                ->orWhere('name', 'like', '%honey oat%')
+                ->orWhere('name', 'like', '%challah%')
+                ->orWhere('name', 'like', '%pita%')
+                ->orWhere('name', 'like', '%bagel%')
+                ->orWhere('name', 'like', '%muffin%')
+                ->orWhere('name', 'like', '%roll%')
+                ->orWhere('name', 'like', '%cinnamon%')
+                ->orWhere('name', 'like', '%gluten%')
+                ->orWhere('name', 'like', '%rustic%')
+                ->orWhere('name', 'like', '%ciabatta%');
+        })->orderBy('name')->pluck('name')->toArray();
+        // By default, show all lines
         $productionLines = \App\Models\ProductionLine::all();
-        return view('bakery.batches.edit', compact('batch', 'productionLines'));
+        return view('bakery.batches.edit', compact('batch', 'productionLines', 'breadProducts'));
     }
 
     /**
