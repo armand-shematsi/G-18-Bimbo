@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\Inventory;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
 
 class AnalyticsController extends Controller
 {
@@ -743,5 +744,74 @@ class AnalyticsController extends Controller
             \Log::error('ML Data Refresh Error: ' . $e->getMessage());
             throw $e;
         }
+    }
+
+    /**
+     * Get real-time prediction from Flask API
+     */
+    public function getRealTimePrediction(Request $request)
+    {
+        $product = $request->input('product');
+        $date = $request->input('date');
+
+        $response = Http::get('http://localhost:5000/predict', [
+            'product' => $product,
+            'date' => $date
+        ]);
+
+        if ($response->successful()) {
+            $prediction = $response->json()['predicted_quantity'];
+            return view('admin.analytics.realtime_prediction', compact('prediction', 'product', 'date'));
+        } else {
+            $error = $response->json('error', 'Prediction not available.');
+            return view('admin.analytics.realtime_prediction', compact('error', 'product', 'date'));
+        }
+    }
+
+    /**
+     * Show prediction graph for a product using batch predictions from Flask API
+     */
+    public function showPredictionGraph(Request $request)
+    {
+        $product = $request->input('product');
+        $startDate = $request->input('start_date', now()->toDateString());
+        $days = $request->input('days', 30);
+        $predictions = [];
+        $error = null;
+        $products = [];
+
+        // Fetch available products from the CSV file
+        $csvPath = base_path('ml/large_sales_cleaned.csv');
+        if (file_exists($csvPath)) {
+            if (($handle = fopen($csvPath, 'r')) !== false) {
+                $header = fgetcsv($handle);
+                $productTypeIndex = array_search('ProductType', $header);
+                $productSet = [];
+                while (($row = fgetcsv($handle)) !== false) {
+                    if (isset($row[$productTypeIndex])) {
+                        $productSet[$row[$productTypeIndex]] = true;
+                    }
+                }
+                fclose($handle);
+                $products = array_keys($productSet);
+                sort($products);
+            }
+        }
+
+        if ($product) {
+            $response = \Illuminate\Support\Facades\Http::get('http://localhost:5000/predict/batch', [
+                'product' => $product,
+                'start_date' => $startDate,
+                'days' => $days
+            ]);
+            if ($response->successful()) {
+                $data = $response->json();
+                $predictions = $data['predictions'] ?? [];
+            } else {
+                $error = $response->json('error', 'Prediction not available.');
+            }
+        }
+
+        return view('admin.analytics.prediction_graph', compact('product', 'startDate', 'days', 'predictions', 'error', 'products'));
     }
 }

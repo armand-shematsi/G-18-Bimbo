@@ -17,13 +17,17 @@ class OrderController extends Controller
     public function index()
     {
         $vendor = \App\Models\Vendor::where('user_id', auth()->id())->first();
-        $vendorOrders = $vendor
-            ? Order::where('vendor_id', $vendor->id)->with(['user', 'items', 'payment'])->latest()->get()
-            : collect();
-        $placedOrders = Order::where('user_id', auth()->id())->with(['user', 'items', 'payment'])->latest()->get();
-        // Merge and remove duplicates
-        $orders = $vendorOrders->merge($placedOrders)->unique('id');
-
+        $orders = collect();
+        if ($vendor) {
+            // Only show orders where the vendor is this supplier and the user placing the order is a retailer_manager
+            $orders = \App\Models\Order::where('vendor_id', $vendor->id)
+                ->whereHas('user', function ($query) {
+                    $query->where('role', 'retail_manager');
+                })
+                ->with(['user', 'items', 'payment'])
+                ->latest()
+                ->get();
+        }
         // Get order statistics
         $totalOrders = $orders->count();
         $pendingOrders = $orders->where('status', 'pending')->count();
