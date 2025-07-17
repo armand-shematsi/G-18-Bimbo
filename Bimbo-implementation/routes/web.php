@@ -190,9 +190,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('orders', App\Http\Controllers\Retail\OrderController::class);
         Route::post('/orders/{order}/status', [App\Http\Controllers\Retail\OrderController::class, 'changeStatus'])->name('orders.changeStatus');
 
+        // Retail Inventory RESTful routes
         Route::get('/inventory', [App\Http\Controllers\Retail\InventoryController::class, 'index'])->name('inventory.index');
+        Route::get('/inventory/create', [App\Http\Controllers\Retail\InventoryController::class, 'create'])->name('inventory.create');
+        Route::post('/inventory', [App\Http\Controllers\Retail\InventoryController::class, 'store'])->name('inventory.store');
         Route::get('/inventory/check', [App\Http\Controllers\Retail\InventoryController::class, 'check'])->name('inventory.check');
-        Route::post('/inventory/update', [App\Http\Controllers\Retail\InventoryController::class, 'update'])->name('inventory.update');
+        Route::get('/inventory/{inventory}', [App\Http\Controllers\Retail\InventoryController::class, 'show'])->name('inventory.show');
+        Route::get('/inventory/{inventory}/edit', [App\Http\Controllers\Retail\InventoryController::class, 'edit'])->name('inventory.edit');
+        Route::put('/inventory/{inventory}', [App\Http\Controllers\Retail\InventoryController::class, 'update'])->name('inventory.update');
+        Route::delete('/inventory/{inventory}', [App\Http\Controllers\Retail\InventoryController::class, 'destroy'])->name('inventory.destroy');
 
         Route::get('/forecast', [App\Http\Controllers\Retail\ForecastController::class, 'index'])->name('forecast.index');
         Route::get('/forecast/generate', [App\Http\Controllers\Retail\ForecastController::class, 'generate'])->name('forecast.generate');
