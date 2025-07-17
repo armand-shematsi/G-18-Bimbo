@@ -16,6 +16,16 @@ $isEdit = isset($batch);
     </div>
     @endif
     <div class="mb-4">
+        <label for="product_id" class="block text-sm font-medium text-gray-700">Product</label>
+        <select name="product_id" id="product_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+            <option value="">Select product</option>
+            @foreach($products as $product)
+                <option value="{{ $product->id }}" {{ old('product_id', $isEdit ? ($batch->product_id ?? null) : null) == $product->id ? 'selected' : '' }}>{{ $product->name }}</option>
+            @endforeach
+        </select>
+        @error('product_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
+    </div>
+    <div class="mb-4">
         <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
         <select name="name" id="name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
             <option value="">Select batch name</option>

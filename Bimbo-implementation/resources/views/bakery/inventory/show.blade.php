@@ -388,8 +388,8 @@
 </div>
 
 <script>
-    window.lastQuantity = @json($inventory - > quantity);
-    window.inventoryId = @json($inventory - > id);
+    window.lastQuantity = @json($inventory->quantity);
+    window.inventoryId = @json($inventory->id);
 
     function openStockModal(type = null) {
         document.getElementById('stockModal').classList.remove('hidden');
