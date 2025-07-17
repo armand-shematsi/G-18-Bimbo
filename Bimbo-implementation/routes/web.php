@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkforceController;
 use App\Http\Controllers\OrderReturnController;
 use App\Http\Controllers\SupportRequestController;
-// use App\Http\Controllers\Bakery\InventoryController;
+use App\Models\Order;
 
 
 Route::get('/', function () {
@@ -53,7 +53,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Combine all supplier routes into a single group
-    Route::middleware(['auth', 'role:supplier|bakery_manager'])->prefix('supplier')->name('supplier.')->group(function () {
+    Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier.')->group(function () {
         // Inventory routes
         Route::get('/inventory', [App\Http\Controllers\Supplier\InventoryController::class, 'index'])->name('inventory.index');
         Route::get('/inventory/create', [App\Http\Controllers\Supplier\InventoryController::class, 'create'])->name('inventory.create');
@@ -75,9 +75,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/stockin', [App\Http\Controllers\Supplier\StockInController::class, 'index'])->name('stockin.index');
         Route::get('/stockin/create', [App\Http\Controllers\Supplier\StockInController::class, 'create'])->name('stockin.create');
         Route::post('/stockin', [App\Http\Controllers\Supplier\StockInController::class, 'store'])->name('stockin.store');
-        Route::post('/stockin/test', function () {
-            dd('Form submitted!');
-        })->name('stockin.test');
+        Route::post('/stockin/test', function () { dd('Form submitted!'); })->name('stockin.test');
 
         // Stockout routes
         Route::get('/stockout', [App\Http\Controllers\Supplier\StockOutController::class, 'index'])->name('stockout.index');
@@ -102,7 +100,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('machines', \App\Http\Controllers\MachineController::class);
         Route::resource('maintenance-tasks', \App\Http\Controllers\MaintenanceTaskController::class);
         Route::resource('shifts', \App\Http\Controllers\ShiftController::class);
-        Route::resource('inventory', \App\Http\Controllers\Bakery\InventoryController::class)->names('bakery.inventory');
         // Production Routes
         Route::get('/production', function () {
             return view('bakery.production');
@@ -132,10 +129,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Live dashboard API endpoints
         Route::get('/api/production-live', [\App\Http\Controllers\DashboardController::class, 'productionLive'])->name('bakery.production-live');
         Route::get('/api/workforce-live', [\App\Http\Controllers\DashboardController::class, 'workforceLive'])->name('bakery.workforce-live');
+        Route::get('/api/machines-live', [\App\Http\Controllers\DashboardController::class, 'machinesLive'])->name('bakery.machines-live');
         Route::get('/api/ingredients-live', [\App\Http\Controllers\DashboardController::class, 'ingredientsLive'])->name('bakery.ingredients-live');
         Route::get('/api/notifications-live', [\App\Http\Controllers\DashboardController::class, 'notificationsLive'])->name('bakery.notifications-live');
         Route::get('/api/chat-live', [\App\Http\Controllers\DashboardController::class, 'chatLive'])->name('bakery.chat-live');
-        Route::get('/stats-live', [\App\Http\Controllers\DashboardController::class, 'statsLive'])->name('bakery.stats-live');
 
         // Workforce Management
         Route::post('/workforce/assign-task', [\App\Http\Controllers\WorkforceController::class, 'assignTask'])->name('workforce.assign-task');
@@ -157,7 +154,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/workforce/shifts', [\App\Http\Controllers\WorkforceController::class, 'storeShift'])->name('workforce.shifts.store');
         Route::get('/workforce/assignment', [\App\Http\Controllers\WorkforceController::class, 'assignment'])->name('workforce.assignment');
         Route::get('/workforce/availability', [\App\Http\Controllers\WorkforceController::class, 'availability'])->name('workforce.availability');
-        // Route::post('/workforce/auto-assign', [\App\Http\Controllers\WorkforceController::class, 'autoAssignStaff'])->name('bakery.workforce.auto-assign');
 
         // Order Processing Route
         Route::get('/order-processing', function () {
@@ -171,7 +167,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/order-processing/supplier-order', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'placeSupplierOrder'])->name('order-processing.supplier-order');
         // Correct route for AJAX retailer orders
         Route::get('/order-processing/retailer-orders', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'listRetailerOrders'])->name('order-processing.retailer-orders');
-
         Route::post('/order-processing/retailer-orders/{id}/status', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'updateRetailerOrderStatus'])->name('order-processing.retailer-orders.update-status');
 
         // Inventory routes
@@ -186,23 +181,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/api/inventory/{id}/live', [\App\Http\Controllers\Bakery\InventoryController::class, 'liveData'])->name('inventory.live-data');
         Route::get('/api/inventory/{id}/recent-orders', [\App\Http\Controllers\Bakery\InventoryController::class, 'recentOrders'])->name('inventory.recent-orders');
 
-        Route::get('/dashboard', [App\Http\Controllers\Bakery\DashboardController::class, 'index'])->name('dashboard');
-
+        Route::get('/dashboard', [\App\Http\Controllers\Bakery\DashboardController::class, 'index'])->name('dashboard');
     });
 
     // Retail Manager Routes
     Route::middleware(['auth', 'role:retail_manager'])->prefix('retail')->name('retail.')->group(function () {
-        Route::get('/products', [App\Http\Controllers\Retail\ProductController::class, 'index'])->name('products.index');
-        Route::resource('orders', App\Http\Controllers\Retail\OrderController::class);
-        Route::post('/orders/{order}/status', [App\Http\Controllers\Retail\OrderController::class, 'changeStatus'])->name('orders.changeStatus');
-        Route::post('/orders/{id}/status', [App\Http\Controllers\Retail\RetailerOrderController::class, 'updateStatus'])->name('orders.updateStatus');
+        Route::resource('orders', \App\Http\Controllers\Retail\OrderController::class);
+        Route::post('/orders/{order}/status', [\App\Http\Controllers\Retail\OrderController::class, 'changeStatus'])->name('orders.changeStatus');
 
-        Route::get('/inventory', [App\Http\Controllers\Retail\InventoryController::class, 'index'])->name('inventory.index');
-        Route::post('/inventory', [App\Http\Controllers\Retail\InventoryController::class, 'store'])->name('inventory.store');
-        Route::get('/inventory/create', [App\Http\Controllers\Retail\InventoryController::class, 'create'])->name('inventory.create');
+        Route::get('/inventory', [\App\Http\Controllers\Retail\InventoryController::class, 'index'])->name('inventory.index');
         Route::get('/inventory/check', [App\Http\Controllers\Retail\InventoryController::class, 'check'])->name('inventory.check');
         Route::post('/inventory/update', [App\Http\Controllers\Retail\InventoryController::class, 'update'])->name('inventory.update');
-        Route::get('/inventory/{inventory}', [App\Http\Controllers\Retail\InventoryController::class, 'show'])->name('inventory.show');
 
         Route::get('/forecast', [App\Http\Controllers\Retail\ForecastController::class, 'index'])->name('forecast.index');
         Route::get('/forecast/generate', [App\Http\Controllers\Retail\ForecastController::class, 'generate'])->name('forecast.generate');
@@ -224,7 +213,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/support', [\App\Http\Controllers\SupportRequestController::class, 'index'])->name('support.index');
         Route::get('/support/{id}', [\App\Http\Controllers\SupportRequestController::class, 'show'])->name('support.show');
 
-
         // Retail Bread Product Listing
         Route::get('/products', [App\Http\Controllers\Retail\ProductController::class, 'index'])->name('products.index');
 
@@ -236,8 +224,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/cart/{id}', [App\Http\Controllers\Retail\CartController::class, 'destroy'])->name('cart.destroy');
         Route::post('/cart/checkout', [App\Http\Controllers\Retail\CartController::class, 'checkout'])->name('cart.checkout');
         Route::post('/cart/place-order', [App\Http\Controllers\Retail\CartController::class, 'placeOrder'])->name('cart.place-order');
-        Route::post('/retailer-orders/{id}/fulfill', [App\Http\Controllers\Retail\RetailerOrderController::class, 'fulfill'])->name('retailer-orders.fulfill');
-        Route::post('/retailer-orders/{id}/deliver', [App\Http\Controllers\Retail\RetailerOrderController::class, 'deliver'])->name('retailer-orders.deliver');
     });
 
     // Distributor Routes
@@ -276,7 +262,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/cart/{id}', [\App\Http\Controllers\Customer\CartController::class, 'destroy'])->name('cart.destroy');
         Route::get('/cart/checkout', [\App\Http\Controllers\Customer\CartController::class, 'checkout'])->name('cart.checkout');
         Route::post('/cart/place-order', [\App\Http\Controllers\Customer\CartController::class, 'placeOrder'])->name('cart.place-order');
-        Route::get('/products', [App\Http\Controllers\Customer\ProductController::class, 'index'])->name('products');
     });
 
     // Workforce Overview Route
@@ -285,6 +270,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Remove or comment out the following conflicting route:
     // Route::get('/supplier/orders', [\App\Http\Controllers\SupplierOrderController::class, 'index'])
     //     ->name('supplier.orders');
+});
+
+Route::prefix('admin')->name('admin.')->middleware(['web', 'auth', 'verified'])->group(function () {
+    Route::resource('supply_centers', \App\Http\Controllers\Admin\SupplyCenterController::class);
 });
 
 // Vendor Registration Routes
@@ -305,11 +294,11 @@ Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier
 
 // Supplier Raw Material Ordering
 Route::middleware(['auth', 'role:supplier,bakery_manager,retail_manager'])->prefix('supplier/raw-materials')->name('supplier.raw-materials.')->group(function () {
-    // Route::get('catalog', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'catalog'])->name('catalog');
-    // Route::post('add-to-cart', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'addToCart'])->name('addToCart');
-    // Route::get('cart', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'cart'])->name('cart');
-    // Route::post('remove-from-cart/{index}', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'removeFromCart'])->name('removeFromCart');
-    // Route::post('checkout', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'checkout'])->name('checkout');
+    // Route::get('catalog', [\App.Http\Controllers\Supplier\RawMaterialOrderController::class, 'catalog'])->name('catalog');
+    // Route::post('add-to-cart', [\App.Http\Controllers\Supplier\RawMaterialOrderController::class, 'addToCart'])->name('addToCart');
+    // Route::get('cart', [\App.Http\Controllers\Supplier\RawMaterialOrderController::class, 'cart'])->name('cart');
+    // Route::post('remove-from-cart/{index}', [\App.Http\Controllers\Supplier\RawMaterialOrderController::class, 'removeFromCart'])->name('removeFromCart');
+    // Route::post('checkout', [\App.Http\Controllers\Supplier\RawMaterialOrderController::class, 'checkout'])->name('checkout');
 });
 
 require __DIR__ . '/auth.php';
@@ -338,15 +327,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/reports/downloads', [\App\Http\Controllers\ReportDownloadController::class, 'index'])->name('reports.downloads');
 });
-
-// Placeholder route for bakery.workforce.auto-assign
-Route::get('/bakery/workforce/auto-assign', function() {
-    return 'Auto-assign workforce placeholder.';
-})->name('bakery.workforce.auto-assign');
 // No code to insert. The insertion point is likely a result of a merge conflict marker or placeholder, but there is no actual conflict or duplicate code to resolve here.
 
+// Make bakery.workforce.auto-assign available globally for dashboard
 Route::post('/workforce/auto-assign', [\App\Http\Controllers\WorkforceController::class, 'autoAssignStaff'])
-    ->middleware(['auth', 'verified', 'role:bakery_manager', 'throttle:300,1'])
+    ->middleware(['auth', 'verified', 'role:bakery_manager'])
     ->name('bakery.workforce.auto-assign');
 
 // Add this route for bakery stats live
@@ -407,9 +392,5 @@ Route::prefix('supplier')->middleware(['auth', 'role:supplier'])->group(function
     Route::post('/chat/send', [\App\Http\Controllers\Supplier\ChatController::class, 'send'])->name('supplier.chat.send');
 
     // Raw Materials (Cart)
-    // Route::get('/raw-materials/catalog', [\App\Http\Controllers\Supplier\RawMaterialController::class, 'catalog'])->name('supplier.raw-materials.catalog');
-    // Route::post('/raw-materials/add-to-cart', [\App\Http\Controllers\Supplier\RawMaterialController::class, 'addToCart'])->name('supplier.raw-materials.addToCart');
-    // Route::get('/raw-materials/cart', [\App\Http\Controllers\Supplier\RawMaterialController::class, 'cart'])->name('supplier.raw-materials.cart');
-    // Route::post('/raw-materials/remove-from-cart/{index}', [\App\Http\Controllers\Supplier\RawMaterialController::class, 'removeFromCart'])->name('supplier.raw-materials.removeFromCart');
-    // Route::post('/raw-materials/checkout', [\App\Http\Controllers\Supplier\RawMaterialController::class, 'checkout'])->name('supplier.raw-materials.checkout');
+    // (Legacy routes removed)
 });

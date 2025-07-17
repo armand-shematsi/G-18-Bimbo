@@ -370,11 +370,4 @@ $pendingOrders = Order::where('vendor_id', auth()->id())->where('status', 'pendi
     </table>
 </div>
 
-{{-- Reports Button at the bottom --}}
-<div class="w-full flex justify-center mt-8 mb-4">
-    <a href="{{ route('reports.downloads') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg text-xl transition-all duration-200">
-        <i class="fas fa-file-alt mr-2"></i> Reports
-    </a>
-</div>
-
 @endsection

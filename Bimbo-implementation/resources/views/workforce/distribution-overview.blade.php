@@ -37,6 +37,7 @@
                         <th>Center Name</th>
                         <th>Role Needed</th>
                         <th>Shift Time</th>
+                        <th>Required Staffs Number</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -169,10 +170,14 @@
             <td>${c.name}</td>
             <td>${c.required_role}</td>
             <td>
-                <select onchange='updateCenterShiftTime(${c.id}, this.value)' class='border rounded px-2 py-1 w-32'>
-                    <option value='Day' ${c.shift_time === 'Day' ? 'selected' : ''}>Day</option>
-                    <option value='Night' ${c.shift_time === 'Night' ? 'selected' : ''}>Night</option>
+                <select onchange='updateCenterShiftTime(${c.id}, this.value)' class='border rounded px-2 py-1 w-40'>
+                    <option value='8:00AM-17:00PM' ${c.shift_time === '8:00AM-17:00PM' ? 'selected' : ''}>8:00AM-17:00PM</option>
+                    <option value='6:00PM-6:00AM' ${c.shift_time === '6:00PM-6:00AM' ? 'selected' : ''}>6:00PM-6:00AM</option>
                 </select>
+            </td>
+            <td>
+                <input type='number' min='1' value='${c.required_staff_count ?? ''}' id='requiredStaffInput${c.id}' class='border rounded px-2 py-1 w-20 mr-2'>
+                <button onclick='saveRequiredStaffCount(${c.id})' class='px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs'>Save</button>
             </td>
             <td>
                 <button class='text-blue-600' onclick='editCenter(${c.id})'>Edit</button> |
@@ -334,9 +339,9 @@
         if (!name) return;
         const required_role = prompt('Edit role needed:', c.required_role);
         if (!required_role) return;
-        let shift_time = c.shift_time || 'Day';
-        shift_time = prompt('Edit shift time (Day/Night):', shift_time);
-        if (shift_time !== 'Day' && shift_time !== 'Night') shift_time = 'Day';
+        let shift_time = c.shift_time || '8:00AM-17:00PM';
+        shift_time = prompt('Edit shift time (8:00AM-17:00PM or 6:00PM-6:00AM):', shift_time);
+        if (!["8:00AM-17:00PM", "6:00PM-6:00AM"].includes(shift_time)) shift_time = '8:00AM-17:00PM';
         try {
             const res = await fetch(`${centersApi}/${id}`, {
                 method: 'PUT',
@@ -383,22 +388,24 @@
             await Promise.all(allAssignments.map(a => fetch(`${assignmentsApi}/${a.id}`, {
                 method: 'DELETE'
             })));
-            // Assign all available staff with the same role to each center, using center's shift_time
+            // Assign up to required_staff_count present staff with the same role to each center
             for (const center of centers) {
-                const shiftTime = center.shift_time || 'Day';
+                const shiftTime = center.shift_time || '8:00AM-17:00PM';
+                const requiredCount = parseInt(center.required_staff_count, 10) || 1;
                 const availableStaff = staff.filter(s =>
                     s.role === center.required_role &&
                     s.status === 'Present'
                 );
-                if (availableStaff.length > 0) {
-                    for (const available of availableStaff) {
+                // Assign up to requiredCount staff
+                for (let i = 0; i < requiredCount; i++) {
+                    if (availableStaff[i]) {
                         const res = await fetch(assignmentsApi, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
-                                staff_id: available.id,
+                                staff_id: availableStaff[i].id,
                                 supply_center_id: center.id,
                                 shift_time: shiftTime,
                                 status: 'Assigned'
@@ -408,23 +415,24 @@
                             const msg = await res.text();
                             throw new Error('Failed to assign: ' + msg);
                         }
-                    }
-                } else {
-                    const res = await fetch(assignmentsApi, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            staff_id: null,
-                            supply_center_id: center.id,
-                            shift_time: shiftTime,
-                            status: 'Unfilled'
-                        })
-                    });
-                    if (!res.ok) {
-                        const msg = await res.text();
-                        throw new Error('Failed to assign: ' + msg);
+                    } else {
+                        // Not enough staff, create unfilled slot
+                        const res = await fetch(assignmentsApi, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                staff_id: null,
+                                supply_center_id: center.id,
+                                shift_time: shiftTime,
+                                status: 'Unfilled'
+                            })
+                        });
+                        if (!res.ok) {
+                            const msg = await res.text();
+                            throw new Error('Failed to assign: ' + msg);
+                        }
                     }
                 }
             }
@@ -436,6 +444,36 @@
         } finally {
             autoAssignInProgress = false;
             if (btn) btn.disabled = false;
+        }
+    }
+
+    async function saveRequiredStaffCount(centerId) {
+        const input = document.getElementById('requiredStaffInput' + centerId);
+        const value = parseInt(input.value, 10);
+        if (isNaN(value) || value < 1) {
+            alert('Please enter a valid number (1 or more)');
+            return;
+        }
+        const c = centers.find(x => x.id === centerId);
+        if (!c) return;
+        try {
+            const res = await fetch(`${centersApi}/${centerId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: c.name,
+                    required_role: c.required_role,
+                    shift_time: c.shift_time,
+                    required_staff_count: value
+                })
+            });
+            if (!res.ok) throw new Error('Failed to update required staff count');
+            fetchCenters();
+        } catch (e) {
+            alert('Error updating required staff count: ' + e.message);
+            console.error(e);
         }
     }
 

@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->string('location')->nullable();
             $table->string('required_role')->nullable(); // e.g., 'driver', 'baker', etc.
             $table->string('shift_time')->nullable(); // Add this line
+            $table->integer('required_staff_count')->default(1); // New column for required number of staffs
             $table->timestamps();
         });
     }

@@ -209,7 +209,7 @@ $unreadCount = Message::where('receiver_id', auth()->id())
 
         <!-- Pagination -->
         <div class="px-6 py-4 border-t border-gray-200">
-            {{ $orders->links() }}
+            {{-- {{ $orders->links() }} --}}
         </div>
         @else
         <div class="text-center py-12">

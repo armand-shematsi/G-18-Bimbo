@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
+use App\Models\SupplyCenter;
 
 class SupplyCenterSeeder extends Seeder
 {
@@ -36,5 +37,8 @@ class SupplyCenterSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
         ]);
+
+        // Set demo values for all supply centers
+        SupplyCenter::query()->update(['required_staff_count' => 3]);
     }
 }

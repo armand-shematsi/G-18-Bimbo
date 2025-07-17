@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
+            if (!Schema::hasColumn('orders', 'placed_at')) {
             $table->dateTime('placed_at')->nullable()->after('billing_address');
+            }
         });
     }
 
@@ -22,7 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('orders', function (Blueprint $table) {
+            if (Schema::hasColumn('orders', 'placed_at')) {
             $table->dropColumn('placed_at');
+            }
         });
     }
 };

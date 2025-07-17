@@ -6,7 +6,10 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
     {
         Schema::table('vendors', function (Blueprint $table) {
             $table->unsignedBigInteger('user_id')->nullable()->after('id');
@@ -14,7 +17,10 @@ return new class extends Migration
         });
     }
 
-    public function down()
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
         Schema::table('vendors', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
