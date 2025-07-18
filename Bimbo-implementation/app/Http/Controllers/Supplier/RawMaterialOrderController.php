@@ -23,7 +23,7 @@ class RawMaterialOrderController extends Controller
         $supplierId = $user->id;
         $rawMaterials = \App\Models\Inventory::whereHas('user', function($query) use ($supplierId) {
             $query->where('role', 'supplier')->where('id', '!=', $supplierId);
-        })->where('status', 'available')->where('item_type', 'raw_material')->get();
+        })->where('status', 'available')->where('item_type', 'raw_material')->with('product')->get();
         // Only keep unique raw materials by item_name and supplier (user_id)
         $uniqueRawMaterials = $rawMaterials->unique(function ($item) {
             return $item->item_name . '-' . $item->user_id;

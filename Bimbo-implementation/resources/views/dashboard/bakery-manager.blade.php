@@ -609,6 +609,33 @@
         document.getElementById('distributionModal').classList.add('hidden');
     }
 </script>
+
+<script>
+function updateBakeryStats() {
+    // Production stats
+    fetch('/bakery/production-stats-live')
+        .then(res => res.json())
+        .then(data => {
+            document.querySelector('.production-output').textContent = data.todaysOutput ?? '-';
+            document.querySelector('.production-target').textContent = data.productionTarget ?? '-';
+        });
+    // Workforce stats
+    fetch('/bakery/stats-live')
+        .then(res => res.json())
+        .then(data => {
+            document.querySelector('.live-staff-on-duty').textContent = data.staffOnDuty ?? '-';
+            document.querySelector('.live-absent-count').textContent = data.absentCount ?? '-';
+            document.querySelector('.live-shift-filled').textContent = data.shiftFilled ?? '-';
+            document.querySelector('.live-overtime-count').textContent = data.overtimeCount ?? '-';
+        });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateBakeryStats();
+    setInterval(updateBakeryStats, 10000); // every 10 seconds
+});
+</script>
+
 @endpush
 
 <!-- Product Gallery -->
