@@ -47,6 +47,7 @@ class RawMaterialOrderController extends Controller
         }
         $item = [
             'inventory_id' => $inventory->id,
+            'product_id' => $inventory->product_id, // Store product_id
             'product_name' => $inventory->item_name,
             'supplier_id' => $inventory->user_id,
             'quantity' => $quantity,
@@ -143,7 +144,7 @@ class RawMaterialOrderController extends Controller
             \Log::info('Order created', ['order_id' => $order->id]);
             foreach ($cart as $item) {
                 $order->items()->create([
-                    'product_id' => null,
+                    'product_id' => $item['product_id'] ?? null,
                     'product_name' => $item['product_name'],
                     'quantity' => $item['quantity'],
                     'unit_price' => $item['unit_price'],

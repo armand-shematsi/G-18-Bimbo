@@ -66,64 +66,88 @@
 <div class="max-w-7xl mx-auto py-8"
     data-supplier-order-route="{{ route('bakery.order-processing.supplier-order') }}"
     data-retailer-orders-route="{{ route('bakery.order-processing.retailer-orders') }}">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- Place Order to Supplier -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h2 class="text-xl font-bold text-blue-700 mb-4">Place Order to Supplier</h2>
-            <form action="{{ route('bakery.order-processing.supplier-order') }}" method="POST">
-                @csrf
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-2">Product</label>
-                    <select name="product_id" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
-                        <option value="">Select product</option>
-                        @foreach($products as $product)
-                        <option value="{{ $product->id }}">{{ $product->name }}</option>
-                        @endforeach
-                    </select>
+    <div class="flex flex-col md:flex-row gap-8">
+        <!-- Place Order to Supplier and Supplier Orders Table -->
+        <div class="flex-1">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-blue-700 mb-4">Place Order to Supplier</h2>
+                <form id="supplierOrderForm" action="{{ route('bakery.order-processing.supplier-order') }}" method="POST">
+                    @csrf
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-semibold mb-2">Product</label>
+                        <select name="product_id" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
+                            <option value="">Select product</option>
+                            @foreach($products as $product)
+                            <option value="{{ $product->id }}">{{ $product->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-semibold mb-2">Quantity</label>
+                        <input type="number" name="quantity" class="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Enter quantity" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-semibold mb-2">Supplier</label>
+                        <select name="supplier_id" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
+                            <option value="">Select supplier</option>
+                            @foreach($suppliers as $supplier)
+                            <option value="{{ $supplier->id }}">{{ $supplier->name }} ({{ $supplier->email }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Place Order</button>
+                    <div id="supplierOrderMsg" class="mt-2 text-sm"></div>
+                </form>
+            </div>
+            <!-- Supplier Orders List -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mt-8">
+                <h2 class="text-xl font-bold text-purple-700 mb-4">Your Supplier Orders</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-2 text-left font-semibold">Order ID</th>
+                                <th class="px-4 py-2 text-left font-semibold">Product</th>
+                                <th class="px-4 py-2 text-left font-semibold">Quantity</th>
+                                <th class="px-4 py-2 text-left font-semibold">Status</th>
+                                <th class="px-4 py-2 text-left font-semibold">Total</th>
+                                <th class="px-4 py-2 text-left font-semibold">Placed At</th>
+                            </tr>
+                        </thead>
+                        <tbody id="supplierOrdersTableBody">
+                            <!-- Orders will be rendered here by JS -->
+                        </tbody>
+                    </table>
                 </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-2">Quantity</label>
-                    <input type="number" name="quantity" class="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Enter quantity" required>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-2">Supplier</label>
-                    <select name="supplier_id" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
-                        <option value="">Select supplier</option>
-                        @foreach($suppliers as $supplier)
-                        <option value="{{ $supplier->id }}">{{ $supplier->name }} ({{ $supplier->email }})</option>
-                        @endforeach
-                    </select>
-                </div>
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Place Order</button>
-                <div id="supplierOrderMsg" class="mt-2 text-sm"></div>
-            </form>
+            </div>
         </div>
         <!-- Receive Orders from Retailers -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h2 class="text-xl font-bold text-green-700 mb-4">Receive Orders from Retailers</h2>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+        <div class="flex-1">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-green-700 mb-4">Receive Orders from Retailers</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Retailer</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Product</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Quantity</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="retailerOrdersTbody" class="bg-white divide-y divide-gray-100">
+                            @php $found = false; @endphp
+                            @foreach($retailerOrders as $order)
+                                @if($order->user && $order->user->role === 'retail_manager')
+                                    @foreach($order->items as $item)
+                                        @if($item->product && $item->product->type === 'finished_product')
+                                            @php $found = true; @endphp
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Retailer</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Product</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Quantity</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="retailerOrdersTbody" class="bg-white divide-y divide-gray-100">
-                        @php $found = false; @endphp
-                        @foreach($retailerOrders as $order)
-                            @if($order->user && $order->user->role === 'retail_manager')
-                                @foreach($order->items as $item)
-                                    @if($item->product && $item->product->type === 'finished_product')
-                                        @php $found = true; @endphp
-                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $order->user->name }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $item->product->name }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $item->quantity }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $order->user->name }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $item->product->name }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $item->quantity }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 <select class="order-status-dropdown border rounded px-2 py-1" data-order-id="{{ $order->id }}">
                                     @foreach(['pending', 'processing', 'shipped', 'received'] as $status)
                                         <option value="{{ $status }}" @if(strtolower($order->status) === $status) selected @endif>{{ ucfirst($status) }}</option>
@@ -140,17 +164,18 @@
                                 </button>
                             </td>
                         </tr>
-                                    @endif
-                                @endforeach
+                                        @endif
+                                    @endforeach
+                                @endif
+                            @endforeach
+                            @if(!$found)
+                            <tr>
+                                    <td colspan="4" class="text-center text-gray-500 py-4">No retailer orders for finished products found.</td>
+                            </tr>
                             @endif
-                        @endforeach
-                        @if(!$found)
-                        <tr>
-                                <td colspan="4" class="text-center text-gray-500 py-4">No retailer orders for finished products found.</td>
-                        </tr>
-                        @endif
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

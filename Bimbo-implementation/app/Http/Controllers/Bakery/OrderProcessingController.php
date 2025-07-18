@@ -24,7 +24,15 @@ class OrderProcessingController extends Controller
             ->whereHas('items.product', function($q) {
                 $q->where('type', 'finished_product');
             })
-            ->with(['user', 'items.product'])
+            ->with([
+                'user',
+                'items' => function($q) {
+                    $q->whereHas('product', function($q2) {
+                        $q2->where('type', 'finished_product');
+                    });
+                },
+                'items.product'
+            ])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -61,17 +69,40 @@ class OrderProcessingController extends Controller
             'quantity' => 'required|integer|min:1',
             'supplier_id' => 'required|exists:users,id',
         ]);
-        $order = SupplierOrder::create([
-            'product_id' => $validated['product_id'],
-            'quantity' => $validated['quantity'],
-            'supplier_id' => $validated['supplier_id'],
-            'status' => 'pending',
-        ]);
-        // Notify the supplier
-        $supplier = User::find($validated['supplier_id']);
-        if ($supplier) {
-            $supplier->notify(new SupplierOrderPlaced($order));
+
+        // Find the vendor for the selected supplier
+        $vendor = \App\Models\Vendor::where('user_id', $validated['supplier_id'])->first();
+        if (!$vendor) {
+            return response()->json(['success' => false, 'message' => 'Supplier vendor not found.'], 422);
         }
+
+        $product = \App\Models\Product::find($validated['product_id']);
+        $unitPrice = $product->unit_price ?? 0;
+        $totalPrice = $unitPrice * $validated['quantity'];
+
+        // Create the order
+        $order = \App\Models\Order::create([
+            'user_id' => auth()->id(),
+            'vendor_id' => $vendor->id,
+            'customer_name' => auth()->user()->name,
+            'customer_email' => auth()->user()->email,
+            'status' => 'pending',
+            'total' => $totalPrice,
+            'payment_status' => 'unpaid',
+            'placed_at' => now(),
+        ]);
+
+        // Create the order item
+        $order->items()->create([
+            'product_id' => $product->id,
+            'product_name' => $product->name,
+            'quantity' => $validated['quantity'],
+            'unit_price' => $unitPrice,
+            'total_price' => $totalPrice,
+        ]);
+
+        // Optionally notify the supplier here
+
         return response()->json(['success' => true, 'order' => $order]);
     }
 
@@ -162,5 +193,14 @@ class OrderProcessingController extends Controller
             }
         }
         return response()->json(['success' => true, 'order' => $order]);
+    }
+
+    public function listSupplierOrders()
+    {
+        $orders = \App\Models\Order::where('user_id', auth()->id())
+            ->with(['items', 'vendor'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        return response()->json(['orders' => $orders]);
     }
 }
