@@ -42,8 +42,17 @@ class DashboardController extends Controller
                 $products = \App\Models\Product::all();
                 return view('dashboard.supplier', compact('products'));
             case 'bakery_manager':
-                // Fetch all new or assigned orders (pending or processing)
-                $orders = \App\Models\Order::whereIn('status', ['pending', 'processing'])->orderBy('created_at', 'desc')->get();
+                // Show only retailer orders for finished products that are pending or processing
+                $orders = \App\Models\Order::whereHas('user', function($q) {
+                        $q->where('role', 'retail_manager');
+                    })
+                    ->whereHas('items.product', function($q) {
+                        $q->where('type', 'finished_product');
+                    })
+                    ->whereIn('status', ['pending', 'processing'])
+                    ->with(['user', 'items.product'])
+                    ->orderBy('created_at', 'desc')
+                    ->get();
                 $staff = \App\Models\User::where('role', 'staff')->get();
                 $supplyCenters = \App\Models\SupplyCenter::all();
                 $now = now();

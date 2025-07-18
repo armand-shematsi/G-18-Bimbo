@@ -19,10 +19,10 @@ class OrderController extends Controller
         $vendor = \App\Models\Vendor::where('user_id', auth()->id())->first();
         $orders = collect();
         if ($vendor) {
-            // Only show orders where the vendor is this supplier and the user placing the order is a retailer_manager
+            // Only show orders where the vendor is this supplier and the user placing the order is a bakery_manager
             $orders = \App\Models\Order::where('vendor_id', $vendor->id)
                 ->whereHas('user', function ($query) {
-                    $query->where('role', 'retail_manager');
+                    $query->where('role', 'bakery_manager');
                 })
                 ->with(['user', 'items', 'payment'])
                 ->latest()

@@ -121,6 +121,39 @@
     </div>
 </div>
 
+<!-- New & Assigned Orders Section -->
+<div class="bg-white rounded-xl shadow-lg p-6 mt-8">
+    <h2 class="text-xl font-bold text-blue-700 mb-4">New & Assigned Orders</h2>
+    @if(isset($orders) && $orders->count())
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+                <tr>
+                    <th class="px-4 py-2 text-left font-semibold">Order #</th>
+                    <th class="px-4 py-2 text-left font-semibold">Status</th>
+                    <th class="px-4 py-2 text-left font-semibold">Retailer</th>
+                    <th class="px-4 py-2 text-left font-semibold">Product(s)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($orders as $order)
+                    <tr>
+                        <td class="px-4 py-2">{{ $order->id }}</td>
+                        <td class="px-4 py-2">{{ $order->status }}</td>
+                        <td class="px-4 py-2">{{ $order->user->name ?? 'N/A' }}</td>
+                        <td class="px-4 py-2">
+                            @foreach($order->items as $item)
+                                {{ $item->product->name ?? 'N/A' }} ({{ $item->quantity }})<br>
+                            @endforeach
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        <div class="text-gray-500">No new or assigned orders at the moment.</div>
+    @endif
+</div>
+
 <!-- Main Content Grid -->
 <div class="flex flex-col lg:flex-row gap-8">
     <!-- Main Content (left) -->
@@ -185,19 +218,9 @@
 
 <!-- Reports Center at the bottom, centered -->
 <div class="flex justify-center mt-14 mb-10">
-    <div class="w-full max-w-2xl bg-gradient-to-r from-sky-100 to-white rounded-2xl shadow-xl border-2 border-sky-400 p-8">
-        <div class="flex items-center mb-4">
-            <svg class="w-10 h-10 text-sky-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 014-4h4m0 0V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2h6" />
-            </svg>
-            <h4 class="text-2xl font-extrabold text-sky-600">Reports Center</h4>
-        </div>
-        <div class="flex flex-col md:flex-row gap-4 mb-4">
-            <a href="{{ route('reports.downloads') }}" class="flex-1 btn btn-info btn-lg flex items-center justify-center font-bold text-lg py-3 rounded-lg bg-sky-500 hover:bg-sky-600 text-white shadow-md transition">View Your Reports</a>
-            <a href="{{ route('reports.downloads') }}" class="flex-1 btn btn-success btn-lg flex items-center justify-center font-bold text-lg py-3 rounded-lg bg-green-500 hover:bg-green-600 text-white shadow-md transition">Download Your Reports</a>
-        </div>
-        <p class="text-gray-700 text-base font-medium">Access all your daily and weekly reports in one place.</p>
-    </div>
+    <a href="{{ route('reports.downloads') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg text-xl transition-all duration-200">
+        <i class="fas fa-file-alt mr-2"></i> Reports
+    </a>
 </div>
 
 <!-- Assign Task Modal (unchanged) -->
@@ -586,6 +609,33 @@
         document.getElementById('distributionModal').classList.add('hidden');
     }
 </script>
+
+<script>
+function updateBakeryStats() {
+    // Production stats
+    fetch('/bakery/production-stats-live')
+        .then(res => res.json())
+        .then(data => {
+            document.querySelector('.production-output').textContent = data.todaysOutput ?? '-';
+            document.querySelector('.production-target').textContent = data.productionTarget ?? '-';
+        });
+    // Workforce stats
+    fetch('/bakery/stats-live')
+        .then(res => res.json())
+        .then(data => {
+            document.querySelector('.live-staff-on-duty').textContent = data.staffOnDuty ?? '-';
+            document.querySelector('.live-absent-count').textContent = data.absentCount ?? '-';
+            document.querySelector('.live-shift-filled').textContent = data.shiftFilled ?? '-';
+            document.querySelector('.live-overtime-count').textContent = data.overtimeCount ?? '-';
+        });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateBakeryStats();
+    setInterval(updateBakeryStats, 10000); // every 10 seconds
+});
+</script>
+
 @endpush
 
 <!-- Product Gallery -->

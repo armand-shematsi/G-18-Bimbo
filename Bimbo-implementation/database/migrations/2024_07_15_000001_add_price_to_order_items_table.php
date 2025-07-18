@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('supply_centers', function (Blueprint $table) {
-            $table->string('shift_time')->nullable();
+        Schema::table('order_items', function (Blueprint $table) {
+            $table->decimal('price', 10, 2)->nullable()->after('quantity');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('supply_centers', function (Blueprint $table) {
-            //
+        Schema::table('order_items', function (Blueprint $table) {
+            $table->dropColumn('price');
         });
     }
-};
+}; 
