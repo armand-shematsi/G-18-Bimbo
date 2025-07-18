@@ -362,3 +362,7 @@ Route::get('/bakery/api/inventory/{id}/live', [\App\Http\Controllers\Bakery\Inve
 
 // Add this route for bakery inventory recent orders
 Route::get('/bakery/api/inventory/{id}/recent-orders', [\App\Http\Controllers\Bakery\InventoryController::class, 'recentOrders'])->name('bakery.inventory.recent-orders');
+
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin/analytics/inventory', [\App\Http\Controllers\Admin\AnalyticsController::class, 'adminInventoryAnalytics'])->name('admin.analytics.inventory');
+});
