@@ -16,8 +16,18 @@ class OrderProcessingController extends Controller
     public function index()
     {
         $suppliers = User::where('role', 'supplier')->get();
-        $products = Product::all();
-        $retailerOrders = \App\Models\Order::orderBy('created_at', 'desc')->get();
+        $products = Product::where('type', 'raw_material')->get();
+
+        $retailerOrders = \App\Models\Order::whereHas('user', function($q) {
+                $q->where('role', 'retail_manager');
+            })
+            ->whereHas('items.product', function($q) {
+                $q->where('type', 'finished_product');
+            })
+            ->with(['user', 'items.product'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('bakery.order-processing', compact('suppliers', 'products', 'retailerOrders'));
     }
 

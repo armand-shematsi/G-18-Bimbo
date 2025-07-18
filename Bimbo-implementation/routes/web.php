@@ -154,12 +154,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/workforce/availability', [\App\Http\Controllers\WorkforceController::class, 'availability'])->name('workforce.availability');
 
         // Order Processing Route
-        Route::get('/order-processing', function () {
-            $products = \App\Models\Product::all();
-            $suppliers = \App\Models\User::where('role', 'supplier')->get();
-            $retailerOrders = \App\Models\RetailerOrder::all();
-            return view('bakery.order-processing', compact('products', 'suppliers', 'retailerOrders'));
-        })->name('order-processing');
+        // Route::get('/order-processing', function () {
+        //     $products = \App\Models\Product::all();
+        //     $suppliers = \App\Models\User::where('role', 'supplier')->get();
+        //     $retailerOrders = \App\Models\RetailerOrder::all();
+        //     return view('bakery.order-processing', compact('products', 'suppliers', 'retailerOrders'));
+        // })->name('order-processing');
 
         // Order Processing AJAX/Form Endpoints
         Route::post('/order-processing/supplier-order', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'placeSupplierOrder'])->name('order-processing.supplier-order');
@@ -261,6 +261,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/cart/{id}', [\App\Http\Controllers\Customer\CartController::class, 'destroy'])->name('cart.destroy');
         Route::get('/cart/checkout', [\App\Http\Controllers\Customer\CartController::class, 'checkout'])->name('cart.checkout');
         Route::post('/cart/place-order', [\App\Http\Controllers\Customer\CartController::class, 'placeOrder'])->name('cart.place-order');
+        Route::get('/products', [App\Http\Controllers\Customer\ProductController::class, 'index'])->name('products');
     });
 
     // Workforce Overview Route
@@ -293,6 +294,9 @@ Route::middleware(['auth', 'role:supplier,bakery_manager,retail_manager'])->pref
     Route::post('add-to-cart', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'addToCart'])->name('addToCart');
     Route::get('cart', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'cart'])->name('cart');
     Route::post('remove-from-cart/{index}', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'removeFromCart'])->name('removeFromCart');
+});
+// Only bakery_manager can access checkout
+Route::middleware(['auth', 'role:bakery_manager'])->prefix('supplier/raw-materials')->name('supplier.raw-materials.')->group(function () {
     Route::post('checkout', [\App\Http\Controllers\Supplier\RawMaterialOrderController::class, 'checkout'])->name('checkout');
 });
 

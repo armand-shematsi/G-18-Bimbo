@@ -113,33 +113,42 @@
                         </tr>
                     </thead>
                     <tbody id="retailerOrdersTbody" class="bg-white divide-y divide-gray-100">
-                        @forelse($retailerOrders as $order)
-                        <tr>
-                            <td class='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>{{ $order->retailer && $order->retailer->name ? $order->retailer->name : '-' }}</td>
-                            <td class='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>{{ $order->product }}</td>
-                            <td class='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>{{ $order->quantity }}</td>
-                            <td class='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
-                                <select class="order-status-dropdown border rounded px-2 py-1" data-order-id="{{ $order->id }}">
-                                    @foreach(['pending', 'processing', 'shipped', 'received'] as $status)
-                                        <option value="{{ $status }}" @if(strtolower($order->status) === $status) selected @endif>{{ ucfirst($status) }}</option>
-                                    @endforeach
-                                </select>
-                            </td>
-                            <td>
-                                <button 
-                                    class="mark-as-received-btn bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
-                                    data-order-id="{{ $order->id }}"
-                                    type="button"
-                                >
-                                    Mark as Received
-                                </button>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="5" class="text-center text-gray-400">No retailer orders found.</td>
-                        </tr>
-                        @endforelse
+                        @php $found = false; @endphp
+                        @foreach($retailerOrders as $order)
+                            @if($order->user && $order->user->role === 'retail_manager')
+                                @foreach($order->items as $item)
+                                    @if($item->product && $item->product->type === 'finished_product')
+                                        @php $found = true; @endphp
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $order->user->name }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $item->product->name }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $item->quantity }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <select class="order-status-dropdown border rounded px-2 py-1" data-order-id="{{ $order->id }}">
+                                                    @foreach(['pending', 'processing', 'shipped', 'received'] as $status)
+                                                        <option value="{{ $status }}" @if(strtolower($order->status) === $status) selected @endif>{{ ucfirst($status) }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <button 
+                                                    class="mark-as-received-btn bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
+                                                    data-order-id="{{ $order->id }}"
+                                                    type="button"
+                                                >
+                                                    Mark as Received
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                @endforeach
+                            @endif
+                        @endforeach
+                        @if(!$found)
+                            <tr>
+                                <td colspan="4" class="text-center text-gray-500 py-4">No retailer orders for finished products found.</td>
+                            </tr>
+                        @endif
                     </tbody>
                 </table>
             </div>

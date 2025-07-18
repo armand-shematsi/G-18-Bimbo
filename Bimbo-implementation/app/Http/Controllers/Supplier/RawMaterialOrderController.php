@@ -16,18 +16,14 @@ class RawMaterialOrderController extends Controller
     public function catalog()
     {
         $user = Auth::user();
-        if ($user->role === 'retail_manager') {
-            // Retail managers see all available raw materials from suppliers
-            $rawMaterials = \App\Models\Inventory::whereHas('user', function($query) {
-                $query->where('role', 'supplier');
-            })->where('status', 'available')->where('item_type', 'raw_material')->get();
-        } else {
-            // Existing logic for suppliers/bakery managers
-            $supplierId = $user->id;
-            $rawMaterials = \App\Models\Inventory::whereHas('user', function($query) use ($supplierId) {
-                $query->where('role', 'supplier')->where('id', '!=', $supplierId);
-            })->where('status', 'available')->where('item_type', 'raw_material')->get();
+        if ($user->role !== 'bakery_manager') {
+            abort(403, 'Only bakery managers can order raw materials from suppliers.');
         }
+        // Existing logic for suppliers/bakery managers
+        $supplierId = $user->id;
+        $rawMaterials = \App\Models\Inventory::whereHas('user', function($query) use ($supplierId) {
+            $query->where('role', 'supplier')->where('id', '!=', $supplierId);
+        })->where('status', 'available')->where('item_type', 'raw_material')->get();
         // Only keep unique raw materials by item_name and supplier (user_id)
         $uniqueRawMaterials = $rawMaterials->unique(function ($item) {
             return $item->item_name . '-' . $item->user_id;
@@ -38,6 +34,10 @@ class RawMaterialOrderController extends Controller
     // Add item to cart
     public function addToCart(Request $request)
     {
+        $user = Auth::user();
+        if ($user->role !== 'bakery_manager') {
+            abort(403, 'Only bakery managers can order raw materials from suppliers.');
+        }
         $cart = Session::get('supplier_cart', []);
         $inventoryId = $request->input('inventory_id');
         $quantity = $request->input('quantity');
@@ -61,6 +61,10 @@ class RawMaterialOrderController extends Controller
     // Show cart
     public function cart()
     {
+        $user = Auth::user();
+        if ($user->role !== 'bakery_manager') {
+            abort(403, 'Only bakery managers can order raw materials from suppliers.');
+        }
         $cart = Session::get('supplier_cart', []);
         $total = collect($cart)->sum('total_price');
         $user = Auth::user();
@@ -73,6 +77,10 @@ class RawMaterialOrderController extends Controller
     // Remove item from cart
     public function removeFromCart($index)
     {
+        $user = Auth::user();
+        if ($user->role !== 'bakery_manager') {
+            abort(403, 'Only bakery managers can order raw materials from suppliers.');
+        }
         $cart = Session::get('supplier_cart', []);
         if (isset($cart[$index])) {
             unset($cart[$index]);
@@ -84,6 +92,11 @@ class RawMaterialOrderController extends Controller
     // Checkout and place order
     public function checkout(Request $request)
     {
+        \Log::info('CHECKOUT DEBUG', ['user_id' => \Auth::id(), 'role' => \Auth::user()->role]);
+        $user = Auth::user();
+        if ($user->role !== 'bakery_manager') {
+            abort(403, 'Only bakery managers can order raw materials from suppliers.');
+        }
         \Log::info('CHECKOUT METHOD CALLED', [
             'user_id' => Auth::id(),
             'cart' => Session::get('supplier_cart', []),
@@ -145,13 +158,14 @@ class RawMaterialOrderController extends Controller
             }
             Session::forget('supplier_cart');
             \Log::info('Redirecting to supplier.orders.show', ['order_id' => $order->id]);
-            return redirect()->route('supplier.orders.show', ['order' => $order->id])->with('success', 'Raw material order placed!');
+            // Redirect bakery manager to cart with success message instead of supplier order details
+            return redirect()->route('supplier.raw-materials.cart')->with('success', 'Raw material order placed successfully!');
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::error('Validation failed', [
+            \Log::error('Validation failed in checkout', [
                 'errors' => $e->errors(),
                 'request' => $request->all(),
             ]);
-            return redirect()->back()->withErrors($e->errors())->withInput();
+            throw $e; // Let Laravel handle the redirect and error display
         } catch (\Throwable $e) {
             \Log::error('Error placing raw material order', [
                 'error' => $e->getMessage(),
