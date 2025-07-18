@@ -180,6 +180,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/api/inventory/{id}/recent-orders', [\App\Http\Controllers\Bakery\InventoryController::class, 'recentOrders'])->name('inventory.recent-orders');
 
         Route::get('/dashboard', [App\Http\Controllers\Bakery\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/production-stats-live', [\App\Http\Controllers\DashboardController::class, 'productionStatsLive'])->name('bakery.production-stats-live');
     });
 
     // Retail Manager Routes

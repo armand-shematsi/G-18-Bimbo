@@ -35,6 +35,10 @@
                         </div>
                         <span class="text-xs text-gray-500 ml-2">(4.8)</span>
                     </div>
+                    <div class="mb-2 text-gray-700">
+                        <span class="font-bold">Available:</span>
+                        <span class="font-bold text-green-700">{{ $product->available }}</span>
+                    </div>
                     
                     <div class="flex items-center justify-between">
                         <span class="text-xl font-bold text-green-600">₦{{ number_format($product->price, 2) }}</span>
@@ -46,7 +50,8 @@
                             <input type="hidden" name="unit_price" value="{{ $product->unit_price ?? $product->price ?? 0 }}">
                             <input type="hidden" name="quantity" value="1">
                             <button type="submit" 
-                                    class="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg font-semibold text-sm hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                                    class="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg font-semibold text-sm hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 @if($product->available == 0) opacity-50 cursor-not-allowed @endif"
+                                    @if($product->available == 0) disabled @endif>
                                 <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m6 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"></path>
                                 </svg>
