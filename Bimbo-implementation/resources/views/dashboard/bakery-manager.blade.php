@@ -552,7 +552,7 @@
             });
     }
     fetchStaffOnDutyFromStaffTable();
-    setInterval(fetchStaffOnDutyFromStaffTable, 10000);
+    setInterval(fetchStaffOnDutyFromStaffTable, 2000);
 
     function openDistributionModal() {
         document.getElementById('distributionModal').classList.remove('hidden');
