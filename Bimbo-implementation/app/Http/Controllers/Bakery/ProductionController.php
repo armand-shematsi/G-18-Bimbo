@@ -16,7 +16,8 @@ class ProductionController extends Controller
         $ingredients = \App\Models\Ingredient::orderBy('name')->get();
         $productionLines = \App\Models\ProductionLine::all();
         $staff = \App\Models\User::where('role', 'staff')->orderBy('name')->get();
-        return view('bakery.production.start', compact('ingredients', 'productionLines', 'staff'));
+        $products = \App\Models\Product::all();
+        return view('bakery.production.start', compact('ingredients', 'productionLines', 'staff', 'products'));
     }
 
     public function store(Request $request)
@@ -27,6 +28,7 @@ class ProductionController extends Controller
             'status' => 'required|in:planned,active,completed,cancelled',
             'quantity' => 'required|integer|min:1',
             'production_line_id' => 'required|exists:production_lines,id',
+            'product_id' => 'required|exists:products,id',
             'ingredients' => 'required|array',
             'ingredients.*.id' => 'required|exists:ingredients,id',
             'ingredients.*.quantity' => 'required|numeric|min:0.01',
@@ -38,6 +40,7 @@ class ProductionController extends Controller
             'status' => $validated['status'],
             'quantity' => $validated['quantity'],
             'production_line_id' => $validated['production_line_id'],
+            'product_id' => $validated['product_id'],
         ]);
 
         // Attach ingredients with quantities
@@ -62,7 +65,80 @@ class ProductionController extends Controller
             }
         }
 
+        // If batch is completed, increase inventory for the product
+        if ($batch->status === 'completed') {
+            $inventory = \App\Models\Inventory::where('product_id', $batch->product_id)
+                ->where('location', 'bakery')
+                ->where('item_type', 'finished_good')
+                ->first();
+            if ($inventory) {
+                $inventory->quantity += $batch->quantity;
+                $inventory->save();
+            } else {
+                // Optionally, create inventory if not exists
+                $product = $batch->product;
+                \App\Models\Inventory::create([
+                    'item_name' => $product ? $product->name : 'Batch Product',
+                    'quantity' => $batch->quantity,
+                    'unit_price' => $product ? ($product->unit_price ?? 0) : 0,
+                    'unit' => 'unit',
+                    'item_type' => 'finished_good',
+                    'reorder_level' => 0,
+                    'location' => 'bakery',
+                    'product_id' => $batch->product_id,
+                ]);
+            }
+        }
+
         return redirect()->route('bakery.batches.index')->with('success', 'Production batch created successfully.');
+    }
+
+    public function update(Request $request, ProductionBatch $batch)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'scheduled_start' => 'required|date',
+            'status' => 'required|in:planned,active,completed,cancelled',
+            'quantity' => 'required|integer|min:1',
+            'production_line_id' => 'required|exists:production_lines,id',
+            'product_id' => 'required|exists:products,id',
+            // Add other fields as needed
+        ]);
+
+        $wasCompleted = $batch->status === 'completed';
+        $batch->update($validated);
+
+        // If status changed to completed and wasn't completed before, adjust inventory
+        if (!$wasCompleted && $batch->status === 'completed') {
+            $inventory = \App\Models\Inventory::where('product_id', $batch->product_id)
+                ->where('location', 'bakery')
+                ->where('item_type', 'finished_good')
+                ->first();
+            if ($inventory) {
+                $inventory->quantity += $batch->quantity;
+                $inventory->save();
+            } else {
+                $product = $batch->product;
+                \App\Models\Inventory::create([
+                    'item_name' => $product ? $product->name : 'Batch Product',
+                    'quantity' => $batch->quantity,
+                    'unit_price' => $product ? ($product->unit_price ?? 0) : 0,
+                    'unit' => 'unit',
+                    'item_type' => 'finished_good',
+                    'reorder_level' => 0,
+                    'location' => 'bakery',
+                    'product_id' => $batch->product_id,
+                ]);
+            }
+        }
+
+        return redirect()->route('bakery.batches.index')->with('success', 'Production batch updated successfully.');
+    }
+
+    public function edit(ProductionBatch $batch)
+    {
+        $products = \App\Models\Product::all();
+        return view('bakery.batches.edit', compact('batch', 'products'));
     }
 
     // Add this method for production trends API

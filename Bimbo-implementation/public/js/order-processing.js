@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         msg.textContent = 'Order placed successfully!';
                         msg.className = 'mt-2 text-green-600';
                         form.reset();
+                        fetchAndRenderSupplierOrders(); // Update supplier orders list
                     } else {
                         msg.textContent = 'Failed to place order.';
                         msg.className = 'mt-2 text-red-600';
@@ -126,6 +127,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // --- Supplier Orders AJAX ---
+    // Use the correct route from Blade if available
+    var supplierOrdersRoute = window.supplierOrdersRoute || '/order-processing/supplier-orders';
+    function fetchAndRenderSupplierOrders() {
+        fetch(supplierOrdersRoute)
+            .then(res => res.json())
+            .then(data => {
+                updateSupplierOrdersTable(data.orders);
+            });
+    }
+
+    function updateSupplierOrdersTable(orders) {
+        const tableBody = document.getElementById('supplierOrdersTableBody');
+        if (!tableBody) return;
+        tableBody.innerHTML = '';
+        orders.forEach(order => {
+            const item = order.items[0];
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${order.id}</td>
+                <td>${item ? item.product_name : ''}</td>
+                <td>${item ? item.quantity : ''}</td>
+                <td>${order.status}</td>
+                <td>${order.total}</td>
+                <td>${formatDate(order.created_at)}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        const d = new Date(dateString);
+        return d.toLocaleString();
+    }
+
     fetchRetailerOrders();
+    fetchAndRenderSupplierOrders();
     // setInterval(fetchRetailerOrders, 60000); // polling disabled
 }); 

@@ -28,7 +28,7 @@ class OrderController extends Controller
     // Show order creation form
     public function create()
     {
-        $products = Product::all()->map(function($product) {
+        $products = Product::where('type', 'finished_product')->get()->map(function($product) {
             $inventory = \App\Models\Inventory::where('item_name', $product->name)->first();
             $product->inventory_id = $inventory ? $inventory->id : null;
             return $product;
@@ -47,7 +47,7 @@ class OrderController extends Controller
         // Create order with correct user_id and total
         $order = Order::create([
             'user_id' => auth()->id(),
-            'vendor_id' => 1, // TODO: Replace with actual vendor selection logic
+            'vendor_id' => 3, // Always set to bakery manager with user ID 3
             'customer_name' => $request->customer_name,
             'status' => 'pending',
             'total' => $total,
