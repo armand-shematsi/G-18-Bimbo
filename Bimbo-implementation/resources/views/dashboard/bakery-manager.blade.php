@@ -196,19 +196,9 @@
 
 <!-- Reports Center at the bottom, centered -->
 <div class="flex justify-center mt-14 mb-10">
-    <div class="w-full max-w-2xl bg-gradient-to-r from-sky-100 to-white rounded-2xl shadow-xl border-2 border-sky-400 p-8">
-        <div class="flex items-center mb-4">
-            <svg class="w-10 h-10 text-sky-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 014-4h4m0 0V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2h6" />
-            </svg>
-            <h4 class="text-2xl font-extrabold text-sky-600">Reports Center</h4>
-        </div>
-        <div class="flex flex-col md:flex-row gap-4 mb-4">
-            <a href="{{ route('reports.downloads') }}" class="flex-1 btn btn-info btn-lg flex items-center justify-center font-bold text-lg py-3 rounded-lg bg-sky-500 hover:bg-sky-600 text-white shadow-md transition">View Your Reports</a>
-            <a href="{{ route('reports.downloads') }}" class="flex-1 btn btn-success btn-lg flex items-center justify-center font-bold text-lg py-3 rounded-lg bg-green-500 hover:bg-green-600 text-white shadow-md transition">Download Your Reports</a>
-        </div>
-        <p class="text-gray-700 text-base font-medium">Access all your daily and weekly reports in one place.</p>
-    </div>
+    <a href="{{ route('reports.downloads') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg text-xl transition-all duration-200">
+        <i class="fas fa-file-alt mr-2"></i> Reports
+    </a>
 </div>
 
 <!-- Recent Activity Timeline -->

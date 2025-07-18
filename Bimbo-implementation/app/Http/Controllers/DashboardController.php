@@ -121,29 +121,7 @@ class DashboardController extends Controller
                     $recentMessages = collect([]);
                 }
 
-                $products = \App\Models\Product::all()->map(function($product) {
-                    $inventory = \App\Models\Inventory::where('item_name', $product->name)->first();
-                    $product->inventory_id = $inventory ? $inventory->id : null;
-                    return $product;
-                });
-
-                // Fetch recommendations for this customer's segment
-                $recommendations = null;
-                if ($user->segment !== null) {
-                    $recFile = storage_path('app/ml/segment_recommendations.csv');
-                    if (file_exists($recFile)) {
-                        $rows = array_map('str_getcsv', file($recFile));
-                        $header = array_shift($rows);
-                        foreach ($rows as $row) {
-                            $data = array_combine($header, $row);
-                            if ($data['segment'] == $user->segment) {
-                                $recommendations = (object)$data;
-                                break;
-                            }
-                        }
-                    }
-                }
-                return view('dashboard.customer', compact('recentOrders', 'recentMessages', 'products', 'recommendations'));
+                return view('dashboard.customer', compact('recentOrders', 'recentMessages'));
             default:
                 // Log out the user and redirect to login with error message
                 Auth::logout();
