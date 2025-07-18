@@ -71,9 +71,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-semibold text-gray-600">Staff on Duty</p>
-                    <p class="text-2xl font-extrabold text-gray-900 live-staff-on-duty">-</p>
-                    <p class="text-xs text-gray-500">Currently present</p>
-                    <button class="text-xs text-blue-500 hover:underline mt-1" onclick="openDistributionModal()">View Distribution</button>
+                    <p class="text-2xl font-extrabold text-gray-900 live-staff-on-duty">0</p>
                 </div>
             </div>
         </div>
@@ -507,15 +505,54 @@
 
     // --- Real-time Production Stats ---
     function fetchProductionStatsLive() {
-        fetch('/api/production-stats-live')
+        fetch('/api/production-live')
             .then(res => res.json())
             .then(data => {
-                document.querySelector('.production-output').textContent = Number(data.todaysOutput) || 0;
-                document.querySelector('.production-target').textContent = Number(data.productionTarget) || 0;
+                document.querySelector('.production-output').textContent = data.output ?? '-';
+                document.querySelector('.production-target').textContent = data.productionTarget ?? '-';
             });
     }
     fetchProductionStatsLive();
     setInterval(fetchProductionStatsLive, 10000);
+
+    // --- Real-time Staff on Duty (from active shifts) ---
+    function fetchStaffOnDutyFromShifts() {
+        fetch('/bakery/api/active-staff')
+            .then(res => res.json())
+            .then(data => {
+                let count = Array.isArray(data) ? data.length : (data.count ?? 0);
+                document.querySelector('.live-staff-on-duty').textContent = count;
+            });
+    }
+    // Keep only:
+    fetchStaffOnDutyFromStaffTable();
+    setInterval(fetchStaffOnDutyFromStaffTable, 10000);
+
+    // --- Real-time Absence (from Staff table) ---
+    function fetchAbsenceFromStaffTable() {
+        fetch('/bakery/api/absent-staff')
+            .then(res => res.json())
+            .then(data => {
+                let count = Number(data.absentCount);
+                if (isNaN(count) || count < 0) count = 0;
+                document.querySelector('.live-absent-count').textContent = count;
+            });
+    }
+    fetchAbsenceFromStaffTable();
+    setInterval(fetchAbsenceFromStaffTable, 10000);
+
+    // --- Real-time Staff on Duty (from Staff table) ---
+    function fetchStaffOnDutyFromStaffTable() {
+        fetch('/bakery/api/staff-on-duty')
+            .then(res => res.json())
+            .then(data => {
+                let count = Number(data.presentCount);
+                if (isNaN(count) || count < 0) count = 0;
+                document.querySelector('.live-staff-on-duty').textContent = count;
+            });
+    }
+    fetchStaffOnDutyFromStaffTable();
+    setInterval(fetchStaffOnDutyFromStaffTable, 10000);
 
     function openDistributionModal() {
         document.getElementById('distributionModal').classList.remove('hidden');

@@ -16,10 +16,14 @@ class OrderController extends Controller
     public function create()
     {
         $products = Product::all()->map(function($product) {
-            $inventory = \App\Models\Inventory::where('product_id', $product->id)->first();
+            $inventory = \App\Models\Inventory::where('product_id', $product->id)
+                ->where('location', 'retail')
+                ->where('item_type', 'finished_good')
+                ->first();
             $product->available = $inventory ? $inventory->quantity : 0;
             $product->unit = $inventory ? $inventory->unit : '';
             $product->inventory_id = $inventory ? $inventory->id : null;
+            $product->unit_price = $inventory ? $inventory->unit_price : ($product->unit_price ?? $product->price ?? 0);
             return $product;
         });
         return view('customer.order.create', compact('products'));

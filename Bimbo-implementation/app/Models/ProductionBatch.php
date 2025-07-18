@@ -15,6 +15,7 @@ class ProductionBatch extends Model
         'notes',
         'production_line_id',
         'quantity',
+        'product_id',
     ];
 
     public function shifts()
@@ -30,5 +31,10 @@ class ProductionBatch extends Model
     public function productionLine()
     {
         return $this->belongsTo(ProductionLine::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 }

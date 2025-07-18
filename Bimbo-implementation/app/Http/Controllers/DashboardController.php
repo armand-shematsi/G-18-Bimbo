@@ -279,6 +279,9 @@ class DashboardController extends Controller
             $count = \App\Models\ProductionBatch::whereDate('actual_end', $date)->where('status', 'completed')->count();
             $trends[] = $count;
         }
+        // Add production target (same as productionStatsLive)
+        $productionTarget = optional(\App\Models\Setting::where('key', 'production_target')->first())->value;
+        $productionTarget = is_numeric($productionTarget) ? $productionTarget : 0;
         return response()->json([
             'batches_today' => $batchesToday,
             'active' => $activeBatches,
@@ -287,6 +290,7 @@ class DashboardController extends Controller
             'batches' => $batchData,
             'trends' => $trends,
             'trend_labels' => $trendLabels,
+            'productionTarget' => $productionTarget,
         ]);
     }
 
@@ -324,8 +328,8 @@ class DashboardController extends Controller
      */
     public function notificationsLive()
     {
-        // Get recent batches (last 7 days)
-        $batches = \App\Models\ProductionBatch::orderBy('scheduled_start', 'desc')->take(7)->get();
+        // Get recent batches (last 7 days) with shifts and users
+        $batches = \App\Models\ProductionBatch::with('shifts.user')->orderBy('scheduled_start', 'desc')->take(7)->get();
         $notifications = [];
         foreach ($batches as $batch) {
             // Batch scheduled
@@ -413,4 +417,3 @@ class DashboardController extends Controller
         ]);
     }
 }
-
