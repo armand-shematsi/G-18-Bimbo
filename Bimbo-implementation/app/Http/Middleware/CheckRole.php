@@ -15,8 +15,13 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
+        \Log::info('CheckRole middleware', [
+            'user_id' => auth()->id(),
+            'user_role' => auth()->user()->role ?? null,
+            'allowed_roles' => $roles
+        ]);
         if (!in_array(auth()->user()->role, $roles)) {
-            return redirect()->back()->withErrors(['email' => 'Unauthorized role. Please contact support.']);
+            abort(403, 'Unauthorized role: ' . (auth()->user()->role ?? 'none'));
         }
         return $next($request);
     }

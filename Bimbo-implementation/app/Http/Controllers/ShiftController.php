@@ -89,16 +89,15 @@ class ShiftController extends Controller
     }
 
     /**
-     * API: Get currently active staff (on duty)
+     * API: Get all staff assigned to any shift for today (from Shift table)
      */
     public function apiActiveStaff()
     {
-        $now = now();
-        $activeShifts = Shift::with('user')
-            ->where('start_time', '<=', $now)
-            ->where('end_time', '>=', $now)
+        $today = now()->toDateString();
+        $assignedShifts = \App\Models\Shift::with('user')
+            ->whereDate('start_time', $today)
             ->get();
-        $staff = $activeShifts->map(function ($shift) {
+        $staff = $assignedShifts->map(function ($shift) {
             return [
                 'name' => $shift->user->name,
                 'role' => $shift->role,
@@ -107,6 +106,24 @@ class ShiftController extends Controller
             ];
         });
         return response()->json($staff);
+    }
+
+    /**
+     * API: Get count of staff absent today (from Staff model, status field)
+     */
+    public function apiAbsentStaff()
+    {
+        $absentCount = \App\Models\Staff::where('status', 'Absent')->count();
+        return response()->json(['absentCount' => $absentCount]);
+    }
+
+    /**
+     * API: Get count of staff on duty (Present) from Staff model
+     */
+    public function apiStaffOnDuty()
+    {
+        $presentCount = \App\Models\Staff::where('status', 'Present')->count();
+        return response()->json(['presentCount' => $presentCount]);
     }
 
     /**

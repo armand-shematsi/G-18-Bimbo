@@ -18,10 +18,10 @@
 
 @section('content')
 <!-- Banner -->
-<div class="bg-gradient-to-r from-sky-400 to-sky-200 rounded-2xl shadow-xl mb-10 overflow-hidden flex flex-col md:flex-row items-center justify-between px-8 py-10 relative">
+<div class="bg-blue-500 rounded-2xl shadow-xl mb-10 overflow-hidden flex flex-col md:flex-row items-center justify-between px-8 py-10 relative">
     <div class="text-white z-10">
         <h2 class="text-3xl md:text-4xl font-extrabold mb-2 drop-shadow">Production Overview</h2>
-        <p class="text-lg text-sky-100 font-medium">Monitor batches, trends, and machine status.</p>
+        <p class="text-lg text-blue-100 font-medium">Monitor batches, trends, and machine status.</p>
     </div>
     <div class="hidden md:block absolute right-8 top-1/2 -translate-y-1/2 opacity-30 z-0">
         <svg class="w-40 h-40" fill="currentColor" viewBox="0 0 24 24">
@@ -87,7 +87,7 @@
 <!-- Quick Actions -->
 <div class="mb-8">
     <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-        <a href="{{ route('bakery.batches.index') }}" class="flex-1 flex items-center p-4 bg-gradient-to-r from-teal-400 to-teal-500 rounded-lg text-white hover:from-teal-500 hover:to-teal-600 transition-all duration-200 transform hover:scale-105 shadow-md">
+        <a href="{{ route('bakery.batches.index') }}" class="flex-1 flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
             <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
@@ -95,10 +95,10 @@
             </div>
             <div class="ml-4">
                 <p class="font-semibold">View All Batches</p>
-                <p class="text-xs text-teal-100">Production List</p>
+                <p class="text-xs text-blue-100">Production List</p>
             </div>
         </a>
-        <button onclick="downloadProductionReport()" class="flex-1 flex items-center p-4 bg-gradient-to-r from-purple-400 to-purple-500 rounded-lg text-white hover:from-purple-500 hover:to-purple-600 transition-all duration-200 transform hover:scale-105 shadow-md">
+        <button onclick="downloadProductionReport()" class="flex-1 flex items-center p-4 bg-gradient-to-r from-blue-400 to-blue-500 rounded-lg text-white hover:from-blue-500 hover:to-blue-600 transition-all duration-200 transform hover:scale-105 shadow-md">
             <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
@@ -106,7 +106,7 @@
             </div>
             <div class="ml-4">
                 <p class="font-semibold">Download Report</p>
-                <p class="text-xs text-purple-100">Export Data</p>
+                <p class="text-xs text-blue-100">Export Data</p>
             </div>
         </button>
     </div>
@@ -158,7 +158,7 @@
         </div>
     </div>
 </div>
-<!-- Activity Timeline -->
+<!-- Activity Timeline (Real-time) -->
 <div class="mt-8 bg-white rounded-2xl shadow-xl">
     <div class="px-6 py-4 border-b border-gray-100">
         <h3 class="text-lg font-bold text-gray-900">Recent Activity</h3>
@@ -166,25 +166,7 @@
     <div class="p-6">
         <div class="flow-root">
             <ul class="-mb-8 activity-timeline">
-                <li class="relative pb-8">
-                    <div class="relative flex space-x-3">
-                        <div>
-                            <span class="h-8 w-8 rounded-full bg-sky-400 flex items-center justify-center ring-8 ring-white">
-                                <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                </svg>
-                            </span>
-                        </div>
-                        <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-                            <div>
-                                <p class="text-sm text-gray-500">Production dashboard accessed</p>
-                            </div>
-                            <div class="text-right text-sm whitespace-nowrap text-gray-500">
-                                <time>{{ now()->format('M d, H:i') }}</time>
-                            </div>
-                        </div>
-                    </div>
-                </li>
+                <li class="relative pb-8 text-gray-400">Loading...</li>
             </ul>
         </div>
     </div>
@@ -244,28 +226,28 @@
             });
     }
     // --- Live Activity Timeline ---
-    function fetchProductionActivityLive() {
-        fetch('/api/production-activity')
+    function fetchActivityTimelineLive() {
+        fetch("/api/notifications-live")
             .then(res => res.json())
             .then(data => {
                 const timeline = document.querySelector('.activity-timeline');
                 timeline.innerHTML = '';
                 if (data.notifications && data.notifications.length) {
                     data.notifications.forEach(note => {
-                        timeline.innerHTML += `<li class="relative pb-8">
-                            <div class="relative flex space-x-3">
+                        timeline.innerHTML += `<li class=\"relative pb-8\">
+                            <div class=\"relative flex space-x-3\">
                                 <div>
-                                    <span class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white">
-                                        <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    <span class=\"h-8 w-8 rounded-full bg-sky-400 flex items-center justify-center ring-8 ring-white\">
+                                        <svg class=\"h-5 w-5 text-white\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\">
+                                            <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 6v6m0 0v6m0-6h6m-6 0H6\"></path>
                                         </svg>
                                     </span>
                                 </div>
-                                <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                <div class=\"min-w-0 flex-1 pt-1.5 flex justify-between space-x-4\">
                                     <div>
-                                        <p class="text-sm text-gray-500">${note}</p>
+                                        <p class=\"text-sm text-gray-500\">${note}</p>
                                     </div>
-                                    <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                    <div class=\"text-right text-sm whitespace-nowrap text-gray-500\">
                                         <time>${new Date().toLocaleString()}</time>
                                     </div>
                                 </div>
@@ -357,7 +339,8 @@
     // --- Initial fetch and polling ---
     fetchProductionStatsLive();
     fetchRecentBatchesLive();
-    fetchProductionActivityLive();
+    fetchActivityTimelineLive();
+    setInterval(fetchActivityTimelineLive, 5000);
     // setInterval(fetchProductionStatsLive, 60000); // polling disabled
     // setInterval(fetchRecentBatchesLive, 60000); // polling disabled
     // setInterval(fetchProductionActivityLive, 60000); // polling disabled

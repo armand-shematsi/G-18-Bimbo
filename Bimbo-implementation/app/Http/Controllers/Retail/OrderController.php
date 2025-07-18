@@ -28,7 +28,7 @@ class OrderController extends Controller
     // Show order creation form
     public function create()
     {
-        $products = Product::all()->map(function($product) {
+        $products = Product::where('type', 'finished_product')->get()->map(function($product) {
             $inventory = \App\Models\Inventory::where('item_name', $product->name)->first();
             $product->inventory_id = $inventory ? $inventory->id : null;
             return $product;
@@ -47,7 +47,7 @@ class OrderController extends Controller
         // Create order with correct user_id and total
         $order = Order::create([
             'user_id' => auth()->id(),
-            'vendor_id' => 1, // TODO: Replace with actual vendor selection logic
+            'vendor_id' => 3, // Always set to bakery manager with user ID 3
             'customer_name' => $request->customer_name,
             'status' => 'pending',
             'total' => $total,
@@ -59,18 +59,23 @@ class OrderController extends Controller
             'tracking_number' => $request->tracking_number,
             'delivery_option' => $request->delivery_option,
         ]);
-        // Create order items and update inventory
+        // Create order items and deduct inventory immediately
         if ($request->has('items')) {
             foreach ($request->items as $item) {
                 $item['total_price'] = $item['quantity'] * $item['unit_price'];
-                // Inventory check and deduction
+                // Ensure product_id and inventory_id are set
                 if (isset($item['inventory_id'])) {
                     $inventory = \App\Models\Inventory::find($item['inventory_id']);
-                    if ($inventory && $inventory->quantity >= $item['quantity']) {
-                        $inventory->quantity -= $item['quantity'];
-                        $inventory->save();
-                    } else {
-                        return redirect()->back()->withErrors(['items' => 'Insufficient inventory for ' . ($item['product_name'] ?? 'product')])->withInput();
+                    if ($inventory) {
+                        $item['product_id'] = $inventory->product_id;
+                        $item['inventory_id'] = $inventory->id;
+                        // Deduct inventory immediately
+                        if ($inventory->quantity >= $item['quantity']) {
+                            $inventory->quantity -= $item['quantity'];
+                            $inventory->save();
+                        } else {
+                            // Optionally, handle insufficient stock (skip, error, etc.)
+                        }
                     }
                 }
                 $order->items()->create($item);
@@ -136,15 +141,22 @@ class OrderController extends Controller
         $newStatus = $request->input('status');
         $order->setStatus($newStatus);
 
-        // Adjust inventory only when order is received or completed
-        if (in_array($newStatus, ['received', 'completed'])) {
+        // Adjust inventory only when order is received, completed, or delivered
+        if (in_array($newStatus, ['received', 'completed', 'delivered'])) {
             foreach ($order->items as $item) {
-                if ($item->inventory_id) {
-                    $inventory = \App\Models\Inventory::find($item->inventory_id);
-                    if ($inventory && $inventory->quantity >= $item->quantity) {
-                        $inventory->quantity -= $item->quantity;
-                        $inventory->save();
-                    }
+                // Deduct using inventory_id
+                $inventory = isset($item->inventory_id) ? \App\Models\Inventory::find($item->inventory_id) : null;
+                \Log::info('Inventory deduction attempt', [
+                    'order_id' => $order->id,
+                    'item_id' => $item->id,
+                    'item_inventory_id' => $item->inventory_id ?? null,
+                    'inventory_found' => $inventory ? $inventory->id : null,
+                    'inventory_quantity_before' => $inventory ? $inventory->quantity : null,
+                    'item_quantity' => $item->quantity,
+                ]);
+                if ($inventory && $inventory->quantity >= $item->quantity) {
+                    $inventory->quantity -= $item->quantity;
+                    $inventory->save();
                 }
             }
         }

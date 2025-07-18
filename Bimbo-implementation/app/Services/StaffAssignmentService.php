@@ -8,6 +8,8 @@ use App\Models\SupplyCenter;
 use App\Models\Shift;
 use App\Models\StaffSupplyCenterAssignment;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Event;
+use App\Events\StaffAutoAssigned;
 
 class StaffAssignmentService
 {
@@ -55,12 +57,12 @@ class StaffAssignmentService
                 $center = $defaultCenter;
             }
             // Create or get a shift for this user and date
-            $shift = Shift::firstOrCreate([
+            $shift = Shift::updateOrCreate([
                 'user_id' => $user->id,
                 'supply_center_id' => $center->id,
                 'start_time' => $date . ' 08:00:00',
-                'end_time' => $date . ' 17:00:00',
             ], [
+                'end_time' => $date . ' 17:00:00',
                 'role' => $user->role,
             ]);
             $assignments[] = StaffSupplyCenterAssignment::create([
@@ -70,7 +72,19 @@ class StaffAssignmentService
                 'status' => 'on_shift',
                 'assigned_date' => $date,
             ]);
+            // --- Ensure attendance is set to present for this user and date ---
+            Attendance::updateOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'date' => $date,
+                ],
+                [
+                    'status' => 'present',
+                ]
+            );
         }
+        // --- Broadcast event for real-time dashboard updates ---
+        event(new StaffAutoAssigned($date));
         return ['success' => true, 'message' => 'Staff auto-assigned to supply centers and shifts successfully!', 'assignments' => $assignments];
     }
 }

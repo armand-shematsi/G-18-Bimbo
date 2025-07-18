@@ -16,9 +16,24 @@ $isEdit = isset($batch);
     </div>
     @endif
     <div class="mb-4">
+        <label for="product_id" class="block text-sm font-medium text-gray-700">Product</label>
+        <select name="product_id" id="product_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+            <option value="">Select product</option>
+            @foreach($products as $product)
+                <option value="{{ $product->id }}" {{ old('product_id', $isEdit ? ($batch->product_id ?? null) : null) == $product->id ? 'selected' : '' }}>{{ $product->name }}</option>
+            @endforeach
+        </select>
+        @error('product_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
+    </div>
+    <div class="mb-4">
         <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
         <select name="name" id="name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
             <option value="">Select batch name</option>
+            @if(isset($breadProducts) && count($breadProducts))
+            @foreach($breadProducts as $productName)
+            <option value="{{ $productName }}" {{ old('name', $isEdit ? $batch->name : null) == $productName ? 'selected' : '' }}>{{ $productName }}</option>
+            @endforeach
+            @else
             <option value="White Bread" {{ old('name', $isEdit ? $batch->name : null) == 'White Bread' ? 'selected' : '' }}>White Bread</option>
             <option value="Brown Bread" {{ old('name', $isEdit ? $batch->name : null) == 'Brown Bread' ? 'selected' : '' }}>Brown Bread</option>
             <option value="Baguette" {{ old('name', $isEdit ? $batch->name : null) == 'Baguette' ? 'selected' : '' }}>Baguette</option>
@@ -27,6 +42,7 @@ $isEdit = isset($batch);
             <option value="Multigrain" {{ old('name', $isEdit ? $batch->name : null) == 'Multigrain' ? 'selected' : '' }}>Multigrain</option>
             <option value="Sourdough" {{ old('name', $isEdit ? $batch->name : null) == 'Sourdough' ? 'selected' : '' }}>Sourdough</option>
             <option value="Brioche" {{ old('name', $isEdit ? $batch->name : null) == 'Brioche' ? 'selected' : '' }}>Brioche</option>
+            @endif
         </select>
         @error('name')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
     </div>
@@ -99,7 +115,7 @@ $isEdit = isset($batch);
         <select name="production_line_id" id="production_line_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
             <option value="">Select a line</option>
             @foreach($productionLines as $line)
-            <option value="{{ $line->id }}" {{ old('production_line_id', $isEdit ? $batch->production_line_id : null) == $line->id ? 'selected' : '' }}>{{ $line->name }}</option>
+            <option value="{{ $line->id }}" data-line-name="{{ strtolower($line->name) }}" {{ old('production_line_id', $isEdit ? $batch->production_line_id : null) == $line->id ? 'selected' : '' }}>{{ $line->name }}</option>
             @endforeach
         </select>
         @error('production_line_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
@@ -199,3 +215,30 @@ $isEdit = isset($batch);
         });
     });
 </script>
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const batchNameSelect = document.getElementById('name');
+        const lineSelect = document.getElementById('production_line_id');
+        const allOptions = Array.from(lineSelect.options).filter(opt => opt.value !== '');
+
+        function filterLines() {
+            const batchName = batchNameSelect.value.trim().toLowerCase();
+            let found = false;
+            lineSelect.innerHTML = '<option value="">Select a line</option>';
+            allOptions.forEach(opt => {
+                if (batchName && opt.dataset.lineName && opt.dataset.lineName.includes(batchName)) {
+                    lineSelect.appendChild(opt.cloneNode(true));
+                    found = true;
+                }
+            });
+            if (!found) {
+                allOptions.forEach(opt => lineSelect.appendChild(opt.cloneNode(true)));
+            }
+        }
+        batchNameSelect.addEventListener('change', filterLines);
+        // Initial filter on page load (for edit form)
+        filterLines();
+    });
+</script>
+@endpush

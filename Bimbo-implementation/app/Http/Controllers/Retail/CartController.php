@@ -106,6 +106,8 @@ class CartController extends Controller
         }
         $order = Order::create([
             'user_id' => auth()->id(),
+            'customer_name' => auth()->user()->name,
+            'customer_email' => auth()->user()->email,
             'status' => 'pending',
             'total' => collect($cart)->sum('total_price'),
             'payment_status' => 'unpaid',

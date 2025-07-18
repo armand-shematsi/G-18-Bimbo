@@ -41,6 +41,16 @@
                 Bread Products
             </a>
             @yield('navigation-links')
+            <!-- Logout Button -->
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 mt-2 rounded-lg bg-red-500 text-white font-semibold shadow hover:bg-red-600 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V5" />
+                    </svg>
+                    Logout
+                </button>
+            </form>
         </nav>
         <div class="px-4 pb-4">
             <button id="dark-mode-toggle" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-indigo-200 dark:bg-gray-700 text-indigo-800 dark:text-indigo-100 font-semibold shadow hover:bg-indigo-300 dark:hover:bg-gray-600 transition">
@@ -110,26 +120,16 @@
             @endif
         </main>
     </div>
-    @push('scripts')
     <script>
-        // Dark mode toggle logic
-        document.addEventListener('DOMContentLoaded', function() {
-            const toggle = document.getElementById('dark-mode-toggle');
-            toggle.addEventListener('click', function() {
-                if (document.documentElement.classList.contains('dark')) {
-                    document.documentElement.classList.remove('dark');
-                    localStorage.setItem('theme', 'light');
-                } else {
-                    document.documentElement.classList.add('dark');
-                    localStorage.setItem('theme', 'dark');
-                }
-            });
-            // On load, set theme from localStorage
-            if (localStorage.getItem('theme') === 'dark') {
-                document.documentElement.classList.add('dark');
-            }
+        // Hamburger menu toggle
+        document.getElementById('nav-toggle')?.addEventListener('click', function() {
+            var menu = document.getElementById('nav-menu');
+            menu?.classList.toggle('hidden');
+        });
+        document.getElementById('user-menu-button')?.addEventListener('click', function() {
+            document.getElementById('user-menu')?.classList.toggle('hidden');
         });
     </script>
-    @endpush
+    @stack('scripts')
 </body>
 </html>

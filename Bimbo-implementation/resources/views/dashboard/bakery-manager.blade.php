@@ -16,24 +16,12 @@
 </div>
 @endsection
 
-@section('navigation-links')
-<a href="{{ route('bakery.production') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-sky-700 hover:border-sky-400 focus:outline-none focus:text-sky-700 focus:border-sky-400 transition">
-    Production Monitoring
-</a>
-<a href="{{ route('bakery.schedule') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-sky-700 hover:border-sky-400 focus:outline-none focus:text-sky-700 focus:border-sky-400 transition">
-    Workforce Schedule
-</a>
-<a href="{{ route('bakery.maintenance') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-sky-700 hover:border-sky-400 focus:outline-none focus:text-sky-700 focus:border-sky-400 transition">
-    Machine Maintenance
-</a>
-@endsection
-
 @section('content')
 <!-- Welcome Banner -->
-<div class="bg-gradient-to-r from-sky-400 to-sky-200 rounded-2xl shadow-xl mb-10 overflow-hidden flex flex-col md:flex-row items-center justify-between px-8 py-10 relative">
+<div class="bg-blue-500 rounded-2xl shadow-xl mb-10 overflow-hidden flex flex-col md:flex-row items-center justify-between px-8 py-10 relative">
     <div class="text-white z-10">
         <h2 class="text-3xl md:text-4xl font-extrabold mb-2 drop-shadow">Welcome, Bakery Manager!</h2>
-        <p class="text-lg text-sky-100 font-medium">Monitor production, manage workforce, and keep your bakery running smoothly.</p>
+        <p class="text-lg text-blue-100 font-medium">Monitor production, manage workforce, and keep your bakery running smoothly.</p>
     </div>
     <div class="hidden md:block absolute right-8 top-1/2 -translate-y-1/2 opacity-30 z-0">
         <svg class="w-40 h-40" fill="currentColor" viewBox="0 0 24 24">
@@ -43,93 +31,127 @@
 </div>
 
 <!-- Statistics Cards -->
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-6 mb-12">
-    <!-- Card Example: repeat for each stat -->
-    <div class="bg-white rounded-2xl shadow-lg p-6 border-b-4 border-blue-400 flex flex-col items-start hover:shadow-2xl transition-shadow duration-200 group">
-        <div class="flex items-center">
-            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                </svg>
+<div class="w-full overflow-x-auto">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 mb-12">
+        <!-- First Row -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 border-b-4 border-blue-400 flex flex-col items-start hover:shadow-2xl transition-shadow duration-200 group min-w-[220px]">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-semibold text-gray-600">Today's Output</p>
+                    <p class="text-2xl font-extrabold text-gray-900 production-output">-</p>
+                    <p class="text-xs text-gray-500">Loaves produced</p>
+                </div>
             </div>
-            <div class="ml-4">
-                <p class="text-sm font-semibold text-gray-600">Today's Output</p>
-                <p class="text-2xl font-extrabold text-gray-900 production-output">-</p>
-                <p class="text-xs text-gray-500">Loaves produced</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-lg p-6 border-b-4 border-green-400 flex flex-col items-start hover:shadow-2xl transition-shadow duration-200 group min-w-[220px]">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-semibold text-gray-600">Production Target</p>
+                    <p class="text-2xl font-extrabold text-gray-900 production-target">-</p>
+                    <p class="text-xs text-gray-500">Target for today</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-lg p-6 border-b-4 border-cyan-400 flex flex-col items-start hover:shadow-2xl transition-shadow duration-200 group min-w-[220px]">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m9-7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-semibold text-gray-600">Staff on Duty</p>
+                    <p class="text-2xl font-extrabold text-gray-900 live-staff-on-duty">0</p>
+                </div>
+            </div>
+        </div>
+        <!-- Second Row -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 border-b-4 border-red-400 flex flex-col items-start hover:shadow-2xl transition-shadow duration-200 group min-w-[220px]">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-1.414-1.414L12 9.172 7.05 4.222l-1.414 1.414L10.828 12l-5.192 5.192 1.414 1.414L12 14.828l4.95 4.95 1.414-1.414L13.172 12z" />
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-semibold text-gray-600">Absence</p>
+                    <p class="text-2xl font-extrabold text-gray-900 live-absent-count">-</p>
+                    <p class="text-xs text-gray-500">Staff absent today</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-lg p-6 border-b-4 border-emerald-400 flex flex-col items-start hover:shadow-2xl transition-shadow duration-200 group min-w-[220px]">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-semibold text-gray-600">Shift Filled</p>
+                    <p class="text-2xl font-extrabold text-gray-900 live-shift-filled">-</p>
+                    <p class="text-xs text-gray-500">Shifts fully staffed</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-lg p-6 border-b-4 border-orange-400 flex flex-col items-start hover:shadow-2xl transition-shadow duration-200 group min-w-[220px]">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-semibold text-gray-600">Overtime</p>
+                    <p class="text-2xl font-extrabold text-gray-900 live-overtime-count">-</p>
+                    <p class="text-xs text-gray-500">Staff in overtime</p>
+                </div>
             </div>
         </div>
     </div>
-    <div class="bg-white rounded-2xl shadow-lg p-6 border-b-4 border-green-400 flex flex-col items-start hover:shadow-2xl transition-shadow duration-200 group">
-        <div class="flex items-center">
-            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-            </div>
-            <div class="ml-4">
-                <p class="text-sm font-semibold text-gray-600">Production Target</p>
-                <p class="text-2xl font-extrabold text-gray-900 production-target">-</p>
-                <p class="text-xs text-gray-500">Target for today</p>
-            </div>
-        </div>
-    </div>
-    <div class="bg-white rounded-2xl shadow-lg p-6 border-b-4 border-cyan-400 flex flex-col items-start hover:shadow-2xl transition-shadow duration-200 group">
-        <div class="flex items-center">
-            <div class="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m9-7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-            </div>
-            <div class="ml-4">
-                <p class="text-sm font-semibold text-gray-600">Staff on Duty</p>
-                <p class="text-2xl font-extrabold text-gray-900 live-staff-on-duty">{{ $staffOnDuty ?? '-' }}</p>
-                <p class="text-xs text-gray-500">Currently present</p>
-                <button class="text-xs text-blue-500 hover:underline mt-1" onclick="openDistributionModal()">View Distribution</button>
-            </div>
-        </div>
-    </div>
-    <div class="bg-white rounded-2xl shadow-lg p-6 border-b-4 border-red-400 flex flex-col items-start hover:shadow-2xl transition-shadow duration-200 group">
-        <div class="flex items-center">
-            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-1.414-1.414L12 9.172 7.05 4.222l-1.414 1.414L10.828 12l-5.192 5.192 1.414 1.414L12 14.828l4.95 4.95 1.414-1.414L13.172 12z" />
-                </svg>
-            </div>
-            <div class="ml-4">
-                <p class="text-sm font-semibold text-gray-600">Absence</p>
-                <p class="text-2xl font-extrabold text-gray-900 live-absent-count">{{ $absentCount ?? '-' }}</p>
-                <p class="text-xs text-gray-500">Staff absent today</p>
-            </div>
-        </div>
-    </div>
-    <div class="bg-white rounded-2xl shadow-lg p-6 border-b-4 border-emerald-400 flex flex-col items-start hover:shadow-2xl transition-shadow duration-200 group">
-        <div class="flex items-center">
-            <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-            </div>
-            <div class="ml-4">
-                <p class="text-sm font-semibold text-gray-600">Shift Filled</p>
-                <p class="text-2xl font-extrabold text-gray-900 live-shift-filled">{{ $shiftFilled ?? '-' }}</p>
-                <p class="text-xs text-gray-500">Shifts fully staffed</p>
-            </div>
-        </div>
-    </div>
-    <div class="bg-white rounded-2xl shadow-lg p-6 border-b-4 border-orange-400 flex flex-col items-start hover:shadow-2xl transition-shadow duration-200 group">
-        <div class="flex items-center">
-            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
-            <div class="ml-4">
-                <p class="text-sm font-semibold text-gray-600">Overtime</p>
-                <p class="text-2xl font-extrabold text-gray-900 live-overtime-count">{{ $overtimeCount ?? '-' }}</p>
-                <p class="text-xs text-gray-500">Staff in overtime</p>
-            </div>
-        </div>
-    </div>
+</div>
+
+<!-- New & Assigned Orders Section -->
+<div class="bg-white rounded-xl shadow-lg p-6 mt-8">
+    <h2 class="text-xl font-bold text-blue-700 mb-4">New & Assigned Orders</h2>
+    @if(isset($orders) && $orders->count())
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+                <tr>
+                    <th class="px-4 py-2 text-left font-semibold">Order #</th>
+                    <th class="px-4 py-2 text-left font-semibold">Status</th>
+                    <th class="px-4 py-2 text-left font-semibold">Retailer</th>
+                    <th class="px-4 py-2 text-left font-semibold">Product(s)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($orders as $order)
+                    <tr>
+                        <td class="px-4 py-2">{{ $order->id }}</td>
+                        <td class="px-4 py-2">{{ $order->status }}</td>
+                        <td class="px-4 py-2">{{ $order->user->name ?? 'N/A' }}</td>
+                        <td class="px-4 py-2">
+                            @foreach($order->items as $item)
+                                {{ $item->product->name ?? 'N/A' }} ({{ $item->quantity }})<br>
+                            @endforeach
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        <div class="text-gray-500">No new or assigned orders at the moment.</div>
+    @endif
 </div>
 
 <!-- Main Content Grid -->
@@ -156,7 +178,7 @@
                         <p class="text-xs text-blue-100">Start Batch</p>
                     </div>
                 </a>
-                <a href="{{ route('bakery.maintenance') }}" class="flex items-center p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg text-white w-full mb-2 hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                <a href="{{ route('bakery.maintenance') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full mb-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
                     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
@@ -164,10 +186,10 @@
                     </div>
                     <div class="ml-4">
                         <p class="font-semibold">Maintain Machines</p>
-                        <p class="text-xs text-yellow-100">Log Maintenance</p>
+                        <p class="text-xs text-blue-100">Log Maintenance</p>
                     </div>
                 </a>
-                <a href="{{ route('bakery.order-processing') }}" class="flex items-center p-4 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg text-white w-full mb-2 hover:from-indigo-600 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                <a href="{{ route('bakery.order-processing') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full mb-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
                     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />
@@ -175,10 +197,10 @@
                     </div>
                     <div class="ml-4">
                         <p class="font-semibold">Order Processing</p>
-                        <p class="text-xs text-indigo-100">Place/Receive Orders</p>
+                        <p class="text-xs text-blue-100">Place/Receive Orders</p>
                     </div>
                 </a>
-                <a href="{{ route('workforce.overview') }}" class="flex items-center p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg text-white w-full mb-2 hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                <a href="{{ route('workforce.overview') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full mb-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
                     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -186,7 +208,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="font-semibold">Workforce Distribution</p>
-                        <p class="text-xs text-yellow-100">View & Manage Workforce</p>
+                        <p class="text-xs text-blue-100">View & Manage Workforce</p>
                     </div>
                 </a>
             </div>
@@ -199,38 +221,6 @@
     <a href="{{ route('reports.downloads') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg text-xl transition-all duration-200">
         <i class="fas fa-file-alt mr-2"></i> Reports
     </a>
-</div>
-
-<!-- Recent Activity Timeline -->
-<div class="mt-8 bg-white rounded-2xl shadow-xl">
-    <div class="px-6 py-4 border-b border-gray-100">
-        <h3 class="text-lg font-bold text-gray-900">Recent Activity</h3>
-    </div>
-    <div class="p-6">
-        <div class="flow-root">
-            <ul class="-mb-8 activity-timeline">
-                <li class="relative pb-8">
-                    <div class="relative flex space-x-3">
-                        <div>
-                            <span class="h-8 w-8 rounded-full bg-sky-400 flex items-center justify-center ring-8 ring-white">
-                                <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                </svg>
-                            </span>
-                        </div>
-                        <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-                            <div>
-                                <p class="text-sm text-gray-500">Dashboard accessed</p>
-                            </div>
-                            <div class="text-right text-sm whitespace-nowrap text-gray-500">
-                                <time>{{ now()->format('M d, H:i') }}</time>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-            </ul>
-        </div>
-    </div>
 </div>
 
 <!-- Assign Task Modal (unchanged) -->
@@ -278,48 +268,6 @@
 <script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/js/datepicker-full.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/css/datepicker.min.css">
 <script>
-    // --- Live Production Monitoring ---
-    function fetchProductionLive() {
-        const tbody = document.querySelector('.production-batch-tbody');
-        tbody.innerHTML = `<tr><td colspan='6' class='text-center text-gray-400 py-4'>Loading...</td></tr>`;
-        fetch("{{ route('bakery.bakery.production-live') }}")
-            .then(res => res.json())
-            .then(data => {
-                tbody.innerHTML = '';
-                if (!data.batches || data.batches.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan='6' class='text-center text-gray-400 py-4'>No batches found.</td></tr>`;
-                } else {
-                    data.batches.forEach(batch => {
-                        function fmt(dt) {
-                            if (!dt) return '-';
-                            const d = new Date(dt);
-                            if (isNaN(d)) return dt;
-                            return d.toLocaleString('en-US', {
-                                month: '2-digit',
-                                day: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            });
-                        }
-                        let badgeClass = 'bg-gray-200 text-gray-800';
-                        if (batch.status === 'Active') badgeClass = 'bg-blue-200 text-blue-800';
-                        if (batch.status === 'Completed') badgeClass = 'bg-green-200 text-green-800';
-                        if (batch.status === 'Delayed') badgeClass = 'bg-red-200 text-red-800';
-                        tbody.innerHTML += `<tr>
-                            <td>${batch.name}</td>
-                            <td><span class='px-2 py-1 rounded ${badgeClass}'>${batch.status}</span></td>
-                            <td>${fmt(batch.scheduled_start)}</td>
-                            <td>${fmt(batch.actual_start)}</td>
-                            <td>${fmt(batch.actual_end)}</td>
-                            <td title='${batch.notes ?? ''}'>${batch.notes ? batch.notes.substring(0, 30) + (batch.notes.length > 30 ? '...' : '') : '-'}</td>
-                        </tr>`;
-                    });
-                }
-            });
-    }
-    fetchProductionLive();
-    setInterval(fetchProductionLive, 2000);
-
     // --- Live Workforce ---
     function fetchWorkforceLive() {
         fetch("{{ route('bakery.bakery.workforce-live') }}")
@@ -378,7 +326,6 @@
     }
     // Initial fetch and polling
     function fetchAllLive() {
-        fetchProductionLive();
         fetchWorkforceLive();
         fetchIngredientsLive();
         fetchNotificationsLive();
@@ -538,6 +485,9 @@
             .then(data => {
                 btn.disabled = false;
                 btn.textContent = 'Auto-Assign Staff';
+                fetchStatsLive(); // <-- Instant update after auto-assign
+                // Listen for custom event for real-time updates (future-proof)
+                document.dispatchEvent(new CustomEvent('autoAssignCompleted'));
                 if (data.success) {
                     window.location.href = '/workforce/distribution-overview';
                 } else {
@@ -550,6 +500,17 @@
                 alert('Auto-assignment failed due to network or server error.');
             });
     };
+
+    // Listen for custom event for real-time updates (for future WebSocket integration)
+    document.addEventListener('autoAssignCompleted', fetchStatsLive);
+    // --- Laravel Echo/Pusher real-time updates ---
+    if (window.Echo) {
+        window.Echo.channel('dashboard-stats')
+            .listen('.staff.autoAssigned', (e) => {
+                fetchStatsLive();
+            });
+    }
+    // TODO: For true real-time, integrate Laravel Echo/Pusher and trigger fetchStatsLive() on broadcast event.
 
     // --- Live Stats for Dashboard Cards ---
     function fetchStatsLive() {
@@ -564,6 +525,57 @@
     }
     fetchStatsLive();
     setInterval(fetchStatsLive, 10000);
+
+    // --- Real-time Production Stats ---
+    function fetchProductionStatsLive() {
+        fetch('/api/production-live')
+            .then(res => res.json())
+            .then(data => {
+                document.querySelector('.production-output').textContent = data.output ?? '-';
+                document.querySelector('.production-target').textContent = data.productionTarget ?? '-';
+            });
+    }
+    fetchProductionStatsLive();
+    setInterval(fetchProductionStatsLive, 10000);
+
+    // --- Real-time Staff on Duty (from active shifts) ---
+    function fetchStaffOnDutyFromShifts() {
+        fetch('/bakery/api/active-staff')
+            .then(res => res.json())
+            .then(data => {
+                let count = Array.isArray(data) ? data.length : (data.count ?? 0);
+                document.querySelector('.live-staff-on-duty').textContent = count;
+            });
+    }
+    // Keep only:
+    fetchStaffOnDutyFromStaffTable();
+    setInterval(fetchStaffOnDutyFromStaffTable, 10000);
+
+    // --- Real-time Absence (from Staff table) ---
+    function fetchAbsenceFromStaffTable() {
+        fetch('/bakery/api/absent-staff')
+            .then(res => res.json())
+            .then(data => {
+                let count = Number(data.absentCount);
+                if (isNaN(count) || count < 0) count = 0;
+                document.querySelector('.live-absent-count').textContent = count;
+            });
+    }
+    fetchAbsenceFromStaffTable();
+    setInterval(fetchAbsenceFromStaffTable, 10000);
+
+    // --- Real-time Staff on Duty (from Staff table) ---
+    function fetchStaffOnDutyFromStaffTable() {
+        fetch('/bakery/api/staff-on-duty')
+            .then(res => res.json())
+            .then(data => {
+                let count = Number(data.presentCount);
+                if (isNaN(count) || count < 0) count = 0;
+                document.querySelector('.live-staff-on-duty').textContent = count;
+            });
+    }
+    fetchStaffOnDutyFromStaffTable();
+    setInterval(fetchStaffOnDutyFromStaffTable, 10000);
 
     function openDistributionModal() {
         document.getElementById('distributionModal').classList.remove('hidden');

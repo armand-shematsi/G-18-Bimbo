@@ -19,12 +19,12 @@
             <div class="flex space-x-3">
                 @if($inventory)
                 <a href="{{ route('bakery.inventory.edit', $inventory) }}"
-                   class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
                     <i class="fas fa-edit mr-2"></i>Edit
                 </a>
                 @endif
                 <button onclick="openStockModal()"
-                        class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                    class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
                     <i class="fas fa-plus mr-2"></i>Update Stock
                 </button>
             </div>
@@ -75,12 +75,12 @@
                         <p class="mt-1 text-sm text-gray-900" id="current-quantity">{{ $inventory->quantity }} {{ $inventory->unit }}</p>
                         <div class="mt-2 bg-gray-200 rounded-full h-2">
                             @php
-                                $maxQuantity = max($inventory->quantity, $inventory->reorder_level * 2);
-                                $percentage = $maxQuantity > 0 ? min(100, ($inventory->quantity / $maxQuantity) * 100) : 0;
+                            $maxQuantity = max($inventory->quantity, $inventory->reorder_level * 2);
+                            $percentage = $maxQuantity > 0 ? min(100, ($inventory->quantity / $maxQuantity) * 100) : 0;
                             @endphp
                             <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                                 id="stock-progress-bar"
-                                 style="width: {{ $percentage }}%"></div>
+                                id="stock-progress-bar"
+                                style="width: {{ (float) $percentage }}%"></div>
                         </div>
                     </div>
 
@@ -88,9 +88,9 @@
                         <label class="block text-sm font-medium text-gray-700">Unit Price</label>
                         <p class="mt-1 text-sm text-gray-900">
                             @if($inventory->unit_price)
-                                ${{ number_format($inventory->unit_price, 2) }}
+                            ${{ number_format($inventory->unit_price, 2) }}
                             @else
-                                Not set
+                            Not set
                             @endif
                         </p>
                     </div>
@@ -106,28 +106,28 @@
                     </div>
 
                     @if($inventory->product)
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Associated Product</label>
-                            <p class="mt-1 text-sm text-gray-900">{{ $inventory->product->name }}</p>
-                        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Associated Product</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ $inventory->product->name }}</p>
+                    </div>
                     @endif
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Status</label>
                         <p class="mt-1">
                             @if($inventory->quantity == 0)
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800" data-status>
-                                    Out of Stock
-                                </span>
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800" data-status>
+                                Out of Stock
+                            </span>
                             @elseif($inventory->quantity <= $inventory->reorder_level)
                                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800" data-status>
                                     Low Stock
                                 </span>
-                            @else
+                                @else
                                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800" data-status>
                                     Available
                                 </span>
-                            @endif
+                                @endif
                         </p>
                     </div>
                 </div>
@@ -217,45 +217,45 @@
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse($movements as $movement)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ $movement->created_at->format('M d, Y H:i') }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $movement->created_at->format('M d, Y H:i') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
                                             @if($movement->movement_type == 'in') bg-green-100 text-green-800
                                             @else bg-red-100 text-red-800
                                             @endif">
-                                            {{ ucfirst($movement->movement_type) }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <span class="@if($movement->quantity_change > 0) text-green-600 @else text-red-600 @endif">
-                                            {{ $movement->quantity_change > 0 ? '+' : '' }}{{ $movement->quantity_change }} {{ $inventory->unit }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-gray-900">
-                                        {{ $movement->notes ?: '-' }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $movement->user ? $movement->user->name : 'System' }}
-                                    </td>
-                                </tr>
+                                        {{ ucfirst($movement->movement_type) }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <span class="@if($movement->quantity_change > 0) text-green-600 @else text-red-600 @endif">
+                                        {{ $movement->quantity_change > 0 ? '+' : '' }}{{ $movement->quantity_change }} {{ $inventory->unit }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-900">
+                                    {{ $movement->notes ?: '-' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ $movement->user ? $movement->user->name : 'System' }}
+                                </td>
+                            </tr>
                             @empty
-                                <tr>
-                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">
-                                        No movement history available.
-                                    </td>
-                                </tr>
+                            <tr>
+                                <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                    No movement history available.
+                                </td>
+                            </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
 
                 @if($movements->hasPages())
-                    <div class="px-6 py-3 border-t border-gray-200">
-                        {{ $movements->links() }}
-                    </div>
+                <div class="px-6 py-3 border-t border-gray-200">
+                    {{ $movements->links() }}
+                </div>
                 @endif
             </div>
         </div>
@@ -282,9 +282,9 @@
                         </div>
                         <div class="mt-2 bg-gray-200 rounded-full h-2">
                             @php
-                                $percentage = $inventory->reorder_level > 0 ? min(100, ($inventory->quantity / $inventory->reorder_level) * 100) : 0;
+                            $percentage = $inventory->reorder_level > 0 ? min(100, ($inventory->quantity / $inventory->reorder_level) * 100) : 0;
                             @endphp
-                            <div class="bg-blue-600 h-2 rounded-full" style="width: {{ $percentage }}%"></div>
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: {{ (float) $percentage }}%"></div>
                         </div>
                     </div>
 
@@ -296,12 +296,12 @@
                     </div>
 
                     @if($inventory->unit_price)
-                        <div class="pt-4 border-t border-gray-200">
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-600">Total Value</span>
-                                <span class="font-medium">${{ number_format($inventory->quantity * $inventory->unit_price, 2) }}</span>
-                            </div>
+                    <div class="pt-4 border-t border-gray-200">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Total Value</span>
+                            <span class="font-medium">${{ number_format($inventory->quantity * $inventory->unit_price, 2) }}</span>
                         </div>
+                    </div>
                     @endif
 
                     <div class="pt-4 border-t border-gray-200">
@@ -319,12 +319,12 @@
 
                 <div class="space-y-3">
                     <button onclick="openStockModal('in')"
-                            class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200">
+                        class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200">
                         <i class="fas fa-plus mr-2"></i>Stock In
                     </button>
 
                     <button onclick="openStockModal('out')"
-                            class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200">
+                        class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200">
                         <i class="fas fa-minus mr-2"></i>Stock Out
                     </button>
                 </div>
@@ -353,32 +353,32 @@
                 <div class="mb-4">
                     <label for="quantity_change" class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
                     <input type="number"
-                           name="quantity_change"
-                           id="quantity_change"
-                           min="0.01"
-                           step="0.01"
-                           required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                           placeholder="0.00">
+                        name="quantity_change"
+                        id="quantity_change"
+                        min="0.01"
+                        step="0.01"
+                        required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="0.00">
                 </div>
 
                 <div class="mb-6">
                     <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">Notes (Optional)</label>
                     <textarea name="notes"
-                              id="notes"
-                              rows="3"
-                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              placeholder="Reason for stock change..."></textarea>
+                        id="notes"
+                        rows="3"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Reason for stock change..."></textarea>
                 </div>
 
                 <div class="flex justify-end space-x-3">
                     <button type="button"
-                            onclick="closeStockModal()"
-                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                        onclick="closeStockModal()"
+                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                         Cancel
                     </button>
                     <button type="submit"
-                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-200">
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-200">
                         Update Stock
                     </button>
                 </div>
@@ -388,390 +388,385 @@
 </div>
 
 <script>
-function openStockModal(type = null) {
-    document.getElementById('stockModal').classList.remove('hidden');
-    if (type) {
-        document.getElementById('movement_type').value = type;
+    window.lastQuantity = @json($inventory->quantity);
+    window.inventoryId = @json($inventory->id);
+
+    function openStockModal(type = null) {
+        document.getElementById('stockModal').classList.remove('hidden');
+        if (type) {
+            document.getElementById('movement_type').value = type;
+        }
     }
-}
 
-function closeStockModal() {
-    document.getElementById('stockModal').classList.add('hidden');
-    document.getElementById('stockForm').reset();
-}
-
-// Close modal when clicking outside
-document.getElementById('stockModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeStockModal();
+    function closeStockModal() {
+        document.getElementById('stockModal').classList.add('hidden');
+        document.getElementById('stockForm').reset();
     }
-});
 
-// Real-time updates
-let lastQuantity = {{ $inventory->quantity }};
+    // Close modal when clicking outside
+    document.getElementById('stockModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeStockModal();
+        }
+    });
 
-function updateStockLevels() {
-    fetch(`/bakery/api/inventory/${inventoryId}/live`)
-        .then(response => response.json())
-        .then(data => {
-            // Check if quantity changed
-            if (data.quantity !== lastQuantity) {
-                // Show update notification
-                showUpdateNotification(data.quantity, lastQuantity, data.unit);
-                lastQuantity = data.quantity;
-            }
+    // Real-time updates
+    function updateStockLevels() {
+        fetch(`/bakery/api/inventory/${window.inventoryId}/live`)
+            .then(response => response.json())
+            .then(data => {
+                // Check if quantity changed
+                if (data.quantity !== window.lastQuantity) {
+                    // Show update notification
+                    showUpdateNotification(data.quantity, window.lastQuantity, data.unit);
+                    window.lastQuantity = data.quantity;
+                }
 
-            // Update current quantity
-            document.getElementById('current-quantity').textContent = `${data.quantity} ${data.unit}`;
+                // Update current quantity
+                document.getElementById('current-quantity').textContent = `${data.quantity} ${data.unit}`;
 
-            // Update progress bar
-            const maxQuantity = Math.max(data.quantity, data.reorder_level * 2);
-            const percentage = maxQuantity > 0 ? Math.min(100, (data.quantity / maxQuantity) * 100) : 0;
-            document.getElementById('stock-progress-bar').style.width = `${percentage}%`;
+                // Update progress bar
+                const maxQuantity = Math.max(data.quantity, data.reorder_level * 2);
+                const percentage = maxQuantity > 0 ? Math.min(100, (data.quantity / maxQuantity) * 100) : 0;
+                document.getElementById('stock-progress-bar').style.width = `${percentage}%`;
 
-            // Update status if it changed
-            const statusElement = document.querySelector('[data-status]');
-            if (statusElement) {
-                statusElement.textContent = data.status;
-                statusElement.className = `inline-flex px-2 py-1 text-xs font-semibold rounded-full ${data.status_class}`;
-            }
+                // Update status if it changed
+                const statusElement = document.querySelector('[data-status]');
+                if (statusElement) {
+                    statusElement.textContent = data.status;
+                    statusElement.className = `inline-flex px-2 py-1 text-xs font-semibold rounded-full ${data.status_class}`;
+                }
 
-            // Update last updated timestamp
-            const lastUpdatedElement = document.getElementById('last-updated');
-            if (lastUpdatedElement && data.last_updated) {
-                const date = new Date(data.last_updated);
-                lastUpdatedElement.textContent = date.toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric'
-                }) + ', ' + date.toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-            }
-        })
-        .catch(error => console.error('Error updating stock levels:', error));
-}
+                // Update last updated timestamp
+                const lastUpdatedElement = document.getElementById('last-updated');
+                if (lastUpdatedElement && data.last_updated) {
+                    const date = new Date(data.last_updated);
+                    lastUpdatedElement.textContent = date.toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric'
+                    }) + ', ' + date.toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                }
+            })
+            .catch(error => console.error('Error updating stock levels:', error));
+    }
 
-function showUpdateNotification(newQuantity, oldQuantity, unit) {
-    const change = newQuantity - oldQuantity;
-    const changeText = change > 0 ? `+${change}` : change.toString();
-    const changeClass = change > 0 ? 'text-green-600' : 'text-red-600';
+    function showUpdateNotification(newQuantity, oldQuantity, unit) {
+        const change = newQuantity - oldQuantity;
+        const changeText = change > 0 ? `+${change}` : change.toString();
+        const changeClass = change > 0 ? 'text-green-600' : 'text-red-600';
 
-    const notification = document.createElement('div');
-    notification.className = 'fixed top-4 right-4 bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50';
-    notification.innerHTML = `
-        <div class="flex items-center">
-            <div class="flex-shrink-0">
-                <i class="fas fa-sync-alt text-blue-500"></i>
-            </div>
-            <div class="ml-3">
-                <p class="text-sm font-medium text-gray-900">Stock Updated</p>
-                <p class="text-sm text-gray-500">
-                    Quantity changed: <span class="${changeClass} font-medium">${changeText} ${unit}</span>
-                </p>
-            </div>
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50';
+        notification.innerHTML = `
+    <div class="flex items-center">
+        <div class="flex-shrink-0">
+            <i class="fas fa-sync-alt text-blue-500"></i>
         </div>
-    `;
+        <div class="ml-3">
+            <p class="text-sm font-medium text-gray-900">Stock Updated</p>
+            <p class="text-sm text-gray-500">
+                Quantity changed: <span class="${changeClass} font-medium">${changeText} ${unit}</span>
+            </p>
+        </div>
+    </div>
+`;
 
-    document.body.appendChild(notification);
+        document.body.appendChild(notification);
 
-    // Remove notification after 3 seconds
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
-}
+        // Remove notification after 3 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
 
-function loadRecentOrders() {
-    fetch(`/bakery/api/inventory/${inventoryId}/recent-orders`)
-        .then(response => response.json())
-        .then(data => {
-            const container = document.getElementById('recent-orders');
-            if (data.orders && data.orders.length > 0) {
-                container.innerHTML = data.orders.map(order => `
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                            <div class="font-medium text-gray-900">Order #${order.id}</div>
-                            <div class="text-sm text-gray-500">${order.customer_name || 'N/A'}</div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-sm font-medium text-gray-900">${order.quantity} ${order.unit}</div>
-                            <div class="text-xs text-gray-500">${order.created_at}</div>
-                        </div>
+    function loadRecentOrders() {
+        fetch(`/bakery/api/inventory/${window.inventoryId}/recent-orders`)
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('recent-orders');
+                if (data.orders && data.orders.length > 0) {
+                    container.innerHTML = data.orders.map(order => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <div class="font-medium text-gray-900">Order #${order.id}</div>
+                        <div class="text-sm text-gray-500">${order.customer_name || 'N/A'}</div>
                     </div>
-                `).join('');
-            } else {
-                container.innerHTML = '<div class="text-center text-gray-500 py-4">No recent orders affecting this item.</div>';
-            }
-        })
-        .catch(error => {
-            console.error('Error loading recent orders:', error);
-            document.getElementById('recent-orders').innerHTML = '<div class="text-center text-red-500 py-4">Error loading recent orders.</div>';
-        });
-}
-
-// Initialize real-time updates
-const inventoryId = {{ $inventory->id }};
-
-// Chart instances
-let stockChart, movementChart, statusPieChart;
-
-// Initialize charts
-function initializeCharts() {
-    // Stock Level Chart
-    const stockCtx = document.getElementById('stockChart').getContext('2d');
-    stockChart = new Chart(stockCtx, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Stock Level',
-                data: [],
-                borderColor: 'rgb(59, 130, 246)',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                tension: 0.4,
-                fill: true
-            }, {
-                label: 'Reorder Level',
-                data: [],
-                borderColor: 'rgb(239, 68, 68)',
-                backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                borderDash: [5, 5],
-                tension: 0,
-                fill: false
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                title: {
-                    display: true,
-                    text: 'Stock Level Over Time'
+                    <div class="text-right">
+                        <div class="text-sm font-medium text-gray-900">${order.quantity} ${order.unit}</div>
+                        <div class="text-xs text-gray-500">${order.created_at}</div>
+                    </div>
+                </div>
+            `).join('');
+                } else {
+                    container.innerHTML = '<div class="text-center text-gray-500 py-4">No recent orders affecting this item.</div>';
                 }
+            })
+            .catch(error => {
+                console.error('Error loading recent orders:', error);
+                document.getElementById('recent-orders').innerHTML = '<div class="text-center text-red-500 py-4">Error loading recent orders.</div>';
+            });
+    }
+
+    // Initialize charts
+    function initializeCharts() {
+        // Stock Level Chart
+        const stockCtx = document.getElementById('stockChart').getContext('2d');
+        stockChart = new Chart(stockCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Stock Level',
+                    data: [],
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: 'Reorder Level',
+                    data: [],
+                    borderColor: 'rgb(239, 68, 68)',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderDash: [5, 5],
+                    tension: 0,
+                    fill: false
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
                     title: {
                         display: true,
-                        text: 'Quantity'
+                        text: 'Stock Level Over Time'
                     }
                 },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Date'
-                    }
-                }
-            }
-        }
-    });
-
-    // Movement History Chart
-    const movementCtx = document.getElementById('movementChart').getContext('2d');
-    movementChart = new Chart(movementCtx, {
-        type: 'bar',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Stock In',
-                data: [],
-                backgroundColor: 'rgba(34, 197, 94, 0.8)',
-                borderColor: 'rgb(34, 197, 94)',
-                borderWidth: 1
-            }, {
-                label: 'Stock Out',
-                data: [],
-                backgroundColor: 'rgba(239, 68, 68, 0.8)',
-                borderColor: 'rgb(239, 68, 68)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                title: {
-                    display: true,
-                    text: 'Daily Movement Summary'
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Quantity'
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Date'
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Quantity'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
                     }
                 }
             }
-        }
-    });
-
-    // Status Pie Chart
-    const pieCtx = document.getElementById('statusPieChart').getContext('2d');
-    statusPieChart = new Chart(pieCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Available', 'Low Stock', 'Out of Stock'],
-            datasets: [{
-                data: [0, 0, 0],
-                backgroundColor: [
-                    'rgba(34, 197, 94, 0.8)',
-                    'rgba(245, 158, 11, 0.8)',
-                    'rgba(239, 68, 68, 0.8)'
-                ],
-                borderColor: [
-                    'rgb(34, 197, 94)',
-                    'rgb(245, 158, 11)',
-                    'rgb(239, 68, 68)'
-                ],
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                },
-                title: {
-                    display: true,
-                    text: 'Current Status'
-                }
-            }
-        }
-    });
-}
-
-// Load chart data
-function loadChartData() {
-    console.log('Loading chart data for inventory:', inventoryId);
-
-    fetch(`/bakery/api/inventory/${inventoryId}/chart-data`)
-        .then(response => {
-            console.log('Chart data response status:', response.status);
-            return response.json();
-        })
-        .then(data => {
-            console.log('Chart data received:', data);
-
-            // Update stock level chart
-            if (data.stockLevels && data.stockLevels.labels) {
-                stockChart.data.labels = data.stockLevels.labels;
-                stockChart.data.datasets[0].data = data.stockLevels.values;
-                stockChart.data.datasets[1].data = data.stockLevels.reorderLevels;
-                stockChart.update();
-                console.log('Stock chart updated');
-            }
-
-            // Update movement chart
-            if (data.movements && data.movements.labels) {
-                movementChart.data.labels = data.movements.labels;
-                movementChart.data.datasets[0].data = data.movements.stockIn;
-                movementChart.data.datasets[1].data = data.movements.stockOut;
-                movementChart.update();
-                console.log('Movement chart updated');
-            }
-
-            // Update status pie chart
-            if (data.statusDistribution) {
-                statusPieChart.data.datasets[0].data = data.statusDistribution;
-                statusPieChart.update();
-                console.log('Status pie chart updated');
-            }
-
-            // Update key metrics
-            if (data.keyMetrics) {
-                document.getElementById('total-movements').textContent = data.keyMetrics.totalMovements;
-                document.getElementById('avg-stock-in').textContent = data.keyMetrics.avgStockIn;
-                document.getElementById('avg-stock-out').textContent = data.keyMetrics.avgStockOut;
-                document.getElementById('turnover-rate').textContent = data.keyMetrics.turnoverRate + '%';
-                console.log('Key metrics updated');
-            }
-
-            // Update trend analysis
-            if (data.trendAnalysis) {
-                // Stock Trend
-                document.getElementById('stock-trend-indicator').textContent = data.trendAnalysis.stockTrend.trend;
-                document.getElementById('stock-trend-indicator').className = `text-sm font-medium ${data.trendAnalysis.stockTrend.indicator}`;
-                document.getElementById('stock-trend-value').textContent = data.trendAnalysis.stockTrend.value;
-
-                // Demand Pattern
-                document.getElementById('demand-pattern-indicator').textContent = data.trendAnalysis.demandPattern.pattern;
-                document.getElementById('demand-pattern-indicator').className = `text-sm font-medium ${data.trendAnalysis.demandPattern.indicator}`;
-                document.getElementById('demand-pattern-value').textContent = data.trendAnalysis.demandPattern.value;
-
-                // Reorder Frequency
-                document.getElementById('reorder-frequency-indicator').textContent = data.trendAnalysis.reorderFrequency.frequency;
-                document.getElementById('reorder-frequency-indicator').className = `text-sm font-medium ${data.trendAnalysis.reorderFrequency.indicator}`;
-                document.getElementById('reorder-frequency-value').textContent = data.trendAnalysis.reorderFrequency.value;
-                console.log('Trend analysis updated');
-            }
-        })
-        .catch(error => {
-            console.error('Error loading chart data:', error);
-            // Show error message on page
-            showChartError('Failed to load chart data. Please refresh the page.');
         });
-}
 
-function showChartError(message) {
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'fixed top-4 left-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-    errorDiv.innerHTML = `
-        <div class="flex items-center">
-            <i class="fas fa-exclamation-triangle mr-2"></i>
-            <span>${message}</span>
-        </div>
-    `;
-    document.body.appendChild(errorDiv);
+        // Movement History Chart
+        const movementCtx = document.getElementById('movementChart').getContext('2d');
+        movementChart = new Chart(movementCtx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Stock In',
+                    data: [],
+                    backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                    borderColor: 'rgb(34, 197, 94)',
+                    borderWidth: 1
+                }, {
+                    label: 'Stock Out',
+                    data: [],
+                    backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                    borderColor: 'rgb(239, 68, 68)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Daily Movement Summary'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Quantity'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
+                }
+            }
+        });
 
-    setTimeout(() => {
-        errorDiv.remove();
-    }, 5000);
-}
+        // Status Pie Chart
+        const pieCtx = document.getElementById('statusPieChart').getContext('2d');
+        statusPieChart = new Chart(pieCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Available', 'Low Stock', 'Out of Stock'],
+                datasets: [{
+                    data: [0, 0, 0],
+                    backgroundColor: [
+                        'rgba(34, 197, 94, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(239, 68, 68, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgb(34, 197, 94)',
+                        'rgb(245, 158, 11)',
+                        'rgb(239, 68, 68)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Current Status'
+                    }
+                }
+            }
+        });
+    }
 
-// Update stock levels every 30 seconds
-setInterval(updateStockLevels, 30000);
+    // Load chart data
+    function loadChartData() {
+        console.log('Loading chart data for inventory:', window.inventoryId);
 
-// Load recent orders on page load
-loadRecentOrders();
+        fetch(`/bakery/api/inventory/${window.inventoryId}/chart-data`)
+            .then(response => {
+                console.log('Chart data response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Chart data received:', data);
 
-// Update recent orders every 2 minutes
-setInterval(loadRecentOrders, 120000);
+                // Update stock level chart
+                if (data.stockLevels && data.stockLevels.labels) {
+                    stockChart.data.labels = data.stockLevels.labels;
+                    stockChart.data.datasets[0].data = data.stockLevels.values;
+                    stockChart.data.datasets[1].data = data.stockLevels.reorderLevels;
+                    stockChart.update();
+                    console.log('Stock chart updated');
+                }
 
-// Initialize charts when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    initializeCharts();
-    loadChartData();
+                // Update movement chart
+                if (data.movements && data.movements.labels) {
+                    movementChart.data.labels = data.movements.labels;
+                    movementChart.data.datasets[0].data = data.movements.stockIn;
+                    movementChart.data.datasets[1].data = data.movements.stockOut;
+                    movementChart.update();
+                    console.log('Movement chart updated');
+                }
 
-    // Update chart data every 5 minutes
-    setInterval(loadChartData, 300000);
-});
+                // Update status pie chart
+                if (data.statusDistribution) {
+                    statusPieChart.data.datasets[0].data = data.statusDistribution;
+                    statusPieChart.update();
+                    console.log('Status pie chart updated');
+                }
+
+                // Update key metrics
+                if (data.keyMetrics) {
+                    document.getElementById('total-movements').textContent = data.keyMetrics.totalMovements;
+                    document.getElementById('avg-stock-in').textContent = data.keyMetrics.avgStockIn;
+                    document.getElementById('avg-stock-out').textContent = data.keyMetrics.avgStockOut;
+                    document.getElementById('turnover-rate').textContent = data.keyMetrics.turnoverRate + '%';
+                    console.log('Key metrics updated');
+                }
+
+                // Update trend analysis
+                if (data.trendAnalysis) {
+                    // Stock Trend
+                    document.getElementById('stock-trend-indicator').textContent = data.trendAnalysis.stockTrend.trend;
+                    document.getElementById('stock-trend-indicator').className = `text-sm font-medium ${data.trendAnalysis.stockTrend.indicator}`;
+                    document.getElementById('stock-trend-value').textContent = data.trendAnalysis.stockTrend.value;
+
+                    // Demand Pattern
+                    document.getElementById('demand-pattern-indicator').textContent = data.trendAnalysis.demandPattern.pattern;
+                    document.getElementById('demand-pattern-indicator').className = `text-sm font-medium ${data.trendAnalysis.demandPattern.indicator}`;
+                    document.getElementById('demand-pattern-value').textContent = data.trendAnalysis.demandPattern.value;
+
+                    // Reorder Frequency
+                    document.getElementById('reorder-frequency-indicator').textContent = data.trendAnalysis.reorderFrequency.frequency;
+                    document.getElementById('reorder-frequency-indicator').className = `text-sm font-medium ${data.trendAnalysis.reorderFrequency.indicator}`;
+                    document.getElementById('reorder-frequency-value').textContent = data.trendAnalysis.reorderFrequency.value;
+                    console.log('Trend analysis updated');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading chart data:', error);
+                // Show error message on page
+                showChartError('Failed to load chart data. Please refresh the page.');
+            });
+    }
+
+    function showChartError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'fixed top-4 left-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+        errorDiv.innerHTML = `
+    <div class="flex items-center">
+        <i class="fas fa-exclamation-triangle mr-2"></i>
+        <span>${message}</span>
+    </div>
+`;
+        document.body.appendChild(errorDiv);
+
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 5000);
+    }
+
+    // Update stock levels every 30 seconds
+    setInterval(updateStockLevels, 30000);
+
+    // Load recent orders on page load
+    loadRecentOrders();
+
+    // Update recent orders every 2 minutes
+    setInterval(loadRecentOrders, 120000);
+
+    // Initialize charts when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeCharts();
+        loadChartData();
+
+        // Update chart data every 5 minutes
+        setInterval(loadChartData, 300000);
+    });
 </script>
 
 @if(session('success'))
-    <div id="success-message" class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg">
-        {{ session('success') }}
-    </div>
-    <script>
-        setTimeout(function() {
-            document.getElementById('success-message').style.display = 'none';
-        }, 3000);
-    </script>
+<div id="success-message" class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg">
+    {{ session('success') }}
+</div>
+<script>
+    setTimeout(function() {
+        document.getElementById('success-message').style.display = 'none';
+    }, 3000);
+</script>
 @endif
 @endsection

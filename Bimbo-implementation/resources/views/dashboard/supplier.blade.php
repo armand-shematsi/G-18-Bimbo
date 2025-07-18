@@ -9,7 +9,7 @@
     <div class="text-right space-y-2">
         <p class="text-sm text-gray-500">Last updated</p>
         <p class="text-sm font-medium text-gray-900">{{ now()->format('M d, Y H:i') }}</p>
-        @if(auth()->user()->role === 'bakery_manager' || auth()->user()->role === 'supplier')
+        @if(auth()->user()->role === 'bakery_manager')
         <a href="{{ route('supplier.raw-materials.catalog') }}" class="inline-block mt-2 bg-gradient-to-r from-green-500 to-blue-600 hover:from-blue-600 hover:to-green-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg text-lg transition-all">Order Raw Materials</a>
         @endif
     </div>
@@ -28,6 +28,7 @@ use App\Models\Message;
 use App\Models\User;
 use App\Models\Inventory;
 use App\Models\Order;
+use App\Models\Vendor;
 
 $unreadCount = Message::where('receiver_id', auth()->id())
 ->where('is_read', false)
@@ -44,10 +45,11 @@ $availableItems = Inventory::where('user_id', auth()->id())->where('status', 'av
 $lowStockItems = Inventory::where('user_id', auth()->id())->where('status', 'low_stock')->count();
 $outOfStockItems = Inventory::where('user_id', auth()->id())->where('status', 'out_of_stock')->count();
 
-// Get recent orders
-$vendorId = \App\Models\Vendor::query()->value('id');
-$recentOrders = Order::where('vendor_id', $vendorId)->latest()->take(5)->get();
-$pendingOrders = Order::where('vendor_id', auth()->id())->where('status', 'pending')->count();
+// Get the vendor for the current user
+$vendor = Vendor::where('user_id', auth()->id())->first();
+$vendorId = $vendor ? $vendor->id : null;
+$recentOrders = $vendorId ? Order::where('vendor_id', $vendorId)->latest()->take(5)->get() : collect();
+$pendingOrders = $vendorId ? Order::where('vendor_id', $vendorId)->where('status', 'pending')->count() : 0;
 @endphp
 <a href="{{ route('supplier.chat.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
     Chat with Retail Managers & Customers
@@ -342,7 +344,7 @@ $pendingOrders = Order::where('vendor_id', auth()->id())->where('status', 'pendi
                     </ul>
                 </div>
             @endif
-            @foreach(\App\Models\Order::where('vendor_id', 1)->orderBy('created_at', 'desc')->get() as $order)
+            @foreach($vendorId ? \App\Models\Order::where('vendor_id', $vendorId)->orderBy('created_at', 'desc')->get() : collect() as $order)
                 @if($order->items->count() > 0)
                 <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $order->items->first()->product_name }}</td>
@@ -368,13 +370,6 @@ $pendingOrders = Order::where('vendor_id', auth()->id())->where('status', 'pendi
             @endforeach
         </tbody>
     </table>
-</div>
-
-{{-- Reports Button at the bottom --}}
-<div class="w-full flex justify-center mt-8 mb-4">
-    <a href="{{ route('reports.downloads') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg text-xl transition-all duration-200">
-        <i class="fas fa-file-alt mr-2"></i> Reports
-    </a>
 </div>
 
 @endsection

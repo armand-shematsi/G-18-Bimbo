@@ -26,8 +26,28 @@ class ProductionBatchController extends Controller
      */
     public function create()
     {
+        // Get all bread product names for the dropdown
+        $breadProducts = \App\Models\Product::where(function ($q) {
+            $q->where('name', 'like', '%bread%')
+                ->orWhere('name', 'like', '%baguette%')
+                ->orWhere('name', 'like', '%brioche%')
+                ->orWhere('name', 'like', '%focaccia%')
+                ->orWhere('name', 'like', '%potato%')
+                ->orWhere('name', 'like', '%honey oat%')
+                ->orWhere('name', 'like', '%challah%')
+                ->orWhere('name', 'like', '%pita%')
+                ->orWhere('name', 'like', '%bagel%')
+                ->orWhere('name', 'like', '%muffin%')
+                ->orWhere('name', 'like', '%roll%')
+                ->orWhere('name', 'like', '%cinnamon%')
+                ->orWhere('name', 'like', '%gluten%')
+                ->orWhere('name', 'like', '%rustic%')
+                ->orWhere('name', 'like', '%ciabatta%');
+        })->orderBy('name')->pluck('name')->toArray();
+        // By default, show all lines
         $productionLines = \App\Models\ProductionLine::all();
-        return view('bakery.batches.create', compact('productionLines'));
+        $products = \App\Models\Product::all();
+        return view('bakery.batches.create', compact('productionLines', 'breadProducts', 'products'));
     }
 
     /**
@@ -44,8 +64,32 @@ class ProductionBatchController extends Controller
             'quantity' => 'nullable|integer|min:0',
             'notes' => 'nullable|string',
             'production_line_id' => 'nullable|string|max:10',
+            'product_id' => 'required|exists:products,id',
         ]);
-        ProductionBatch::create($validated);
+        $batch = ProductionBatch::create($validated);
+        // Inventory adjustment if completed
+        if ($batch->status === 'completed') {
+            $inventory = \App\Models\Inventory::where('product_id', $batch->product_id)
+                ->where('location', 'bakery')
+                ->where('item_type', 'finished_good')
+                ->first();
+            if ($inventory) {
+                $inventory->quantity += $batch->quantity;
+                $inventory->save();
+            } else {
+                $product = $batch->product;
+                \App\Models\Inventory::create([
+                    'item_name' => $product ? $product->name : 'Batch Product',
+                    'quantity' => $batch->quantity,
+                    'unit_price' => $product ? ($product->unit_price ?? 0) : 0,
+                    'unit' => 'unit',
+                    'item_type' => 'finished_good',
+                    'reorder_level' => 0,
+                    'location' => 'bakery',
+                    'product_id' => $batch->product_id,
+                ]);
+            }
+        }
         return redirect()->route('bakery.batches.index')->with('success', 'Production batch created successfully.');
     }
 
@@ -63,8 +107,27 @@ class ProductionBatchController extends Controller
      */
     public function edit(ProductionBatch $batch)
     {
+        $breadProducts = \App\Models\Product::where(function ($q) {
+            $q->where('name', 'like', '%bread%')
+                ->orWhere('name', 'like', '%baguette%')
+                ->orWhere('name', 'like', '%brioche%')
+                ->orWhere('name', 'like', '%focaccia%')
+                ->orWhere('name', 'like', '%potato%')
+                ->orWhere('name', 'like', '%honey oat%')
+                ->orWhere('name', 'like', '%challah%')
+                ->orWhere('name', 'like', '%pita%')
+                ->orWhere('name', 'like', '%bagel%')
+                ->orWhere('name', 'like', '%muffin%')
+                ->orWhere('name', 'like', '%roll%')
+                ->orWhere('name', 'like', '%cinnamon%')
+                ->orWhere('name', 'like', '%gluten%')
+                ->orWhere('name', 'like', '%rustic%')
+                ->orWhere('name', 'like', '%ciabatta%');
+        })->orderBy('name')->pluck('name')->toArray();
+        // By default, show all lines
         $productionLines = \App\Models\ProductionLine::all();
-        return view('bakery.batches.edit', compact('batch', 'productionLines'));
+        $products = \App\Models\Product::all();
+        return view('bakery.batches.edit', compact('batch', 'productionLines', 'breadProducts', 'products'));
     }
 
     /**
@@ -79,9 +142,35 @@ class ProductionBatchController extends Controller
             'actual_start' => 'nullable|date',
             'actual_end' => 'nullable|date',
             'notes' => 'nullable|string',
+            'quantity' => 'nullable|integer|min:0',
+            'production_line_id' => 'nullable|string|max:10',
+            'product_id' => 'required|exists:products,id',
         ]);
+        $wasCompleted = $batch->status === 'completed';
         $batch->update($validated);
-        // Removed all staff sync logic
+        // Inventory adjustment if status changed to completed
+        if (!$wasCompleted && $batch->status === 'completed') {
+            $inventory = \App\Models\Inventory::where('product_id', $batch->product_id)
+                ->where('location', 'bakery')
+                ->where('item_type', 'finished_good')
+                ->first();
+            if ($inventory) {
+                $inventory->quantity += $batch->quantity;
+                $inventory->save();
+            } else {
+                $product = $batch->product;
+                \App\Models\Inventory::create([
+                    'item_name' => $product ? $product->name : 'Batch Product',
+                    'quantity' => $batch->quantity,
+                    'unit_price' => $product ? ($product->unit_price ?? 0) : 0,
+                    'unit' => 'unit',
+                    'item_type' => 'finished_good',
+                    'reorder_level' => 0,
+                    'location' => 'bakery',
+                    'product_id' => $batch->product_id,
+                ]);
+            }
+        }
         return redirect()->route('bakery.batches.index')->with('success', 'Production batch updated successfully.');
     }
 
