@@ -24,31 +24,33 @@
         <span class="text-sm text-gray-500">(Pending & Processing)</span>
     </div>
     <div class="p-6">
-        @if(isset($orders) && $orders->count())
+        @if(isset($retailerOrders) && $retailerOrders->count())
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 text-sm">
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-4 py-2 text-left font-semibold">Order ID</th>
-                        <th class="px-4 py-2 text-left font-semibold">Customer</th>
+                        <th class="px-4 py-2 text-left font-semibold">Retailer</th>
                         <th class="px-4 py-2 text-left font-semibold">Status</th>
                         <th class="px-4 py-2 text-left font-semibold">Placed At</th>
-                        <th class="px-4 py-2 text-left font-semibold">Fulfillment</th>
-                        <th class="px-4 py-2 text-left font-semibold">Delivery</th>
-                        <th class="px-4 py-2 text-left font-semibold">Tracking #</th>
+                        <th class="px-4 py-2 text-left font-semibold">Product(s)</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($orders as $order)
-                    <tr class="border-b">
-                        <td class="px-4 py-2">{{ $order->id }}</td>
-                        <td class="px-4 py-2">{{ $order->customer_name }}</td>
-                        <td class="px-4 py-2 capitalize">{{ $order->status }}</td>
-                        <td class="px-4 py-2">{{ $order->placed_at ? $order->placed_at->format('M d, Y H:i') : '-' }}</td>
-                        <td class="px-4 py-2">{{ $order->fulfillment_type ?? '-' }}</td>
-                        <td class="px-4 py-2">{{ $order->delivery_option ?? '-' }}</td>
-                        <td class="px-4 py-2">{{ $order->tracking_number ?? '-' }}</td>
-                    </tr>
+                    @foreach($retailerOrders as $order)
+                        <tr class="border-b">
+                            <td class="px-4 py-2">{{ $order->id }}</td>
+                            <td class="px-4 py-2">{{ $order->user->name ?? 'N/A' }}</td>
+                            <td class="px-4 py-2 capitalize">{{ $order->status }}</td>
+                            <td class="px-4 py-2">{{ $order->placed_at ? $order->placed_at->format('M d, Y H:i') : '-' }}</td>
+                            <td class="px-4 py-2">
+                                @foreach($order->items as $item)
+                                    @if($item->product && $item->product->type === 'finished_product')
+                                        {{ $item->product->name ?? 'N/A' }} ({{ $item->quantity }})<br>
+                                    @endif
+                                @endforeach
+                            </td>
+                        </tr>
                     @endforeach
                 </tbody>
             </table>
@@ -137,42 +139,37 @@
                             </tr>
                         </thead>
                         <tbody id="retailerOrdersTbody" class="bg-white divide-y divide-gray-100">
-                            @php $found = false; @endphp
-                            @foreach($retailerOrders as $order)
-                                @if($order->user && $order->user->role === 'retail_manager')
-                                    @foreach($order->items as $item)
-                                        @if($item->product && $item->product->type === 'finished_product')
-                                            @php $found = true; @endphp
-                        <tr>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $order->user->name }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $item->product->name }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $item->quantity }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <select class="order-status-dropdown border rounded px-2 py-1" data-order-id="{{ $order->id }}">
-                                    @foreach(['pending', 'processing', 'shipped', 'received'] as $status)
-                                        <option value="{{ $status }}" @if(strtolower($order->status) === $status) selected @endif>{{ ucfirst($status) }}</option>
-                                    @endforeach
-                                </select>
-                            </td>
-                            <td>
-                                <button 
-                                    class="mark-as-received-btn bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
-                                    data-order-id="{{ $order->id }}"
-                                    type="button"
-                                >
-                                    Mark as Received
-                                </button>
-                            </td>
-                        </tr>
-                                        @endif
-                                    @endforeach
-                                @endif
-                            @endforeach
-                            @if(!$found)
-                            <tr>
-                                    <td colspan="4" class="text-center text-gray-500 py-4">No retailer orders for finished products found.</td>
-                            </tr>
-                            @endif
+                            @forelse($retailerOrders as $order)
+                                @foreach($order->items as $item)
+                                    @if($order->user && $order->user->role === 'retail_manager' && $item->product && $item->product->type === 'finished_product')
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $order->user->name }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $item->product->name }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $item->quantity }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <select class="order-status-dropdown border rounded px-2 py-1" data-order-id="{{ $order->id }}">
+                                                    @foreach(['pending', 'processing', 'shipped', 'received'] as $status)
+                                                        <option value="{{ $status }}" @if(strtolower($order->status) === $status) selected @endif>{{ ucfirst($status) }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <button 
+                                                    class="mark-as-received-btn bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
+                                                    data-order-id="{{ $order->id }}"
+                                                    type="button"
+                                                >
+                                                    Mark as Received
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center text-gray-500 py-4">No retailer orders for finished products found.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>

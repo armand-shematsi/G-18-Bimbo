@@ -121,6 +121,39 @@
     </div>
 </div>
 
+<!-- New & Assigned Orders Section -->
+<div class="bg-white rounded-xl shadow-lg p-6 mt-8">
+    <h2 class="text-xl font-bold text-blue-700 mb-4">New & Assigned Orders</h2>
+    @if(isset($orders) && $orders->count())
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+                <tr>
+                    <th class="px-4 py-2 text-left font-semibold">Order #</th>
+                    <th class="px-4 py-2 text-left font-semibold">Status</th>
+                    <th class="px-4 py-2 text-left font-semibold">Retailer</th>
+                    <th class="px-4 py-2 text-left font-semibold">Product(s)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($orders as $order)
+                    <tr>
+                        <td class="px-4 py-2">{{ $order->id }}</td>
+                        <td class="px-4 py-2">{{ $order->status }}</td>
+                        <td class="px-4 py-2">{{ $order->user->name ?? 'N/A' }}</td>
+                        <td class="px-4 py-2">
+                            @foreach($order->items as $item)
+                                {{ $item->product->name ?? 'N/A' }} ({{ $item->quantity }})<br>
+                            @endforeach
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        <div class="text-gray-500">No new or assigned orders at the moment.</div>
+    @endif
+</div>
+
 <!-- Main Content Grid -->
 <div class="flex flex-col lg:flex-row gap-8">
     <!-- Main Content (left) -->

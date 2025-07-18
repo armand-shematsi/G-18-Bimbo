@@ -24,6 +24,7 @@ class OrderProcessingController extends Controller
             ->whereHas('items.product', function($q) {
                 $q->where('type', 'finished_product');
             })
+            ->whereIn('status', ['pending', 'processing']) // Add status filter
             ->with([
                 'user',
                 'items' => function($q) {
