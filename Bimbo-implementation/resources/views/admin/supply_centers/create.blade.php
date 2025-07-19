@@ -17,6 +17,16 @@
             <input type="text" name="location" id="location" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
         </div>
         <div class="mb-4">
+            <label for="type" class="block text-sm font-medium text-gray-700">Type</label>
+            <select name="type" id="type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                <option value="production">Production Unit</option>
+                <option value="packaging">Packaging Unit</option>
+                <option value="warehouse">Warehouse</option>
+                <option value="retail">Retail Outlet</option>
+                <option value="distribution">Distribution Unit</option>
+            </select>
+        </div>
+        <div class="mb-4">
             <label for="required_role" class="block text-sm font-medium text-gray-700">Required Role</label>
             <select name="required_role" id="required_role" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                 <option value="">-- None --</option>

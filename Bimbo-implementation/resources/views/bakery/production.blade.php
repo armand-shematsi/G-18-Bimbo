@@ -165,8 +165,8 @@
     </div>
     <div class="p-6">
         <div class="flow-root">
-            <ul class="-mb-8 activity-timeline">
-                <li class="relative pb-8 text-gray-400">Loading...</li>
+            <ul id="production-activity-list" class="-mb-8 activity-timeline min-h-[60px]">
+                <li class="text-gray-400">Loading...</li>
             </ul>
         </div>
     </div>
@@ -187,6 +187,18 @@
                 document.querySelector('.downtime-today').textContent = data.downtime ?? '0';
             });
     }
+    // Helper: Convert UTC/ISO string to Africa/Nairobi time and format
+    function toNairobiString(dt) {
+        if (!dt) return '-';
+        const d = new Date(dt);
+        // Africa/Nairobi is UTC+3, no DST
+        const nairobiOffset = 3 * 60; // minutes
+        // Get UTC time, add offset
+        const local = new Date(d.getTime() + (nairobiOffset - d.getTimezoneOffset()) * 60000);
+        return local.toLocaleString('en-KE', {
+            month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true
+        });
+    }
     // --- Live Recent Batches Table ---
     function fetchRecentBatchesLive() {
         fetch('/api/production-live')
@@ -198,17 +210,6 @@
                     tbody.innerHTML = `<tr><td colspan='6' class='text-center text-gray-400 py-8'>No recent batches</td></tr>`;
                 } else {
                     data.batches.forEach(batch => {
-                        function fmt(dt) {
-                            if (!dt) return '-';
-                            const d = new Date(dt);
-                            if (isNaN(d)) return dt;
-                            return d.toLocaleString('en-US', {
-                                month: '2-digit',
-                                day: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            });
-                        }
                         let badgeClass = 'bg-gray-200 text-gray-800';
                         if (batch.status === 'active' || batch.status === 'Active') badgeClass = 'bg-blue-200 text-blue-800';
                         if (batch.status === 'completed' || batch.status === 'Completed') badgeClass = 'bg-green-200 text-green-800';
@@ -216,9 +217,9 @@
                         tbody.innerHTML += `<tr>
                         <td>${batch.name}</td>
                         <td><span class='px-2 py-1 rounded ${badgeClass}'>${batch.status}</span></td>
-                        <td>${fmt(batch.scheduled_start)}</td>
-                        <td>${fmt(batch.actual_start)}</td>
-                        <td>${fmt(batch.actual_end)}</td>
+                        <td>${toNairobiString(batch.scheduled_start)}</td>
+                        <td>${toNairobiString(batch.actual_start)}</td>
+                        <td>${toNairobiString(batch.actual_end)}</td>
                         <td title='${batch.notes ?? ''}'>${batch.notes ? batch.notes.substring(0, 30) + (batch.notes.length > 30 ? '...' : '') : '-'}</td>
                     </tr>`;
                     });
@@ -344,5 +345,43 @@
     // setInterval(fetchProductionStatsLive, 60000); // polling disabled
     // setInterval(fetchRecentBatchesLive, 60000); // polling disabled
     // setInterval(fetchProductionActivityLive, 60000); // polling disabled
+
+    function fetchProductionActivity() {
+        fetch('/bakery/api/production-batches')
+            .then(res => res.json())
+            .then(batches => {
+                const list = document.getElementById('production-activity-list');
+                if (!batches.length) {
+                    list.innerHTML = '<li class="text-gray-400">No production activity today.</li>';
+                    return;
+                }
+                list.innerHTML = batches.map(batch => {
+                    let statusColor = {
+                        'planned': 'bg-gray-200 text-gray-700',
+                        'active': 'bg-blue-200 text-blue-800',
+                        'completed': 'bg-green-200 text-green-800',
+                        'cancelled': 'bg-red-200 text-red-800'
+                    }[batch.status] || 'bg-gray-100 text-gray-700';
+                    let timeInfo = '';
+                    if (batch.actual_start) timeInfo += `Started: <span class=\"font-medium\">${toNairobiString(batch.actual_start)}</span> `;
+                    if (batch.actual_end) timeInfo += `| Completed: <span class=\"font-medium\">${toNairobiString(batch.actual_end)}</span>`;
+                    return `<li class='relative pb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between'>
+                        <div>
+                            <span class='font-bold'>${batch.name}</span>
+                            <span class='ml-2 text-sm text-gray-500'>(${batch.product ? batch.product.name : ''})</span>
+                        </div>
+                        <div class='flex items-center gap-3 mt-1 sm:mt-0'>
+                            <span class='px-2 py-1 rounded ${statusColor} text-xs font-semibold capitalize'>${batch.status}</span>
+                            <span class='text-xs text-gray-500'>${timeInfo}</span>
+                        </div>
+                    </li>`;
+                }).join('');
+            })
+            .catch(() => {
+                document.getElementById('production-activity-list').innerHTML = '<li class="text-red-400">Failed to load activity.</li>';
+            });
+    }
+    fetchProductionActivity();
+    setInterval(fetchProductionActivity, 10000);
 </script>
 @endpush

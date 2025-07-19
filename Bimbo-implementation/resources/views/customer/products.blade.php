@@ -7,5 +7,5 @@
 @endsection
 
 @section('content')
-    @include('components.product-gallery', ['products' => $products])
+
 @endsection

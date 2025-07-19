@@ -130,7 +130,7 @@
 
     async function fetchStaff() {
         try {
-            const res = await fetch(staffApi);
+            const res = await fetch('http://127.0.0.1:8000/api/staff');
             if (!res.ok) throw new Error('Failed to fetch staff');
             staff = await res.json();
             renderStaff();
@@ -141,7 +141,7 @@
     }
     async function fetchCenters() {
         try {
-            const res = await fetch(centersApi);
+            const res = await fetch('http://127.0.0.1:8000/api/supply-centers');
             if (!res.ok) throw new Error('Failed to fetch centers');
             centers = await res.json();
             renderCenters();
@@ -152,7 +152,7 @@
     }
     async function fetchAssignments() {
         try {
-            const res = await fetch(assignmentsApi);
+            const res = await fetch('http://127.0.0.1:8000/api/assignments');
             if (!res.ok) throw new Error('Failed to fetch assignments');
             assignments = await res.json();
             renderAssignments();
@@ -221,22 +221,43 @@
         const s = staff.find(x => x.id === id);
         if (!s) return;
         try {
-            const res = await fetch(`${staffApi}/${id}`, {
+            // Use the new status update endpoint
+            const res = await fetch(`http://127.0.0.1:8000/api/staff/${id}/status`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
                 },
                 body: JSON.stringify({
-                    name: s.name,
-                    role: s.role,
                     status: value
                 })
             });
             if (!res.ok) throw new Error('Failed to update staff status');
+
+            // Refresh the staff list
             fetchStaff();
+
+            // Trigger dashboard update
+            triggerDashboardUpdate();
+
         } catch (e) {
             alert('Error updating staff status: ' + e.message);
             console.error(e);
+        }
+    }
+
+    // Function to trigger dashboard updates
+    function triggerDashboardUpdate() {
+        // Try to call the dashboard update function if it exists
+        if (window.parent && window.parent.fetchStaffOnDutyFromStaffTable) {
+            window.parent.fetchStaffOnDutyFromStaffTable();
+        } else if (typeof fetchStaffOnDutyFromStaffTable === 'function') {
+            fetchStaffOnDutyFromStaffTable();
+        }
+
+        // Also try to update any other dashboard elements
+        if (window.parent && window.parent.updateBakeryStats) {
+            window.parent.updateBakeryStats();
         }
     }
     async function addStaff() {
@@ -245,7 +266,7 @@
         const role = prompt('Role?');
         if (!role) return;
         try {
-            const res = await fetch(staffApi, {
+            const res = await fetch('http://127.0.0.1:8000/api/staff', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -271,7 +292,7 @@
         const role = prompt('Edit role:', s.role);
         if (!role) return;
         try {
-            const res = await fetch(`${staffApi}/${id}`, {
+            const res = await fetch(`http://127.0.0.1:8000/api/staff/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -292,7 +313,7 @@
     async function deleteStaff(id) {
         if (confirm('Delete this staff member?')) {
             try {
-                const res = await fetch(`${staffApi}/${id}`, {
+                const res = await fetch(`http://127.0.0.1:8000/api/staff/${id}`, {
                     method: 'DELETE'
                 });
                 if (!res.ok) throw new Error('Failed to delete staff');
@@ -309,7 +330,7 @@
         const required_role = prompt('Role needed?');
         if (!required_role) return;
         try {
-            const res = await fetch(centersApi, {
+            const res = await fetch('http://127.0.0.1:8000/api/supply-centers', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -330,7 +351,7 @@
         const c = centers.find(x => x.id === id);
         if (!c) return;
         try {
-            const res = await fetch(`${centersApi}/${id}`, {
+            const res = await fetch(`http://127.0.0.1:8000/api/supply-centers/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -359,7 +380,7 @@
         shift_time = prompt('Edit shift time (8:00AM-17:00PM or 6:00PM-6:00AM):', shift_time);
         if (!["8:00AM-17:00PM", "6:00PM-6:00AM"].includes(shift_time)) shift_time = '8:00AM-17:00PM';
         try {
-            const res = await fetch(`${centersApi}/${id}`, {
+            const res = await fetch(`http://127.0.0.1:8000/api/supply-centers/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -380,7 +401,7 @@
     async function deleteCenter(id) {
         if (confirm('Delete this center?')) {
             try {
-                const res = await fetch(`${centersApi}/${id}`, {
+                const res = await fetch(`http://127.0.0.1:8000/api/supply-centers/${id}`, {
                     method: 'DELETE'
                 });
                 if (!res.ok) throw new Error('Failed to delete center');
@@ -398,10 +419,10 @@
         if (btn) btn.disabled = true;
         try {
             // Delete all assignments
-            const current = await fetch(assignmentsApi);
+            const current = await fetch('http://127.0.0.1:8000/api/assignments');
             if (!current.ok) throw new Error('Failed to fetch assignments');
             const allAssignments = await current.json();
-            await Promise.all(allAssignments.map(a => fetch(`${assignmentsApi}/${a.id}`, {
+            await Promise.all(allAssignments.map(a => fetch(`http://127.0.0.1:8000/api/assignments/${a.id}`, {
                 method: 'DELETE'
             })));
             // Assign up to required_staff_count present staff with the same role to each center
@@ -415,7 +436,7 @@
                 // Assign up to requiredCount staff
                 for (let i = 0; i < requiredCount; i++) {
                     if (availableStaff[i]) {
-                        const res = await fetch(assignmentsApi, {
+                        const res = await fetch('http://127.0.0.1:8000/api/assignments', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -433,7 +454,7 @@
                         }
                     } else {
                         // Not enough staff, create unfilled slot
-                        const res = await fetch(assignmentsApi, {
+                        const res = await fetch('http://127.0.0.1:8000/api/assignments', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -473,7 +494,7 @@
         const c = centers.find(x => x.id === centerId);
         if (!c) return;
         try {
-            const res = await fetch(`${centersApi}/${centerId}`, {
+            const res = await fetch(`http://127.0.0.1:8000/api/supply-centers/${centerId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -518,7 +539,7 @@
         document.getElementById('assignment-date-label').textContent = date;
         const content = document.getElementById('assignmentDetailsContent');
         content.innerHTML = '<p class="text-gray-500 text-center">Loading...</p>';
-        fetch(`/api/assignments?date=${date}`)
+        fetch(`http://127.0.0.1:8000/api/assignments?date=${date}`)
             .then(res => res.json())
             .then(data => {
                 if (!data.length) {

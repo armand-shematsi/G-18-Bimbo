@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ProductionBatch;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class ProductionBatchController extends Controller
 {
@@ -66,6 +67,14 @@ class ProductionBatchController extends Controller
             'production_line_id' => 'nullable|string|max:10',
             'product_id' => 'required|exists:products,id',
         ]);
+        // Convert UTC datetimes to Africa/Nairobi timezone
+        $validated['scheduled_start'] = Carbon::parse($validated['scheduled_start'])->setTimezone('Africa/Nairobi');
+        if (!empty($validated['actual_start'])) {
+            $validated['actual_start'] = Carbon::parse($validated['actual_start'])->setTimezone('Africa/Nairobi');
+        }
+        if (!empty($validated['actual_end'])) {
+            $validated['actual_end'] = Carbon::parse($validated['actual_end'])->setTimezone('Africa/Nairobi');
+        }
         $batch = ProductionBatch::create($validated);
         // Inventory adjustment if completed
         if ($batch->status === 'completed') {
@@ -146,6 +155,14 @@ class ProductionBatchController extends Controller
             'production_line_id' => 'nullable|string|max:10',
             'product_id' => 'required|exists:products,id',
         ]);
+        // Convert UTC datetimes to Africa/Nairobi timezone
+        $validated['scheduled_start'] = Carbon::parse($validated['scheduled_start'])->setTimezone('Africa/Nairobi');
+        if (!empty($validated['actual_start'])) {
+            $validated['actual_start'] = Carbon::parse($validated['actual_start'])->setTimezone('Africa/Nairobi');
+        }
+        if (!empty($validated['actual_end'])) {
+            $validated['actual_end'] = Carbon::parse($validated['actual_end'])->setTimezone('Africa/Nairobi');
+        }
         $wasCompleted = $batch->status === 'completed';
         $batch->update($validated);
         // Inventory adjustment if status changed to completed
@@ -217,6 +234,14 @@ class ProductionBatchController extends Controller
             'actual_end' => 'nullable|date',
             'notes' => 'nullable|string',
         ]);
+        // Convert UTC datetimes to Africa/Nairobi timezone
+        $validated['scheduled_start'] = Carbon::parse($validated['scheduled_start'])->setTimezone('Africa/Nairobi');
+        if (!empty($validated['actual_start'])) {
+            $validated['actual_start'] = Carbon::parse($validated['actual_start'])->setTimezone('Africa/Nairobi');
+        }
+        if (!empty($validated['actual_end'])) {
+            $validated['actual_end'] = Carbon::parse($validated['actual_end'])->setTimezone('Africa/Nairobi');
+        }
         $batch = ProductionBatch::create($validated);
         return response()->json(['success' => true, 'batch' => $batch]);
     }
@@ -234,6 +259,14 @@ class ProductionBatchController extends Controller
             'actual_end' => 'nullable|date',
             'notes' => 'nullable|string',
         ]);
+        // Convert UTC datetimes to Africa/Nairobi timezone
+        $validated['scheduled_start'] = Carbon::parse($validated['scheduled_start'])->setTimezone('Africa/Nairobi');
+        if (!empty($validated['actual_start'])) {
+            $validated['actual_start'] = Carbon::parse($validated['actual_start'])->setTimezone('Africa/Nairobi');
+        }
+        if (!empty($validated['actual_end'])) {
+            $validated['actual_end'] = Carbon::parse($validated['actual_end'])->setTimezone('Africa/Nairobi');
+        }
         $batch->update($validated);
         return response()->json(['success' => true, 'batch' => $batch]);
     }
