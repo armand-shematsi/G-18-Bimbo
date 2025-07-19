@@ -169,9 +169,8 @@ class InventoryController extends Controller
     {
         $userId = auth()->id();
         $inventory = \App\Models\Inventory::where('user_id', $userId)->get();
-        // Calculate overstock threshold based on average reorder level
         $avgReorderLevel = $inventory->avg('reorder_level') ?: 50;
-        $overstockThreshold = $avgReorderLevel * 3; // 3x the average reorder level
+        $overstockThreshold = $avgReorderLevel * 3;
 
         $stats = [
             'total' => $inventory->count(),

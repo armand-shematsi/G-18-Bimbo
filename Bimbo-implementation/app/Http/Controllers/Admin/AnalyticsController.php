@@ -814,4 +814,113 @@ class AnalyticsController extends Controller
 
         return view('admin.analytics.prediction_graph', compact('product', 'startDate', 'days', 'predictions', 'error', 'products'));
     }
+
+    public function adminInventoryAnalytics()
+    {
+        $inventory = \App\Models\Inventory::all();
+        $avgReorderLevel = $inventory->avg('reorder_level') ?: 50;
+        $overstockThreshold = $avgReorderLevel * 3;
+
+        $stats = [
+            'total' => $inventory->count(),
+            'available' => $inventory->where('status', 'available')->count(),
+            'low_stock' => $inventory->where('status', 'low_stock')->count(),
+            'out_of_stock' => $inventory->where('status', 'out_of_stock')->count(),
+            'over_stock' => $inventory->where('quantity', '>', $overstockThreshold)->count(),
+        ];
+
+        // Fetch historical sales data (last 30 days, grouped by product and date)
+        $salesHistory = \App\Models\OrderItem::select('product_name', 'quantity', 'created_at')
+            ->where('created_at', '>=', now()->subDays(30))
+            ->get()
+            ->groupBy('product_name');
+        $salesHistoryChartData = [];
+        foreach ($salesHistory as $product => $items) {
+            $daily = collect($items)->groupBy(function($item) {
+                return \Carbon\Carbon::parse($item->created_at)->toDateString();
+            })->map(function($group) {
+                return $group->sum('quantity');
+            });
+            $salesHistoryChartData[$product] = $daily;
+        }
+
+        // Prepare sales data for 7-day forecast
+        $salesData = \App\Models\OrderItem::select('product_name', 'quantity', 'created_at')
+            ->where('created_at', '>=', now()->subMonths(6))
+            ->get()
+            ->map(function($item) {
+                return [
+                    'product_name' => strtolower($item->product_name),
+                    'quantity' => $item->quantity,
+                    'date' => $item->created_at->toDateString(),
+                ];
+            })->toArray();
+
+        $forecastResponse = [];
+        try {
+            $response = \Illuminate\Support\Facades\Http::post('http://127.0.0.1:5000/predict', [
+                'sales' => $salesData,
+                'forecast_days' => 7
+            ]);
+            if ($response->successful()) {
+                $forecastResponse = $response->json('forecast') ?? [];
+            }
+        } catch (\Exception $e) {
+            $forecastResponse = [];
+        }
+        $salesForecastChartData = $forecastResponse; // Should be an array: product => [ {date, predicted}, ... ]
+
+        // ML predictions for next day (as before)
+        $predictions = [];
+        try {
+            $response = \Illuminate\Support\Facades\Http::post('http://127.0.0.1:5000/predict', [
+                'sales' => $salesData
+            ]);
+            if ($response->successful()) {
+                $predictions = $response->json('predictions');
+            }
+        } catch (\Exception $e) {
+            $predictions = [];
+        }
+
+        $totalInventoryValue = $inventory->sum(function($item) {
+            $quantity = $item->quantity ?? 0;
+            $unitPrice = $item->unit_price ?? 0;
+            return $quantity * $unitPrice;
+        });
+        $totalReorderValue = $inventory->sum(function($item) {
+            return $item->reorder_level * $item->unit_price;
+        });
+        $efficientStock = $inventory->filter(function($item) {
+            return $item->quantity > $item->reorder_level && $item->quantity <= ($item->reorder_level * 2);
+        })->count();
+        $stockLevelChartData = $inventory->map(function($item) {
+            return [
+                'item_name' => $item->item_name,
+                'quantity' => $item->quantity,
+            ];
+        });
+        $lowStockItems = $inventory->filter(function($item) {
+            return $item->quantity <= $item->reorder_level && $item->quantity > 0;
+        });
+
+        return view('admin.analytics.index', [
+            'adminInventoryStats' => $stats,
+            'adminInventoryPredictions' => $predictions,
+            'adminTotalInventoryValue' => $totalInventoryValue,
+            'adminTotalReorderValue' => $totalReorderValue,
+            'adminEfficientStock' => $efficientStock,
+            'adminStockLevelChartData' => $stockLevelChartData,
+            'adminLowStockItems' => $lowStockItems,
+            'adminOverstockThreshold' => $overstockThreshold,
+            'salesHistoryChartData' => $salesHistoryChartData,
+            'salesForecastChartData' => $salesForecastChartData,
+            'customerSegments' => [],
+            'segmentRecommendations' => [],
+            'breadTypeDistribution' => [],
+            'locationDistribution' => [],
+            'avgPurchaseFrequency' => [],
+            'detailedSegments' => [],
+        ]);
+    }
 }

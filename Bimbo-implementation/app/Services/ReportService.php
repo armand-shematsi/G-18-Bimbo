@@ -499,8 +499,8 @@ class ReportService
     private function calculateIngredientConsumption(Carbon $start, Carbon $end): array
     {
         return DB::table('inventory_movements')
-                ->join('inventory', 'inventory_movements.inventory_id', '=', 'inventory.id')
-                ->join('products', 'inventory.product_id', '=', 'products.id')
+                ->join('inventories', 'inventory_movements.inventory_id', '=', 'inventories.id')
+                ->join('products', 'inventories.product_id', '=', 'products.id')
                 ->whereBetween('inventory_movements.created_at', [$start, $end])
                 ->where('inventory_movements.type', 'out')
                 ->select('products.name', DB::raw('SUM(inventory_movements.quantity) as total_consumed'))

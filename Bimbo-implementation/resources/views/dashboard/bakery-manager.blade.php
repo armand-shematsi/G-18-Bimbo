@@ -321,146 +321,145 @@
             </div>
         </div>
     </div>
-</div>
 
-<!-- Assign Task Modal (unchanged) -->
-<div id="assignTaskModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-        <h3 class="text-lg font-semibold mb-4">Assign Task</h3>
-        <form id="assignTaskForm">
-            <div class="mb-2">
-                <label class="block text-sm font-medium">Title</label>
-                <input type="text" name="title" class="w-full border rounded px-3 py-2" required>
-            </div>
-            <div class="mb-2">
-                <label class="block text-sm font-medium">Description</label>
-                <textarea name="description" class="w-full border rounded px-3 py-2"></textarea>
-            </div>
-            <div class="mb-2">
-                <label class="block text-sm font-medium">Worker</label>
-                <select name="user_id" class="w-full border rounded px-3 py-2" required></select>
-            </div>
-            <div class="mb-4">
-                <label class="block text-sm font-medium">Shift</label>
-                <select name="shift_id" class="w-full border rounded px-3 py-2"></select>
-            </div>
-            <div class="flex justify-end">
-                <button type="button" onclick="closeAssignTaskModal()" class="mr-2 px-4 py-2 rounded bg-gray-300">Cancel</button>
-                <button type="submit" class="px-4 py-2 rounded bg-blue-500 text-white">Assign</button>
-            </div>
-        </form>
-    </div>
-</div>
-<!-- Workforce Distribution Modal -->
-<div id="distributionModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl relative">
-        <button onclick="closeDistributionModal()" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700">&times;</button>
-        <h3 class="text-lg font-semibold mb-4">Workforce Distribution (Live)</h3>
-        <div id="distributionContent">
-            <p class="text-gray-500 text-center">Loading...</p>
+    <!-- Assign Task Modal (unchanged) -->
+    <div id="assignTaskModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h3 class="text-lg font-semibold mb-4">Assign Task</h3>
+            <form id="assignTaskForm">
+                <div class="mb-2">
+                    <label class="block text-sm font-medium">Title</label>
+                    <input type="text" name="title" class="w-full border rounded px-3 py-2" required>
+                </div>
+                <div class="mb-2">
+                    <label class="block text-sm font-medium">Description</label>
+                    <textarea name="description" class="w-full border rounded px-3 py-2"></textarea>
+                </div>
+                <div class="mb-2">
+                    <label class="block text-sm font-medium">Worker</label>
+                    <select name="user_id" class="w-full border rounded px-3 py-2" required></select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium">Shift</label>
+                    <select name="shift_id" class="w-full border rounded px-3 py-2"></select>
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" onclick="closeAssignTaskModal()" class="mr-2 px-4 py-2 rounded bg-gray-300">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded bg-blue-500 text-white">Assign</button>
+                </div>
+            </form>
         </div>
     </div>
-</div>
-@endsection
+    <!-- Workforce Distribution Modal -->
+    <div id="distributionModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl relative">
+            <button onclick="closeDistributionModal()" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700">&times;</button>
+            <h3 class="text-lg font-semibold mb-4">Workforce Distribution (Live)</h3>
+            <div id="distributionContent">
+                <p class="text-gray-500 text-center">Loading...</p>
+            </div>
+        </div>
+    </div>
+    @endsection
 
-<script>
-    console.log("Dashboard JS loaded");
+    <script>
+        console.log("Dashboard JS loaded");
 
-    // Show a status message on the dashboard for debugging
-    function showStatus(msg, isError = false) {
-        let el = document.getElementById('dashboard-status-msg');
-        if (!el) {
-            el = document.createElement('div');
-            el.id = 'dashboard-status-msg';
-            el.style.position = 'fixed';
-            el.style.bottom = '10px';
-            el.style.right = '10px';
-            el.style.background = isError ? '#ffdddd' : '#ddffdd';
-            el.style.color = isError ? '#a00' : '#070';
-            el.style.padding = '10px 20px';
-            el.style.border = '1px solid #aaa';
-            el.style.zIndex = 9999;
-            document.body.appendChild(el);
+        // Show a status message on the dashboard for debugging
+        function showStatus(msg, isError = false) {
+            let el = document.getElementById('dashboard-status-msg');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'dashboard-status-msg';
+                el.style.position = 'fixed';
+                el.style.bottom = '10px';
+                el.style.right = '10px';
+                el.style.background = isError ? '#ffdddd' : '#ddffdd';
+                el.style.color = isError ? '#a00' : '#070';
+                el.style.padding = '10px 20px';
+                el.style.border = '1px solid #aaa';
+                el.style.zIndex = 9999;
+                document.body.appendChild(el);
+            }
+            el.textContent = msg;
         }
-        el.textContent = msg;
-    }
 
-    // --- Live Workforce ---
-    function fetchWorkforceLive() {
-        fetch("{{ route('bakery.bakery.workforce-live') }}")
-            .then(res => res.json())
-            .then(data => {
-                const staffList = document.querySelector('.workforce-staff-list');
-                staffList.innerHTML = '';
-                data.staff.forEach(staff => {
-                    staffList.innerHTML += `<li>${staff.name} (${staff.role})</li>`;
-                });
-                const assignList = document.querySelector('.workforce-assign-list');
-                assignList.innerHTML = '';
-                data.assignments.forEach(a => {
-                    assignList.innerHTML += `<li>${a.staff} assigned to ${a.batch}.</li>`;
-                });
-            });
-    }
-    // --- Live Ingredients ---
-    function fetchIngredientsLive() {
-        fetch("{{ route('bakery.bakery.ingredients-live') }}")
-            .then(res => res.json())
-            .then(data => {
-                const ingList = document.querySelector('.ingredient-list');
-                ingList.innerHTML = '';
-                data.ingredients.forEach(i => {
-                    let alert = i.alert ? ` <span class='text-red-600'>(${i.alert})</span>` : '';
-                    ingList.innerHTML += `<li>${i.name}: ${i.stock}kg${alert}</li>`;
-                });
-            });
-    }
-    // --- Live Notifications ---
-    function fetchNotificationsLive() {
-        fetch("{{ route('bakery.bakery.notifications-live') }}")
-            .then(res => res.json())
-            .then(data => {
-                const notifLists = document.querySelectorAll('.notification-list');
-                notifLists.forEach(list => {
-                    list.innerHTML = '';
-                    data.notifications.forEach(n => {
-                        list.innerHTML += `<li>${n}</li>`;
+        // --- Live Workforce ---
+        function fetchWorkforceLive() {
+            fetch("{{ route('bakery.bakery.workforce-live') }}")
+                .then(res => res.json())
+                .then(data => {
+                    const staffList = document.querySelector('.workforce-staff-list');
+                    staffList.innerHTML = '';
+                    data.staff.forEach(staff => {
+                        staffList.innerHTML += `<li>${staff.name} (${staff.role})</li>`;
+                    });
+                    const assignList = document.querySelector('.workforce-assign-list');
+                    assignList.innerHTML = '';
+                    data.assignments.forEach(a => {
+                        assignList.innerHTML += `<li>${a.staff} assigned to ${a.batch}.</li>`;
                     });
                 });
-            });
-    }
-    // --- Live Chat ---
-    function fetchChatLive() {
-        fetch("{{ route('bakery.bakery.chat-live') }}")
-            .then(res => res.json())
-            .then(data => {
-                const chatBox = document.querySelector('.chat-messages');
-                chatBox.innerHTML = '';
-                data.messages.forEach(m => {
-                    chatBox.innerHTML += `<div><span class='font-bold'>${m.user}:</span> ${m.message}</div>`;
+        }
+        // --- Live Ingredients ---
+        function fetchIngredientsLive() {
+            fetch("{{ route('bakery.bakery.ingredients-live') }}")
+                .then(res => res.json())
+                .then(data => {
+                    const ingList = document.querySelector('.ingredient-list');
+                    ingList.innerHTML = '';
+                    data.ingredients.forEach(i => {
+                        let alert = i.alert ? ` <span class='text-red-600'>(${i.alert})</span>` : '';
+                        ingList.innerHTML += `<li>${i.name}: ${i.stock}kg${alert}</li>`;
+                    });
                 });
-            });
-    }
-    // Initial fetch and polling
-    function fetchAllLive() {
-        fetchWorkforceLive();
-        fetchIngredientsLive();
-        fetchNotificationsLive();
-        fetchChatLive();
-        fetchStaffOnDuty();
-    }
-    fetchAllLive();
-    setInterval(fetchAllLive, 15000);
+        }
+        // --- Live Notifications ---
+        function fetchNotificationsLive() {
+            fetch("{{ route('bakery.bakery.notifications-live') }}")
+                .then(res => res.json())
+                .then(data => {
+                    const notifLists = document.querySelectorAll('.notification-list');
+                    notifLists.forEach(list => {
+                        list.innerHTML = '';
+                        data.notifications.forEach(n => {
+                            list.innerHTML += `<li>${n}</li>`;
+                        });
+                    });
+                });
+        }
+        // --- Live Chat ---
+        function fetchChatLive() {
+            fetch("{{ route('bakery.bakery.chat-live') }}")
+                .then(res => res.json())
+                .then(data => {
+                    const chatBox = document.querySelector('.chat-messages');
+                    chatBox.innerHTML = '';
+                    data.messages.forEach(m => {
+                        chatBox.innerHTML += `<div><span class='font-bold'>${m.user}:</span> ${m.message}</div>`;
+                    });
+                });
+        }
+        // Initial fetch and polling
+        function fetchAllLive() {
+            fetchWorkforceLive();
+            fetchIngredientsLive();
+            fetchNotificationsLive();
+            fetchChatLive();
+            fetchStaffOnDuty();
+        }
+        fetchAllLive();
+        setInterval(fetchAllLive, 15000);
 
-    // --- Workforce Management AJAX ---
-    function fetchTasks() {
-        fetch("{{ route('bakery.workforce.tasks') }}")
-            .then(res => res.json())
-            .then(data => {
-                const tbody = document.querySelector('.task-list-tbody');
-                tbody.innerHTML = '';
-                data.forEach(task => {
-                    tbody.innerHTML += `<tr>
+        // --- Workforce Management AJAX ---
+        function fetchTasks() {
+            fetch("{{ route('bakery.workforce.tasks') }}")
+                .then(res => res.json())
+                .then(data => {
+                    const tbody = document.querySelector('.task-list-tbody');
+                    tbody.innerHTML = '';
+                    data.forEach(task => {
+                        tbody.innerHTML += `<tr>
                 <td class='px-4 py-3'>${task.title}</td>
                 <td class='px-4 py-3'>${task.user ? task.user.name : ''}</td>
                 <td class='px-4 py-3'>${task.shift ? task.shift.name : ''}</td>
@@ -474,215 +473,215 @@
                     </select>
                 </td>
             </tr>`;
+                    });
                 });
-            });
-    }
+        }
 
-    function openAssignTaskModal() {
-        document.getElementById('assignTaskModal').classList.remove('hidden');
-        const userSelect = document.querySelector('#assignTaskForm select[name=user_id]');
-        const shiftSelect = document.querySelector('#assignTaskForm select[name=shift_id]');
-        userSelect.innerHTML = '<option>Loading...</option>';
-        shiftSelect.innerHTML = '<option>Loading...</option>';
-        // Fetch only available workers (not absent/on leave)
-        fetch('/api/staff-availability?week=' + new Date().toISOString().slice(0, 10))
-            .then(res => res.json())
-            .then(data => {
-                // Only show workers present or unknown today
-                const today = new Date().toISOString().slice(0, 10);
-                const available = data.availability.filter(u => u.availability[today] === 'present' || u.availability[today] === 'unknown');
-                if (available.length === 0) {
-                    userSelect.innerHTML = '<option disabled>No available staff</option>';
-                    document.querySelector('#assignTaskForm button[type=submit]').disabled = true;
-                } else {
-                    userSelect.innerHTML = available.map(u => `<option value="${u.id}">${u.name} (${u.role})</option>`).join('');
-                    document.querySelector('#assignTaskForm button[type=submit]').disabled = false;
-                }
-            });
-        fetch("/api/shifts")
-            .then(res => res.json())
-            .then(shifts => {
-                shiftSelect.innerHTML = '<option value="">--None--</option>' + shifts.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
-            });
-    }
-
-    function closeAssignTaskModal() {
-        document.getElementById('assignTaskModal').classList.add('hidden');
-    }
-    document.getElementById('assignTaskForm').onsubmit = function(e) {
-        e.preventDefault();
-        const form = e.target;
-        const data = Object.fromEntries(new FormData(form));
-        const submitBtn = form.querySelector('button[type=submit]');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Assigning...';
-        fetch("{{ route('bakery.workforce.assign-task') }}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify(data)
-        }).then(res => res.json()).then(() => {
-            closeAssignTaskModal();
-            fetchTasks();
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Assign';
-        }).catch(() => {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Assign';
-            alert('Failed to assign task.');
-        });
-    };
-
-    function updateTaskStatus(taskId, status) {
-        fetch(`{{ url('bakery/workforce/update-task') }}/${taskId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({
-                status
-            })
-        }).then(res => res.json()).then(() => fetchTasks());
-    }
-
-    function autoReassignTasks() {
-        const btn = document.querySelector('button[onclick="autoReassignTasks()"]');
-        btn.disabled = true;
-        btn.textContent = 'Reassigning...';
-        fetch("{{ route('bakery.workforce.auto-reassign') }}", {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            }
-        }).then(res => res.json()).then(() => {
-            fetchTasks();
-            btn.disabled = false;
-            btn.textContent = 'Auto-Reassign Absent';
-        }).catch(() => {
-            btn.disabled = false;
-            btn.textContent = 'Auto-Reassign Absent';
-            alert('Failed to auto-reassign.');
-        });
-    }
-
-    function fetchStaffOnDuty() {
-        fetch('/api/staff-on-duty')
-            .then(res => res.json())
-            .then(data => {
-                const staffList = document.querySelector('.workforce-staff-list');
-                staffList.innerHTML = `<li class='font-bold mb-1'>Staff on Duty: ${data.count}</li>`;
-                data.staff.forEach(staff => {
-                    staffList.innerHTML += `<li>${staff.name} (${staff.role})</li>`;
+        function openAssignTaskModal() {
+            document.getElementById('assignTaskModal').classList.remove('hidden');
+            const userSelect = document.querySelector('#assignTaskForm select[name=user_id]');
+            const shiftSelect = document.querySelector('#assignTaskForm select[name=shift_id]');
+            userSelect.innerHTML = '<option>Loading...</option>';
+            shiftSelect.innerHTML = '<option>Loading...</option>';
+            // Fetch only available workers (not absent/on leave)
+            fetch('/api/staff-availability?week=' + new Date().toISOString().slice(0, 10))
+                .then(res => res.json())
+                .then(data => {
+                    // Only show workers present or unknown today
+                    const today = new Date().toISOString().slice(0, 10);
+                    const available = data.availability.filter(u => u.availability[today] === 'present' || u.availability[today] === 'unknown');
+                    if (available.length === 0) {
+                        userSelect.innerHTML = '<option disabled>No available staff</option>';
+                        document.querySelector('#assignTaskForm button[type=submit]').disabled = true;
+                    } else {
+                        userSelect.innerHTML = available.map(u => `<option value="${u.id}">${u.name} (${u.role})</option>`).join('');
+                        document.querySelector('#assignTaskForm button[type=submit]').disabled = false;
+                    }
                 });
-            });
-    }
-    // Initial fetch
-    fetchTasks();
-    fetchStaffOnDuty();
+            fetch("/api/shifts")
+                .then(res => res.json())
+                .then(shifts => {
+                    shiftSelect.innerHTML = '<option value="">--None--</option>' + shifts.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+                });
+        }
 
-    // --- Auto-Assign Staff Button Logic ---
-    document.getElementById('autoAssignBtn').onclick = function() {
-        const btn = this;
-        btn.disabled = true;
-        btn.textContent = 'Assigning...';
-        fetch("{{ route('bakery.workforce.auto-assign') }}", {
+        function closeAssignTaskModal() {
+            document.getElementById('assignTaskModal').classList.add('hidden');
+        }
+        document.getElementById('assignTaskForm').onsubmit = function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const data = Object.fromEntries(new FormData(form));
+            const submitBtn = form.querySelector('button[type=submit]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Assigning...';
+            fetch("{{ route('bakery.workforce.assign-task') }}", {
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify(data)
+            }).then(res => res.json()).then(() => {
+                closeAssignTaskModal();
+                fetchTasks();
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Assign';
+            }).catch(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Assign';
+                alert('Failed to assign task.');
+            });
+        };
+
+        function updateTaskStatus(taskId, status) {
+            fetch(`{{ url('bakery/workforce/update-task') }}/${taskId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
                 body: JSON.stringify({
-                    date: new Date().toISOString().slice(0, 10)
+                    status
                 })
-            })
-            .then(res => res.json())
-            .then(data => {
-                btn.disabled = false;
-                btn.textContent = 'Auto-Assign Staff';
-                fetchStatsLive(); // <-- Instant update after auto-assign
-                // Listen for custom event for real-time updates (future-proof)
-                document.dispatchEvent(new CustomEvent('autoAssignCompleted'));
-                if (data.success) {
-                    window.location.href = '/workforce/distribution-overview';
-                } else {
-                    alert('Auto-assignment failed: ' + (data.message || 'Unknown error'));
+            }).then(res => res.json()).then(() => fetchTasks());
+        }
+
+        function autoReassignTasks() {
+            const btn = document.querySelector('button[onclick="autoReassignTasks()"]');
+            btn.disabled = true;
+            btn.textContent = 'Reassigning...';
+            fetch("{{ route('bakery.workforce.auto-reassign') }}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 }
-            })
-            .catch(() => {
+            }).then(res => res.json()).then(() => {
+                fetchTasks();
                 btn.disabled = false;
-                btn.textContent = 'Auto-Assign Staff';
-                alert('Auto-assignment failed due to network or server error.');
+                btn.textContent = 'Auto-Reassign Absent';
+            }).catch(() => {
+                btn.disabled = false;
+                btn.textContent = 'Auto-Reassign Absent';
+                alert('Failed to auto-reassign.');
             });
-    };
+        }
 
-    // Listen for custom event for real-time updates (for future WebSocket integration)
-    document.addEventListener('autoAssignCompleted', fetchStatsLive);
-    // --- Laravel Echo/Pusher real-time updates ---
-    if (window.Echo) {
-        window.Echo.channel('dashboard-stats')
-            .listen('.staff.autoAssigned', (e) => {
-                fetchStatsLive();
-            });
-    }
-    // TODO: For true real-time, integrate Laravel Echo/Pusher and trigger fetchStatsLive() on broadcast event.
+        function fetchStaffOnDuty() {
+            fetch('/api/staff-on-duty')
+                .then(res => res.json())
+                .then(data => {
+                    const staffList = document.querySelector('.workforce-staff-list');
+                    staffList.innerHTML = `<li class='font-bold mb-1'>Staff on Duty: ${data.count}</li>`;
+                    data.staff.forEach(staff => {
+                        staffList.innerHTML += `<li>${staff.name} (${staff.role})</li>`;
+                    });
+                });
+        }
+        // Initial fetch
+        fetchTasks();
+        fetchStaffOnDuty();
 
-    // --- Live Stats for Dashboard Cards ---
-    function fetchStatsLive() {
-        fetch("{{ route('bakery.bakery.stats-live') }}")
-            .then(res => res.json())
-            .then(data => {
-                document.querySelector('.live-staff-on-duty').textContent = data.staffOnDuty ?? '-';
-                document.querySelector('.live-absent-count').textContent = data.absentCount ?? '-';
-                document.querySelector('.live-shift-filled').textContent = data.shiftFilled ?? '-';
-                document.querySelector('.live-overtime-count').textContent = data.overtimeCount ?? '-';
-            });
-    }
-    fetchStatsLive();
-    setInterval(fetchStatsLive, 10000);
+        // --- Auto-Assign Staff Button Logic ---
+        document.getElementById('autoAssignBtn').onclick = function() {
+            const btn = this;
+            btn.disabled = true;
+            btn.textContent = 'Assigning...';
+            fetch("{{ route('bakery.workforce.auto-assign') }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        date: new Date().toISOString().slice(0, 10)
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    btn.disabled = false;
+                    btn.textContent = 'Auto-Assign Staff';
+                    fetchStatsLive(); // <-- Instant update after auto-assign
+                    // Listen for custom event for real-time updates (future-proof)
+                    document.dispatchEvent(new CustomEvent('autoAssignCompleted'));
+                    if (data.success) {
+                        window.location.href = '/workforce/distribution-overview';
+                    } else {
+                        alert('Auto-assignment failed: ' + (data.message || 'Unknown error'));
+                    }
+                })
+                .catch(() => {
+                    btn.disabled = false;
+                    btn.textContent = 'Auto-Assign Staff';
+                    alert('Auto-assignment failed due to network or server error.');
+                });
+        };
 
-    // --- Real-time Production Stats ---
-    function fetchProductionStatsLive() {
-        fetch('/api/production-live')
-            .then(res => res.json())
-            .then(data => {
-                document.querySelector('.production-output').textContent = data.output ?? '-';
-                document.querySelector('.production-target').textContent = data.productionTarget ?? '-';
-            });
-    }
-    fetchProductionStatsLive();
-    setInterval(fetchProductionStatsLive, 10000);
+        // Listen for custom event for real-time updates (for future WebSocket integration)
+        document.addEventListener('autoAssignCompleted', fetchStatsLive);
+        // --- Laravel Echo/Pusher real-time updates ---
+        if (window.Echo) {
+            window.Echo.channel('dashboard-stats')
+                .listen('.staff.autoAssigned', (e) => {
+                    fetchStatsLive();
+                });
+        }
+        // TODO: For true real-time, integrate Laravel Echo/Pusher and trigger fetchStatsLive() on broadcast event.
 
-    // --- Real-time Production Overview ---
-    function fetchProductionOverview() {
-        fetch('/api/production-overview')
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('today-batches').textContent = data.todayBatches ?? 0;
-                document.getElementById('completed-batches').textContent = data.completedBatches ?? 0;
-                document.getElementById('in-progress-batches').textContent = data.inProgressBatches ?? 0;
-            })
-            .catch(error => {
-                console.error('Error fetching production overview:', error);
-                // Set default values if API fails
-                document.getElementById('today-batches').textContent = '0';
-                document.getElementById('completed-batches').textContent = '0';
-                document.getElementById('in-progress-batches').textContent = '0';
-            });
-    }
-    fetchProductionOverview();
-    setInterval(fetchProductionOverview, 15000);
+        // --- Live Stats for Dashboard Cards ---
+        function fetchStatsLive() {
+            fetch("{{ route('bakery.bakery.stats-live') }}")
+                .then(res => res.json())
+                .then(data => {
+                    document.querySelector('.live-staff-on-duty').textContent = data.staffOnDuty ?? '-';
+                    document.querySelector('.live-absent-count').textContent = data.absentCount ?? '-';
+                    document.querySelector('.live-shift-filled').textContent = data.shiftFilled ?? '-';
+                    document.querySelector('.live-overtime-count').textContent = data.overtimeCount ?? '-';
+                });
+        }
+        fetchStatsLive();
+        setInterval(fetchStatsLive, 10000);
 
-    // --- Real-time Recent Activity ---
-    function fetchRecentActivity() {
-        fetch('/api/recent-activity')
-            .then(res => res.json())
-            .then(data => {
-                const activityList = document.getElementById('recent-activity-list');
-                if (activityList && data.activities) {
-                    activityList.innerHTML = data.activities.map(activity => `
+        // --- Real-time Production Stats ---
+        function fetchProductionStatsLive() {
+            fetch('/api/production-live')
+                .then(res => res.json())
+                .then(data => {
+                    document.querySelector('.production-output').textContent = data.output ?? '-';
+                    document.querySelector('.production-target').textContent = data.productionTarget ?? '-';
+                });
+        }
+        fetchProductionStatsLive();
+        setInterval(fetchProductionStatsLive, 10000);
+
+        // --- Real-time Production Overview ---
+        function fetchProductionOverview() {
+            fetch('/api/production-overview')
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('today-batches').textContent = data.todayBatches ?? 0;
+                    document.getElementById('completed-batches').textContent = data.completedBatches ?? 0;
+                    document.getElementById('in-progress-batches').textContent = data.inProgressBatches ?? 0;
+                })
+                .catch(error => {
+                    console.error('Error fetching production overview:', error);
+                    // Set default values if API fails
+                    document.getElementById('today-batches').textContent = '0';
+                    document.getElementById('completed-batches').textContent = '0';
+                    document.getElementById('in-progress-batches').textContent = '0';
+                });
+        }
+        fetchProductionOverview();
+        setInterval(fetchProductionOverview, 15000);
+
+        // --- Real-time Recent Activity ---
+        function fetchRecentActivity() {
+            fetch('/api/recent-activity')
+                .then(res => res.json())
+                .then(data => {
+                    const activityList = document.getElementById('recent-activity-list');
+                    if (activityList && data.activities) {
+                        activityList.innerHTML = data.activities.map(activity => `
                         <div class="flex items-center p-3 bg-gray-50 rounded-lg">
                             <div class="w-8 h-8 bg-${activity.color}-500 rounded-full flex items-center justify-center mr-3">
                                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -698,23 +697,23 @@
                             </span>
                         </div>
                     `).join('');
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching recent activity:', error);
-            });
-    }
-    fetchRecentActivity();
-    setInterval(fetchRecentActivity, 20000);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching recent activity:', error);
+                });
+        }
+        fetchRecentActivity();
+        setInterval(fetchRecentActivity, 20000);
 
-    // --- Real-time Alerts ---
-    function fetchAlerts() {
-        fetch('/api/alerts')
-            .then(res => res.json())
-            .then(data => {
-                const alertsContainer = document.querySelector('.alerts-container');
-                if (alertsContainer && data.alerts) {
-                    alertsContainer.innerHTML = data.alerts.map(alert => `
+        // --- Real-time Alerts ---
+        function fetchAlerts() {
+            fetch('/api/alerts')
+                .then(res => res.json())
+                .then(data => {
+                    const alertsContainer = document.querySelector('.alerts-container');
+                    if (alertsContainer && data.alerts) {
+                        alertsContainer.innerHTML = data.alerts.map(alert => `
                         <div class="flex items-start p-3 bg-${alert.bgColor}-50 rounded-lg border border-${alert.bgColor}-200">
                             <div class="w-8 h-8 bg-${alert.bgColor}-500 rounded-full flex items-center justify-center mr-3 mt-1">
                                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -727,86 +726,86 @@
                             </div>
                         </div>
                     `).join('');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching alerts:', error);
+                });
+        }
+        fetchAlerts();
+        setInterval(fetchAlerts, 30000);
+
+        // --- Responsive improvements ---
+        function handleResponsiveLayout() {
+            const isMobile = window.innerWidth < 768;
+            const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
+
+            // Adjust grid layout based on screen size
+            const mainGrid = document.querySelector('.grid.grid-cols-1.lg\\:grid-cols-3');
+            if (mainGrid) {
+                if (isMobile) {
+                    mainGrid.classList.remove('lg:grid-cols-3');
+                    mainGrid.classList.add('grid-cols-1');
+                } else if (isTablet) {
+                    mainGrid.classList.remove('lg:grid-cols-3');
+                    mainGrid.classList.add('grid-cols-2');
+                } else {
+                    mainGrid.classList.remove('grid-cols-1', 'grid-cols-2');
+                    mainGrid.classList.add('lg:grid-cols-3');
                 }
-            })
-            .catch(error => {
-                console.error('Error fetching alerts:', error);
-            });
-    }
-    fetchAlerts();
-    setInterval(fetchAlerts, 30000);
-
-    // --- Responsive improvements ---
-    function handleResponsiveLayout() {
-        const isMobile = window.innerWidth < 768;
-        const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
-
-        // Adjust grid layout based on screen size
-        const mainGrid = document.querySelector('.grid.grid-cols-1.lg\\:grid-cols-3');
-        if (mainGrid) {
-            if (isMobile) {
-                mainGrid.classList.remove('lg:grid-cols-3');
-                mainGrid.classList.add('grid-cols-1');
-            } else if (isTablet) {
-                mainGrid.classList.remove('lg:grid-cols-3');
-                mainGrid.classList.add('grid-cols-2');
-            } else {
-                mainGrid.classList.remove('grid-cols-1', 'grid-cols-2');
-                mainGrid.classList.add('lg:grid-cols-3');
             }
         }
-    }
 
-    // Call on load and resize
-    handleResponsiveLayout();
-    window.addEventListener('resize', handleResponsiveLayout);
+        // Call on load and resize
+        handleResponsiveLayout();
+        window.addEventListener('resize', handleResponsiveLayout);
 
-    // --- Smooth animations for cards ---
-    function addCardAnimations() {
-        const cards = document.querySelectorAll('.bg-white.rounded-2xl');
-        cards.forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-2px)';
-                this.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
+        // --- Smooth animations for cards ---
+        function addCardAnimations() {
+            const cards = document.querySelectorAll('.bg-white.rounded-2xl');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+                });
             });
+        }
 
-            card.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0)';
-                this.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
-            });
+        // Initialize animations after DOM loads
+        document.addEventListener('DOMContentLoaded', function() {
+            addCardAnimations();
+            updateBakeryStats();
+            setInterval(updateBakeryStats, 10000);
         });
-    }
+    </script>
 
-    // Initialize animations after DOM loads
-    document.addEventListener('DOMContentLoaded', function() {
-        addCardAnimations();
-        updateBakeryStats();
-        setInterval(updateBakeryStats, 10000);
-    });
-</script>
+    <script>
+        function updateBakeryStats() {
+            // Production stats
+            fetch('/bakery/production-stats-live')
+                .then(res => res.json())
+                .then(data => {
+                    document.querySelector('.production-output').textContent = data.todaysOutput ?? '-';
+                    document.querySelector('.production-target').textContent = data.productionTarget ?? '-';
+                });
+            // Workforce stats
+            fetch('/bakery/stats-live')
+                .then(res => res.json())
+                .then(data => {
+                    document.querySelector('.live-staff-on-duty').textContent = data.staffOnDuty ?? '-';
+                    document.querySelector('.live-absent-count').textContent = data.absentCount ?? '-';
+                    document.querySelector('.live-shift-filled').textContent = data.shiftFilled ?? '-';
+                    document.querySelector('.live-overtime-count').textContent = data.overtimeCount ?? '-';
+                });
+        }
 
-<script>
-    function updateBakeryStats() {
-        // Production stats
-        fetch('/bakery/production-stats-live')
-            .then(res => res.json())
-            .then(data => {
-                document.querySelector('.production-output').textContent = data.todaysOutput ?? '-';
-                document.querySelector('.production-target').textContent = data.productionTarget ?? '-';
-            });
-        // Workforce stats
-        fetch('/bakery/stats-live')
-            .then(res => res.json())
-            .then(data => {
-                document.querySelector('.live-staff-on-duty').textContent = data.staffOnDuty ?? '-';
-                document.querySelector('.live-absent-count').textContent = data.absentCount ?? '-';
-                document.querySelector('.live-shift-filled').textContent = data.shiftFilled ?? '-';
-                document.querySelector('.live-overtime-count').textContent = data.overtimeCount ?? '-';
-            });
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        updateBakeryStats();
-        setInterval(updateBakeryStats, 10000); // every 10 seconds
-    });
-</script>
+        document.addEventListener('DOMContentLoaded', function() {
+            updateBakeryStats();
+            setInterval(updateBakeryStats, 10000); // every 10 seconds
+        });
+    </script>

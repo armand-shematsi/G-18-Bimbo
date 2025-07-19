@@ -103,8 +103,8 @@
         <!-- Quick Actions -->
         <div class="mt-8">
             <h3 class="text-2xl font-extrabold text-green-700 mb-4">Quick Actions</h3>
-            <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <a href="{{ route('retail.orders.create') }}" class="relative block w-full p-6 bg-gradient-to-br from-green-400 to-blue-400 border-2 border-green-500 rounded-2xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200">
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <a href="{{ route('retail.orders.create') }}" class="relative block w-full p-6 bg-gradient-to-br from-green-400 to-blue-500 border-2 border-green-500 rounded-2xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200">
                     <h4 class="text-xl font-bold text-white">Place Order</h4>
                     <p class="mt-1 text-base text-white/90">Order new bread products</p>
                 </a>

@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkforceController;
 use App\Http\Controllers\OrderReturnController;
 use App\Http\Controllers\SupportRequestController;
+use App\Http\Controllers\ReportDownloadController;
 use App\Models\Order;
 
 
@@ -323,6 +324,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ... existing routes ...
     Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/{type}/{filename}', [\App\Http\Controllers\ReportController::class, 'download'])->name('reports.download');
+    Route::post('/reports/generate', [\App\Http\Controllers\ReportDownloadController::class, 'generate'])->name('reports.generate');
+    Route::get('/reports/view/{filename}', [\App\Http\Controllers\ReportDownloadController::class, 'view'])
+        ->where('filename', '.*')
+        ->name('reports.view');
+    Route::get('/reports/weekly/view/{filename}', [\App\Http\Controllers\ReportDownloadController::class, 'weeklyView'])
+        ->where('filename', '.*')
+        ->name('reports.weekly.view');
 });
 
 // Add this route for report downloads
@@ -361,4 +369,14 @@ Route::get('/bakery/api/inventory/{id}/live', [\App\Http\Controllers\Bakery\Inve
 // Add this route for bakery inventory recent orders
 Route::get('/bakery/api/inventory/{id}/recent-orders', [\App\Http\Controllers\Bakery\InventoryController::class, 'recentOrders'])->name('bakery.inventory.recent-orders');
 
-Route::get('/order-processing/supplier-orders', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'listSupplierOrders'])->name('order-processing.supplier-orders');
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin/analytics/inventory', [\App\Http\Controllers\Admin\AnalyticsController::class, 'adminInventoryAnalytics'])->name('admin.analytics.inventory');
+});
+
+Route::get('/reports/download/{type}/{filename}', [ReportDownloadController::class, 'download'])
+    ->name('reports.download')
+    ->where('filename', '.*');
+
+Route::get('/reports/view/{filename}', [ReportDownloadController::class, 'view'])
+    ->name('reports.view')
+    ->where('filename', '.*');

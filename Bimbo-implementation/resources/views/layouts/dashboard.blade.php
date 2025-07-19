@@ -15,101 +15,93 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="font-sans antialiased">
-    <div class="min-h-screen bg-gray-100">
-        <!-- Navigation -->
-        <nav class="sticky top-0 z-30 bg-white/70 backdrop-blur-lg shadow-lg border-b border-gray-200">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16 items-center">
-                    <div class="flex items-center gap-4">
-                        <!-- Logo -->
-                        <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
-                            <img class="h-10 w-auto rounded shadow" src="{{ asset('images/k-photo-recipe_ramp_up-2021-11-potato-bread-potato_bread_01.jpeg') }}" alt="Bimbo Logo">
-                            <span class="font-bold text-xl text-indigo-700 tracking-tight hidden sm:inline">Bimbo Admin</span>
-                        </a>
-                        <!-- Hamburger (mobile) -->
-                        <button id="nav-toggle" class="sm:hidden ml-2 p-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <svg class="w-6 h-6 text-indigo-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    <div class="min-h-screen flex" style="background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);">
+        <!-- Sidebar Navigation -->
+        <aside class="fixed top-0 left-0 h-full w-60 bg-gradient-to-b from-indigo-100 via-blue-100 to-green-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 shadow-2xl border-r border-indigo-200 dark:border-gray-700 z-30 flex flex-col">
+            <div class="flex items-center gap-2 h-20 px-6 border-b border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 shadow-lg">
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
+                    <img class="h-12 w-12 rounded-full shadow-lg border-2 border-indigo-400 dark:border-indigo-700" src="{{ asset('images/k-photo-recipe_ramp_up-2021-11-potato-bread-potato_bread_01.jpeg') }}" alt="Bimbo Logo">
+                    <span class="font-extrabold text-2xl text-indigo-700 dark:text-indigo-200 tracking-tight drop-shadow-lg">Bimbo Admin</span>
+                </a>
+            </div>
+            <nav class="flex-1 flex flex-col py-6 space-y-2">
+                <a href="{{ route('admin.dashboard') }}" class="group flex items-center gap-3 px-5 py-3 rounded-full transition-all duration-200 font-semibold text-base shadow-sm border-l-4 {{ request()->routeIs('admin.dashboard') ? 'bg-gradient-to-r from-indigo-200 via-blue-200 to-green-100 dark:from-indigo-900 dark:via-blue-900 dark:to-green-900 border-indigo-500 text-indigo-900 dark:text-indigo-200 shadow-lg scale-105' : 'text-gray-600 dark:text-gray-300 hover:bg-gradient-to-r hover:from-indigo-100 hover:via-blue-100 hover:to-green-50 dark:hover:from-indigo-800 dark:hover:via-blue-800 dark:hover:to-green-800 border-transparent' }}">
+                    <svg class="w-6 h-6 group-hover:scale-110 group-hover:text-indigo-500 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6"/></svg>
+                    Admin Dashboard
+                </a>
+                <a href="{{ route('admin.vendors.index') }}" class="group flex items-center gap-3 px-5 py-3 rounded-full transition-all duration-200 font-semibold text-base shadow-sm border-l-4 {{ request()->routeIs('admin.vendors.*') ? 'bg-gradient-to-r from-indigo-200 via-blue-200 to-green-100 dark:from-indigo-900 dark:via-blue-900 dark:to-green-900 border-indigo-500 text-indigo-900 dark:text-indigo-200 shadow-lg scale-105' : 'text-gray-600 dark:text-gray-300 hover:bg-gradient-to-r hover:from-indigo-100 hover:via-blue-100 hover:to-green-50 dark:hover:from-indigo-800 dark:hover:via-blue-800 dark:hover:to-green-800 border-transparent' }}">
+                    <svg class="w-6 h-6 group-hover:scale-110 group-hover:text-indigo-500 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M17 8a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    Vendors
+                </a>
+                <a href="{{ route('admin.users.index') }}" class="group flex items-center gap-3 px-5 py-3 rounded-full transition-all duration-200 font-semibold text-base shadow-sm border-l-4 {{ request()->routeIs('admin.users.*') ? 'bg-gradient-to-r from-indigo-200 via-blue-200 to-green-100 dark:from-indigo-900 dark:via-blue-900 dark:to-green-900 border-indigo-500 text-indigo-900 dark:text-indigo-200 shadow-lg scale-105' : 'text-gray-600 dark:text-gray-300 hover:bg-gradient-to-r hover:from-indigo-100 hover:via-blue-100 hover:to-green-50 dark:hover:from-indigo-800 dark:hover:via-blue-800 dark:hover:to-green-800 border-transparent' }}">
+                    <svg class="w-6 h-6 group-hover:scale-110 group-hover:text-indigo-500 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    Users
+                </a>
+                <a href="{{ route('admin.settings') }}" class="group flex items-center gap-3 px-5 py-3 rounded-full transition-all duration-200 font-semibold text-base shadow-sm border-l-4 {{ request()->routeIs('admin.settings') ? 'bg-gradient-to-r from-indigo-200 via-blue-200 to-green-100 dark:from-indigo-900 dark:via-blue-900 dark:to-green-900 border-indigo-500 text-indigo-900 dark:text-indigo-200 shadow-lg scale-105' : 'text-gray-600 dark:text-gray-300 hover:bg-gradient-to-r hover:from-indigo-100 hover:via-blue-100 hover:to-green-50 dark:hover:from-indigo-800 dark:hover:via-blue-800 dark:hover:to-green-800 border-transparent' }}">
+                    <svg class="w-6 h-6 group-hover:scale-110 group-hover:text-indigo-500 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Settings
+                </a>
+                <a href="{{ route('admin.analytics.sales_predictions') }}" class="group flex items-center gap-3 px-5 py-3 rounded-full transition-all duration-200 font-semibold text-base shadow-sm border-l-4 {{ request()->routeIs('admin.analytics.sales_predictions') ? 'bg-gradient-to-r from-indigo-200 via-blue-200 to-green-100 dark:from-indigo-900 dark:via-blue-900 dark:to-green-900 border-indigo-500 text-indigo-900 dark:text-indigo-200 shadow-lg scale-105' : 'text-gray-600 dark:text-gray-300 hover:bg-gradient-to-r hover:from-indigo-100 hover:via-blue-100 hover:to-green-50 dark:hover:from-indigo-800 dark:hover:via-blue-800 dark:hover:to-green-800 border-transparent' }}">
+                    <svg class="w-6 h-6 group-hover:scale-110 group-hover:text-indigo-500 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 17l6-6 4 4 8-8"/></svg>
+                    Sales Predictions
+                </a>
+                <a href="{{ route('reports.index') }}" class="group flex items-center gap-3 px-5 py-3 rounded-full transition-all duration-200 font-semibold text-base shadow-sm border-l-4 {{ request()->routeIs('reports.index') ? 'bg-gradient-to-r from-indigo-200 via-blue-200 to-green-100 dark:from-indigo-900 dark:via-blue-900 dark:to-green-900 border-indigo-500 text-indigo-900 dark:text-indigo-200 shadow-lg scale-105' : 'text-gray-600 dark:text-gray-300 hover:bg-gradient-to-r hover:from-indigo-100 hover:via-blue-100 hover:to-green-50 dark:hover:from-indigo-800 dark:hover:via-blue-800 dark:hover:to-green-800 border-transparent' }}">
+                    <svg class="w-6 h-6 group-hover:scale-110 group-hover:text-indigo-500 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    View Reports
+                </a>
+                @if(auth()->user() && auth()->user()->role === 'admin')
+                <a href="{{ route('customer-segments.import.form') }}" class="group flex items-center gap-3 px-5 py-3 rounded-full transition-all duration-200 font-semibold text-base shadow-sm border-l-4 {{ request()->routeIs('customer-segments.import.form') ? 'bg-gradient-to-r from-blue-200 via-indigo-200 to-green-100 dark:from-blue-900 dark:via-indigo-900 dark:to-green-900 border-blue-500 text-blue-900 dark:text-blue-200 shadow-lg scale-105' : 'text-blue-600 dark:text-blue-300 hover:bg-gradient-to-r hover:from-blue-100 hover:via-indigo-100 hover:to-green-50 dark:hover:from-blue-800 dark:hover:via-indigo-800 dark:hover:to-green-800 border-transparent' }}" title="Import customer segments from ML pipeline">
+                    <svg class="w-6 h-6 group-hover:rotate-12 group-hover:text-blue-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                    Import Segments
+                </a>
+                <a href="{{ route('admin.customer-segments') }}" class="group flex items-center gap-3 px-5 py-3 rounded-full transition-all duration-200 font-semibold text-base shadow-sm border-l-4 {{ request()->routeIs('admin.customer-segments') ? 'bg-gradient-to-r from-blue-200 via-indigo-200 to-green-100 dark:from-blue-900 dark:via-indigo-900 dark:to-green-900 border-blue-500 text-blue-900 dark:text-blue-200 shadow-lg scale-105' : 'text-blue-600 dark:text-blue-300 hover:bg-gradient-to-r hover:from-blue-100 hover:via-indigo-100 hover:to-green-50 dark:hover:from-blue-800 dark:hover:via-indigo-800 dark:hover:to-green-800 border-transparent' }}" title="View customer segments">
+                    <svg class="w-6 h-6 group-hover:rotate-12 group-hover:text-blue-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 4v16M8 4v16" /></svg>
+                    View Segments
+                </a>
+                @endif
+            </nav>
+            <div class="px-6 pb-2 mt-auto">
+                @auth
+                <div class="mb-4 flex flex-col items-center bg-white/70 dark:bg-gray-800/70 rounded-xl shadow p-4">
+                    <div class="font-semibold text-indigo-800 dark:text-indigo-200 text-lg mb-1 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-indigo-400 dark:text-indigo-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        {{ Auth::user()->name }}
+                    </div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 mb-2">{{ Auth::user()->email }}</div>
+                    <form method="POST" action="{{ route('logout') }}" class="w-full">
+                        @csrf
+                        <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-200 font-semibold shadow hover:bg-red-200 dark:hover:bg-red-700 transition-all duration-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7" /></svg>
+                            Log Out
                         </button>
-                    </div>
-                    <!-- Navigation Links -->
-                    <div id="nav-menu" class="hidden sm:flex space-x-6 items-center">
-                        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-1 px-3 py-2 rounded-lg transition {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-100 text-indigo-700 font-semibold shadow' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700' }}">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6"/></svg>
-                            Admin Dashboard
-                        </a>
-                        <a href="{{ route('admin.vendors.index') }}" class="flex items-center gap-1 px-3 py-2 rounded-lg transition {{ request()->routeIs('admin.vendors.*') ? 'bg-indigo-100 text-indigo-700 font-semibold shadow' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700' }}">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M17 8a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                            Vendors
-                        </a>
-                        <a href="{{ route('admin.users.index') }}" class="flex items-center gap-1 px-3 py-2 rounded-lg transition {{ request()->routeIs('admin.users.*') ? 'bg-indigo-100 text-indigo-700 font-semibold shadow' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700' }}">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                            Users
-                        </a>
-                        <a href="{{ route('admin.settings') }}" class="flex items-center gap-1 px-3 py-2 rounded-lg transition {{ request()->routeIs('admin.settings') ? 'bg-indigo-100 text-indigo-700 font-semibold shadow' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700' }}">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            Settings
-                        </a>
-                        <a href="{{ route('admin.analytics.sales_predictions') }}" class="flex items-center gap-1 px-3 py-2 rounded-lg transition {{ request()->routeIs('admin.analytics.sales_predictions') ? 'bg-indigo-100 text-indigo-700 font-semibold shadow' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700' }}">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 17l6-6 4 4 8-8"/></svg>
-                            Sales Predictions
-                        </a>
-                        @if(auth()->user() && auth()->user()->role === 'admin')
-                            <a href="{{ route('customer-segments.import.form') }}" class="flex items-center gap-1 px-3 py-2 rounded-lg transition {{ request()->routeIs('customer-segments.import.form') ? 'bg-blue-100 text-blue-700 font-semibold shadow' : 'text-blue-600 hover:bg-blue-50 hover:text-blue-700' }}">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                                Import Segments
-                            </a>
-                            <a href="{{ route('admin.customer-segments') }}" class="flex items-center gap-1 px-3 py-2 rounded-lg transition {{ request()->routeIs('admin.customer-segments') ? 'bg-blue-100 text-blue-700 font-semibold shadow' : 'text-blue-600 hover:bg-blue-50 hover:text-blue-700' }}">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 4v16M8 4v16" /></svg>
-                                View Segments
-                            </a>
-                        @endif
-                        <a href="{{ route('reports.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                            View Reports
-                        </a>
-                    </div>
-                    <!-- User Menu -->
-                    <div class="flex items-center ml-4">
-                        <div class="relative">
-                            <button type="button" class="flex items-center gap-2 rounded-full bg-white/80 px-3 py-2 shadow hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
-                                <img class="h-8 w-8 rounded-full border-2 border-indigo-300" src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=random" alt="{{ auth()->user()->name }}">
-                                <span class="hidden sm:inline text-gray-700 font-semibold">{{ auth()->user()->name }}</span>
-                                <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                            </button>
-                            <div class="hidden absolute right-0 z-20 mt-2 w-48 origin-top-right rounded-xl bg-white/90 py-2 shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1" id="user-menu">
-                                <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50" role="menuitem" tabindex="-1">Edit Profile</a>
-                                <a href="{{ route('password.update') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50" role="menuitem" tabindex="-1">Change Password</a>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50" role="menuitem" tabindex="-1">Logout</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+                    </form>
                 </div>
+                @endauth
+                <button id="dark-mode-toggle" class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-indigo-200 dark:bg-gray-700 text-indigo-800 dark:text-indigo-100 font-bold shadow-lg hover:bg-indigo-300 dark:hover:bg-gray-600 transition-all duration-200 group relative">
+                    <svg id="dark-mode-icon" class="w-6 h-6 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path id="sun-icon" class="block dark:hidden" stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m8.66-12.66l-.71.71M4.05 19.95l-.71.71M21 12h-1M4 12H3m16.66 4.66l-.71-.71M4.05 4.05l-.71-.71M12 7a5 5 0 100 10 5 5 0 000-10z" />
+                        <path id="moon-icon" class="hidden dark:block" stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z" />
+                    </svg>
+                    <span class="block dark:hidden">Dark Mode</span>
+                    <span class="hidden dark:block">Light Mode</span>
+                    <span class="absolute left-full ml-2 px-2 py-1 rounded bg-gray-800 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">Toggle theme</span>
+                </button>
             </div>
-        </nav>
-
-        <!-- Page Heading -->
-        <header class="bg-white shadow">
-            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    @yield('header')
-                </h2>
-            </div>
-        </header>
-
+        </aside>
+        <div class="flex-1 ml-60 transition-colors duration-300 bg-transparent dark:bg-gradient-to-br dark:from-gray-900 dark:via-indigo-900 dark:to-blue-900">
         <!-- Page Content -->
         <main>
             <div class="py-12">
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="p-6 text-gray-900">
+                    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-indigo-100 dark:border-gray-700 shadow-2xl sm:rounded-2xl transition-all duration-300 hover:scale-[1.01] hover:shadow-3xl">
+                        <div class="p-8 text-gray-900 dark:text-gray-100 text-lg font-medium">
                             @yield('content')
                         </div>
                     </div>
                 </div>
             </div>
         </main>
+        </div>
     </div>
 
     <script>
@@ -124,5 +116,24 @@
         });
     </script>
     @stack('scripts')
+    <script>
+        // Dark mode toggle logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggle = document.getElementById('dark-mode-toggle');
+            toggle.addEventListener('click', function() {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('theme', 'dark');
+                }
+            });
+            // On load, set theme from localStorage
+            if (localStorage.getItem('theme') === 'dark') {
+                document.documentElement.classList.add('dark');
+            }
+        });
+    </script>
 </body>
 </html>
