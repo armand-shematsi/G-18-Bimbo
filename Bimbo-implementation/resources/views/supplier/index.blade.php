@@ -6,6 +6,11 @@
             Go to Inventory Dashboard
         </a>
     </div>
+    <div class="w-full flex justify-end mt-4">
+        <a href="{{ route('reports.downloads') }}" class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+            Reports
+        </a>
+    </div>
 @endsection
 
 @section('header')

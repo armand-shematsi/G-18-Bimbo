@@ -28,15 +28,15 @@ class CustomerSegmentSeeder extends Seeder
             $data = array_combine($header, $row);
 
             DB::table('customer_segments')->updateOrInsert(
-                ['CustomerID' => $data['customer_id']],
+                ['CustomerID' => $data['Customer_ID']],
                 [
-                    'CustomerID' => $data['customer_id'],
-                    'Name' => 'Customer ' . $data['customer_id'], // Generate name from ID
-                    'PurchaseFrequency' => (int)$data['purchase_frequency'],
-                    'AvgSpending' => (float)$data['avg_spending'],
-                    'Location' => $data['location'],
-                    'PreferredBreadType' => $data['preferred_bread'],
-                    'Segment' => (int)$data['segment'],
+                    'CustomerID' => $data['Customer_ID'],
+                    'Name' => 'Customer ' . $data['Customer_ID'], // Generate name from ID
+                    'PurchaseFrequency' => (int)$data['Purchase_Frequency'],
+                    'AvgSpending' => (float)$data['Avg_Order_Value'],
+                    'Location' => $data['Location'],
+                    'PreferredBreadType' => $data['Bread_Type'],
+                    'Segment' => isset($data['segment']) ? (int)$data['segment'] : null,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]

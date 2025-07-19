@@ -39,10 +39,7 @@
                             @endif
                         @endif
                         @if(auth()->user()->role === 'admin')
-                            <a href="{{ route('customer-segments.import.form') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('customer-segments.import.form') ? 'border-primary text-gray-900' : 'border-transparent text-blue-600 hover:text-blue-700 hover:border-blue-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none focus:border-blue-600">
-                                <svg class="w-4 h-4 mr-1 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                                Import Customer Segments
-                            </a>
+                            {{-- Removed Import Customer Segments link --}}
                         @endif
                     @endauth
                     @guest

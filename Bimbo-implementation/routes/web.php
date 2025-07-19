@@ -45,6 +45,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Workforce distribution API endpoint
         Route::get('/api/workforce-distribution', [\App\Http\Controllers\DashboardController::class, 'workforceDistribution'])->name('workforce.distribution.api');
         Route::get('/customer-segments', [\App\Http\Controllers\CustomerSegmentController::class, 'index'])->name('customer-segments');
+        // Add browser-based segmentation pipeline routes
+        Route::post('/customer-segments/upload-dataset', [\App\Http\Controllers\CustomerSegmentController::class, 'uploadDataset'])->name('customer-segments.upload-dataset');
+        Route::post('/customer-segments/run-segmentation', [\App\Http\Controllers\CustomerSegmentController::class, 'runSegmentation'])->name('customer-segments.run-segmentation');
+        Route::post('/customer-segments/import-segments', [\App\Http\Controllers\CustomerSegmentController::class, 'importSegments'])->name('customer-segments.import-segments');
         // Order analytics
         Route::get('/api/orders', [\App\Http\Controllers\Admin\OrderController::class, 'apiOrders'])->name('orders.api');
         Route::get('/api/orders/stats', [\App\Http\Controllers\Admin\OrderController::class, 'apiStats'])->name('orders.stats');
@@ -62,6 +66,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/inventory/{id}', [App\Http\Controllers\Supplier\InventoryController::class, 'destroy'])->name('inventory.destroy');
         Route::post('/inventory/{id}/update-quantity', [App\Http\Controllers\Supplier\InventoryController::class, 'updateQuantity'])->name('inventory.updateQuantity');
         Route::get('/inventory/dashboard', [App\Http\Controllers\Supplier\InventoryController::class, 'dashboard'])->name('inventory.dashboard');
+
+        // Supplier dashboard route
+        Route::get('/dashboard', function () {
+            return view('supplier.index');
+        })->name('dashboard');
 
         // Orders routes
         Route::get('/orders', [App\Http\Controllers\Supplier\OrderController::class, 'index'])->name('orders.index');
@@ -321,7 +330,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     // ... existing routes ...
     Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
-    Route::get('/reports/{type}/{filename}', [\App\Http\Controllers\ReportController::class, 'download'])->name('reports.download');
+    //Route::get('/reports/{type}/{filename}', [\App\Http\Controllers\ReportController::class, 'download'])->name('reports.download');
     Route::post('/reports/generate', [\App\Http\Controllers\ReportDownloadController::class, 'generate'])->name('reports.generate');
     Route::get('/reports/view/{filename}', [\App\Http\Controllers\ReportDownloadController::class, 'view'])
         ->where('filename', '.*')
