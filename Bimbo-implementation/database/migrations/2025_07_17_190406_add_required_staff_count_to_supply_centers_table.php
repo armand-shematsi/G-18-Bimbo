@@ -12,7 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('supply_centers', function (Blueprint $table) {
-            $table->integer('required_staff_count')->default(0);
+            if (!Schema::hasColumn('supply_centers', 'required_staff_count')) {
+                $table->integer('required_staff_count')->default(0);
+            }
+            if (!Schema::hasColumn('supply_centers', 'type')) {
+                $table->string('type')->default('production');
+            }
         });
     }
 

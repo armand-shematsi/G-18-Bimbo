@@ -109,7 +109,25 @@
                         <strong>Paid At:</strong> <span class="text-teal-700">{{ $order->payment->paid_at }}</span><br>
                     </div>
                 @else
-                    <div class="bg-amber-100 text-amber-800 px-4 py-2 rounded-xl font-semibold shadow">No payment recorded.</div>
+                    <div class="bg-amber-100 text-amber-800 px-4 py-2 rounded-xl font-semibold shadow mb-4">No payment recorded.</div>
+                    @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('retail_manager') || auth()->user()->hasRole('bakery_manager'))
+                        <form action="{{ route('retail.orders.recordPayment', $order->id) }}" method="POST" class="bg-white border border-teal-200 rounded-xl p-4 shadow mb-4">
+                            @csrf
+                            <div class="mb-2">
+                                <label class="block text-sm font-medium text-gray-700">Amount</label>
+                                <input type="number" name="amount" step="0.01" min="0.01" value="{{ $order->total }}" class="border rounded px-2 py-1 w-full" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="block text-sm font-medium text-gray-700">Payment Method</label>
+                                <input type="text" name="payment_method" class="border rounded px-2 py-1 w-full" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="block text-sm font-medium text-gray-700">Transaction ID (optional)</label>
+                                <input type="text" name="transaction_id" class="border rounded px-2 py-1 w-full">
+                            </div>
+                            <button type="submit" class="bg-teal-600 text-white px-6 py-2 rounded-xl font-bold shadow hover:bg-teal-700">Record Payment</button>
+                        </form>
+                    @endif
                 @endif
             </div>
             <div class="mt-10 flex flex-col md:flex-row gap-6">

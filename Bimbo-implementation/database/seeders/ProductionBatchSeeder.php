@@ -4,85 +4,60 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\ProductionBatch;
-use App\Models\Product;
-use App\Models\ProductionLine;
 use Carbon\Carbon;
 
 class ProductionBatchSeeder extends Seeder
 {
     public function run()
     {
-        $products = Product::pluck('name')->toArray();
-        $today = Carbon::today();
+        // Clear existing data
+        ProductionBatch::truncate();
 
-        $am_hours = [9, 10, 11];
-        $pm_hours = [15, 16, 17];
+        // Create sample production batches with different statuses
+        ProductionBatch::create([
+            'name' => 'White Bread Batch #1',
+            'status' => 'active',
+            'scheduled_start' => Carbon::today()->setTime(8, 0),
+            'actual_start' => Carbon::today()->setTime(8, 15),
+            'quantity' => 100,
+            'notes' => 'Morning white bread production',
+        ]);
 
-        $lines = ProductionLine::all()->keyBy(function ($line) {
-            return strtolower(explode('–', $line->name)[1] ?? $line->name);
-        });
+        ProductionBatch::create([
+            'name' => 'Whole Wheat Batch #1',
+            'status' => 'completed',
+            'scheduled_start' => Carbon::today()->setTime(6, 0),
+            'actual_start' => Carbon::today()->setTime(6, 10),
+            'actual_end' => Carbon::today()->setTime(10, 30),
+            'quantity' => 80,
+            'notes' => 'Early morning whole wheat production',
+        ]);
 
-        if (count($products) === 0) {
-            // AM batch
-            ProductionBatch::create([
-                'name' => 'Demo Batch Active',
-                'status' => 'Active',
-                'scheduled_start' => $today->copy()->setTime($am_hours[0], 0),
-                'actual_start' => $today->copy()->setTime($am_hours[0], 15),
-                'actual_end' => null,
-                'notes' => 'Demo active batch',
-                'production_line_id' => $lines->first() ? $lines->first()->id : null,
-            ]);
-            // PM batch
-            ProductionBatch::create([
-                'name' => 'Demo Batch Completed',
-                'status' => 'Completed',
-                'scheduled_start' => $today->copy()->setTime($pm_hours[0], 0),
-                'actual_start' => $today->copy()->setTime($pm_hours[0], 15),
-                'actual_end' => $today->copy()->setTime($pm_hours[0], 45),
-                'notes' => 'Demo completed batch',
-                'production_line_id' => $lines->last() ? $lines->last()->id : null,
-            ]);
-        } else {
-            foreach ($products as $i => $name) {
-                $is_am = $i % 2 === 0;
-                $hour = $is_am
-                    ? $am_hours[$i % count($am_hours)]
-                    : $pm_hours[$i % count($pm_hours)];
-                // Try to match bread type to line
-                $lineId = null;
-                $lower = strtolower($name);
-                foreach ($lines as $key => $line) {
-                    if (strpos($lower, trim($key)) !== false) {
-                        $lineId = $line->id;
-                        break;
-                    }
-                }
-                if (!$lineId && $lines->count()) {
-                    $lineId = $lines->random()->id;
-                }
-                ProductionBatch::create([
-                    'name' => $name,
-                    'status' => $i === 0 ? 'Active' : 'Completed',
-                    'scheduled_start' => $today->copy()->setTime($hour, 0),
-                    'actual_start' => $today->copy()->setTime($hour, 15),
-                    'actual_end' => $i === 0 ? null : $today->copy()->setTime($hour, 45),
-                    'notes' => 'Demo batch for ' . $name,
-                    'production_line_id' => $lineId,
-                ]);
-            }
-            // Ensure at least one completed batch in PM
-            if (count($products) == 1) {
-                ProductionBatch::create([
-                    'name' => $products[0] . ' Completed',
-                    'status' => 'Completed',
-                    'scheduled_start' => $today->copy()->setTime($pm_hours[1], 0),
-                    'actual_start' => $today->copy()->setTime($pm_hours[1], 15),
-                    'actual_end' => $today->copy()->setTime($pm_hours[1], 45),
-                    'notes' => 'Extra completed batch for demo',
-                    'production_line_id' => $lines->random()->id ?? null,
-                ]);
-            }
-        }
+        ProductionBatch::create([
+            'name' => 'Baguette Batch #1',
+            'status' => 'planned',
+            'scheduled_start' => Carbon::today()->setTime(14, 0),
+            'quantity' => 60,
+            'notes' => 'Afternoon baguette production',
+        ]);
+
+        ProductionBatch::create([
+            'name' => 'Sourdough Batch #1',
+            'status' => 'active',
+            'scheduled_start' => Carbon::today()->setTime(10, 0),
+            'actual_start' => Carbon::today()->setTime(10, 5),
+            'quantity' => 50,
+            'notes' => 'Sourdough bread production',
+        ]);
+
+        ProductionBatch::create([
+            'name' => 'Rye Bread Batch #1',
+            'status' => 'completed',
+            'scheduled_start' => Carbon::yesterday()->setTime(8, 0),
+            'actual_start' => Carbon::yesterday()->setTime(8, 5),
+            'actual_end' => Carbon::yesterday()->setTime(12, 0),
+            'quantity' => 70,
+            'notes' => 'Yesterday rye bread production',
+        ]);
     }
 }

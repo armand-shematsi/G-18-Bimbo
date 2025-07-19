@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
 @section('header')
-    Analytics Dashboard
+    Inventory Analytics & ML Predictions
 @endsection
 
 @section('content')
@@ -111,7 +111,7 @@
                             </div>
                         @endforeach
                     </div>
-                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -121,305 +121,68 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Debug: Log data to console
-    console.log('Customer Segments Data:', @json($customerSegments));
-    console.log('Segment Recommendations Data:', @json($segmentRecommendations));
+    const salesHistory = @json($salesHistoryChartData ?? []);
+    const salesForecast = @json($salesForecastChartData ?? []);
+    const productSelect = document.getElementById('productSelect');
+    const ctx = document.getElementById('salesChart').getContext('2d');
 
-    // Segment Distribution
-    const segmentData = @json($customerSegments);
-    const segmentLabels = Object.keys(segmentData).map(s => s.replace('_', ' ').toUpperCase());
-    const segmentCounts = Object.values(segmentData);
+    function getChartData(product) {
+        const history = salesHistory[product] || {};
+        const forecast = salesForecast[product] || [];
+        const historyDates = Object.keys(history);
+        const historyValues = Object.values(history);
+        const forecastDates = forecast.map(f => f.date);
+        const forecastValues = forecast.map(f => f.predicted);
+        return {
+            labels: [...historyDates, ...forecastDates],
+            datasets: [
+                {
+                    label: 'Quantity Sold (Last 30 Days)',
+                    data: [...historyValues, ...Array(forecastValues.length).fill(null)],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59,130,246,0.1)',
+                    tension: 0.2,
+                },
+                {
+                    label: 'Predicted (Next 7 Days)',
+                    data: [
+                        ...Array(historyValues.length).fill(null),
+                        ...forecastValues
+                    ],
+                    borderColor: '#f59e42',
+                    backgroundColor: 'rgba(245,158,66,0.1)',
+                    borderDash: [5,5],
+                    tension: 0.2,
+                }
+            ]
+        };
+    }
 
-    if (segmentCounts.length > 0 && segmentCounts.some(count => count > 0)) {
-        new Chart(document.getElementById('segmentDistributionChart'), {
-            type: 'bar',
-            data: {
-                labels: segmentLabels,
-                datasets: [{
-                    label: 'Number of Customers',
-                    data: segmentCounts,
-                    backgroundColor: ['#38bdf8', '#0ea5e9', '#facc15'],
-                }]
-            },
+    let chart;
+    function renderChart(product) {
+        const data = getChartData(product);
+        if (chart) chart.destroy();
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: data,
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                    }
+                    legend: { position: 'top' },
+                    title: { display: true, text: product.charAt(0).toUpperCase() + product.slice(1) + ' Sales & Forecast' }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
-                        }
-                    }
+                    y: { beginAtZero: true }
                 }
             }
         });
-    } else {
-        document.getElementById('segmentDistributionChart').innerHTML = '<div class="text-center text-gray-500 py-8">No customer segment data available</div>';
     }
 
-    // Average Spending by Segment
-    const avgSpendingData = @json($segmentRecommendations);
-    const segmentSpending = {};
-    avgSpendingData.forEach(customer => {
-        if (!segmentSpending[customer.segment]) {
-            segmentSpending[customer.segment] = { total: 0, count: 0 };
-        }
-        segmentSpending[customer.segment].total += customer.avg_spending;
-        segmentSpending[customer.segment].count++;
-    });
-
-    const avgSpendingLabels = Object.keys(segmentSpending).map(s => 'Segment ' + s);
-    const avgSpendingValues = Object.values(segmentSpending).map(s => s.total / s.count);
-
-    if (avgSpendingValues.length > 0) {
-        new Chart(document.getElementById('avgSpendingChart'), {
-            type: 'bar',
-            data: {
-                labels: avgSpendingLabels,
-                datasets: [{
-                    label: 'Average Spending',
-                    data: avgSpendingValues,
-                    backgroundColor: ['#34d399', '#fbbf24', '#f87171'],
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return '₦' + value.toLocaleString();
-                            }
-                        }
-                    }
-                }
-            }
+    if (productSelect && productSelect.value) {
+        renderChart(productSelect.value);
+        productSelect.addEventListener('change', function() {
+            renderChart(this.value);
         });
-    } else {
-        document.getElementById('avgSpendingChart').innerHTML = '<div class="text-center text-gray-500 py-8">No spending data available</div>';
-    }
-
-    // Bread Type Distribution
-    const breadTypeData = @json($breadTypeDistribution);
-    const breadTypeLabels = Object.keys(breadTypeData);
-    const breadTypeCounts = Object.values(breadTypeData);
-
-    if (breadTypeCounts.length > 0 && breadTypeCounts.some(count => count > 0)) {
-        new Chart(document.getElementById('breadTypeChart'), {
-            type: 'bar',
-            data: {
-                labels: breadTypeLabels,
-                datasets: [{
-                    label: 'Number of Customers',
-                    data: breadTypeCounts,
-                    backgroundColor: '#818cf8',
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
-                        }
-                    }
-                }
-            }
-        });
-    } else {
-        document.getElementById('breadTypeChart').innerHTML = '<div class="text-center text-gray-500 py-8">No bread type data available</div>';
-    }
-
-            // Simple Customer Spending Chart
-    console.log('Creating simple customer spending chart...');
-
-    const customerData = @json($segmentRecommendations);
-    console.log('Customer data received:', customerData ? customerData.length : 'No data');
-
-    // Display debug info
-    document.getElementById('dataDebug').innerHTML = 'Data received: ' + (customerData ? customerData.length : 0) + ' customers';
-
-    const canvas = document.getElementById('customerSpendingChart');
-    if (!canvas) {
-        console.error('Canvas not found!');
-        document.getElementById('chartDebug').innerHTML = 'Canvas element not found!';
-        return;
-    }
-
-    // Simple data processing
-    const segments = {};
-    if (customerData && customerData.length > 0) {
-        customerData.forEach(customer => {
-            const segment = customer.segment || 0;
-            if (!segments[segment]) {
-                segments[segment] = { count: 0, totalSpending: 0 };
-            }
-            segments[segment].count++;
-            segments[segment].totalSpending += customer.avg_spending || 0;
-        });
-
-        const labels = Object.keys(segments).map(s => 'Segment ' + s);
-        const data = Object.values(segments).map(s => s.totalSpending / s.count);
-        const counts = Object.values(segments).map(s => s.count);
-
-        console.log('Chart data:', { labels, data, counts });
-
-        try {
-            new Chart(canvas, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Average Spending per Customer',
-                        data: data,
-                        backgroundColor: ['#3b82f6', '#10b981'],
-                        borderColor: ['#2563eb', '#059669'],
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Customer Spending by Segment'
-                        },
-                        legend: {
-                            display: true,
-                            position: 'top'
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Average Spending (₦)'
-                            },
-                            ticks: {
-                                callback: function(value) {
-                                    return '₦' + value.toLocaleString();
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-            console.log('Chart created successfully!');
-            document.getElementById('chartDebug').innerHTML = 'Chart created successfully!';
-        } catch (error) {
-            console.error('Chart error:', error);
-            document.getElementById('chartDebug').innerHTML = 'Chart error: ' + error.message;
-            canvas.innerHTML = '<div class="text-center text-red-500 py-8">Error: ' + error.message + '</div>';
-        }
-    } else {
-        console.log('No customer data available');
-        document.getElementById('chartDebug').innerHTML = 'No customer data available';
-        canvas.innerHTML = '<div class="text-center text-gray-500 py-8">No customer data available</div>';
-    }
-
-    // Location Distribution
-    const locationData = @json($locationDistribution);
-    const locationLabels = Object.keys(locationData);
-    const locationCounts = Object.values(locationData);
-
-    if (locationCounts.length > 0 && locationCounts.some(count => count > 0)) {
-        new Chart(document.getElementById('locationChart'), {
-            type: 'bar',
-            data: {
-                labels: locationLabels,
-                datasets: [{
-                    label: 'Number of Customers',
-                    data: locationCounts,
-                    backgroundColor: '#f472b6',
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
-                        }
-                    }
-                }
-            }
-        });
-    } else {
-        document.getElementById('locationChart').innerHTML = '<div class="text-center text-gray-500 py-8">No location data available</div>';
-    }
-
-    // Average Purchase Frequency by Segment
-    const avgPurchaseFrequencyData = @json($avgPurchaseFrequency);
-    const avgPurchaseFrequencyLabels = Object.keys(avgPurchaseFrequencyData).map(s => 'Segment ' + s);
-    const avgPurchaseFrequencyValues = Object.values(avgPurchaseFrequencyData);
-
-    if (avgPurchaseFrequencyValues.length > 0) {
-        new Chart(document.getElementById('avgPurchaseFrequencyChart'), {
-            type: 'bar',
-            data: {
-                labels: avgPurchaseFrequencyLabels,
-                datasets: [{
-                    label: 'Avg Purchase Frequency',
-                    data: avgPurchaseFrequencyValues,
-                    backgroundColor: '#60a5fa',
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return value.toFixed(1);
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    } else {
-        document.getElementById('avgPurchaseFrequencyChart').innerHTML = '<div class="text-center text-gray-500 py-8">No purchase frequency data available</div>';
     }
 </script>
 @endpush
