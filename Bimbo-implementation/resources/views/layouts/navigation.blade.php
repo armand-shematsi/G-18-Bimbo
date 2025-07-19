@@ -154,6 +154,12 @@
                     </a>
                 @endif
             @endauth
+            @if(auth()->user()->role === 'admin')
+                <a href="{{ route('admin.analytics.inventory') }}"
+                   class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('admin.analytics.inventory') ? 'border-purple-500 text-purple-900 bg-purple-50' : 'border-transparent text-gray-600 hover:text-purple-800 hover:bg-purple-50 hover:border-purple-300' }} text-base font-medium transition duration-150 ease-in-out focus:outline-none focus:text-purple-800 focus:bg-purple-50 focus:border-purple-300">
+                    Inventory Analytics
+                </a>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->
