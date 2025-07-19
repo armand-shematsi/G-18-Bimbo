@@ -94,6 +94,8 @@ class CartController extends Controller
             'customer_email' => $user->email,
             'status' => 'pending',
             'total' => $total,
+            'placed_at' => now(),
+            'tracking_number' => strtoupper(uniqid('TRK')),
         ]);
         foreach ($cart as $item) {
             $order->items()->create($item);

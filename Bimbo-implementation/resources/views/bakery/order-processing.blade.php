@@ -1,22 +1,22 @@
 @extends('layouts.bakery-manager')
 
 @section('header')
-<h1 class="text-3xl font-bold text-gray-900">Order Processing</h1>
+<div class="sticky top-0 z-30 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-400 shadow-lg py-4 px-8 flex items-center justify-between rounded-b-2xl">
+    <h1 class="text-3xl font-extrabold text-white flex items-center gap-3">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3" /></svg>
+        Order Processing
+    </h1>
+    <span class="text-lg text-white/80 font-semibold">Bakery Dashboard</span>
+</div>
 <p class="mt-1 text-sm text-gray-600">Manage orders to suppliers and from retailers.</p>
 @endsection
 
 @section('content')
-<div class="bg-gradient-to-r from-sky-500 via-purple-500 to-pink-400 rounded-lg shadow-lg mb-8 flex items-center justify-between px-10 py-10">
-    <div>
-        <h2 class="text-3xl font-bold text-white mb-2">Order Processing Overview</h2>
-        <p class="text-lg text-sky-100">Manage supplier and retailer orders, track status, and streamline fulfillment</p>
-    </div>
-    <div>
-        <svg class="w-24 h-24 text-sky-200" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-        </svg>
-    </div>
-</div>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 pb-16" 
+     data-supplier-order-route="{{ url('/bakery/order-processing/supplier-order') }}"
+     data-supplier-orders-route="{{ url('/order-processing/supplier-orders') }}">
+    <div class="max-w-7xl mx-auto py-8">
+        <div class="flex flex-col md:flex-row gap-8">
 <!-- New & Assigned Orders Section -->
 <div class="bg-white rounded-xl shadow-lg mb-8 border-l-4 border-blue-600">
     <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
@@ -65,117 +65,125 @@
         @endif
     </div>
 </div>
-<div class="max-w-7xl mx-auto py-8"
-    data-supplier-order-route="{{ route('bakery.order-processing.supplier-order') }}"
-    data-retailer-orders-route="{{ route('bakery.order-processing.retailer-orders') }}">
-    <div class="flex flex-col md:flex-row gap-8">
         <!-- Place Order to Supplier and Supplier Orders Table -->
         <div class="flex-1">
-            <div class="bg-white rounded-xl shadow-lg p-6">
-                <h2 class="text-xl font-bold text-blue-700 mb-4">Place Order to Supplier</h2>
-                <form id="supplierOrderForm" action="{{ route('bakery.order-processing.supplier-order') }}" method="POST">
+                <div class="bg-gradient-to-br from-blue-100 via-white to-purple-100 rounded-2xl shadow-xl p-6 border border-blue-200 mb-8">
+                    <h2 class="text-2xl font-bold text-blue-700 mb-6 flex items-center gap-2">
+                        <svg class="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v4a1 1 0 001 1h3m10-5v4a1 1 0 01-1 1h-3m-4 4h4m-2 0v4m0 0h-2m2 0h2" /></svg>
+                        Place Order to Supplier
+                    </h2>
+                    <form id="supplierOrderForm" action="{{ route('bakery.order-processing.supplier-order') }}" method="POST" class="space-y-4">
                     @csrf
-                    <div class="mb-4">
+                        <div>
                         <label class="block text-gray-700 font-semibold mb-2">Product</label>
-                        <select name="product_id" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
+                            <select name="product_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-200" required>
                             <option value="">Select product</option>
                             @foreach($products as $product)
                             <option value="{{ $product->id }}">{{ $product->name }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="mb-4">
+                        <div>
                         <label class="block text-gray-700 font-semibold mb-2">Quantity</label>
-                        <input type="number" name="quantity" class="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Enter quantity" required>
+                            <input type="number" name="quantity" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-200" placeholder="Enter quantity" required>
                     </div>
-                    <div class="mb-4">
+                        <div>
                         <label class="block text-gray-700 font-semibold mb-2">Supplier</label>
-                        <select name="supplier_id" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
+                            <select name="supplier_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-200" required>
                             <option value="">Select supplier</option>
                             @foreach($suppliers as $supplier)
                             <option value="{{ $supplier->id }}">{{ $supplier->name }} ({{ $supplier->email }})</option>
                             @endforeach
                         </select>
                     </div>
-                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Place Order</button>
+                        <button type="submit" class="bg-gradient-to-r from-blue-600 to-purple-500 text-white px-6 py-2 rounded-lg font-semibold shadow hover:scale-105 hover:from-blue-700 hover:to-purple-600 transition">Place Order</button>
                     <div id="supplierOrderMsg" class="mt-2 text-sm"></div>
                 </form>
             </div>
             <!-- Supplier Orders List -->
-            <div class="bg-white rounded-xl shadow-lg p-6 mt-8">
-                <h2 class="text-xl font-bold text-purple-700 mb-4">Your Supplier Orders</h2>
+                <div class="bg-gradient-to-br from-purple-100 via-white to-blue-100 rounded-2xl shadow-xl p-6 border border-purple-200">
+                    <h2 class="text-2xl font-bold text-purple-700 mb-6 flex items-center gap-2">
+                        <svg class="w-7 h-7 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V7a2 2 0 00-2-2H6a2 2 0 00-2 2v6" /></svg>
+                        Your Supplier Orders
+                    </h2>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead>
-                            <tr>
-                                <th class="px-4 py-2 text-left font-semibold">Order ID</th>
-                                <th class="px-4 py-2 text-left font-semibold">Product</th>
-                                <th class="px-4 py-2 text-left font-semibold">Quantity</th>
-                                <th class="px-4 py-2 text-left font-semibold">Status</th>
-                                <th class="px-4 py-2 text-left font-semibold">Total</th>
-                                <th class="px-4 py-2 text-left font-semibold">Placed At</th>
+                        <table class="min-w-full divide-y divide-gray-200 text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left font-semibold">Order ID</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Product</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Quantity</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Status</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Total</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Placed At</th>
                             </tr>
                         </thead>
                         <tbody id="supplierOrdersTableBody">
-                            <!-- Orders will be rendered here by JS -->
+                            <!-- Supplier orders will be rendered here by JS -->
                         </tbody>
                     </table>
-                </div>
             </div>
         </div>
         <!-- Receive Orders from Retailers -->
-        <div class="flex-1">
-            <div class="bg-white rounded-xl shadow-lg p-6">
-                <h2 class="text-xl font-bold text-green-700 mb-4">Receive Orders from Retailers</h2>
+                <div class="bg-gradient-to-br from-green-100 via-white to-blue-100 rounded-2xl shadow-xl p-6 border border-green-200">
+                    <h2 class="text-2xl font-bold text-green-700 mb-6 flex items-center gap-2">
+                        <svg class="w-7 h-7 text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3" /></svg>
+                        Receive Orders from Retailers
+                    </h2>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200 text-sm">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Retailer</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Product</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Quantity</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3"></th>
+                                    <th class="px-4 py-3 text-left font-semibold">Retailer</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Product</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Quantity</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Status</th>
                             </tr>
                         </thead>
-                        <tbody id="retailerOrdersTbody" class="bg-white divide-y divide-gray-100">
-                            @forelse($retailerOrders as $order)
+                            <tbody>
+                                @foreach($retailerOrders as $order)
                                 @foreach($order->items as $item)
                                     @if($order->user && $order->user->role === 'retail_manager' && $item->product && $item->product->type === 'finished_product')
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $order->user->name }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $item->product->name }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $item->quantity }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                <select class="order-status-dropdown border rounded px-2 py-1" data-order-id="{{ $order->id }}">
-                                                    @foreach(['pending', 'processing', 'shipped', 'received'] as $status)
-                                                        <option value="{{ $status }}" @if(strtolower($order->status) === $status) selected @endif>{{ ucfirst($status) }}</option>
-                                                    @endforeach
-                                                </select>
+                                            <tr class="hover:bg-green-50 transition @if($loop->parent->iteration % 2 == 0) bg-gray-50 @endif">
+                                                <td class="px-4 py-3 font-medium text-gray-900 flex items-center gap-2">
+                                                    <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                                    {{ $order->user->name }}
                                             </td>
-                                            <td>
-                                                <button 
-                                                    class="mark-as-received-btn bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
-                                                    data-order-id="{{ $order->id }}"
-                                                    type="button"
-                                                >
-                                                    Mark as Received
-                                                </button>
+                                                <td class="px-4 py-3">{{ $item->product->name ?? 'N/A' }}</td>
+                                                <td class="px-4 py-3">{{ $item->quantity }}</td>
+                                                <td class="px-4 py-3">
+                                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold
+                                                        @if($order->status === 'pending') bg-yellow-100 text-yellow-800
+                                                        @elseif($order->status === 'processing') bg-blue-100 text-blue-800
+                                                        @elseif($order->status === 'shipped') bg-purple-100 text-purple-800
+                                                        @elseif($order->status === 'received') bg-green-100 text-green-800
+                                                        @else bg-gray-100 text-gray-800 @endif">
+                                                        @if($order->status === 'pending')
+                                                            <svg class="w-4 h-4 inline text-yellow-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
+                                                        @elseif($order->status === 'processing')
+                                                            <svg class="w-4 h-4 inline text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3" /></svg>
+                                                        @elseif($order->status === 'shipped')
+                                                            <svg class="w-4 h-4 inline text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 10h1l2 7h13l2-7h1" /></svg>
+                                                        @elseif($order->status === 'received')
+                                                            <svg class="w-4 h-4 inline text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" /></svg>
+                                                        @endif
+                                                        {{ ucfirst($order->status) }}
+                                                    </span>
                                             </td>
                                         </tr>
                                     @endif
+                                    @endforeach
                                 @endforeach
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="text-center text-gray-500 py-4">No retailer orders for finished products found.</td>
-                                </tr>
-                            @endforelse
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
+    </div>
+    <footer class="mt-12 text-center text-gray-500 text-sm py-6">
+        &copy; {{ date('Y') }} Bimbo Bakery Management. All rights reserved.
+    </footer>
 </div>
 @endsection
 
