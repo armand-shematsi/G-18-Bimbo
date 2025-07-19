@@ -18,6 +18,8 @@ class ProductController extends Controller
                 ->first();
             $product->available = $inventory ? $inventory->quantity : 0;
             $product->unit = $inventory ? $inventory->unit : '';
+            $product->inventory_id = $inventory ? $inventory->id : null;
+            $product->unit_price = $inventory ? $inventory->unit_price : ($product->unit_price ?? $product->price ?? 0);
             return $product;
         });
         return view('customer.products', compact('products'));

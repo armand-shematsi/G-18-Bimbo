@@ -15,7 +15,7 @@ class OrderController extends Controller
     // Show order placement form
     public function create()
     {
-        $products = Product::all()->map(function($product) {
+        $products = Product::where('type', 'finished_product')->get()->map(function($product) {
             $inventory = \App\Models\Inventory::where('product_id', $product->id)
                 ->where('location', 'retail')
                 ->where('item_type', 'finished_good')

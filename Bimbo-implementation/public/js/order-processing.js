@@ -5,9 +5,10 @@
 // (If using a linter, ensure 'window' is allowed for global functions)
 document.addEventListener('DOMContentLoaded', function() {
     // Get the wrapper div with data attributes
-    const wrapper = document.querySelector('[data-supplier-order-route]');
+    const wrapper = document.querySelector('[data-supplier-order-route], [data-supplier-orders-route]');
     if (!wrapper) return;
     const supplierOrderRoute = wrapper.dataset.supplierOrderRoute;
+    const supplierOrdersRoute = wrapper.dataset.supplierOrdersRoute || '/order-processing/supplier-orders';
     const retailerOrdersRoute = wrapper.dataset.retailerOrdersRoute;
     // Use global receiveOrderBaseUrl and csrfToken from Blade, do not redeclare here
 
@@ -37,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         msg.textContent = 'Order placed successfully!';
                         msg.className = 'mt-2 text-green-600';
                         form.reset();
-                        fetchAndRenderSupplierOrders(); // Update supplier orders list
+                        fetchAndRenderSupplierOrders(); // Instead of window.location.reload();
                     } else {
                         msg.textContent = 'Failed to place order.';
                         msg.className = 'mt-2 text-red-600';
@@ -129,7 +130,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Supplier Orders AJAX ---
     // Use the correct route from Blade if available
-    var supplierOrdersRoute = window.supplierOrdersRoute || '/order-processing/supplier-orders';
     function fetchAndRenderSupplierOrders() {
         fetch(supplierOrdersRoute)
             .then(res => res.json())

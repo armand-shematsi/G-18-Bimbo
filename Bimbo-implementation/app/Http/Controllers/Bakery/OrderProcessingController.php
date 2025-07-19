@@ -21,10 +21,10 @@ class OrderProcessingController extends Controller
         $retailerOrders = \App\Models\Order::whereHas('user', function($q) {
                 $q->where('role', 'retail_manager');
             })
-            ->whereHas('items.product', function($q) {
-                $q->where('type', 'finished_product');
+            ->whereDoesntHave('items.product', function($q) {
+                $q->where('type', 'raw_material');
             })
-            ->whereIn('status', ['pending', 'processing']) // Add status filter
+            ->whereIn('status', ['pending', 'processing'])
             ->with([
                 'user',
                 'items' => function($q) {
@@ -36,8 +36,11 @@ class OrderProcessingController extends Controller
             ])
             ->orderBy('created_at', 'desc')
             ->get();
+        
+        \Log::info('DEBUG retailerOrders', ['retailerOrders' => $retailerOrders->toArray()]);
 
-        return view('bakery.order-processing', compact('suppliers', 'products', 'retailerOrders'));
+        $supplierOrders = \App\Models\SupplierOrder::with('product')->orderBy('created_at', 'desc')->get();
+        return view('bakery.order-processing', compact('suppliers', 'products', 'retailerOrders', 'supplierOrders'));
     }
 
     // AJAX: Store a new supplier order
@@ -71,38 +74,18 @@ class OrderProcessingController extends Controller
             'supplier_id' => 'required|exists:users,id',
         ]);
 
-        // Find the vendor for the selected supplier
-        $vendor = \App\Models\Vendor::where('user_id', $validated['supplier_id'])->first();
-        if (!$vendor) {
-            return response()->json(['success' => false, 'message' => 'Supplier vendor not found.'], 422);
-        }
-
-        $product = \App\Models\Product::find($validated['product_id']);
-        $unitPrice = $product->unit_price ?? 0;
-        $totalPrice = $unitPrice * $validated['quantity'];
-
-        // Create the order
-        $order = \App\Models\Order::create([
-            'user_id' => auth()->id(),
-            'vendor_id' => $vendor->id,
-            'customer_name' => auth()->user()->name,
-            'customer_email' => auth()->user()->email,
-            'status' => 'pending',
-            'total' => $totalPrice,
-            'payment_status' => 'unpaid',
-            'placed_at' => now(),
-        ]);
-
-        // Create the order item
-        $order->items()->create([
-            'product_id' => $product->id,
-            'product_name' => $product->name,
+        $order = \App\Models\SupplierOrder::create([
+            'product_id' => $validated['product_id'],
             'quantity' => $validated['quantity'],
-            'unit_price' => $unitPrice,
-            'total_price' => $totalPrice,
+            'supplier_id' => $validated['supplier_id'],
+            'status' => 'pending',
         ]);
 
-        // Optionally notify the supplier here
+        // Notify the supplier
+        $supplier = User::find($validated['supplier_id']);
+        if ($supplier) {
+            $supplier->notify(new SupplierOrderPlaced($order));
+        }
 
         return response()->json(['success' => true, 'order' => $order]);
     }
@@ -110,7 +93,24 @@ class OrderProcessingController extends Controller
     // AJAX: List all retailer orders (from orders table)
     public function listRetailerOrders()
     {
-        $orders = \App\Models\Order::with(['user', 'items.product'])->orderBy('created_at', 'desc')->get();
+        $orders = \App\Models\Order::whereHas('user', function($q) {
+                $q->where('role', 'retail_manager');
+            })
+            ->whereDoesntHave('items.product', function($q) {
+                $q->where('type', 'raw_material');
+            })
+            ->whereIn('status', ['pending', 'processing'])
+            ->with([
+                'user',
+                'items' => function($q) {
+                    $q->whereHas('product', function($q2) {
+                        $q2->where('type', 'finished_product');
+                    });
+                },
+                'items.product'
+            ])
+            ->orderBy('created_at', 'desc')
+            ->get();
         return response()->json(['orders' => $orders]);
     }
 
