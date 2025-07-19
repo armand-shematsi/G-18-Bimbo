@@ -39,17 +39,7 @@
                             @endif
                         @endif
                         @if(auth()->user()->role === 'admin')
-                            <a href="{{ route('customer-segments.import.form') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('customer-segments.import.form') ? 'border-primary text-gray-900' : 'border-transparent text-blue-600 hover:text-blue-700 hover:border-blue-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none focus:border-blue-600">
-                                <svg class="w-4 h-4 mr-1 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                                Import Customer Segments
-                            </a>
-                            <a href="{{ route('admin.analytics.inventory') }}"
-                               class="inline-flex items-center px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm mx-1
-                                      {{ request()->routeIs('admin.analytics.inventory') ? 'bg-purple-500 text-white shadow-lg scale-105' : 'bg-purple-100 text-purple-700 hover:bg-purple-200 hover:text-purple-900' }}"
-                               style="box-shadow: 0 2px 8px 0 rgba(139, 92, 246, 0.10);">
-                                <svg class="w-5 h-5 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h18v18H3V3z" /></svg>
-                                Inventory Analytics
-                            </a>
+                            {{-- Removed Import Customer Segments link --}}
                         @endif
                     @endauth
                     @guest

@@ -118,25 +118,6 @@
                 </a>
             </div>
         </div>
-        <div class="card my-4 shadow-sm" style="border: 2px solid #007bff; background: linear-gradient(90deg, #e3f2fd 0%, #fff 100%);">
-            <div class="card-body">
-                <h4 class="card-title mb-3" style="font-size: 2rem; font-weight: bold; color: #007bff;">
-                    <i class="fas fa-file-alt" style="font-size: 2.2rem; color: #007bff; vertical-align: middle;"></i>
-                    Reports Center
-                </h4>
-                <div class="d-flex flex-wrap gap-3">
-                    <a href="{{ route('reports.downloads') }}" class="btn btn-info btn-lg d-flex align-items-center" style="font-size: 1.3rem; font-weight: bold; background: #17a2b8; border: none; border-radius: 6px;">
-                        <i class="fas fa-eye mr-2" style="font-size: 2rem; color: #fff;"></i> View Your Reports
-                    </a>
-                </div>
-                <div class="d-flex flex-wrap gap-3 mt-3">
-                    <a href="{{ route('reports.downloads') }}" class="btn btn-success btn-lg d-flex align-items-center" style="font-size: 1.3rem; font-weight: bold; background: #28a745; border: none; border-radius: 6px;">
-                        <i class="fas fa-file-download mr-2" style="font-size: 2rem; color: #fff;"></i> Download Your Reports
-                    </a>
-                </div>
-                <p class="text-muted mt-3 mb-0" style="font-size: 1.1rem; font-weight: 500; color: #333 !important;">Access all your daily and weekly reports in one place.</p>
-            </div>
-        </div>
         <!-- Order Analytics Charts -->
         <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
             <div class="bg-gradient-to-br from-blue-100 to-green-100 p-8 rounded-2xl shadow-xl">
@@ -147,6 +128,12 @@
                 <h3 class="text-xl font-bold text-yellow-700 mb-4">Order Status Breakdown</h3>
                 <canvas id="orderStatusChart" height="120"></canvas>
             </div>
+        </div>
+        <!-- Reports Button at the bottom -->
+        <div class="w-full flex justify-end mt-8">
+            <a href="{{ route('reports.downloads') }}" class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg text-xl transition-all duration-200">
+                Reports
+            </a>
         </div>
     </div>
 </div>
