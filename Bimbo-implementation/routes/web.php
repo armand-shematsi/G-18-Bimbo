@@ -62,6 +62,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/inventory/{id}', [App\Http\Controllers\Supplier\InventoryController::class, 'destroy'])->name('inventory.destroy');
         Route::post('/inventory/{id}/update-quantity', [App\Http\Controllers\Supplier\InventoryController::class, 'updateQuantity'])->name('inventory.updateQuantity');
         Route::get('/inventory/dashboard', [App\Http\Controllers\Supplier\InventoryController::class, 'dashboard'])->name('inventory.dashboard');
+        Route::get('/inventory/{id}', [App\Http\Controllers\Supplier\InventoryController::class, 'show'])->name('inventory.show');
 
         // Orders routes
         Route::get('/orders', [App\Http\Controllers\Supplier\OrderController::class, 'index'])->name('orders.index');

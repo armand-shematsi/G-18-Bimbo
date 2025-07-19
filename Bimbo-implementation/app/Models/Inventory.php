@@ -14,6 +14,7 @@ class Inventory extends Model
         'item_type',
         'reorder_level',
         'location',
+        'user_id', // <-- Added for supplier assignment
     ];
 
     protected static function boot()
