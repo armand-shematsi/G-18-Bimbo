@@ -10,6 +10,7 @@ return new class extends Migration {
         Schema::create('supply_centers', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('type')->default('production'); // New: type of center
             $table->string('location')->nullable();
             $table->string('required_role')->nullable(); // e.g., 'driver', 'baker', etc.
             $table->string('shift_time')->nullable(); // Add this line

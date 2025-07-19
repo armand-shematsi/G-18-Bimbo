@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Staff API Test</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                padding: 20px;
+            }
+            .result {
+                margin: 20px 0;
+                padding: 10px;
+                border: 1px solid #ccc;
+            }
+            button {
+                padding: 10px 20px;
+                background: #007bff;
+                color: white;
+                border: none;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Staff API Test</h1>
+        <button onclick="testAPI()">Test Staff API</button>
+        <div id="result" class="result"></div>
+
+        <script>
+            function testAPI() {
+                document.getElementById("result").innerHTML = "Testing...";
+
+                fetch("/api/staff-on-duty-count")
+                    .then((response) => {
+                        console.log("Response status:", response.status);
+                        console.log("Response headers:", response.headers);
+                        return response.json();
+                    })
+                    .then((data) => {
+                        console.log("API Response:", data);
+                        document.getElementById("result").innerHTML =
+                            "<h3>Success!</h3>" +
+                            "<p>Present: " +
+                            data.presentCount +
+                            "</p>" +
+                            "<p>Absent: " +
+                            data.absentCount +
+                            "</p>" +
+                            "<p>Total: " +
+                            data.totalStaff +
+                            "</p>" +
+                            "<pre>" +
+                            JSON.stringify(data, null, 2) +
+                            "</pre>";
+                    })
+                    .catch((error) => {
+                        console.error("API Error:", error);
+                        document.getElementById("result").innerHTML =
+                            "<h3>Error!</h3>" +
+                            "<p>Error: " +
+                            error.message +
+                            "</p>";
+                    });
+            }
+        </script>
+    </body>
+</html>

@@ -15,6 +15,12 @@ class StaffSeeder extends Seeder
             ['name' => 'Charlie Loader', 'role' => 'loader', 'status' => 'Absent'],
             ['name' => 'Diana Manager', 'role' => 'manager', 'status' => 'Present'],
             ['name' => 'Eve Staff', 'role' => 'staff', 'status' => 'Absent'],
+            ['name' => 'ISAAC', 'role' => 'baker', 'status' => 'Present'],
+            ['name' => 'ISCO', 'role' => 'store keeper', 'status' => 'Present'],
+            ['name' => 'HELEN', 'role' => 'packager', 'status' => 'Present'],
+            ['name' => 'ROY', 'role' => 'driver', 'status' => 'Present'],
+            ['name' => 'HANES', 'role' => 'seller', 'status' => 'Present'],
+            ['name' => 'ARMAND', 'role' => 'driver', 'status' => 'Present'],
         ];
         foreach ($staff as $s) {
             Staff::updateOrCreate(

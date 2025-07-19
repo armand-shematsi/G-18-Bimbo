@@ -19,9 +19,13 @@ class OrderController extends Controller
     // List all orders (with search/filter stub)
     public function index(Request $request)
     {
-        $orders = Order::query();
-        // Add search/filter logic here
-        $orders = $orders->latest()->paginate(20);
+        $orders = Order::whereHas('user', function($query) {
+            $query->where('role', 'customer');
+        })
+        ->whereHas('items.product', function($query) {
+            $query->where('type', 'finished_product');
+        })
+        ->latest()->paginate(20);
         return view('retail.orders.index', compact('orders'));
     }
 
@@ -174,5 +178,26 @@ class OrderController extends Controller
             'description' => 'Order #' . $order->id . ' status changed to ' . $order->status
         ]);
         return redirect()->route('retail.orders.show', $order->id)->with('success', 'Order status updated!');
+    }
+
+    // Record payment for an order
+    public function recordPayment(Request $request, Order $order)
+    {
+        $request->validate([
+            'amount' => 'required|numeric|min:0.01',
+            'payment_method' => 'required|string|max:255',
+            'transaction_id' => 'nullable|string|max:255',
+        ]);
+
+        $order->payment()->create([
+            'user_id' => auth()->id(),
+            'amount' => $request->amount,
+            'payment_method' => $request->payment_method,
+            'transaction_id' => $request->transaction_id,
+            'status' => 'paid',
+            'paid_at' => now(),
+        ]);
+
+        return back()->with('success', 'Payment recorded successfully!');
     }
 }

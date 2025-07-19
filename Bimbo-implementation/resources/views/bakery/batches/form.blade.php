@@ -20,7 +20,7 @@ $isEdit = isset($batch);
         <select name="product_id" id="product_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
             <option value="">Select product</option>
             @foreach($products as $product)
-                <option value="{{ $product->id }}" {{ old('product_id', $isEdit ? ($batch->product_id ?? null) : null) == $product->id ? 'selected' : '' }}>{{ $product->name }}</option>
+            <option value="{{ $product->id }}" {{ old('product_id', $isEdit ? ($batch->product_id ?? null) : null) == $product->id ? 'selected' : '' }}>{{ $product->name }}</option>
             @endforeach
         </select>
         @error('product_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
@@ -120,6 +120,10 @@ $isEdit = isset($batch);
         </select>
         @error('production_line_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
     </div>
+    <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Note:</label>
+        <div class="text-xs text-gray-500">All times are saved in Africa/Nairobi time. Your input will be converted to UTC for storage and then displayed in Nairobi time.</div>
+    </div>
     <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">{{ $isEdit ? 'Update Batch' : 'Create Batch' }}</button>
     <a href="{{ route('bakery.batches.index') }}" class="ml-2 text-gray-600 hover:underline">Cancel</a>
 </form>
@@ -172,40 +176,83 @@ $isEdit = isset($batch);
         });
     }
     document.addEventListener('DOMContentLoaded', function() {
+        // Synchronize time and AM/PM fields for all time inputs
+        function syncTimeAndAmPm(timeInputId, ampmSelectId) {
+            const timeInput = document.getElementById(timeInputId);
+            const ampmSelect = document.getElementById(ampmSelectId);
+            if (!timeInput || !ampmSelect) return;
+            // On time input change, update AM/PM select
+            timeInput.addEventListener('change', function() {
+                let [h, m] = timeInput.value.split(':');
+                h = parseInt(h);
+                if (isNaN(h)) return;
+                if (h >= 12) {
+                    ampmSelect.value = 'PM';
+                } else {
+                    ampmSelect.value = 'AM';
+                }
+            });
+            // On AM/PM select change, update time input if needed
+            ampmSelect.addEventListener('change', function() {
+                let [h, m] = timeInput.value.split(':');
+                h = parseInt(h);
+                if (isNaN(h)) return;
+                if (ampmSelect.value === 'PM' && h < 12) {
+                    h += 12;
+                }
+                if (ampmSelect.value === 'AM' && h >= 12) {
+                    h -= 12;
+                }
+                if (h < 0) h = 0;
+                timeInput.value = (h < 10 ? '0' : '') + h + ':' + (m || '00');
+            });
+            // On page load, set AM/PM based on initial time value
+            if (timeInput.value) {
+                let [h, m] = timeInput.value.split(':');
+                h = parseInt(h);
+                if (!isNaN(h)) {
+                    if (h >= 12) {
+                        ampmSelect.value = 'PM';
+                    } else {
+                        ampmSelect.value = 'AM';
+                    }
+                }
+            }
+        }
         syncTimeAndAmPm('scheduled_start_time_raw', 'scheduled_start_time_ampm');
         syncTimeAndAmPm('actual_start_time_raw', 'actual_start_time_ampm');
         syncTimeAndAmPm('actual_end_time_raw', 'actual_end_time_ampm');
         document.getElementById('batch-form').addEventListener('submit', function(e) {
+            // Helper to convert local date/time to UTC ISO string
+            function toUTCISO(date, time, ampm) {
+                if (!date || !time || !ampm) return '';
+                let [h, m] = time.split(':');
+                h = parseInt(h);
+                if (ampm === 'PM' && h < 12) h += 12;
+                if (ampm === 'AM' && h === 12) h = 0;
+                // Compose local datetime string
+                const local = new Date(date + 'T' + (h < 10 ? '0' : '') + h + ':' + m + ':00');
+                // Convert to UTC ISO string
+                return local.toISOString();
+            }
             // Scheduled Start
             const ssd = document.getElementById('scheduled_start_date').value;
             const sst = document.getElementById('scheduled_start_time_raw').value;
             const ssampm = document.getElementById('scheduled_start_time_ampm').value;
             const scheduledStartField = document.getElementById('scheduled_start');
-            if (ssd && sst && ssampm) {
-                scheduledStartField.value = ssd + 'T' + to24(sst, ssampm);
-            } else {
-                scheduledStartField.value = '';
-            }
+            scheduledStartField.value = toUTCISO(ssd, sst, ssampm);
             // Actual Start
             const asd = document.getElementById('actual_start_date').value;
             const ast = document.getElementById('actual_start_time_raw').value;
             const asampm = document.getElementById('actual_start_time_ampm').value;
             const actualStartField = document.getElementById('actual_start');
-            if (asd && ast && asampm) {
-                actualStartField.value = asd + 'T' + to24(ast, asampm);
-            } else {
-                actualStartField.value = '';
-            }
+            actualStartField.value = toUTCISO(asd, ast, asampm);
             // Actual End
             const aed = document.getElementById('actual_end_date').value;
             const aet = document.getElementById('actual_end_time_raw').value;
             const aeampm = document.getElementById('actual_end_time_ampm').value;
             const actualEndField = document.getElementById('actual_end');
-            if (aed && aet && aeampm) {
-                actualEndField.value = aed + 'T' + to24(aet, aeampm);
-            } else {
-                actualEndField.value = '';
-            }
+            actualEndField.value = toUTCISO(aed, aet, aeampm);
             // Prevent submit if scheduled_start is not set
             if (!scheduledStartField.value) {
                 e.preventDefault();
