@@ -111,7 +111,20 @@
                             </div>
                         @endforeach
                     </div>
-                @endif
+                </div>
+                <!-- Product Sales & Forecast Chart -->
+                <h3 class="text-lg font-semibold mb-4">Product Sales & Forecast (ML Predictions)</h3>
+                <div class="mb-8">
+                    <label for="productSelect" class="block mb-2 font-semibold">Select Product:</label>
+                    <select id="productSelect" class="border rounded p-2">
+                        @foreach(array_keys($salesHistoryChartData ?? []) as $product)
+                            <option value="{{ $product }}">{{ ucfirst($product) }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-8">
+                    <canvas id="salesChart" width="800" height="400"></canvas>
+                </div>
             </div>
         </div>
     </div>
