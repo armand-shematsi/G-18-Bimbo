@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('production_batches', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->enum('status', ['planned', 'active', 'completed', 'cancelled'])->default('planned');
+            $table->enum('status', ['planned', 'active', 'completed', 'cancelled', 'delayed'])->default('planned');
             $table->dateTime('scheduled_start');
             $table->dateTime('actual_start')->nullable();
             $table->dateTime('actual_end')->nullable();

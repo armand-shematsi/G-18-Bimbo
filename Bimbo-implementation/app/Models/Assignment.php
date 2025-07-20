@@ -6,7 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Assignment extends Model
 {
-    protected $fillable = ['staff_id', 'supply_center_id', 'shift_time', 'status'];
+    protected $fillable = ['staff_id', 'supply_center_id', 'shift_time', 'status', 'assignment_date'];
+
+    protected $casts = [
+        'assignment_date' => 'date',
+    ];
 
     public function staff()
     {

@@ -165,8 +165,8 @@
     </div>
     <div class="p-6">
         <div class="flow-root">
-            <ul class="-mb-8 activity-timeline">
-                <li class="relative pb-8 text-gray-400">Loading...</li>
+            <ul id="production-activity-list" class="-mb-8 activity-timeline min-h-[60px]">
+                <li class="text-gray-400">Loading...</li>
             </ul>
         </div>
     </div>
@@ -178,14 +178,99 @@
 <script>
     // --- Live Stats Cards ---
     function fetchProductionStatsLive() {
+        console.log('Fetching production stats...');
         fetch('/api/production-live')
-            .then(res => res.json())
+            .then(res => {
+                console.log('Production API response status:', res.status);
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                }
+                return res.json();
+            })
             .then(data => {
-                document.querySelector('.batches-today').textContent = data.batches_today ?? '-';
-                document.querySelector('.active-batches').textContent = data.active ?? '-';
-                document.querySelector('.output-today').textContent = data.output ?? '-';
-                document.querySelector('.downtime-today').textContent = data.downtime ?? '0';
+                console.log('Production stats data:', data);
+
+                // Update all cards with visual feedback
+                const cards = [{
+                        selector: '.batches-today',
+                        value: data.batches_today ?? '-',
+                        label: 'Batches Today'
+                    },
+                    {
+                        selector: '.active-batches',
+                        value: data.active ?? '-',
+                        label: 'Active Batches'
+                    },
+                    {
+                        selector: '.output-today',
+                        value: data.output ?? '-',
+                        label: 'Output Today'
+                    },
+                    {
+                        selector: '.downtime-today',
+                        value: data.downtime ?? '0',
+                        label: 'Downtime'
+                    }
+                ];
+
+                cards.forEach(card => {
+                    const element = document.querySelector(card.selector);
+                    if (element) {
+                        const prevValue = element.textContent;
+                        element.textContent = card.value;
+
+                        // Add visual feedback for changes
+                        const cardContainer = element.closest('.bg-white');
+                        if (cardContainer && prevValue !== card.value) {
+                            console.log(`${card.label} updated: ${prevValue} → ${card.value}`);
+
+                            // Flash effect for downtime card (red theme)
+                            if (card.selector === '.downtime-today') {
+                                cardContainer.style.transition = 'all 0.3s ease';
+                                cardContainer.style.transform = 'scale(1.05)';
+                                cardContainer.style.backgroundColor = '#fef2f2';
+
+                                setTimeout(() => {
+                                    cardContainer.style.transform = 'scale(1)';
+                                    cardContainer.style.backgroundColor = '';
+                                }, 500);
+                            } else {
+                                // Standard flash for other cards
+                                cardContainer.style.transition = 'all 0.3s ease';
+                                cardContainer.style.transform = 'scale(1.02)';
+
+                                setTimeout(() => {
+                                    cardContainer.style.transform = 'scale(1)';
+                                }, 300);
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching production stats:', error);
+                // Set fallback values
+                document.querySelector('.batches-today').textContent = '-';
+                document.querySelector('.active-batches').textContent = '-';
+                document.querySelector('.output-today').textContent = '-';
+                document.querySelector('.downtime-today').textContent = '0';
             });
+    }
+    // Helper: Convert UTC/ISO string to Africa/Nairobi time and format
+    function toNairobiString(dt) {
+        if (!dt) return '-';
+        const d = new Date(dt);
+        // Africa/Nairobi is UTC+3, no DST
+        const nairobiOffset = 3 * 60; // minutes
+        // Get UTC time, add offset
+        const local = new Date(d.getTime() + (nairobiOffset - d.getTimezoneOffset()) * 60000);
+        return local.toLocaleString('en-KE', {
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
     }
     // --- Live Recent Batches Table ---
     function fetchRecentBatchesLive() {
@@ -198,17 +283,6 @@
                     tbody.innerHTML = `<tr><td colspan='6' class='text-center text-gray-400 py-8'>No recent batches</td></tr>`;
                 } else {
                     data.batches.forEach(batch => {
-                        function fmt(dt) {
-                            if (!dt) return '-';
-                            const d = new Date(dt);
-                            if (isNaN(d)) return dt;
-                            return d.toLocaleString('en-US', {
-                                month: '2-digit',
-                                day: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            });
-                        }
                         let badgeClass = 'bg-gray-200 text-gray-800';
                         if (batch.status === 'active' || batch.status === 'Active') badgeClass = 'bg-blue-200 text-blue-800';
                         if (batch.status === 'completed' || batch.status === 'Completed') badgeClass = 'bg-green-200 text-green-800';
@@ -216,9 +290,9 @@
                         tbody.innerHTML += `<tr>
                         <td>${batch.name}</td>
                         <td><span class='px-2 py-1 rounded ${badgeClass}'>${batch.status}</span></td>
-                        <td>${fmt(batch.scheduled_start)}</td>
-                        <td>${fmt(batch.actual_start)}</td>
-                        <td>${fmt(batch.actual_end)}</td>
+                        <td>${toNairobiString(batch.scheduled_start)}</td>
+                        <td>${toNairobiString(batch.actual_start)}</td>
+                        <td>${toNairobiString(batch.actual_end)}</td>
                         <td title='${batch.notes ?? ''}'>${batch.notes ? batch.notes.substring(0, 30) + (batch.notes.length > 30 ? '...' : '') : '-'}</td>
                     </tr>`;
                     });
@@ -338,11 +412,98 @@
     }
     // --- Initial fetch and polling ---
     fetchProductionStatsLive();
+    setInterval(fetchProductionStatsLive, 5000); // Update every 5 seconds
+
+    // --- Monitor Production Batch Changes ---
+    function setupProductionMonitoring() {
+        let lastProductionData = null;
+
+        function checkProductionChanges() {
+            fetch('/api/production-live')
+                .then(res => res.json())
+                .then(data => {
+                    if (lastProductionData) {
+                        // Check if downtime has changed
+                        const downtimeChanged = data.downtime !== lastProductionData.downtime;
+
+                        if (downtimeChanged) {
+                            console.log('Downtime change detected:', lastProductionData.downtime, '→', data.downtime);
+
+                            // Trigger visual alert for downtime changes
+                            const downtimeCard = document.querySelector('.downtime-today').closest('.bg-white');
+                            if (downtimeCard) {
+                                downtimeCard.style.transition = 'all 0.5s ease';
+                                downtimeCard.style.transform = 'scale(1.1)';
+                                downtimeCard.style.backgroundColor = '#fee2e2';
+                                downtimeCard.style.borderColor = '#ef4444';
+
+                                setTimeout(() => {
+                                    downtimeCard.style.transform = 'scale(1)';
+                                    downtimeCard.style.backgroundColor = '';
+                                    downtimeCard.style.borderColor = '';
+                                }, 1000);
+                            }
+
+                            // Update the display immediately
+                            fetchProductionStatsLive();
+                        }
+                    }
+                    lastProductionData = data;
+                })
+                .catch(error => {
+                    console.error('Error monitoring production changes:', error);
+                });
+        }
+
+        // Check for changes every 3 seconds
+        setInterval(checkProductionChanges, 3000);
+    }
+
+    // Initialize production monitoring
+    setupProductionMonitoring();
     fetchRecentBatchesLive();
     fetchActivityTimelineLive();
     setInterval(fetchActivityTimelineLive, 5000);
     // setInterval(fetchProductionStatsLive, 60000); // polling disabled
     // setInterval(fetchRecentBatchesLive, 60000); // polling disabled
     // setInterval(fetchProductionActivityLive, 60000); // polling disabled
+
+    function fetchProductionActivity() {
+        fetch('/bakery/api/production-batches')
+            .then(res => res.json())
+            .then(batches => {
+                const list = document.getElementById('production-activity-list');
+                if (!batches.length) {
+                    list.innerHTML = '<li class="text-gray-400">No production activity today.</li>';
+                    return;
+                }
+                list.innerHTML = batches.map(batch => {
+                    let statusColor = {
+                        'planned': 'bg-gray-200 text-gray-700',
+                        'active': 'bg-blue-200 text-blue-800',
+                        'completed': 'bg-green-200 text-green-800',
+                        'cancelled': 'bg-red-200 text-red-800'
+                    } [batch.status] || 'bg-gray-100 text-gray-700';
+                    let timeInfo = '';
+                    if (batch.actual_start) timeInfo += `Started: <span class=\"font-medium\">${toNairobiString(batch.actual_start)}</span> `;
+                    if (batch.actual_end) timeInfo += `| Completed: <span class=\"font-medium\">${toNairobiString(batch.actual_end)}</span>`;
+                    return `<li class='relative pb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between'>
+                        <div>
+                            <span class='font-bold'>${batch.name}</span>
+                            <span class='ml-2 text-sm text-gray-500'>(${batch.product ? batch.product.name : ''})</span>
+                        </div>
+                        <div class='flex items-center gap-3 mt-1 sm:mt-0'>
+                            <span class='px-2 py-1 rounded ${statusColor} text-xs font-semibold capitalize'>${batch.status}</span>
+                            <span class='text-xs text-gray-500'>${timeInfo}</span>
+                        </div>
+                    </li>`;
+                }).join('');
+            })
+            .catch(() => {
+                document.getElementById('production-activity-list').innerHTML = '<li class="text-red-400">Failed to load activity.</li>';
+            });
+    }
+    fetchProductionActivity();
+    setInterval(fetchProductionActivity, 10000);
 </script>
 @endpush

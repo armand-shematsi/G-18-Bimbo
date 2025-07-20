@@ -104,22 +104,95 @@
                 </div>
             </div>
         </div>
-        <div class="bg-white rounded-2xl shadow-lg p-6 border-b-4 border-orange-400 flex flex-col items-start hover:shadow-2xl transition-shadow duration-200 group min-w-[220px]">
-            <div class="flex items-center">
-                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+
+    </div>
+</div>
+
+
+<!-- Main Content Grid -->
+<!-- Removed Production Overview widget and all related code as requested -->
+
+<!-- Quick Actions & Alerts -->
+<div class="space-y-6">
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-2xl shadow-xl">
+        <div class="px-6 py-4 border-b border-gray-100">
+            <h3 class="text-lg font-bold text-gray-900">Quick Actions</h3>
+        </div>
+        <div class="p-6 space-y-4">
+            <a href="{{ route('bakery.production') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-80 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
                 </div>
                 <div class="ml-4">
-                    <p class="text-sm font-semibold text-gray-600">Overtime</p>
-                    <p class="text-2xl font-extrabold text-gray-900 live-overtime-count">-</p>
-                    <p class="text-xs text-gray-500">Staff in overtime</p>
+                    <p class="font-semibold">Start New Production</p>
+                    <p class="text-xs text-blue-100">Start Batch</p>
                 </div>
-            </div>
+            </a>
+
+            <a href="{{ route('bakery.maintenance') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-80 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="font-semibold">Maintain Machines</p>
+                    <p class="text-xs text-blue-100">Log Maintenance</p>
+                </div>
+            </a>
+
+            <a href="{{ route('bakery.order-processing') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-80 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="font-semibold">Order Processing</p>
+                    <p class="text-xs text-blue-100">Place/Receive Orders</p>
+                </div>
+            </a>
+
+            <a href="{{ route('supplier.raw-materials.catalog') }}" class="flex items-center p-4 bg-gradient-to-r from-green-500 to-blue-600 rounded-lg text-white w-80 hover:from-blue-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="font-semibold">Order Raw Materials</p>
+                    <p class="text-xs text-blue-100">Browse & Order</p>
+                </div>
+            </a>
+
+            <a href="{{ route('workforce.overview') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-80 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="font-semibold">Workforce Distribution</p>
+                    <p class="text-xs text-blue-100">View & Manage Workforce</p>
+                </div>
+            </a>
+
+            <button onclick="openStaffAssignmentCalendar()" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-80 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="font-semibold">Staff Assignment Calendar</p>
+                    <p class="text-xs text-blue-100">Daily Assignment View</p>
+                </div>
+            </button>
         </div>
     </div>
-</div>
 
 <!-- New & Assigned Orders Section -->
 <div class="bg-white rounded-xl shadow-lg p-6 mt-8">
@@ -224,14 +297,34 @@
                 </a>
             </div>
         </div>
+        <!-- Reports Center -->
+        <div class="bg-gradient-to-r from-sky-100 to-white rounded-2xl shadow-xl border-2 border-sky-400 p-8 mb-8">
+            <div class="flex items-center mb-6">
+                <svg class="w-12 h-12 text-sky-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 014-4h4m0 0V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2h6" />
+                </svg>
+                <div>
+                    <h4 class="text-2xl font-extrabold text-sky-600">Reports Center</h4>
+                    <p class="text-sky-600 font-medium">Access all your daily and weekly reports in one place.</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="{{ route('reports.downloads') }}" class="flex items-center justify-center p-4 bg-sky-500 hover:bg-sky-600 text-white rounded-lg font-bold text-lg shadow-md transition-all duration-200 transform hover:scale-105">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                    View Your Reports
+                </a>
+                <a href="{{ route('reports.downloads') }}" class="flex items-center justify-center p-4 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold text-lg shadow-md transition-all duration-200 transform hover:scale-105">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Download Your Reports
+                </a>
+            </div>
+        </div>
     </div>
-</div>
-
-<!-- Reports Center at the bottom, centered -->
-<div class="flex justify-center mt-14 mb-10">
-    <a href="{{ route('reports.downloads') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg text-xl transition-all duration-200">
-        <i class="fas fa-file-alt mr-2"></i> Reports
-    </a>
 </div>
 
 <!-- Assign Task Modal (unchanged) -->
@@ -272,13 +365,72 @@
         </div>
     </div>
 </div>
+
+<!-- Staff Assignment Calendar Modal -->
+<div id="staffAssignmentCalendarModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl relative">
+        <button onclick="closeStaffAssignmentCalendar()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+        <div class="mb-6">
+            <h3 class="text-2xl font-bold text-gray-900 mb-2">Staff Assignment Calendar</h3>
+            <p class="text-gray-600">View and manage daily staff assignments</p>
+        </div>
+
+        <!-- Date Selection -->
+        <div class="mb-6">
+            <label for="assignment-date" class="block text-sm font-semibold text-gray-700 mb-2">Select Date</label>
+            <input type="date" id="assignment-date" value="{{ now()->toDateString() }}"
+                class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <!-- Assignment List -->
+        <div class="bg-gray-50 rounded-lg p-4">
+            <h4 class="text-lg font-semibold text-gray-800 mb-4">Assignments for <span id="selected-date">{{ now()->format('M d, Y') }}</span></h4>
+            <div id="assignment-list" class="space-y-3">
+                <p class="text-gray-500 text-center py-8">Loading assignments...</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="mt-6 flex gap-3">
+            <button onclick="refreshAssignments()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Refresh
+            </button>
+            <button onclick="exportAssignments()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Export
+            </button>
+        </div>
+    </div>
+</div>
 @endsection
 
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/js/datepicker-full.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/css/datepicker.min.css">
 <script>
+    console.log("Dashboard JS loaded");
+
+    // Show a status message on the dashboard for debugging
+    function showStatus(msg, isError = false) {
+        let el = document.getElementById('dashboard-status-msg');
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'dashboard-status-msg';
+            el.style.position = 'fixed';
+            el.style.bottom = '10px';
+            el.style.right = '10px';
+            el.style.background = isError ? '#ffdddd' : '#ddffdd';
+            el.style.color = isError ? '#a00' : '#070';
+            el.style.padding = '10px 20px';
+            el.style.border = '1px solid #aaa';
+            el.style.zIndex = 9999;
+            document.body.appendChild(el);
+        }
+        el.textContent = msg;
+    }
+
     // --- Live Workforce ---
     function fetchWorkforceLive() {
         fetch("{{ route('bakery.bakery.workforce-live') }}")
@@ -355,19 +507,19 @@
                 tbody.innerHTML = '';
                 data.forEach(task => {
                     tbody.innerHTML += `<tr>
-                        <td class='px-4 py-3'>${task.title}</td>
-                        <td class='px-4 py-3'>${task.user ? task.user.name : ''}</td>
-                        <td class='px-4 py-3'>${task.shift ? task.shift.name : ''}</td>
-                        <td class='px-4 py-3'>${task.status.replace('_', ' ')}</td>
-                        <td class='px-4 py-3'>
-                            <select onchange="updateTaskStatus(${task.id}, this.value)">
-                                <option value="pending" ${task.status === 'pending' ? 'selected' : ''}>Pending</option>
-                                <option value="in_progress" ${task.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
-                                <option value="completed" ${task.status === 'completed' ? 'selected' : ''}>Completed</option>
-                                <option value="reassigned" ${task.status === 'reassigned' ? 'selected' : ''}>Reassigned</option>
-                            </select>
-                        </td>
-                    </tr>`;
+                <td class='px-4 py-3'>${task.title}</td>
+                <td class='px-4 py-3'>${task.user ? task.user.name : ''}</td>
+                <td class='px-4 py-3'>${task.shift ? task.shift.name : ''}</td>
+                <td class='px-4 py-3'>${task.status.replace('_', ' ')}</td>
+                <td class='px-4 py-3'>
+                    <select onchange="updateTaskStatus(${task.id}, this.value)">
+                        <option value="pending" ${task.status === 'pending' ? 'selected' : ''}>Pending</option>
+                        <option value="in_progress" ${task.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
+                        <option value="completed" ${task.status === 'completed' ? 'selected' : ''}>Completed</option>
+                        <option value="reassigned" ${task.status === 'reassigned' ? 'selected' : ''}>Reassigned</option>
+                    </select>
+                </td>
+            </tr>`;
                 });
             });
     }
@@ -525,17 +677,48 @@
 
     // --- Live Stats for Dashboard Cards ---
     function fetchStatsLive() {
-        fetch("{{ route('bakery.bakery.stats-live') }}")
+        // Fetch staff data from the staff API
+        fetch('/api/staff')
             .then(res => res.json())
-            .then(data => {
-                document.querySelector('.live-staff-on-duty').textContent = data.staffOnDuty ?? '-';
-                document.querySelector('.live-absent-count').textContent = data.absentCount ?? '-';
-                document.querySelector('.live-shift-filled').textContent = data.shiftFilled ?? '-';
-                document.querySelector('.live-overtime-count').textContent = data.overtimeCount ?? '-';
+            .then(staffData => {
+                // Calculate staff on duty (Present status)
+                const staffOnDuty = staffData.filter(staff => staff.status === 'Present').length;
+                // Calculate absent staff (Absent status)
+                const absentCount = staffData.filter(staff => staff.status === 'Absent').length;
+
+                // Update the dashboard cards
+                document.querySelector('.live-staff-on-duty').textContent = staffOnDuty;
+                document.querySelector('.live-absent-count').textContent = absentCount;
+
+                // Add visual feedback for real-time updates
+                const staffCard = document.querySelector('.live-staff-on-duty').closest('.bg-white');
+                const absenceCard = document.querySelector('.live-absent-count').closest('.bg-white');
+
+                // Flash effect to show update
+                staffCard.style.transition = 'all 0.3s ease';
+                absenceCard.style.transition = 'all 0.3s ease';
+                staffCard.style.transform = 'scale(1.02)';
+                absenceCard.style.transform = 'scale(1.02)';
+
+                setTimeout(() => {
+                    staffCard.style.transform = 'scale(1)';
+                    absenceCard.style.transform = 'scale(1)';
+                }, 300);
+            })
+            .catch(error => {
+                console.error('Error fetching staff data:', error);
+                // Fallback to existing API if staff API fails
+                fetch("{{ route('bakery.bakery.stats-live') }}")
+                    .then(res => res.json())
+                    .then(data => {
+                        document.querySelector('.live-staff-on-duty').textContent = data.staffOnDuty ?? '-';
+                        document.querySelector('.live-absent-count').textContent = data.absentCount ?? '-';
+                        document.querySelector('.live-shift-filled').textContent = data.shiftFilled ?? '-';
+                    });
             });
     }
     fetchStatsLive();
-    setInterval(fetchStatsLive, 10000);
+    setInterval(fetchStatsLive, 5000); // Update every 5 seconds for more responsive updates
 
     // --- Real-time Production Stats ---
     function fetchProductionStatsLive() {
@@ -549,105 +732,284 @@
     fetchProductionStatsLive();
     setInterval(fetchProductionStatsLive, 10000);
 
-    // --- Real-time Staff on Duty (from active shifts) ---
-    function fetchStaffOnDutyFromShifts() {
-        fetch('/bakery/api/active-staff')
+    // --- Real-time Production Overview ---
+    function fetchProductionOverview() {
+        fetch('/api/production-overview')
             .then(res => res.json())
             .then(data => {
-                let count = Array.isArray(data) ? data.length : (data.count ?? 0);
-                document.querySelector('.live-staff-on-duty').textContent = count;
-            });
-    }
-    // Keep only:
-    fetchStaffOnDutyFromStaffTable();
-    setInterval(fetchStaffOnDutyFromStaffTable, 10000);
-
-    // --- Real-time Absence (from Staff table) ---
-    function fetchAbsenceFromStaffTable() {
-        fetch('/bakery/api/absent-staff')
-            .then(res => res.json())
-            .then(data => {
-                let count = Number(data.absentCount);
-                if (isNaN(count) || count < 0) count = 0;
-                document.querySelector('.live-absent-count').textContent = count;
-            });
-    }
-    fetchAbsenceFromStaffTable();
-    setInterval(fetchAbsenceFromStaffTable, 10000);
-
-    // --- Real-time Staff on Duty (from Staff table) ---
-    function fetchStaffOnDutyFromStaffTable() {
-        fetch('/bakery/api/staff-on-duty')
-            .then(res => res.json())
-            .then(data => {
-                let count = Number(data.presentCount);
-                if (isNaN(count) || count < 0) count = 0;
-                document.querySelector('.live-staff-on-duty').textContent = count;
-            });
-    }
-    fetchStaffOnDutyFromStaffTable();
-    setInterval(fetchStaffOnDutyFromStaffTable, 10000);
-
-    function openDistributionModal() {
-        document.getElementById('distributionModal').classList.remove('hidden');
-        fetch('/api/workforce-distribution')
-            .then(res => res.json())
-            .then(data => {
-                const content = document.getElementById('distributionContent');
-                if (!data.length) {
-                    content.innerHTML = '<p class="text-gray-500 text-center">No distribution data available.</p>';
-                    return;
-                }
-                let html = '<table class="min-w-full text-sm"><thead><tr><th class="px-4 py-2 text-left">Center</th><th class="px-4 py-2 text-left">Staff</th></tr></thead><tbody>';
-                data.forEach(center => {
-                    html += `<tr><td class='px-4 py-2 font-bold'>${center.name}</td><td class='px-4 py-2'>`;
-                    if (center.users && center.users.length) {
-                        html += center.users.map(u => `${u.name} (${u.role})`).join(', ');
-                    } else {
-                        html += '<span class="text-gray-400">None</span>';
-                    }
-                    html += '</td></tr>';
-                });
-                html += '</tbody></table>';
-                content.innerHTML = html;
+                document.getElementById('today-batches').textContent = data.todayBatches ?? 0;
+                document.getElementById('completed-batches').textContent = data.completedBatches ?? 0;
+                document.getElementById('in-progress-batches').textContent = data.inProgressBatches ?? 0;
             })
-            .catch(() => {
-                document.getElementById('distributionContent').innerHTML = '<p class="text-red-500 text-center">Failed to load data.</p>';
+            .catch(error => {
+                console.error('Error fetching production overview:', error);
+                // Set default values if API fails
+                document.getElementById('today-batches').textContent = '0';
+                document.getElementById('completed-batches').textContent = '0';
+                document.getElementById('in-progress-batches').textContent = '0';
             });
     }
+    fetchProductionOverview();
+    setInterval(fetchProductionOverview, 15000);
 
-    function closeDistributionModal() {
-        document.getElementById('distributionModal').classList.add('hidden');
+    // --- Real-time Alerts ---
+    function fetchAlerts() {
+        fetch('/api/alerts')
+            .then(res => res.json())
+            .then(data => {
+                const alertsContainer = document.querySelector('.alerts-container');
+                if (alertsContainer && data.alerts) {
+                    alertsContainer.innerHTML = data.alerts.map(alert => `
+                        <div class="flex items-start p-3 bg-${alert.bgColor}-50 rounded-lg border border-${alert.bgColor}-200">
+                            <div class="w-8 h-8 bg-${alert.bgColor}-500 rounded-full flex items-center justify-center mr-3 mt-1">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    ${alert.icon}
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-${alert.bgColor}-900">${alert.title}</p>
+                                <p class="text-xs text-${alert.bgColor}-600">${alert.description}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching alerts:', error);
+            });
+    }
+    fetchAlerts();
+    setInterval(fetchAlerts, 30000);
+
+    // --- Responsive improvements ---
+    function handleResponsiveLayout() {
+        const isMobile = window.innerWidth < 768;
+        const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
+
+        // Adjust grid layout based on screen size
+        const mainGrid = document.querySelector('.grid.grid-cols-1.lg\\:grid-cols-3');
+        if (mainGrid) {
+            if (isMobile) {
+                mainGrid.classList.remove('lg:grid-cols-3');
+                mainGrid.classList.add('grid-cols-1');
+            } else if (isTablet) {
+                mainGrid.classList.remove('lg:grid-cols-3');
+                mainGrid.classList.add('grid-cols-2');
+            } else {
+                mainGrid.classList.remove('grid-cols-1', 'grid-cols-2');
+                mainGrid.classList.add('lg:grid-cols-3');
+            }
+        }
+    }
+
+    // Call on load and resize
+    handleResponsiveLayout();
+    window.addEventListener('resize', handleResponsiveLayout);
+
+    // --- Smooth animations for cards ---
+    function addCardAnimations() {
+        const cards = document.querySelectorAll('.bg-white.rounded-2xl');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
+            });
+
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+            });
+        });
+    }
+
+    // Initialize animations after DOM loads
+    document.addEventListener('DOMContentLoaded', function() {
+        addCardAnimations();
+        updateBakeryStats();
+        setInterval(updateBakeryStats, 10000);
+
+        // Set up real-time staff monitoring
+        setupStaffMonitoring();
+    });
+
+    // Function to set up real-time staff monitoring
+    function setupStaffMonitoring() {
+        // Monitor for staff status changes
+        let lastStaffData = null;
+
+        function checkStaffChanges() {
+            fetch('/api/staff')
+                .then(res => res.json())
+                .then(staffData => {
+                    if (lastStaffData) {
+                        // Check if any staff status has changed
+                        const hasChanges = staffData.some((staff, index) => {
+                            const lastStaff = lastStaffData[index];
+                            return lastStaff && staff.status !== lastStaff.status;
+                        });
+
+                        if (hasChanges) {
+                            console.log('Staff status changes detected, updating dashboard...');
+                            updateBakeryStats();
+
+                            // Trigger visual feedback
+                            const staffCard = document.querySelector('.live-staff-on-duty').closest('.bg-white');
+                            const absenceCard = document.querySelector('.live-absent-count').closest('.bg-white');
+
+                            staffCard.style.backgroundColor = '#fef3c7';
+                            absenceCard.style.backgroundColor = '#fef3c7';
+
+                            setTimeout(() => {
+                                staffCard.style.backgroundColor = '';
+                                absenceCard.style.backgroundColor = '';
+                            }, 1000);
+                        }
+                    }
+                    lastStaffData = staffData;
+                })
+                .catch(error => {
+                    console.error('Error monitoring staff changes:', error);
+                });
+        }
+
+        // Check for changes every 3 seconds
+        setInterval(checkStaffChanges, 3000);
     }
 </script>
 
 <script>
-function updateBakeryStats() {
-    // Production stats
-    fetch('/bakery/production-stats-live')
-        .then(res => res.json())
-        .then(data => {
-            document.querySelector('.production-output').textContent = data.todaysOutput ?? '-';
-            document.querySelector('.production-target').textContent = data.productionTarget ?? '-';
-        });
-    // Workforce stats
-    fetch('/bakery/stats-live')
-        .then(res => res.json())
-        .then(data => {
-            document.querySelector('.live-staff-on-duty').textContent = data.staffOnDuty ?? '-';
-            document.querySelector('.live-absent-count').textContent = data.absentCount ?? '-';
-            document.querySelector('.live-shift-filled').textContent = data.shiftFilled ?? '-';
-            document.querySelector('.live-overtime-count').textContent = data.overtimeCount ?? '-';
-        });
-}
+    function updateBakeryStats() {
+        // Production stats
+        fetch('/bakery/production-stats-live')
+            .then(res => res.json())
+            .then(data => {
+                document.querySelector('.production-output').textContent = data.todaysOutput ?? '-';
+                document.querySelector('.production-target').textContent = data.productionTarget ?? '-';
+            });
+        // Workforce stats - use staff API for real-time updates
+        fetch('/api/staff')
+            .then(res => res.json())
+            .then(staffData => {
+                // Calculate staff on duty (Present status)
+                const staffOnDuty = staffData.filter(staff => staff.status === 'Present').length;
+                // Calculate absent staff (Absent status)
+                const absentCount = staffData.filter(staff => staff.status === 'Absent').length;
 
-document.addEventListener('DOMContentLoaded', function() {
-    updateBakeryStats();
-    setInterval(updateBakeryStats, 10000); // every 10 seconds
-});
+                // Update the dashboard cards
+                document.querySelector('.live-staff-on-duty').textContent = staffOnDuty;
+                document.querySelector('.live-absent-count').textContent = absentCount;
+
+                // Add visual feedback for real-time updates
+                const staffCard = document.querySelector('.live-staff-on-duty').closest('.bg-white');
+                const absenceCard = document.querySelector('.live-absent-count').closest('.bg-white');
+
+                // Flash effect to show update
+                staffCard.style.transition = 'all 0.3s ease';
+                absenceCard.style.transition = 'all 0.3s ease';
+                staffCard.style.transform = 'scale(1.02)';
+                absenceCard.style.transform = 'scale(1.02)';
+
+                setTimeout(() => {
+                    staffCard.style.transform = 'scale(1)';
+                    absenceCard.style.transform = 'scale(1)';
+                }, 300);
+            })
+            .catch(error => {
+                console.error('Error fetching staff data:', error);
+                // Fallback to existing API if staff API fails
+                fetch('/bakery/stats-live')
+                    .then(res => res.json())
+                    .then(data => {
+                        document.querySelector('.live-staff-on-duty').textContent = data.staffOnDuty ?? '-';
+                        document.querySelector('.live-absent-count').textContent = data.absentCount ?? '-';
+                        document.querySelector('.live-shift-filled').textContent = data.shiftFilled ?? '-';
+                    });
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateBakeryStats();
+        setInterval(updateBakeryStats, 10000); // every 10 seconds
+
+        // Listen for staff status changes from workforce management
+        window.addEventListener('staffStatusUpdated', function() {
+            console.log('Staff status updated, refreshing dashboard stats...');
+            updateBakeryStats();
+        });
+
+        // Listen for custom events that might be triggered from other pages
+        window.addEventListener('staffAdded', updateBakeryStats);
+        window.addEventListener('staffDeleted', updateBakeryStats);
+        window.addEventListener('staffEdited', updateBakeryStats);
+    });
+
+    // --- Real-time Shift Filled Card ---
+    function fetchShiftFilledLive() {
+        console.log('Fetching shift filled data...');
+        fetch('/api/assignments/filled-count')
+            .then(res => {
+                console.log('Response status:', res.status);
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                }
+                return res.json();
+            })
+            .then(data => {
+                console.log('Shift filled data:', data);
+                const el = document.querySelector('.live-shift-filled');
+                const card = el.closest('.bg-white');
+                const prev = el.textContent;
+                el.textContent = `${data.filled} / ${data.total}`;
+                console.log('Updated shift filled card:', el.textContent);
+                // Flash effect if value changes
+                if (prev !== el.textContent) {
+                    card.style.transition = 'all 0.3s';
+                    card.style.transform = 'scale(1.03)';
+                    setTimeout(() => {
+                        card.style.transform = 'scale(1)';
+                    }, 300);
+                }
+            })
+            .catch((error) => {
+                console.error('Error fetching shift filled data from filled-count endpoint:', error);
+                console.log('Trying fallback to regular assignments API...');
+
+                // Fallback: use regular assignments API
+                fetch('/api/assignments')
+                    .then(res => {
+                        console.log('Fallback response status:', res.status);
+                        if (!res.ok) {
+                            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                        }
+                        return res.json();
+                    })
+                    .then(assignments => {
+                        console.log('Fallback assignments data:', assignments);
+                        const filled = assignments.filter(a => a.status === 'Assigned').length;
+                        const total = assignments.length;
+                        const el = document.querySelector('.live-shift-filled');
+                        const card = el.closest('.bg-white');
+                        const prev = el.textContent;
+                        el.textContent = `${filled} / ${total}`;
+                        console.log('Updated shift filled card via fallback:', el.textContent);
+
+                        // Flash effect if value changes
+                        if (prev !== el.textContent) {
+                            card.style.transition = 'all 0.3s';
+                            card.style.transform = 'scale(1.03)';
+                            setTimeout(() => {
+                                card.style.transform = 'scale(1)';
+                            }, 300);
+                        }
+                    })
+                    .catch((fallbackError) => {
+                        console.error('Error with fallback assignments API:', fallbackError);
+                        // final fallback: show dash
+                        const el = document.querySelector('.live-shift-filled');
+                        el.textContent = '-';
+                    });
+            });
+    }
+    fetchShiftFilledLive();
+    setInterval(fetchShiftFilledLive, 5000);
 </script>
-
-@endpush
-
-<!-- Product Gallery -->
-@include('components.product-gallery')

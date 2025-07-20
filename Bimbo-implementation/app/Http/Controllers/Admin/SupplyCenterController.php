@@ -21,6 +21,7 @@ class SupplyCenterController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'type' => 'required|string|in:production,packaging,warehouse,retail,distribution',
             'location' => 'nullable|string|max:255',
             'required_role' => 'nullable|string|max:255',
             'shift_time' => 'nullable|string|max:255',
@@ -37,6 +38,7 @@ class SupplyCenterController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'type' => 'required|string|in:production,packaging,warehouse,retail,distribution',
             'location' => 'nullable|string|max:255',
             'required_role' => 'nullable|string|max:255',
             'shift_time' => 'nullable|string|max:255',

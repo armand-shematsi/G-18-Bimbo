@@ -26,5 +26,46 @@
 @endsection
 
 @section('content')
-    <!-- All cards and summary/stat sections removed as requested. -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+        <!-- Bar Chart: Stock Level per Item -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold mb-4">Stock Level per Item</h3>
+            <canvas id="barChart" height="120"></canvas>
+        </div>
+        <!-- Pie Chart: Stock Status Distribution -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold mb-4">Stock Status Distribution</h3>
+            <canvas id="pieChart" height="120"></canvas>
+        </div>
+    </div>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Bar Chart
+        new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: {
+                labels: {!! json_encode($barLabels) !!},
+                datasets: [{
+                    label: 'Quantity',
+                    data: {!! json_encode($barData) !!},
+                    backgroundColor: '#60a5fa',
+                }]
+            },
+            options: {responsive: true, indexAxis: 'y'}
+        });
+
+        // Pie Chart
+        new Chart(document.getElementById('pieChart'), {
+            type: 'pie',
+            data: {
+                labels: {!! json_encode(array_keys($statusCounts)) !!},
+                datasets: [{
+                    data: {!! json_encode(array_values($statusCounts)) !!},
+                    backgroundColor: ['#34d399', '#fbbf24', '#f87171'],
+                }]
+            },
+            options: {responsive: true}
+        });
+    </script>
 @endsection

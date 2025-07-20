@@ -19,6 +19,7 @@
                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Required Role</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
             </thead>
@@ -28,6 +29,7 @@
                     <td class="px-4 py-2">{{ $center->name }}</td>
                     <td class="px-4 py-2">{{ $center->location }}</td>
                     <td class="px-4 py-2">{{ $center->required_role ?? '-' }}</td>
+                    <td class="px-4 py-2">{{ ucfirst($center->type) }}</td>
                     <td class="px-4 py-2">
                         <a href="{{ route('admin.supply_centers.edit', $center) }}" class="text-blue-600 hover:underline">Edit</a>
                     </td>

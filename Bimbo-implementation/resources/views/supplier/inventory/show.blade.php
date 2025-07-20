@@ -7,7 +7,7 @@
         <p class="text-sm text-gray-500">Inventory Details & Stock Movement History</p>
     </div>
     <div class="flex space-x-3">
-        <a href="{{ route('supplier.inventory.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+        <a href="{{ route('supplier.inventory.index') }}" class="inline-flex items-center px-4 py-2 border border-blue-500 rounded-md font-semibold text-xs text-blue-700 uppercase tracking-widest shadow-sm hover:bg-blue-50 hover:text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
             </svg>
@@ -51,7 +51,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center">
             <div class="p-2 bg-green-100 rounded-lg">
@@ -65,7 +65,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center">
             <div class="p-2 bg-red-100 rounded-lg">
@@ -79,7 +79,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center">
             <div class="p-2 bg-purple-100 rounded-lg">
@@ -162,7 +162,7 @@
                     <div class="{{ $color }} h-4 rounded-full transition-all duration-300" style="width: {{ $percentage }}%"></div>
                 </div>
             </div>
-            
+
             <div class="grid grid-cols-2 gap-4 text-center">
                 <div class="bg-green-50 p-4 rounded-lg">
                     <div class="text-2xl font-bold text-green-600">{{ $totalStockIn }}</div>
@@ -314,4 +314,4 @@
         @endif
     </div>
 </div>
-@endsection 
+@endsection
