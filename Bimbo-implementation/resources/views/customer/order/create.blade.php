@@ -6,6 +6,17 @@
         <div class="bg-white rounded-lg shadow-lg p-6">
             <h1 class="text-2xl font-bold text-gray-800 mb-6">Create New Order</h1>
 
+            <!-- Show validation errors -->
+            @if($errors->any())
+                <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    <ul class="list-disc pl-5">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <!-- Products Selection Table -->
             <div class="mb-6">
                 <h2 class="text-lg font-semibold text-gray-700 mb-4">Available Products</h2>
@@ -116,7 +127,7 @@
             <!-- Order Form -->
             <form action="{{ route('customer.order.store') }}" method="POST" id="orderForm">
                 @csrf
-                <input type="hidden" name="cart_data" id="cart-data-input">
+                <input type="hidden" name="items" id="cart-data-input">
 
                 <!-- Delivery Information -->
                 <div class="mb-6">
@@ -185,12 +196,14 @@ function addToCart(itemId, itemName, unitPrice, unit) {
 
     updateCartDisplay();
     updateOrderSummary();
+    updateSubmitButton();
 }
 
 function removeFromCart(itemId) {
     cart = cart.filter(item => item.id !== itemId);
     updateCartDisplay();
     updateOrderSummary();
+    updateSubmitButton();
 }
 
 function updateCartDisplay() {
@@ -250,10 +263,21 @@ function updateOrderSummary() {
     }
 }
 
+function updateSubmitButton() {
+    document.getElementById('submit-btn').disabled = cart.length === 0;
+}
+
+// Set cart data before submitting the form
+const orderForm = document.getElementById('orderForm');
+orderForm.addEventListener('submit', function(e) {
+    document.getElementById('cart-data-input').value = JSON.stringify(cart);
+});
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     updateCartDisplay();
     updateOrderSummary();
+    updateSubmitButton();
 });
 </script>
 @endsection

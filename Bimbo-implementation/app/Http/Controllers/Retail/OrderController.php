@@ -200,4 +200,24 @@ class OrderController extends Controller
 
         return back()->with('success', 'Payment recorded successfully!');
     }
+
+    // Handle order return request
+    public function return(Request $request, $id)
+    {
+        $request->validate([
+            'reason' => 'required|string|max:1000',
+        ]);
+        $order = Order::findOrFail($id);
+        // You can add logic to mark the order as 'return_requested', log the reason, notify admin, etc.
+        $order->update(['status' => 'return_requested']);
+        // Optionally, store the reason in a separate table or as a note
+        \App\Models\ActivityLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'order_return_requested',
+            'subject_type' => Order::class,
+            'subject_id' => $order->id,
+            'description' => 'Return requested: ' . $request->reason,
+        ]);
+        return redirect()->route('retail.orders.show', $order->id)->with('success', 'Return request submitted successfully!');
+    }
 }

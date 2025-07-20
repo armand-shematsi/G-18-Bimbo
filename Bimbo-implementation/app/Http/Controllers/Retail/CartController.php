@@ -38,6 +38,7 @@ class CartController extends Controller
 
         $item = [
             'product_id' => $product->id,
+            'inventory_id' => $inventory->id,
             'product_name' => $inventory->item_name,
             'quantity' => $quantity,
             'unit_price' => $product->price,
@@ -97,7 +98,7 @@ class CartController extends Controller
         }
         // Deduct inventory
         foreach ($cart as $item) {
-            $inventory = Inventory::where('id', $item['product_id'])->first();
+            $inventory = Inventory::where('id', $item['inventory_id'])->first();
             if (!$inventory || $inventory->quantity < $item['quantity']) {
                 return redirect()->route('retail.cart.index')->with('error', 'Product ' . $item['product_name'] . ' is out of stock or insufficient quantity.');
             }
