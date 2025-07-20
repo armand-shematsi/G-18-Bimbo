@@ -200,6 +200,17 @@
                         <p class="text-xs text-blue-100">Place/Receive Orders</p>
                     </div>
                 </a>
+                <a href="{{ route('supplier.raw-materials.catalog') }}" class="flex items-center p-4 bg-gradient-to-r from-green-500 to-blue-600 rounded-lg text-white w-full mb-2 hover:from-blue-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="font-semibold">Order Raw Materials</p>
+                        <p class="text-xs text-blue-100">Browse & Order</p>
+                    </div>
+                </a>
                 <a href="{{ route('workforce.overview') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full mb-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
                     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

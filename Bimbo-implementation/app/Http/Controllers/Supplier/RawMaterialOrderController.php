@@ -157,6 +157,15 @@ class RawMaterialOrderController extends Controller
                     $inventory->save();
                 }
             }
+            // Add SupplierOrder creation for each cart item
+            foreach ($cart as $item) {
+                \App\Models\SupplierOrder::create([
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'supplier_id' => $item['supplier_id'],
+                    'status' => 'pending',
+                ]);
+            }
             Session::forget('supplier_cart');
             \Log::info('Redirecting to supplier.orders.show', ['order_id' => $order->id]);
             // Redirect bakery manager to cart with success message instead of supplier order details

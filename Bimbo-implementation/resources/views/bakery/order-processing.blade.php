@@ -1,5 +1,4 @@
 @extends('layouts.bakery-manager')
-
 @section('header')
 <div class="sticky top-0 z-30 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-400 shadow-lg py-4 px-8 flex items-center justify-between rounded-b-2xl">
     <h1 class="text-3xl font-extrabold text-white flex items-center gap-3">
@@ -17,10 +16,10 @@
      data-supplier-orders-route="{{ url('/order-processing/supplier-orders') }}">
     <div class="max-w-7xl mx-auto py-8">
         <div class="flex flex-col md:flex-row gap-8">
-<!-- New & Assigned Orders Section -->
+<!-- Restore the original 'New & Assigned Orders' table and 'Receive Orders from Retailers' table, removing the merged table. -->
 <div class="bg-white rounded-xl shadow-lg mb-8 border-l-4 border-blue-600">
     <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-        <h2 class="text-xl font-bold text-gray-900">New & Assigned Orders</h2>
+        <h2 class="text-xl font-bold text-gray-900">Retailer Orders</h2>
         <span class="text-sm text-gray-500">(Pending & Processing)</span>
     </div>
     <div class="p-6">
@@ -33,24 +32,72 @@
                         <th class="px-4 py-2 text-left font-semibold">Retailer</th>
                         <th class="px-4 py-2 text-left font-semibold">Status</th>
                         <th class="px-4 py-2 text-left font-semibold">Placed At</th>
-                        <th class="px-4 py-2 text-left font-semibold">Product(s)</th>
+                        <th class="px-4 py-2 text-left font-semibold">Products</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($retailerOrders as $order)
+                        @if(!is_object($order))
+                            <tr>
+                                <td colspan="5" style="color:red;">DEBUG: Non-object order: {{ var_export($order, true) }}</td>
+                            </tr>
+                            @continue
+                        @endif
+                        @php $products = []; @endphp
+                        @if(is_object($order) && is_iterable($order->items))
+                            @foreach($order->items as $idx => $item)
+                                @if(is_object($item) && is_object($item->product) && isset($item->product->id) && is_int($item->product->id) && $item->product->type === 'finished_product')
+                                    @php $products[] = ($item->product->name ?? 'N/A') . ' (' . $item->quantity . ')'; @endphp
+                                @elseif(!is_object($item))
+                                    <tr>
+                                        <td colspan="5" style="color:red;">DEBUG: Non-object item in order #{{ $order->id }}: {{ var_export($item, true) }}</td>
+                                    </tr>
+                                @elseif(!is_object($item->product))
+                                    <tr>
+                                        <td colspan="5" style="color:red;">DEBUG: Non-object product in order #{{ $order->id }}: {{ var_export($item->product, true) }}</td>
+                                    </tr>
+                                @endif
+                            @endforeach
+                        @endif
+                        @if(is_object($order) && count($products) > 0)
                         <tr class="border-b">
                             <td class="px-4 py-2">{{ $order->id }}</td>
-                            <td class="px-4 py-2">{{ $order->user->name ?? 'N/A' }}</td>
-                            <td class="px-4 py-2 capitalize">{{ $order->status }}</td>
+                            <td class="px-4 py-2">
+                                @if(is_object($order->user))
+                                    {{ $order->user->name ?? 'N/A' }}
+                                @else
+                                    <span style="color:red;">User missing</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-2">
+                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold
+                                    @if($order->status === 'pending') bg-yellow-100 text-yellow-800
+                                    @elseif($order->status === 'processing') bg-blue-100 text-blue-800
+                                    @elseif($order->status === 'shipped') bg-purple-100 text-purple-800
+                                    @elseif($order->status === 'received') bg-green-100 text-green-800
+                                    @else bg-gray-100 text-gray-800 @endif">
+                                    @if($order->status === 'pending')
+                                        <svg class="w-4 h-4 inline text-yellow-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
+                                    @elseif($order->status === 'processing')
+                                        <svg class="w-4 h-4 inline text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3" /></svg>
+                                    @elseif($order->status === 'shipped')
+                                        <svg class="w-4 h-4 inline text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 10h1l2 7h13l2-7h1" /></svg>
+                                    @elseif($order->status === 'received')
+                                        <svg class="w-4 h-4 inline text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" /></svg>
+                                    @endif
+                                    {{ ucfirst($order->status) }}
+                                </span>
+                            </td>
                             <td class="px-4 py-2">{{ $order->placed_at ? $order->placed_at->format('M d, Y H:i') : '-' }}</td>
                             <td class="px-4 py-2">
-                                @foreach($order->items as $item)
-                                    @if($item->product && $item->product->type === 'finished_product')
-                                        {{ $item->product->name ?? 'N/A' }} ({{ $item->quantity }})<br>
-                                    @endif
-                                @endforeach
+                                @if(is_array($products) || is_object($products))
+                                    {{ implode(', ', $products) }}
+                                @else
+                                    <span style="color:red;">Invalid products data</span>
+                                @endif
                             </td>
                         </tr>
+                        @endif
                     @endforeach
                 </tbody>
             </table>
@@ -60,120 +107,56 @@
             <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
             </svg>
-            <p class="mt-2 text-sm">No new or assigned orders at the moment.</p>
+            <p class="mt-2 text-sm">No retailer orders at the moment.</p>
         </div>
         @endif
     </div>
 </div>
         <!-- Place Order to Supplier and Supplier Orders Table -->
         <div class="flex-1">
-                <div class="bg-gradient-to-br from-blue-100 via-white to-purple-100 rounded-2xl shadow-xl p-6 border border-blue-200 mb-8">
-                    <h2 class="text-2xl font-bold text-blue-700 mb-6 flex items-center gap-2">
-                        <svg class="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v4a1 1 0 001 1h3m10-5v4a1 1 0 01-1 1h-3m-4 4h4m-2 0v4m0 0h-2m2 0h2" /></svg>
-                        Place Order to Supplier
-                    </h2>
-                    <form id="supplierOrderForm" action="{{ route('bakery.order-processing.supplier-order') }}" method="POST" class="space-y-4">
-                    @csrf
-                        <div>
-                        <label class="block text-gray-700 font-semibold mb-2">Product</label>
-                            <select name="product_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-200" required>
-                            <option value="">Select product</option>
-                            @foreach($products as $product)
-                            <option value="{{ $product->id }}">{{ $product->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                        <div>
-                        <label class="block text-gray-700 font-semibold mb-2">Quantity</label>
-                            <input type="number" name="quantity" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-200" placeholder="Enter quantity" required>
-                    </div>
-                        <div>
-                        <label class="block text-gray-700 font-semibold mb-2">Supplier</label>
-                            <select name="supplier_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-200" required>
-                            <option value="">Select supplier</option>
-                            @foreach($suppliers as $supplier)
-                            <option value="{{ $supplier->id }}">{{ $supplier->name }} ({{ $supplier->email }})</option>
-                            @endforeach
-                        </select>
-                    </div>
-                        <button type="submit" class="bg-gradient-to-r from-blue-600 to-purple-500 text-white px-6 py-2 rounded-lg font-semibold shadow hover:scale-105 hover:from-blue-700 hover:to-purple-600 transition">Place Order</button>
-                    <div id="supplierOrderMsg" class="mt-2 text-sm"></div>
-                </form>
-            </div>
             <!-- Supplier Orders List -->
-                <div class="bg-gradient-to-br from-purple-100 via-white to-blue-100 rounded-2xl shadow-xl p-6 border border-purple-200">
-                    <h2 class="text-2xl font-bold text-purple-700 mb-6 flex items-center gap-2">
-                        <svg class="w-7 h-7 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V7a2 2 0 00-2-2H6a2 2 0 00-2 2v6" /></svg>
-                        Your Supplier Orders
-                    </h2>
+            <div class="supplier-orders-card">
+                <h2 class="supplier-orders-title">
+                    <svg class="w-7 h-7 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V7a2 2 0 00-2-2H6a2 2 0 00-2 2v6" /></svg>
+                    Your Supplier Orders
+                </h2>
                 <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 text-sm">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-4 py-3 text-left font-semibold">Order ID</th>
-                                    <th class="px-4 py-3 text-left font-semibold">Product</th>
-                                    <th class="px-4 py-3 text-left font-semibold">Quantity</th>
-                                    <th class="px-4 py-3 text-left font-semibold">Status</th>
-                                    <th class="px-4 py-3 text-left font-semibold">Total</th>
-                                    <th class="px-4 py-3 text-left font-semibold">Placed At</th>
+                    <table class="supplier-orders-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Status</th>
+                                <th>Total</th>
+                                <th>Placed At</th>
                             </tr>
                         </thead>
                         <tbody id="supplierOrdersTableBody">
-                            <!-- Supplier orders will be rendered here by JS -->
-                        </tbody>
-                    </table>
-            </div>
-        </div>
-        <!-- Receive Orders from Retailers -->
-                <div class="bg-gradient-to-br from-green-100 via-white to-blue-100 rounded-2xl shadow-xl p-6 border border-green-200">
-                    <h2 class="text-2xl font-bold text-green-700 mb-6 flex items-center gap-2">
-                        <svg class="w-7 h-7 text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3" /></svg>
-                        Receive Orders from Retailers
-                    </h2>
-                <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead class="bg-gray-50">
+                            @forelse($supplierOrders as $order)
                             <tr>
-                                    <th class="px-4 py-3 text-left font-semibold">Retailer</th>
-                                    <th class="px-4 py-3 text-left font-semibold">Product</th>
-                                    <th class="px-4 py-3 text-left font-semibold">Quantity</th>
-                                    <th class="px-4 py-3 text-left font-semibold">Status</th>
-                            </tr>
-                        </thead>
-                            <tbody>
-                                @foreach($retailerOrders as $order)
-                                @foreach($order->items as $item)
-                                    @if($order->user && $order->user->role === 'retail_manager' && $item->product && $item->product->type === 'finished_product')
-                                            <tr class="hover:bg-green-50 transition @if($loop->parent->iteration % 2 == 0) bg-gray-50 @endif">
-                                                <td class="px-4 py-3 font-medium text-gray-900 flex items-center gap-2">
-                                                    <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                                                    {{ $order->user->name }}
-                                            </td>
-                                                <td class="px-4 py-3">{{ $item->product->name ?? 'N/A' }}</td>
-                                                <td class="px-4 py-3">{{ $item->quantity }}</td>
-                                                <td class="px-4 py-3">
-                                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold
-                                                        @if($order->status === 'pending') bg-yellow-100 text-yellow-800
-                                                        @elseif($order->status === 'processing') bg-blue-100 text-blue-800
-                                                        @elseif($order->status === 'shipped') bg-purple-100 text-purple-800
-                                                        @elseif($order->status === 'received') bg-green-100 text-green-800
-                                                        @else bg-gray-100 text-gray-800 @endif">
-                                                        @if($order->status === 'pending')
-                                                            <svg class="w-4 h-4 inline text-yellow-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
-                                                        @elseif($order->status === 'processing')
-                                                            <svg class="w-4 h-4 inline text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3" /></svg>
-                                                        @elseif($order->status === 'shipped')
-                                                            <svg class="w-4 h-4 inline text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 10h1l2 7h13l2-7h1" /></svg>
-                                                        @elseif($order->status === 'received')
-                                                            <svg class="w-4 h-4 inline text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" /></svg>
-                                                        @endif
-                                                        {{ ucfirst($order->status) }}
-                                                    </span>
-                                            </td>
-                                        </tr>
+                                <td>{{ is_object($order) ? $order->id : $order }}</td>
+                                <td>{{ (is_object($order) && is_object($order->product)) ? $order->product->name : '' }}</td>
+                                <td>{{ is_object($order) ? $order->quantity : '' }}</td>
+                                <td>
+                                    @if(is_object($order))
+                                        <span class="status-badge {{ strtolower($order->status) }}">{{ ucfirst($order->status) }}</span>
                                     @endif
-                                    @endforeach
-                                @endforeach
+                                </td>
+                                <td>
+                                    @if(is_object($order) && is_object($order->product) && $order->product->unit_price !== null)
+                                        {{ number_format($order->quantity * $order->product->unit_price, 2) }}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td>{{ (is_object($order) && $order->created_at) ? $order->created_at->format('n/j/Y, g:i A') : '-' }}</td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="6" class="text-center text-gray-500 py-4">No supplier orders at the moment.</td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -263,4 +246,75 @@
     });
 </script>
 <script src="{{ asset('js/order-processing.js') }}"></script>
+@endpush
+
+@push('styles')
+<style>
+/* Professional Supplier Orders Card/Table Styles */
+.supplier-orders-card {
+    background: linear-gradient(135deg, #f3e8ff 0%, #e0e7ff 100%);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.12);
+    padding: 2.5rem 2rem 2rem 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid #e0e7ff;
+}
+.supplier-orders-title {
+    font-size: 2.1rem;
+    font-weight: 800;
+    color: #7c3aed;
+    margin-bottom: 1.5rem;
+    letter-spacing: -1px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.supplier-orders-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.04);
+}
+.supplier-orders-table th, .supplier-orders-table td {
+    padding: 1rem 1.2rem;
+    text-align: left;
+    font-size: 1.05rem;
+}
+.supplier-orders-table th {
+    background: #f3e8ff;
+    color: #6d28d9;
+    font-weight: 700;
+    border-bottom: 2px solid #e0e7ff;
+}
+.supplier-orders-table tr:nth-child(even) {
+    background: #f8fafc;
+}
+.supplier-orders-table tr:hover {
+    background: #ede9fe;
+    transition: background 0.2s;
+}
+.status-badge {
+    display: inline-block;
+    padding: 0.35em 0.9em;
+    border-radius: 999px;
+    font-size: 0.95em;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    background: #f3e8ff;
+    color: #7c3aed;
+    box-shadow: 0 1px 2px rgba(124, 58, 237, 0.07);
+}
+.status-badge.pending { background: #fef3c7; color: #b45309; }
+.status-badge.completed { background: #d1fae5; color: #047857; }
+.status-badge.processing { background: #e0e7ff; color: #3730a3; }
+.status-badge.cancelled { background: #fee2e2; color: #b91c1c; }
+@media (max-width: 700px) {
+    .supplier-orders-card { padding: 1.2rem 0.5rem; }
+    .supplier-orders-title { font-size: 1.3rem; }
+    .supplier-orders-table th, .supplier-orders-table td { padding: 0.6rem 0.5rem; font-size: 0.95rem; }
+}
+</style>
 @endpush

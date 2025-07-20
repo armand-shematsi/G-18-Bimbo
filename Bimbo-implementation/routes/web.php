@@ -380,3 +380,8 @@ Route::get('/reports/download/{type}/{filename}', [ReportDownloadController::cla
 Route::get('/reports/view/{filename}', [ReportDownloadController::class, 'view'])
     ->name('reports.view')
     ->where('filename', '.*');
+
+// Add this route for supplier orders AJAX endpoint
+Route::middleware(['auth', 'role:bakery_manager'])->group(function () {
+    Route::get('/order-processing/supplier-orders', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'listSupplierOrders']);
+});
