@@ -1,5 +1,4 @@
 @extends('layouts.bakery-manager')
-
 @section('header')
 <div class="sticky top-0 z-30 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-400 shadow-lg py-4 px-8 flex items-center justify-between rounded-b-2xl">
     <h1 class="text-3xl font-extrabold text-white flex items-center gap-3">
@@ -17,10 +16,10 @@
      data-supplier-orders-route="{{ url('/order-processing/supplier-orders') }}">
     <div class="max-w-7xl mx-auto py-8">
         <div class="flex flex-col md:flex-row gap-8">
-<!-- New & Assigned Orders Section -->
+<!-- Restore the original 'New & Assigned Orders' table and 'Receive Orders from Retailers' table, removing the merged table. -->
 <div class="bg-white rounded-xl shadow-lg mb-8 border-l-4 border-blue-600">
     <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-        <h2 class="text-xl font-bold text-gray-900">New & Assigned Orders</h2>
+        <h2 class="text-xl font-bold text-gray-900">Retailer Orders</h2>
         <span class="text-sm text-gray-500">(Pending & Processing)</span>
     </div>
     <div class="p-6">
@@ -33,11 +32,34 @@
                         <th class="px-4 py-2 text-left font-semibold">Retailer</th>
                         <th class="px-4 py-2 text-left font-semibold">Status</th>
                         <th class="px-4 py-2 text-left font-semibold">Placed At</th>
-                        <th class="px-4 py-2 text-left font-semibold">Product(s)</th>
+                        <th class="px-4 py-2 text-left font-semibold">Products</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($retailerOrders as $order)
+                        @if(!is_object($order))
+                            <tr>
+                                <td colspan="5" style="color:red;">DEBUG: Non-object order: {{ var_export($order, true) }}</td>
+                            </tr>
+                            @continue
+                        @endif
+                        @php $products = []; @endphp
+                        @if(is_object($order) && is_iterable($order->items))
+                            @foreach($order->items as $idx => $item)
+                                @if(is_object($item) && is_object($item->product) && isset($item->product->id) && is_int($item->product->id) && $item->product->type === 'finished_product')
+                                    @php $products[] = ($item->product->name ?? 'N/A') . ' (' . $item->quantity . ')'; @endphp
+                                @elseif(!is_object($item))
+                                    <tr>
+                                        <td colspan="5" style="color:red;">DEBUG: Non-object item in order #{{ $order->id }}: {{ var_export($item, true) }}</td>
+                                    </tr>
+                                @elseif(!is_object($item->product))
+                                    <tr>
+                                        <td colspan="5" style="color:red;">DEBUG: Non-object product in order #{{ $order->id }}: {{ var_export($item->product, true) }}</td>
+                                    </tr>
+                                @endif
+                            @endforeach
+                        @endif
+                        @if(is_object($order) && count($products) > 0)
                         <tr class="border-b">
                             <td class="px-4 py-2">{{ $order->id }}</td>
                             <td class="px-4 py-2">{{ $order->user->name ?? 'N/A' }}</td>

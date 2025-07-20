@@ -25,7 +25,7 @@
             </svg>
         </button>
         <!-- Sidebar -->
-        <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-amber-50 text-gray-900 border-r border-gray-200 min-h-screen sticky md:static top-0 z-40 transition-all duration-300">
+        <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-blue-50 text-gray-900 border-r border-gray-200 min-h-screen sticky md:static top-0 z-40 transition-all duration-300">
             <div class="flex items-center h-16 px-6 border-b border-gray-100">
                 <a href="{{ route('dashboard') }}">
                     <img class="h-10 w-auto" src="{{ asset('images/k-Photo-Recipe Ramp Up-2021-11-Potato-Bread-potato_bread_01.jpeg') }}" alt="Bimbo Logo">
@@ -94,7 +94,24 @@
                         <!-- Removed top bar navigation links as requested -->
                     </div>
                     <!-- Settings Dropdown -->
-                    <!-- Removed user avatar/profile button as requested -->
+                    <div class="hidden sm:flex sm:items-center sm:ml-6">
+                        <div class="relative ml-3">
+                            <div>
+                                <button type="button" class="flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                                    <span class="sr-only">Open user menu</span>
+                                    <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=random" alt="{{ auth()->user()->name }}">
+                                </button>
+                                <div class="absolute right-0 z-50 mt-12 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1" id="user-menu">
+                                    <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1">Edit Profile</a>
+                                    <a href="{{ route('password.update') }}" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1">Change Password</a>
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1">Logout</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </nav>
             <!-- Page Heading -->

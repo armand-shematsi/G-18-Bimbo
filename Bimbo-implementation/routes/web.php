@@ -212,6 +212,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('orders', App\Http\Controllers\Retail\OrderController::class);
         Route::post('/orders/{order}/status', [App\Http\Controllers\Retail\OrderController::class, 'changeStatus'])->name('orders.changeStatus');
         Route::post('/orders/{order}/record-payment', [App\Http\Controllers\Retail\OrderController::class, 'recordPayment'])->name('orders.recordPayment');
+        Route::post('/orders/{order}/return', [\App\Http\Controllers\Retail\OrderController::class, 'return'])->name('orders.return');
+        Route::post('/support', [\App\Http\Controllers\Retail\SupportController::class, 'store'])->name('support.store');
 
         Route::get('/inventory', [App\Http\Controllers\Retail\InventoryController::class, 'index'])->name('inventory.index');
         Route::get('/inventory/create', [App\Http\Controllers\Retail\InventoryController::class, 'create'])->name('inventory.create');
@@ -394,3 +396,8 @@ Route::get('/reports/download/{type}/{filename}', [ReportDownloadController::cla
 Route::get('/reports/view/{filename}', [ReportDownloadController::class, 'view'])
     ->name('reports.view')
     ->where('filename', '.*');
+
+// Add this route for supplier orders AJAX endpoint
+Route::middleware(['auth', 'role:bakery_manager'])->group(function () {
+    Route::get('/order-processing/supplier-orders', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'listSupplierOrders']);
+});

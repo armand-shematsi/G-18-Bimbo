@@ -163,6 +163,15 @@ class RawMaterialOrderController extends Controller
                 }
                 $messages[] = 'Order placed for ' . $item['product_name'] . ' (Qty: ' . $item['quantity'] . ').';
             }
+            // Add SupplierOrder creation for each cart item
+            foreach ($cart as $item) {
+                \App\Models\SupplierOrder::create([
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'supplier_id' => $item['supplier_id'],
+                    'status' => 'pending',
+                ]);
+            }
             Session::forget('supplier_cart');
             $finalMsg = implode(' ', $messages);
             return redirect()->route('supplier.raw-materials.cart')->with('success', 'Order process complete. ' . $finalMsg);

@@ -27,6 +27,11 @@ class OrderController extends Controller
     // Handle order submission
     public function store(Request $request)
     {
+        // If 'items' is a JSON string, decode it
+        if (is_string($request->items)) {
+            $request->merge(['items' => json_decode($request->items, true) ?: []]);
+        }
+
         // Filter out items with quantity < 1
         $items = collect($request->input('items', []))
             ->filter(function($item) {
