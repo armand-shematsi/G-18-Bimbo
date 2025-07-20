@@ -169,111 +169,19 @@ class InventoryController extends Controller
     {
         $userId = auth()->id();
         $inventory = \App\Models\Inventory::where('user_id', $userId)->get();
-        $avgReorderLevel = $inventory->avg('reorder_level') ?: 50;
-        $overstockThreshold = $avgReorderLevel * 3;
 
-        $stats = [
-            'total' => $inventory->count(),
-            'available' => $inventory->where('status', 'available')->count(),
-            'low_stock' => $inventory->where('status', 'low_stock')->count(),
-            'out_of_stock' => $inventory->where('status', 'out_of_stock')->count(),
-            'over_stock' => $inventory->where('quantity', '>', $overstockThreshold)->count(),
+        // Bar chart data: item names and quantities
+        $barLabels = $inventory->pluck('item_name');
+        $barData = $inventory->pluck('quantity');
+
+        // Pie chart data: status counts
+        $statusCounts = [
+            'Available' => $inventory->where('status', 'available')->count(),
+            'Low Stock' => $inventory->where('status', 'low_stock')->count(),
+            'Out of Stock' => $inventory->where('status', 'out_of_stock')->count(),
         ];
 
-        // Total Stock In
-        $totalStockIn = \App\Models\StockIn::where('user_id', $userId)->sum('quantity_received');
-        // Total Stock Out
-        $totalStockOut = \App\Models\StockOut::where('user_id', $userId)->sum('quantity_removed');
-
-        // Daily Movement (last 7 days) using StockIn and StockOut (original logic)
-        $stockInDaily = \App\Models\StockIn::where('user_id', $userId)
-            ->where('received_at', '>=', now()->subDays(7))
-            ->get()
-            ->groupBy(function($item) { return \Carbon\Carbon::parse($item->received_at)->format('Y-m-d'); });
-        $stockOutDaily = \App\Models\StockOut::where('user_id', $userId)
-            ->where('removed_at', '>=', now()->subDays(7))
-            ->get()
-            ->groupBy(function($item) { return \Carbon\Carbon::parse($item->removed_at)->format('Y-m-d'); });
-        $dates = collect(range(0, 6))->map(function($i) { return now()->subDays(6 - $i)->format('Y-m-d'); });
-        $stockInData = $dates->map(fn($date) => isset($stockInDaily[$date]) ? $stockInDaily[$date]->sum('quantity_received') : 0);
-        $stockOutData = $dates->map(fn($date) => isset($stockOutDaily[$date]) ? $stockOutDaily[$date]->sum('quantity_removed') : 0);
-
-        // Top Selling Items (by quantity) - for current supplier's inventory items
-        $topSelling = \App\Models\OrderItem::whereIn('product_name', $inventory->pluck('item_name'))
-            ->select('product_name')
-            ->selectRaw('SUM(quantity) as total_sold')
-            ->groupBy('product_name')
-            ->orderByDesc('total_sold')
-            ->limit(5)
-            ->get();
-
-        // Total inventory value - ensure we have valid data
-        $totalInventoryValue = $inventory->sum(function($item) {
-            $quantity = $item->quantity ?? 0;
-            $unitPrice = $item->unit_price ?? 0;
-            return $quantity * $unitPrice;
-        });
-
-
-
-        // Additional business metrics
-        $totalReorderValue = $inventory->sum(function($item) {
-            return $item->reorder_level * $item->unit_price;
-        });
-
-        // Calculate monthly trends (last 30 days)
-        $monthlyStockIn = \App\Models\StockIn::where('user_id', $userId)
-            ->where('received_at', '>=', now()->subDays(30))
-            ->sum('quantity_received');
-
-        $monthlyStockOut = \App\Models\StockOut::where('user_id', $userId)
-            ->where('removed_at', '>=', now()->subDays(30))
-            ->sum('quantity_removed');
-
-        // Calculate inventory turnover rate
-        $avgInventory = $inventory->avg('quantity') ?: 1;
-        $inventoryTurnover = $monthlyStockOut / $avgInventory;
-
-        // Calculate stock efficiency (items with good stock levels)
-        $efficientStock = $inventory->filter(function($item) {
-            return $item->quantity > $item->reorder_level && $item->quantity <= ($item->reorder_level * 2);
-        })->count();
-
-        // Stock level chart data
-        $stockLevelChartData = $inventory->map(function($item) {
-            return [
-                'item_name' => $item->item_name,
-                'quantity' => $item->quantity,
-            ];
-        });
-
-        $lowStockItems = $inventory->filter(function($item) {
-            return $item->quantity <= $item->reorder_level && $item->quantity > 0;
-        });
-
-
-
-        // Prepare for view
-        return view('supplier.inventory.dashboard', [
-            'stats' => $stats,
-            'totalStockIn' => $totalStockIn,
-            'totalStockOut' => $totalStockOut,
-            'stockInData' => $stockInData,
-            'stockOutData' => $stockOutData,
-            'dates' => $dates,
-            'inventory' => $inventory,
-            'topSelling' => $topSelling,
-            'totalInventoryValue' => $totalInventoryValue,
-            'stockLevelChartData' => $stockLevelChartData,
-            'lowStockItems' => $lowStockItems,
-            // Additional business metrics
-            'totalReorderValue' => $totalReorderValue,
-            'monthlyStockIn' => $monthlyStockIn,
-            'monthlyStockOut' => $monthlyStockOut,
-            'inventoryTurnover' => round($inventoryTurnover, 2),
-            'efficientStock' => $efficientStock,
-            'overstockThreshold' => $overstockThreshold,
-        ]);
+        return view('supplier.inventory.dashboard', compact('barLabels', 'barData', 'statusCounts'));
     }
 
     /**

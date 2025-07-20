@@ -50,14 +50,7 @@
                     View Reports
                 </a>
                 @if(auth()->user() && auth()->user()->role === 'admin')
-                <a href="{{ route('customer-segments.import.form') }}" class="group flex items-center gap-3 px-5 py-3 rounded-full transition-all duration-200 font-semibold text-base shadow-sm border-l-4 {{ request()->routeIs('customer-segments.import.form') ? 'bg-gradient-to-r from-blue-200 via-indigo-200 to-green-100 dark:from-blue-900 dark:via-indigo-900 dark:to-green-900 border-blue-500 text-blue-900 dark:text-blue-200 shadow-lg scale-105' : 'text-blue-600 dark:text-blue-300 hover:bg-gradient-to-r hover:from-blue-100 hover:via-indigo-100 hover:to-green-50 dark:hover:from-blue-800 dark:hover:via-indigo-800 dark:hover:to-green-800 border-transparent' }}" title="Import customer segments from ML pipeline">
-                    <svg class="w-6 h-6 group-hover:rotate-12 group-hover:text-blue-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                    Import Segments
-                </a>
-                <a href="{{ route('admin.customer-segments') }}" class="group flex items-center gap-3 px-5 py-3 rounded-full transition-all duration-200 font-semibold text-base shadow-sm border-l-4 {{ request()->routeIs('admin.customer-segments') ? 'bg-gradient-to-r from-blue-200 via-indigo-200 to-green-100 dark:from-blue-900 dark:via-indigo-900 dark:to-green-900 border-blue-500 text-blue-900 dark:text-blue-200 shadow-lg scale-105' : 'text-blue-600 dark:text-blue-300 hover:bg-gradient-to-r hover:from-blue-100 hover:via-indigo-100 hover:to-green-50 dark:hover:from-blue-800 dark:hover:via-indigo-800 dark:hover:to-green-800 border-transparent' }}" title="View customer segments">
-                    <svg class="w-6 h-6 group-hover:rotate-12 group-hover:text-blue-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 4v16M8 4v16" /></svg>
-                    View Segments
-                </a>
+                {{-- Remove Import Segments link from sidebar --}}
                 @endif
             </nav>
             <div class="px-6 pb-2 mt-auto">

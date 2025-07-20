@@ -45,6 +45,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Workforce distribution API endpoint
         Route::get('/api/workforce-distribution', [\App\Http\Controllers\DashboardController::class, 'workforceDistribution'])->name('workforce.distribution.api');
         Route::get('/customer-segments', [\App\Http\Controllers\CustomerSegmentController::class, 'index'])->name('customer-segments');
+        // Add browser-based segmentation pipeline routes
+        Route::post('/customer-segments/upload-dataset', [\App\Http\Controllers\CustomerSegmentController::class, 'uploadDataset'])->name('customer-segments.upload-dataset');
+        Route::post('/customer-segments/run-segmentation', [\App\Http\Controllers\CustomerSegmentController::class, 'runSegmentation'])->name('customer-segments.run-segmentation');
+        Route::post('/customer-segments/import-segments', [\App\Http\Controllers\CustomerSegmentController::class, 'importSegments'])->name('customer-segments.import-segments');
         // Order analytics
         Route::get('/api/orders', [\App\Http\Controllers\Admin\OrderController::class, 'apiOrders'])->name('orders.api');
         Route::get('/api/orders/stats', [\App\Http\Controllers\Admin\OrderController::class, 'apiStats'])->name('orders.stats');
@@ -62,6 +66,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/inventory/{id}', [App\Http\Controllers\Supplier\InventoryController::class, 'destroy'])->name('inventory.destroy');
         Route::post('/inventory/{id}/update-quantity', [App\Http\Controllers\Supplier\InventoryController::class, 'updateQuantity'])->name('inventory.updateQuantity');
         Route::get('/inventory/dashboard', [App\Http\Controllers\Supplier\InventoryController::class, 'dashboard'])->name('inventory.dashboard');
+        Route::get('/inventory/{id}', [App\Http\Controllers\Supplier\InventoryController::class, 'show'])->name('inventory.show');
+
+        // Supplier dashboard route
+        Route::get('/dashboard', function () {
+            return view('supplier.index');
+        })->name('dashboard');
 
         // Orders routes
         Route::get('/orders', [App\Http\Controllers\Supplier\OrderController::class, 'index'])->name('orders.index');
@@ -188,6 +198,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Retail Manager Routes
     Route::middleware(['auth', 'role:retail_manager'])->prefix('retail')->name('retail.')->group(function () {
+        // Inventory routes
+        Route::prefix('inventory')->name('inventory.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Retail\InventoryController::class, 'index'])->name('index');
+            Route::get('/check', [App\Http\Controllers\Retail\InventoryController::class, 'check'])->name('check');
+            Route::get('/create', [App\Http\Controllers\Retail\InventoryController::class, 'create'])->name('create');
+            Route::post('/update', [App\Http\Controllers\Retail\InventoryController::class, 'update'])->name('update');
+            Route::get('/{inventory}', [App\Http\Controllers\Retail\InventoryController::class, 'show'])->name('show');
+        });
+
+        // Orders routes
         Route::resource('orders', App\Http\Controllers\Retail\OrderController::class);
         Route::post('/orders/{order}/status', [App\Http\Controllers\Retail\OrderController::class, 'changeStatus'])->name('orders.changeStatus');
         Route::post('/orders/{order}/record-payment', [App\Http\Controllers\Retail\OrderController::class, 'recordPayment'])->name('orders.recordPayment');
@@ -197,29 +217,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/inventory/check', [App\Http\Controllers\Retail\InventoryController::class, 'check'])->name('inventory.check');
         Route::post('/inventory/update', [App\Http\Controllers\Retail\InventoryController::class, 'update'])->name('inventory.update');
 
+        // Forecast routes
         Route::get('/forecast', [App\Http\Controllers\Retail\ForecastController::class, 'index'])->name('forecast.index');
         Route::get('/forecast/generate', [App\Http\Controllers\Retail\ForecastController::class, 'generate'])->name('forecast.generate');
 
+        // Chat routes
         Route::get('/chat', [App\Http\Controllers\Retail\ChatController::class, 'index'])->name('chat.index');
         Route::post('/chat/send', [App\Http\Controllers\Retail\ChatController::class, 'send'])->name('chat.send');
         Route::get('/chat/messages', [App\Http\Controllers\Retail\ChatController::class, 'getMessages'])->name('chat.get-messages');
 
-        Route::post('/payments/{payment}/confirm', [App\Http\Controllers\Retail\PaymentController::class, 'confirm'])->name('payments.confirm');
-        Route::post('/payments/{payment}/refund', [App\Http\Controllers\Retail\PaymentController::class, 'refund'])->name('payments.refund');
-
+        // Dashboard
         Route::get('/dashboard', [App\Http\Controllers\Retail\DashboardController::class, 'index'])->name('dashboard');
 
-        Route::post('/orders/{order}/return', [\App\Http\Controllers\OrderReturnController::class, 'store'])->name('orders.return');
-        Route::get('/returns', [\App\Http\Controllers\OrderReturnController::class, 'index'])->name('returns.index');
-        Route::get('/returns/{id}', [\App\Http\Controllers\OrderReturnController::class, 'show'])->name('returns.show');
-
-        Route::post('/support', [\App\Http\Controllers\SupportRequestController::class, 'store'])->name('support.store');
-        Route::get('/support', [\App\Http\Controllers\SupportRequestController::class, 'index'])->name('support.index');
-        Route::get('/support/{id}', [\App\Http\Controllers\SupportRequestController::class, 'show'])->name('support.show');
-
-        // Retail Bread Product Listing
+        // Products
         Route::get('/products', [App\Http\Controllers\Retail\ProductController::class, 'index'])->name('products.index');
-
 
         // Cart routes
         Route::get('/cart', [App\Http\Controllers\Retail\CartController::class, 'index'])->name('cart.index');
@@ -324,7 +335,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     // ... existing routes ...
     Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
-    Route::get('/reports/{type}/{filename}', [\App\Http\Controllers\ReportController::class, 'download'])->name('reports.download');
+    //Route::get('/reports/{type}/{filename}', [\App\Http\Controllers\ReportController::class, 'download'])->name('reports.download');
     Route::post('/reports/generate', [\App\Http\Controllers\ReportDownloadController::class, 'generate'])->name('reports.generate');
     Route::get('/reports/view/{filename}', [\App\Http\Controllers\ReportDownloadController::class, 'view'])
         ->where('filename', '.*')
