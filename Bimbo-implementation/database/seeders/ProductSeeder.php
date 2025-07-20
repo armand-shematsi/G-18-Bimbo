@@ -13,7 +13,14 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
+        // Disable foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        // Delete from child table first
+        DB::table('production_batches')->delete();
+        // Then delete from products
         DB::table('products')->delete();
+        // Re-enable foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
         $now = Carbon::now();
         DB::table('products')->insert([
             ['name' => 'White Bread', 'unit_price' => 2.50, 'created_at' => $now, 'updated_at' => $now],
