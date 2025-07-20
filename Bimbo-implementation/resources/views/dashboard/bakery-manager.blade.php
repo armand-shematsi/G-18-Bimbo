@@ -156,6 +156,18 @@
                 </div>
             </a>
 
+            <a href="{{ route('supplier.raw-materials.catalog') }}" class="flex items-center p-4 bg-gradient-to-r from-green-500 to-blue-600 rounded-lg text-white w-80 hover:from-blue-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="font-semibold">Order Raw Materials</p>
+                    <p class="text-xs text-blue-100">Browse & Order</p>
+                </div>
+            </a>
+
             <a href="{{ route('workforce.overview') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-80 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
                 <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,31 +194,135 @@
         </div>
     </div>
 
-    <!-- Reports Center -->
-    <div class="bg-gradient-to-r from-sky-100 to-white rounded-2xl shadow-xl border-2 border-sky-400 p-8 mb-8">
-        <div class="flex items-center mb-6">
-            <svg class="w-12 h-12 text-sky-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 014-4h4m0 0V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2h6" />
-            </svg>
-            <div>
-                <h4 class="text-2xl font-extrabold text-sky-600">Reports Center</h4>
-                <p class="text-sky-600 font-medium">Access all your daily and weekly reports in one place.</p>
+<!-- New & Assigned Orders Section -->
+<div class="bg-white rounded-xl shadow-lg p-6 mt-8">
+    <h2 class="text-xl font-bold text-blue-700 mb-4">New & Assigned Orders</h2>
+    @if(isset($orders) && $orders->count())
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+                <tr>
+                    <th class="px-4 py-2 text-left font-semibold">Order #</th>
+                    <th class="px-4 py-2 text-left font-semibold">Status</th>
+                    <th class="px-4 py-2 text-left font-semibold">Retailer</th>
+                    <th class="px-4 py-2 text-left font-semibold">Product(s)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($orders as $order)
+                    <tr>
+                        <td class="px-4 py-2">{{ $order->id }}</td>
+                        <td class="px-4 py-2">{{ $order->status }}</td>
+                        <td class="px-4 py-2">{{ $order->user->name ?? 'N/A' }}</td>
+                        <td class="px-4 py-2">
+                            @foreach($order->items as $item)
+                                {{ $item->product->name ?? 'N/A' }} ({{ $item->quantity }})<br>
+                            @endforeach
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        <div class="text-gray-500">No new or assigned orders at the moment.</div>
+    @endif
+</div>
+
+<!-- Main Content Grid -->
+<div class="flex flex-col lg:flex-row gap-8">
+    <!-- Main Content (left) -->
+    <div class="flex-1">
+        <!-- (Reserved for future bakery widgets, charts, or news) -->
+    </div>
+    <!-- Quick Actions (right) -->
+    <div class="w-full lg:w-1/3 xl:w-1/4 lg:self-start">
+        <div class="bg-white rounded-2xl shadow-xl">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="text-lg font-bold text-gray-900">Quick Actions</h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <a href="{{ route('bakery.production') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full mb-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="font-semibold">Start New Production</p>
+                        <p class="text-xs text-blue-100">Start Batch</p>
+                    </div>
+                </a>
+                <a href="{{ route('bakery.maintenance') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full mb-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="font-semibold">Maintain Machines</p>
+                        <p class="text-xs text-blue-100">Log Maintenance</p>
+                    </div>
+                </a>
+                <a href="{{ route('bakery.order-processing') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full mb-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="font-semibold">Order Processing</p>
+                        <p class="text-xs text-blue-100">Place/Receive Orders</p>
+                    </div>
+                </a>
+                <a href="{{ route('supplier.raw-materials.catalog') }}" class="flex items-center p-4 bg-gradient-to-r from-green-500 to-blue-600 rounded-lg text-white w-full mb-2 hover:from-blue-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="font-semibold">Order Raw Materials</p>
+                        <p class="text-xs text-blue-100">Browse & Order</p>
+                    </div>
+                </a>
+                <a href="{{ route('workforce.overview') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full mb-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="font-semibold">Workforce Distribution</p>
+                        <p class="text-xs text-blue-100">View & Manage Workforce</p>
+                    </div>
+                </a>
             </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <a href="{{ route('reports.downloads') }}" class="flex items-center justify-center p-4 bg-sky-500 hover:bg-sky-600 text-white rounded-lg font-bold text-lg shadow-md transition-all duration-200 transform hover:scale-105">
-                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+        <!-- Reports Center -->
+        <div class="bg-gradient-to-r from-sky-100 to-white rounded-2xl shadow-xl border-2 border-sky-400 p-8 mb-8">
+            <div class="flex items-center mb-6">
+                <svg class="w-12 h-12 text-sky-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 014-4h4m0 0V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2h6" />
                 </svg>
-                View Your Reports
-            </a>
-            <a href="{{ route('reports.downloads') }}" class="flex items-center justify-center p-4 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold text-lg shadow-md transition-all duration-200 transform hover:scale-105">
-                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                Download Your Reports
-            </a>
+                <div>
+                    <h4 class="text-2xl font-extrabold text-sky-600">Reports Center</h4>
+                    <p class="text-sky-600 font-medium">Access all your daily and weekly reports in one place.</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="{{ route('reports.downloads') }}" class="flex items-center justify-center p-4 bg-sky-500 hover:bg-sky-600 text-white rounded-lg font-bold text-lg shadow-md transition-all duration-200 transform hover:scale-105">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                    View Your Reports
+                </a>
+                <a href="{{ route('reports.downloads') }}" class="flex items-center justify-center p-4 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold text-lg shadow-md transition-all duration-200 transform hover:scale-105">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Download Your Reports
+                </a>
+            </div>
         </div>
     </div>
 </div>
