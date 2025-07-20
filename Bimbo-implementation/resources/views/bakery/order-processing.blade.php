@@ -12,7 +12,7 @@
 @endsection
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 pb-16" 
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 pb-16"
      data-supplier-order-route="{{ url('/bakery/order-processing/supplier-order') }}"
      data-supplier-orders-route="{{ url('/order-processing/supplier-orders') }}">
     <div class="max-w-7xl mx-auto py-8">
@@ -78,8 +78,8 @@
                         <label class="block text-gray-700 font-semibold mb-2">Product</label>
                             <select name="product_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-200" required>
                             <option value="">Select product</option>
-                            @foreach($products as $product)
-                            <option value="{{ $product->id }}">{{ $product->name }}</option>
+                            @foreach($rawMaterials as $material)
+                            <option value="{{ $material->id }}">{{ $material->item_name }} ({{ $material->quantity }} {{ $material->unit }})</option>
                             @endforeach
                         </select>
                     </div>

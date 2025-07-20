@@ -49,4 +49,9 @@ class Vendor extends Model
     {
         return $this->hasMany(\App\Models\Order::class, 'vendor_id');
     }
-} 
+
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
+    }
+}
