@@ -25,7 +25,7 @@
             </svg>
         </button>
         <!-- Sidebar -->
-        <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-amber-50 text-gray-900 border-r border-gray-200 min-h-screen sticky md:static top-0 z-40 transition-all duration-300">
+        <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-blue-50 text-gray-900 border-r border-gray-200 min-h-screen sticky md:static top-0 z-40 transition-all duration-300">
             <div class="flex items-center h-16 px-6 border-b border-gray-100">
                 <a href="{{ route('dashboard') }}">
                     <img class="h-10 w-auto" src="{{ asset('images/k-Photo-Recipe Ramp Up-2021-11-Potato-Bread-potato_bread_01.jpeg') }}" alt="Bimbo Logo">
