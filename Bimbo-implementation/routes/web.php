@@ -34,6 +34,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/orders/analytics', [\App\Http\Controllers\Admin\OrderController::class, 'analytics'])->name('orders.analytics');
         Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
         Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
+        Route::get('/analytics/inventory', [AnalyticsController::class, 'adminInventoryAnalytics'])->name('analytics.inventory');
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
         Route::post('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
         Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
@@ -383,6 +384,7 @@ Route::get('/bakery/api/inventory/{id}/recent-orders', [\App\Http\Controllers\Ba
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/analytics/inventory', [\App\Http\Controllers\Admin\AnalyticsController::class, 'adminInventoryAnalytics'])->name('admin.analytics.inventory');
+    Route::get('analytics/graphs', [\App\Http\Controllers\Admin\AnalyticsController::class, 'graphs'])->name('analytics.graphs');
 });
 
 Route::get('/reports/download/{type}/{filename}', [ReportDownloadController::class, 'download'])

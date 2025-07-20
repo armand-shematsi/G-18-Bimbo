@@ -28,6 +28,35 @@ class AnalyticsController extends Controller
         $salesTrends = $this->getSalesTrends();
         $inventoryPredictions = $this->getInventoryPredictions();
 
+        // Additional Graph Data
+        // 1. Aggregate sales vs. predicted (last 30 days + next 7 days)
+        $dailySales = \App\Models\Order::where('created_at', '>=', now()->subDays(30))
+            ->where('status', 'completed')
+            ->selectRaw('DATE(created_at) as date, SUM(total_amount) as total_sales')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+        $aggregateSalesHistory = $dailySales->pluck('total_sales', 'date')->toArray();
+        // Aggregate predicted sales (from demandForecast)
+        $aggregatePredicted = [];
+        foreach ($demandForecast as $row) {
+            $aggregatePredicted[$row['date']] = $row['predicted_sales'];
+        }
+
+        // 2. Top products sold (last 30 days)
+        $topProductsBar = \App\Models\OrderItem::where('created_at', '>=', now()->subDays(30))
+            ->select('product_name', \DB::raw('SUM(quantity) as total_sold'))
+            ->groupBy('product_name')
+            ->orderByDesc('total_sold')
+            ->limit(10)
+            ->get();
+
+        // 5. Order status distribution (last 30 days)
+        $orderStatusDist = \App\Models\Order::where('created_at', '>=', now()->subDays(30))
+            ->select('status', \DB::raw('count(*) as count'))
+            ->groupBy('status')
+            ->get();
+
         // Customer Segmentation Analytics (ML-based)
         $segmentRecommendations = $this->getSegmentRecommendations();
         $breadTypeDistribution = $this->getBreadTypeDistribution();
@@ -37,10 +66,15 @@ class AnalyticsController extends Controller
 
         // --- ML Predictions and Forecast for Chart ---
         // Fetch historical sales data (last 30 days, grouped by product and date)
+        // Build a list of the last 30 days' dates
+        $allDates = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $allDates[] = now()->subDays($i)->toDateString();
+        }
         $salesHistory = \App\Models\OrderItem::select('product_name', 'quantity', 'created_at')
             ->where('created_at', '>=', now()->subDays(30))
             ->get()
-            ->groupBy('product_name');
+            ->groupBy(function($item) { return strtolower($item->product_name); });
         $salesHistoryChartData = [];
         foreach ($salesHistory as $product => $items) {
             $daily = collect($items)->groupBy(function($item) {
@@ -48,7 +82,12 @@ class AnalyticsController extends Controller
             })->map(function($group) {
                 return $group->sum('quantity');
             });
-            $salesHistoryChartData[$product] = $daily;
+            // Fill missing days with zero
+            $fullDaily = [];
+            foreach ($allDates as $date) {
+                $fullDaily[$date] = $daily[$date] ?? 0;
+            }
+            $salesHistoryChartData[$product] = $fullDaily;
         }
 
         // Prepare sales data for 7-day forecast
@@ -95,7 +134,115 @@ class AnalyticsController extends Controller
             'avgPurchaseFrequency',
             'detailedSegments',
             'salesHistoryChartData',
-            'salesForecastChartData'
+            'salesForecastChartData',
+            // New data for graphs
+            'aggregateSalesHistory',
+            'aggregatePredicted',
+            'topProductsBar',
+            'orderStatusDist'
+        ));
+    }
+
+    public function graphs()
+    {
+        // Use the same data preparation as index()
+        $salesData = $this->getSalesAnalytics();
+        $demandForecast = $this->getDemandForecast();
+        $customerSegments = $this->getCustomerSegments();
+        $topProducts = $this->getTopProducts();
+        $salesTrends = $this->getSalesTrends();
+        $inventoryPredictions = $this->getInventoryPredictions();
+        $segmentRecommendations = $this->getSegmentRecommendations();
+        $breadTypeDistribution = $this->getBreadTypeDistribution();
+        $locationDistribution = $this->getLocationDistribution();
+        $avgPurchaseFrequency = $this->getAvgPurchaseFrequency();
+        $detailedSegments = $this->getDetailedSegments();
+        // --- ML Predictions and Forecast for Chart ---
+        $allDates = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $allDates[] = now()->subDays($i)->toDateString();
+        }
+        $salesHistory = \App\Models\OrderItem::select('product_name', 'quantity', 'created_at')
+            ->where('created_at', '>=', now()->subDays(30))
+            ->get()
+            ->groupBy(function($item) { return strtolower($item->product_name); });
+        $salesHistoryChartData = [];
+        foreach ($salesHistory as $product => $items) {
+            $daily = collect($items)->groupBy(function($item) {
+                return \Carbon\Carbon::parse($item->created_at)->toDateString();
+            })->map(function($group) {
+                return $group->sum('quantity');
+            });
+            $fullDaily = [];
+            foreach ($allDates as $date) {
+                $fullDaily[$date] = $daily[$date] ?? 0;
+            }
+            $salesHistoryChartData[$product] = $fullDaily;
+        }
+        // Prepare sales data for 7-day forecast
+        $salesDataForForecast = \App\Models\OrderItem::select('product_name', 'quantity', 'created_at')
+            ->where('created_at', '>=', now()->subMonths(6))
+            ->get()
+            ->map(function($item) {
+                return [
+                    'product_name' => strtolower($item->product_name),
+                    'quantity' => $item->quantity,
+                    'date' => $item->created_at->toDateString(),
+                ];
+            })->toArray();
+        $forecastResponse = [];
+        if (!empty($salesDataForForecast)) {
+            $response = $this->postToFlaskAPI('http://127.0.0.1:5000/predict', [
+                'sales' => $salesDataForForecast,
+                'forecast_days' => 7
+            ]);
+            if ($response && $response->successful()) {
+                $forecastResponse = $response->json('forecast') ?? [];
+            }
+        }
+        $salesForecastChartData = $forecastResponse;
+        // Aggregate sales vs. predicted
+        $dailySales = \App\Models\Order::where('created_at', '>=', now()->subDays(30))
+            ->where('status', 'completed')
+            ->selectRaw('DATE(created_at) as date, SUM(total_amount) as total_sales')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+        $aggregateSalesHistory = $dailySales->pluck('total_sales', 'date')->toArray();
+        $aggregatePredicted = [];
+        foreach ($demandForecast as $row) {
+            $aggregatePredicted[$row['date']] = $row['predicted_sales'];
+        }
+        // Top products sold (last 30 days)
+        $topProductsBar = \App\Models\OrderItem::where('created_at', '>=', now()->subDays(30))
+            ->select('product_name', \DB::raw('SUM(quantity) as total_sold'))
+            ->groupBy('product_name')
+            ->orderByDesc('total_sold')
+            ->limit(10)
+            ->get();
+        // Order status distribution (last 30 days)
+        $orderStatusDist = \App\Models\Order::where('created_at', '>=', now()->subDays(30))
+            ->select('status', \DB::raw('count(*) as count'))
+            ->groupBy('status')
+            ->get();
+        return view('admin.analytics.graphs', compact(
+            'salesData',
+            'demandForecast',
+            'customerSegments',
+            'topProducts',
+            'salesTrends',
+            'inventoryPredictions',
+            'segmentRecommendations',
+            'breadTypeDistribution',
+            'locationDistribution',
+            'avgPurchaseFrequency',
+            'detailedSegments',
+            'salesHistoryChartData',
+            'salesForecastChartData',
+            'aggregateSalesHistory',
+            'aggregatePredicted',
+            'topProductsBar',
+            'orderStatusDist'
         ));
     }
 
@@ -993,7 +1140,7 @@ class AnalyticsController extends Controller
             $response = \Illuminate\Support\Facades\Http::withHeaders([
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
-            ])->timeout(120)
+            ])->timeout(30)
               ->withBody(json_encode($payload), 'application/json')
               ->post($endpoint);
 

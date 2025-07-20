@@ -27,7 +27,7 @@ class DemoSalesSeeder extends Seeder
         $productCount = $products->count();
         if ($productCount === 0) return; // No products to use
 
-        for ($i = 0; $i < 1000; $i++) {
+        for ($i = 0; $i < 300; $i++) {
             $orderId = DB::table('orders')->insertGetId([
                 'total_amount'      => 0, // Will update after adding items
                 'user_id'           => rand(1, 10),

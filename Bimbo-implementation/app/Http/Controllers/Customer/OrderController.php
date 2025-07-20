@@ -15,18 +15,13 @@ class OrderController extends Controller
     // Show order placement form
     public function create()
     {
-        $products = Product::where('type', 'finished_product')->get()->map(function($product) {
-            $inventory = \App\Models\Inventory::where('product_id', $product->id)
-                ->where('location', 'retail')
-                ->where('item_type', 'finished_good')
-                ->first();
-            $product->available = $inventory ? $inventory->quantity : 0;
-            $product->unit = $inventory ? $inventory->unit : '';
-            $product->inventory_id = $inventory ? $inventory->id : null;
-            $product->unit_price = $inventory ? $inventory->unit_price : ($product->unit_price ?? $product->price ?? 0);
-            return $product;
-        });
-        return view('customer.order.create', compact('products'));
+        $inventory = \App\Models\Inventory::where('location', 'retail')
+            ->where('item_type', 'finished_good')
+            ->where('quantity', '>', 0)
+            ->get();
+
+        return view('customer.order.create', compact('inventory'));
+
     }
 
     // Handle order submission
