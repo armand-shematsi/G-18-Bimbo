@@ -16,18 +16,14 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $vendor = \App\Models\Vendor::where('user_id', auth()->id())->first();
-        $orders = collect();
-        if ($vendor) {
-            // Only show orders where the vendor is this supplier and the user placing the order is a bakery_manager
-            $orders = \App\Models\Order::where('vendor_id', $vendor->id)
-                ->whereHas('user', function ($query) {
-                    $query->where('role', 'bakery_manager');
-                })
-                ->with(['user', 'items', 'payment'])
-                ->latest()
-                ->get();
-        }
+        // Show all orders for all suppliers (not just the current supplier)
+        $orders = \App\Models\Order::whereHas('user', function ($query) {
+            $query->where('role', 'bakery_manager');
+        })
+        ->with(['user', 'items', 'payment'])
+        ->latest()
+        ->get();
+
         // Get order statistics
         $totalOrders = $orders->count();
         $pendingOrders = $orders->where('status', 'pending')->count();
@@ -125,21 +121,8 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        // Find the vendor linked to the logged-in supplier user
-        $vendor = \App\Models\Vendor::where('user_id', auth()->id())->first();
-        if ((!
-            $vendor || $order->vendor_id !== $vendor->id) && $order->user_id !== auth()->id()) {
-            \Log::warning('Unauthorized order access', [
-                'user_id' => auth()->id(),
-                'order_id' => $order->id,
-                'order_vendor_id' => $order->vendor_id,
-                'user_vendor_id' => $vendor->id ?? null,
-            ]);
-            abort(403, 'Unauthorized access to this order.');
-        }
-
+        // Remove vendor/user check so any supplier can view any order
         $order->load(['user', 'items', 'payment']);
-
         return view('supplier.orders.show', compact('order'));
     }
 
@@ -173,20 +156,7 @@ class OrderController extends Controller
      */
     public function updateStatus(Request $request, Order $order)
     {
-        // Allow both the vendor owner and the order placer to update status
-        $vendor = \App\Models\Vendor::where('user_id', auth()->id())->first();
-        $isVendorOwner = $vendor && $order->vendor_id === $vendor->id;
-        $isOrderPlacer = $order->user_id === auth()->id();
-        if (!$isVendorOwner && !$isOrderPlacer) {
-            \Log::warning('Unauthorized order status update attempt', [
-                'user_id' => auth()->id(),
-                'order_id' => $order->id,
-                'order_vendor_id' => $order->vendor_id,
-                'user_vendor_id' => $vendor->id ?? null,
-            ]);
-            abort(403, 'Unauthorized access to this order.');
-        }
-
+        // Remove vendor/user check so any supplier can update any order
         $validated = $request->validate([
             'status' => 'required|in:pending,processing,shipped,delivered,cancelled'
         ]);
@@ -199,32 +169,36 @@ class OrderController extends Controller
             'new_status' => $validated['status']
         ]);
 
-        // If delivered, transfer inventory
-        if ($validated['status'] === 'delivered') {
+        // If delivered or processing, transfer inventory
+        if (in_array($validated['status'], ['delivered', 'processing'])) {
             foreach ($order->items as $item) {
-                // Decrease supplier inventory
-                $supplierInventory = \App\Models\Inventory::where('product_id', $item->product_id)
+                // Decrease inventory for ALL suppliers for this product
+                $allSupplierInventories = \App\Models\Inventory::where('product_id', $item->product_id)
                     ->where('location', 'supplier')
-                    ->first();
-                if ($supplierInventory && $supplierInventory->quantity >= $item->quantity) {
-                    $supplierInventory->quantity -= $item->quantity;
-                    $supplierInventory->save();
+                    ->get();
+                foreach ($allSupplierInventories as $supplierInventory) {
+                    if ($supplierInventory->quantity >= $item->quantity) {
+                        $supplierInventory->quantity -= $item->quantity;
+                        $supplierInventory->save();
+                    }
                 }
-                // Increase bakery inventory
-                $bakeryInventory = \App\Models\Inventory::where('product_id', $item->product_id)
-                    ->where('location', 'bakery')
-                    ->first();
-                if ($bakeryInventory) {
-                    $bakeryInventory->quantity += $item->quantity;
-                    $bakeryInventory->save();
-                } else {
-                    // Optionally create new bakery inventory record
-                    \App\Models\Inventory::create([
-                        'product_id' => $item->product_id,
-                        'quantity' => $item->quantity,
-                        'location' => 'bakery',
-                        // add other required fields as needed
-                    ]);
+                // If delivered, increase bakery inventory
+                if ($validated['status'] === 'delivered') {
+                    $bakeryInventory = \App\Models\Inventory::where('product_id', $item->product_id)
+                        ->where('location', 'bakery')
+                        ->first();
+                    if ($bakeryInventory) {
+                        $bakeryInventory->quantity += $item->quantity;
+                        $bakeryInventory->save();
+                    } else {
+                        // Optionally create new bakery inventory record
+                        \App\Models\Inventory::create([
+                            'product_id' => $item->product_id,
+                            'quantity' => $item->quantity,
+                            'location' => 'bakery',
+                            // add other required fields as needed
+                        ]);
+                    }
                 }
             }
         }

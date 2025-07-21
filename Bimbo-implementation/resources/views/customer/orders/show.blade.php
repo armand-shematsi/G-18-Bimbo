@@ -50,7 +50,7 @@
                             <h3 class="text-lg font-semibold text-gray-900 mb-2">Order Summary</h3>
                             <div class="space-y-2 text-sm text-gray-600">
                                 <p><strong>Total Items:</strong> {{ $order->items->count() }}</p>
-                                <p><strong>Total Amount:</strong> <span class="font-semibold text-lg text-gray-900">${{ number_format($order->total_amount, 2) }}</span></p>
+                                <p><strong>Total Amount:</strong> <span class="font-semibold text-lg text-gray-900">${{ number_format($order->total, 2) }}</span></p>
                             </div>
                         </div>
                     </div>
@@ -106,7 +106,7 @@
                     </div>
                     <div class="text-right">
                         <p class="text-sm text-gray-600">Order Total</p>
-                        <p class="text-2xl font-bold text-gray-900">${{ number_format($order->total_amount, 2) }}</p>
+                        <p class="text-2xl font-bold text-gray-900">${{ number_format($order->total, 2) }}</p>
                     </div>
                 </div>
             </div>
