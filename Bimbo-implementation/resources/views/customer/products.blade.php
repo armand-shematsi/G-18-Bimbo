@@ -7,186 +7,75 @@
 @endsection
 
 @section('content')
-@php
-    $accentColors = [
-        ['bg' => '#3b82f6', 'shadow' => 'rgba(59,130,246,0.13)'], // Blue
-        ['bg' => '#f59e42', 'shadow' => 'rgba(245,158,66,0.13)'], // Orange
-        ['bg' => '#a78bfa', 'shadow' => 'rgba(167,139,250,0.13)'], // Purple
-        ['bg' => '#14b8a6', 'shadow' => 'rgba(20,184,166,0.13)'], // Teal
-        ['bg' => '#f472b6', 'shadow' => 'rgba(244,114,182,0.13)'], // Pink
-        ['bg' => '#facc15', 'shadow' => 'rgba(250,204,21,0.13)'], // Yellow
-    ];
-@endphp
-<style>
-    .product-card {
-        transition: box-shadow 0.25s, transform 0.18s, border-color 0.18s;
-        background: #fff;
-        border-radius: 2rem;
-        border: 2.5px solid #e5e7eb;
-        position: relative;
-        min-height: 480px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
-        margin-bottom: 1.5rem;
-        padding-top: 2.5rem;
-        box-shadow: 0 4px 24px 0 var(--shadow-color, rgba(59,130,246,0.13));
-    }
-    .product-card:hover {
-        box-shadow: 0 12px 32px 0 var(--shadow-color, rgba(59,130,246,0.18));
-        transform: translateY(-8px) scale(1.04);
-        border-color: var(--accent-color, #3b82f6);
-        background: #f9fafb;
-    }
-    .product-img {
-        border-radius: 50%;
-        border: 5px solid var(--accent-color, #3b82f6);
-        width: 200px;
-        height: 200px;
-        object-fit: cover;
-        background: #fff;
-        margin-bottom: 1.2rem;
-        box-shadow: 0 6px 24px 0 var(--shadow-color, rgba(59,130,246,0.13));
-        transition: box-shadow 0.2s, border-color 0.2s;
-        z-index: 2;
-    }
-    .product-card:hover .product-img {
-        border-color: var(--accent-color, #3b82f6);
-        box-shadow: 0 12px 32px 0 var(--shadow-color, rgba(59,130,246,0.18));
-    }
-    .badge {
-        position: absolute;
-        top: 1.2rem;
-        left: 50%;
-        transform: translateX(-50%) translateY(-30%);
-        background: var(--accent-color, #3b82f6);
-        color: #fff;
-        font-size: 1rem;
-        font-weight: 800;
-        padding: 0.35rem 1.2rem;
-        border-radius: 9999px;
-        box-shadow: 0 2px 8px 0 var(--shadow-color, rgba(59,130,246,0.13));
-        letter-spacing: 0.07em;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.08);
-        z-index: 3;
-    }
-    .add-to-cart-btn {
-        background: var(--accent-color, #3b82f6);
-        color: #fff;
-        font-weight: 800;
-        border: none;
-        border-radius: 1rem;
-        padding: 1rem 2.5rem;
-        font-size: 1.25rem;
-        box-shadow: 0 4px 16px 0 var(--shadow-color, rgba(59,130,246,0.13));
-        transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
-        display: flex;
-        align-items: center;
-        gap: 0.7rem;
-        margin-top: 1.2rem;
-    }
-    .add-to-cart-btn:hover {
-        background: #111827;
-        color: #fff;
-        box-shadow: 0 8px 32px 0 var(--shadow-color, rgba(59,130,246,0.22));
-        transform: scale(1.06);
-    }
-    .product-title {
-        font-size: 1.5rem;
-        font-weight: 900;
-        margin-bottom: 0.5rem;
-        color: #111827;
-        text-align: center;
-        letter-spacing: 0.01em;
-    }
-    .product-available {
-        color: #059669;
-        font-weight: 700;
-        font-size: 1.1rem;
-    }
-    .product-price {
-        font-size: 2rem;
-        font-weight: 900;
-        color: #059669;
-        margin-bottom: 1.2rem;
-        letter-spacing: 0.01em;
-    }
-    .out-of-stock {
-        color: #ef4444;
-        font-weight: 800;
-        font-size: 1.1rem;
-        margin-top: 2rem;
-    }
-    .quantity-input {
-        width: 60px;
-        font-size: 1.1rem;
-        padding: 0.5rem;
-        border-radius: 0.5rem;
-        border: 1.5px solid #d1fae5;
-        text-align: center;
-        margin-bottom: 0.5rem;
-        font-weight: 700;
-        color: #059669;
-        background: #f0fdf4;
-        transition: border-color 0.2s;
-    }
-    .quantity-input:focus {
-        border-color: #3b82f6;
-        outline: none;
-    }
-</style>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-12 mt-10">
-    @forelse($products as $product)
-        @php
-            $colorIdx = $loop->index % count($accentColors);
-            $accent = $accentColors[$colorIdx];
-        @endphp
-        <div class="product-card p-10" style="--accent-color: {{ $accent['bg'] }}; --shadow-color: {{ $accent['shadow'] }};">
-            <span class="badge">Fresh Bread</span>
-            @if($product->image_url)
-                <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="product-img">
-            @else
-                <div class="product-img flex items-center justify-center bg-gray-200">
-                    <span class="text-gray-400 text-5xl">🍞</span>
+<div x-data="{ toast: '', showToast(msg) { this.toast = msg; setTimeout(() => this.toast = '', 1800); } }">
+    <template x-if="toast">
+        <div class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 bg-green-600 text-white font-bold px-6 py-3 rounded-2xl shadow-lg animate-fade-in-out">
+            <span x-text="toast"></span>
+        </div>
+    </template>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 py-8">
+        @foreach($products as $product)
+            <div class="bg-gradient-to-br from-red-50 to-pink-100 rounded-3xl shadow-xl p-7 flex flex-col items-center transition-transform duration-200 hover:-translate-y-2 hover:shadow-2xl group relative"
+                 x-data="{ loading: false, quantity: 1, max: {{ $product->available ?? 1 }}, shake: false, handleInput(e) { if (parseInt(e.target.value) > this.max) { this.shake = true; this.quantity = this.max; setTimeout(() => this.shake = false, 400); } }, handleSubmit(e) { if (this.quantity > this.max) { this.shake = true; this.quantity = this.max; setTimeout(() => this.shake = false, 400); e.preventDefault(); return; } this.loading = true; } }">
+                <!-- Product Type Badge (if available) -->
+                @if(isset($product->type) && $product->type)
+                    <span class="absolute top-5 left-5 bg-gradient-to-r from-green-400 to-blue-400 text-white text-xs font-bold px-3 py-1 rounded-full shadow">{{ ucfirst(str_replace('_', ' ', $product->type)) }}</span>
+                @endif
+                <!-- Product Image -->
+                <div class="w-32 h-32 mb-4 flex items-center justify-center rounded-full border-4 border-blue-400 bg-gradient-to-br from-blue-100 to-purple-100 overflow-hidden shadow-lg transition-all duration-200 group-hover:border-green-400">
+                    <img src="{{ $product->image_url ?? asset('images/default-product.jpg') }}" alt="{{ $product->name }}" class="object-cover w-28 h-28 rounded-full">
                 </div>
-            @endif
-            <h3 class="product-title">{{ $product->name }}</h3>
-            @if(!empty($product->statement))
-                <p class="text-sm text-gray-500 mb-1 italic">{{ $product->statement }}</p>
-            @endif
-            @if(!empty($product->rating))
-                <div class="flex items-center mb-2">
-                    @for($i = 1; $i <= 5; $i++)
-                        @if($i <= floor($product->rating))
-                            <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><polygon points="9.9,1.1 7.6,6.6 1.6,7.3 6.1,11.3 4.8,17.2 9.9,14.2 15,17.2 13.7,11.3 18.2,7.3 12.2,6.6 "/></svg>
-                        @elseif($i - $product->rating < 1)
-                            <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><defs><linearGradient id="half"><stop offset="50%" stop-color="#facc15"/><stop offset="50%" stop-color="#d1d5db"/></linearGradient></defs><polygon points="9.9,1.1 7.6,6.6 1.6,7.3 6.1,11.3 4.8,17.2 9.9,14.2 15,17.2 13.7,11.3 18.2,7.3 12.2,6.6 " fill="url(#half)"/></svg>
-                        @else
-                            <svg class="h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><polygon points="9.9,1.1 7.6,6.6 1.6,7.3 6.1,11.3 4.8,17.2 9.9,14.2 15,17.2 13.7,11.3 18.2,7.3 12.2,6.6 "/></svg>
-                        @endif
-                    @endfor
-                    <span class="ml-2 text-xs text-gray-500">{{ number_format($product->rating, 1) }}</span>
+                <!-- Product Name -->
+                <h3 class="text-2xl font-extrabold text-gray-900 text-center mb-1 tracking-tight">{{ $product->name }}</h3>
+                <!-- Product Statement -->
+                @if(isset($product->statement) && $product->statement)
+                    <p class="text-base text-gray-500 italic text-center mb-2">{{ $product->statement }}</p>
+                @endif
+                <!-- Rating and Stock Group -->
+                <div class="flex items-center justify-center gap-4 mb-2">
+                    <div class="flex items-center gap-1">
+                        @for($i = 1; $i <= 5; $i++)
+                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.287 3.966c.3.922-.755 1.688-1.54 1.118l-3.385-2.46a1 1 0 00-1.175 0l-3.385 2.46c-.784.57-1.838-.196-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.045 9.394c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.286-3.967z"/></svg>
+                        @endfor
+                        <span class="ml-1 text-yellow-600 font-bold text-base">{{ number_format($product->rating ?? 5, 1) }}</span>
+                    </div>
+                    <span class="bg-green-100 text-green-700 font-bold px-3 py-1 rounded-full text-xs shadow">Available: {{ $product->available ?? 0 }} {{ $product->unit ?? 'loaf' }}</span>
                 </div>
-            @endif
-            <p class="mb-1 text-gray-500 text-base">Available: <span class="product-available">{{ $product->available }} {{ $product->unit }}</span></p>
-            <p class="product-price">₦{{ number_format($product->unit_price, 2) }}</p>
-            @if($product->available > 0 && $product->inventory_id)
-                <form action="{{ route('customer.cart.add') }}" method="POST" class="flex flex-col items-center w-full">
+                <!-- Price -->
+                <div class="text-3xl font-extrabold text-green-600 mb-4 tracking-tight">₦{{ number_format($product->unit_price, 2) }}</div>
+                <!-- Quantity Selector and Add to Cart -->
+                <form action="{{ route('customer.cart.add', $product->id) }}" method="POST" class="w-full flex flex-col items-center gap-3 mt-auto"
+                      @submit="if ({{ $product->available ?? 0 }} == 0) { $event.preventDefault(); return false; }">
                     @csrf
-                    <input type="hidden" name="inventory_id" value="{{ $product->inventory_id }}">
-                    <input type="number" name="quantity" value="1" min="1" max="{{ $product->available }}" class="quantity-input">
-                    <button type="submit" class="add-to-cart-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m6 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" /></svg>
+                    @if(isset($product->inventory_id))
+                        <input type="hidden" name="inventory_id" value="{{ $product->inventory_id }}">
+                    @endif
+                    <input type="number" name="quantity" min="1" max="{{ $product->available ?? 1 }}" value="1" class="w-16 h-12 text-center rounded-xl border-2 border-green-200 focus:border-green-400 focus:ring-2 focus:ring-green-100 text-lg font-bold bg-green-50 mb-2 transition">
+                    @if(($product->available ?? 0) == 0)
+                        <span class="w-full text-center bg-red-100 text-red-600 font-bold py-2 rounded-xl shadow mb-2">Out of Stock</span>
+                    @endif
+                    <button type="submit" @if(($product->available ?? 0) == 0) disabled @endif class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-400 hover:from-blue-600 hover:to-blue-500 text-white font-extrabold text-lg py-3 rounded-2xl shadow-lg transition-transform duration-150 hover:-translate-y-1 focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.35 2.7A2 2 0 007.48 19h9.04a2 2 0 001.83-2.3L17 13M7 13V6a1 1 0 011-1h5a1 1 0 011 1v7"></path></svg>
                         Add to Cart
                     </button>
                 </form>
-            @else
-                <span class="out-of-stock">Out of Stock</span>
-            @endif
-        </div>
-    @empty
-        <div class="col-span-3 text-center text-gray-500">No products available.</div>
-    @endforelse
+            </div>
+        @endforeach
+    </div>
 </div>
+<style>
+@keyframes fade-in-out {
+    0% { opacity: 0; transform: translateY(-10px); }
+    10% { opacity: 1; transform: translateY(0); }
+    90% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-10px); }
+}
+.animate-fade-in-out { animation: fade-in-out 1.8s both; }
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+}
+.animate-shake { animation: shake 0.4s; }
+</style>
 @endsection
