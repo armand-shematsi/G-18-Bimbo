@@ -94,7 +94,7 @@
                         <!-- Removed top bar navigation links as requested -->
                     </div>
                     <!-- Settings Dropdown -->
-                    <div class="hidden sm:flex sm:items-center sm:ml-6">
+                    <div class="flex items-center ml-auto absolute top-4 right-8 z-50">
                         <div class="relative ml-3">
                             <div>
                                 <button type="button" class="flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" id="user-menu-button" aria-expanded="false" aria-haspopup="true">

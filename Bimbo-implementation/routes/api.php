@@ -59,3 +59,4 @@ Route::put('/staff/{id}/status', [App\Http\Controllers\Api\StaffController::clas
 Route::get('/staff-on-duty-count', [App\Http\Controllers\Api\StaffController::class, 'getStaffOnDuty']);
 Route::get('/production-overview', [\App\Http\Controllers\Bakery\DashboardController::class, 'productionOverview']);
 Route::get('/recent-activity', [\App\Http\Controllers\Bakery\DashboardController::class, 'recentActivity']);
+Route::get('/notifications-live', [App\Http\Controllers\DashboardController::class, 'notificationsLive']);
