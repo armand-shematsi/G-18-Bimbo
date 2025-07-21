@@ -43,6 +43,12 @@
 
 @section('content')
     <div class="max-w-6xl mx-auto space-y-6">
+        @if($order->vendor && $order->vendor->user)
+            <div class="mb-4 p-4 bg-blue-50 text-blue-900 rounded-lg shadow">
+                <strong>Supplier:</strong> {{ $order->vendor->user->name }}<br>
+                <strong>Email:</strong> {{ $order->vendor->user->email }}
+            </div>
+        @endif
         <!-- Order Status and Actions -->
         <div class="bg-white rounded-xl shadow-lg p-6">
             <div class="flex justify-between items-start">

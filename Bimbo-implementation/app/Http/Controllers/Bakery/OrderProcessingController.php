@@ -16,8 +16,16 @@ class OrderProcessingController extends Controller
     public function index()
     {
         $suppliers = User::where('role', 'supplier')->get();
+<<<<<<< HEAD
+        // Fetch raw materials from supplier inventory
+        $rawMaterials = \App\Models\Inventory::where('location', 'supplier')
+            ->where('item_type', 'raw_material')
+            ->get();
+        $products = Product::where('type', 'raw_material')->get(); // keep for compatibility
+=======
         $products = Product::where('type', 'raw_material')->get();
         $products = $products->filter(function($p) { return is_object($p) && isset($p->id) && isset($p->name); })->values();
+>>>>>>> 0d9883e580be6bbf6e776b5cdffa859c9c143430
 
         $retailerOrders = \App\Models\Order::whereHas('user', function($q) {
                 $q->where('role', 'retail_manager');
@@ -33,11 +41,15 @@ class OrderProcessingController extends Controller
         \Log::info('DEBUG retailerOrders', ['retailerOrders' => $retailerOrders->toArray()]);
 
         $supplierOrders = \App\Models\SupplierOrder::with('product')->orderBy('created_at', 'desc')->get();
+<<<<<<< HEAD
+        return view('bakery.order-processing', compact('suppliers', 'products', 'rawMaterials', 'retailerOrders', 'supplierOrders'));
+=======
         // Remove debug loop
         $retailerOrders = $retailerOrders->filter(function($order) {
             return $order->items->count() > 0;
         })->values();
         return view('bakery.order-processing', compact('retailerOrders', 'supplierOrders', 'products', 'suppliers'));
+>>>>>>> 0d9883e580be6bbf6e776b5cdffa859c9c143430
     }
 
     // AJAX: Store a new supplier order
