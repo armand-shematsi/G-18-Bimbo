@@ -15,6 +15,7 @@ class ChatController extends Controller
         $suppliers = User::where('role', 'supplier')->get();
         $currentChat = request('user_id') ? User::findOrFail(request('user_id')) : null;
 
+        $unreadCount = 0;
         if ($currentChat) {
             $messages = Message::where(function($query) use ($currentChat) {
                 $query->where('sender_id', Auth::id())
@@ -29,11 +30,17 @@ class ChatController extends Controller
                 ->where('receiver_id', Auth::id())
                 ->where('is_read', false)
                 ->update(['is_read' => true]);
+
+            // Count unread messages for badge
+            $unreadCount = Message::where('receiver_id', Auth::id())
+                ->where('sender_id', $currentChat->id)
+                ->where('is_read', false)
+                ->count();
         } else {
             $messages = collect();
         }
 
-        return view('customer.chat.index', compact('suppliers', 'currentChat', 'messages'));
+        return view('customer.chat.index', compact('suppliers', 'currentChat', 'messages', 'unreadCount'));
     }
 
     public function send(Request $request)

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('inventories', function (Blueprint $table) {
             $table->string('location')->nullable();
+            $table->unique(['product_id', 'location'], 'inventories_product_id_location_unique');
         });
     }
 
@@ -22,6 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('inventories', function (Blueprint $table) {
+            $table->dropUnique('inventories_product_id_location_unique');
             $table->dropColumn('location');
         });
     }

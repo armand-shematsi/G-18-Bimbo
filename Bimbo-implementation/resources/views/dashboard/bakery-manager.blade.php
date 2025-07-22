@@ -113,134 +113,17 @@
 <!-- Removed Production Overview widget and all related code as requested -->
 
 <!-- Quick Actions & Alerts -->
-<div class="space-y-6">
-    <!-- Quick Actions -->
-    <div class="bg-white rounded-2xl shadow-xl">
-        <div class="px-6 py-4 border-b border-gray-100">
-            <h3 class="text-lg font-bold text-gray-900">Quick Actions</h3>
-        </div>
-        <div class="p-6 space-y-4">
-            <a href="{{ route('bakery.production') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-80 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
-                <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                    </svg>
-                </div>
-                <div class="ml-4">
-                    <p class="font-semibold">Start New Production</p>
-                    <p class="text-xs text-blue-100">Start Batch</p>
-                </div>
-            </a>
-
-            <a href="{{ route('bakery.maintenance') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-80 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
-                <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                    </svg>
-                </div>
-                <div class="ml-4">
-                    <p class="font-semibold">Maintain Machines</p>
-                    <p class="text-xs text-blue-100">Log Maintenance</p>
-                </div>
-            </a>
-
-            <a href="{{ route('bakery.order-processing') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-80 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
-                <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />
-                    </svg>
-                </div>
-                <div class="ml-4">
-                    <p class="font-semibold">Order Processing</p>
-                    <p class="text-xs text-blue-100">Place/Receive Orders</p>
-                </div>
-            </a>
-
-            <a href="{{ route('supplier.raw-materials.catalog') }}" class="flex items-center p-4 bg-gradient-to-r from-green-500 to-blue-600 rounded-lg text-white w-80 hover:from-blue-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 shadow-md">
-                <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                    </svg>
-                </div>
-                <div class="ml-4">
-                    <p class="font-semibold">Order Raw Materials</p>
-                    <p class="text-xs text-blue-100">Browse & Order</p>
-                </div>
-            </a>
-
-            <a href="{{ route('workforce.overview') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-80 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
-                <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                </div>
-                <div class="ml-4">
-                    <p class="font-semibold">Workforce Distribution</p>
-                    <p class="text-xs text-blue-100">View & Manage Workforce</p>
-                </div>
-            </a>
-
-            <button onclick="openStaffAssignmentCalendar()" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-80 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
-                <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                </div>
-                <div class="ml-4">
-                    <p class="font-semibold">Staff Assignment Calendar</p>
-                    <p class="text-xs text-blue-100">Daily Assignment View</p>
-                </div>
-            </button>
-        </div>
-    </div>
-
-<!-- New & Assigned Orders Section -->
-<div class="bg-white rounded-xl shadow-lg p-6 mt-8">
-    <h2 class="text-xl font-bold text-blue-700 mb-4">New & Assigned Orders</h2>
-    @if(isset($orders) && $orders->count())
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead>
-                <tr>
-                    <th class="px-4 py-2 text-left font-semibold">Order #</th>
-                    <th class="px-4 py-2 text-left font-semibold">Status</th>
-                    <th class="px-4 py-2 text-left font-semibold">Retailer</th>
-                    <th class="px-4 py-2 text-left font-semibold">Product(s)</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($orders as $order)
-                    <tr>
-                        <td class="px-4 py-2">{{ $order->id }}</td>
-                        <td class="px-4 py-2">{{ $order->status }}</td>
-                        <td class="px-4 py-2">{{ $order->user->name ?? 'N/A' }}</td>
-                        <td class="px-4 py-2">
-                            @foreach($order->items as $item)
-                                {{ $item->product->name ?? 'N/A' }} ({{ $item->quantity }})<br>
-                            @endforeach
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    @else
-        <div class="text-gray-500">No new or assigned orders at the moment.</div>
-    @endif
-</div>
-
-<!-- Main Content Grid -->
+<!-- Split Quick Actions: 3 to main content, 3 to sidebar -->
 <div class="flex flex-col lg:flex-row gap-8">
     <!-- Main Content (left) -->
     <div class="flex-1">
-        <!-- (Reserved for future bakery widgets, charts, or news) -->
-    </div>
-    <!-- Quick Actions (right) -->
-    <div class="w-full lg:w-1/3 xl:w-1/4 lg:self-start">
-        <div class="bg-white rounded-2xl shadow-xl">
+        <!-- Quick Actions (first 3) -->
+        <div class="bg-white rounded-2xl shadow-xl mb-6">
             <div class="px-6 py-4 border-b border-gray-100">
                 <h3 class="text-lg font-bold text-gray-900">Quick Actions</h3>
             </div>
-            <div class="p-6 space-y-4">
-                <a href="{{ route('bakery.production') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full mb-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+            <div class="p-6 space-y-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="{{ route('bakery.production') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
                     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -251,7 +134,7 @@
                         <p class="text-xs text-blue-100">Start Batch</p>
                     </div>
                 </a>
-                <a href="{{ route('bakery.maintenance') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full mb-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                <a href="{{ route('bakery.maintenance') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
                     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
@@ -262,7 +145,7 @@
                         <p class="text-xs text-blue-100">Log Maintenance</p>
                     </div>
                 </a>
-                <a href="{{ route('bakery.order-processing') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full mb-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                <a href="{{ route('bakery.order-processing') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
                     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />
@@ -273,7 +156,17 @@
                         <p class="text-xs text-blue-100">Place/Receive Orders</p>
                     </div>
                 </a>
-                <a href="{{ route('supplier.raw-materials.catalog') }}" class="flex items-center p-4 bg-gradient-to-r from-green-500 to-blue-600 rounded-lg text-white w-full mb-2 hover:from-blue-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+            </div>
+        </div>
+    </div>
+    <!-- Sidebar (right) -->
+    <div class="w-full lg:w-1/3 xl:w-1/4 lg:self-start">
+        <div class="bg-white rounded-2xl shadow-xl mb-6">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="text-lg font-bold text-gray-900">Quick Actions</h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <a href="{{ route('supplier.raw-materials.catalog') }}" class="flex items-center p-4 bg-gradient-to-r from-green-500 to-blue-600 rounded-lg text-white w-full hover:from-blue-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 shadow-md">
                     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -284,7 +177,7 @@
                         <p class="text-xs text-blue-100">Browse & Order</p>
                     </div>
                 </a>
-                <a href="{{ route('workforce.overview') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full mb-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                <a href="{{ route('workforce.overview') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
                     <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -295,6 +188,17 @@
                         <p class="text-xs text-blue-100">View & Manage Workforce</p>
                     </div>
                 </a>
+                <button onclick="openStaffAssignmentCalendar()" class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white w-full hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md">
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="font-semibold">Staff Assignment Calendar</p>
+                        <p class="text-xs text-blue-100">Daily Assignment View</p>
+                    </div>
+                </button>
             </div>
         </div>
         <!-- Reports Center -->

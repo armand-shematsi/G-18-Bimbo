@@ -37,25 +37,11 @@
                 </thead>
                 <tbody>
                     @foreach($retailerOrders as $order)
-                        @if(!is_object($order))
-                            <tr>
-                                <td colspan="5" style="color:red;">DEBUG: Non-object order: {{ var_export($order, true) }}</td>
-                            </tr>
-                            @continue
-                        @endif
                         @php $products = []; @endphp
                         @if(is_object($order) && is_iterable($order->items))
                             @foreach($order->items as $idx => $item)
                                 @if(is_object($item) && is_object($item->product) && isset($item->product->id) && is_int($item->product->id) && $item->product->type === 'finished_product')
                                     @php $products[] = ($item->product->name ?? 'N/A') . ' (' . $item->quantity . ')'; @endphp
-                                @elseif(!is_object($item))
-                                    <tr>
-                                        <td colspan="5" style="color:red;">DEBUG: Non-object item in order #{{ $order->id }}: {{ var_export($item, true) }}</td>
-                                    </tr>
-                                @elseif(!is_object($item->product))
-                                    <tr>
-                                        <td colspan="5" style="color:red;">DEBUG: Non-object product in order #{{ $order->id }}: {{ var_export($item->product, true) }}</td>
-                                    </tr>
                                 @endif
                             @endforeach
                         @endif
@@ -63,7 +49,18 @@
                         <tr class="border-b">
                             <td class="px-4 py-2">{{ $order->id }}</td>
                             <td class="px-4 py-2">{{ $order->user->name ?? 'N/A' }}</td>
-                            <td class="px-4 py-2 capitalize">{{ $order->status }}</td>
+                            <td class="px-4 py-2 capitalize">
+    <form method="POST" action="{{ url('/bakery/order-processing/retailer-orders/' . $order->id . '/status') }}" class="inline">
+        @csrf
+        <select name="status" class="order-status-dropdown px-2 py-1 rounded border" data-order-id="{{ $order->id }}" onchange="this.form.submit()">
+            @foreach(['pending', 'processing', 'shipped', 'received'] as $status)
+                <option value="{{ $status }}" @if($order->status === $status) selected @endif>
+                    {{ ucfirst($status) }}
+                </option>
+            @endforeach
+        </select>
+    </form>
+</td>
                             <td class="px-4 py-2">{{ $order->placed_at ? $order->placed_at->format('M d, Y H:i') : '-' }}</td>
                             <td class="px-4 py-2">
                                 @foreach($order->items as $item)
@@ -73,6 +70,7 @@
                                 @endforeach
                             </td>
                         </tr>
+                        @endif
                     @endforeach
                 </tbody>
             </table>

@@ -12,7 +12,7 @@
     @foreach($products as $product)
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col transition-transform hover:scale-105 hover:shadow-2xl border border-gray-100">
             <div class="h-48 w-full bg-gray-50 flex items-center justify-center overflow-hidden">
-                <img src="{{ asset('images/' . strtolower(str_replace(' ', '_', $product->name)) . '.jpg') }}"
+                <img src="{{ $product->image_url ? asset($product->image_url) : asset('images/' . strtolower(str_replace(' ', '_', $product->name)) . '.jpg') }}"
                      alt="{{ $product->name }}"
                      class="object-cover h-44 w-44 rounded-full border-4 border-white shadow-md"
                      onerror="this.onerror=null;this.src='https://via.placeholder.com/180?text=No+Image';">

@@ -67,19 +67,24 @@ class OrderController extends Controller
         if ($request->has('items')) {
             foreach ($request->items as $item) {
                 $item['total_price'] = $item['quantity'] * $item['unit_price'];
-                // Ensure product_id and inventory_id are set
-                if (isset($item['inventory_id'])) {
+                // Ensure product_id is set from the form, or fallback to inventory
+                if (empty($item['product_id']) && isset($item['inventory_id'])) {
                     $inventory = \App\Models\Inventory::find($item['inventory_id']);
                     if ($inventory) {
                         $item['product_id'] = $inventory->product_id;
-                        $item['inventory_id'] = $inventory->id;
-                        // Deduct inventory immediately
-                        if ($inventory->quantity >= $item['quantity']) {
-                            $inventory->quantity -= $item['quantity'];
-                            $inventory->save();
-                        } else {
-                            // Optionally, handle insufficient stock (skip, error, etc.)
-                        }
+                    }
+                }
+                // If product_id is still not set, skip this item and log a warning
+                if (empty($item['product_id'])) {
+                    \Log::warning('Skipping order item with missing product_id', $item);
+                    continue;
+                }
+                // Deduct inventory if possible
+                if (isset($item['inventory_id'])) {
+                    $inventory = \App\Models\Inventory::find($item['inventory_id']);
+                    if ($inventory && $inventory->quantity >= $item['quantity']) {
+                        $inventory->quantity -= $item['quantity'];
+                        $inventory->save();
                     }
                 }
                 $order->items()->create($item);

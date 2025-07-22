@@ -1,15 +1,15 @@
 @extends('layouts.supplier')
 
 @section('header')
-<div class="flex justify-between items-center">
+<div class="flex justify-between items-center mb-6">
     <div>
-        <h1 class="text-3xl font-bold text-gray-900">Order Management</h1>
+        <h1 class="text-3xl font-bold text-blue-900">Order Management</h1>
         <p class="mt-1 text-sm text-gray-600">Manage and track all your order requests from customers.</p>
     </div>
     <div class="flex space-x-3">
         @can('order-as-bakery')
-        <a href="{{ route('supplier.orders.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <a href="{{ route('supplier.orders.create') }}" class="add-btn inline-flex items-center px-6 py-2 text-base rounded-xl shadow font-semibold uppercase tracking-wide">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
             New Order
@@ -44,83 +44,156 @@ $unreadCount = Message::where('receiver_id', auth()->id())
 @endsection
 
 @section('content')
+<style>
+    body {
+        background: linear-gradient(135deg, #e0f2fe 0%, #f1f5f9 100%);
+    }
+    .add-btn {
+        background: linear-gradient(90deg, #38bdf8 0%, #6366f1 100%);
+        color: #fff;
+        font-weight: bold;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 8px rgba(59,130,246,0.10);
+        transition: background 0.2s, transform 0.2s;
+    }
+    .add-btn:hover {
+        background: linear-gradient(90deg, #6366f1 0%, #38bdf8 100%);
+        transform: scale(1.04);
+    }
+    .glass-card {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%);
+        border-radius: 1.5rem;
+        box-shadow: 0 4px 24px 0 rgba(59, 130, 246, 0.10);
+        border: 1.5px solid #bae6fd;
+        padding: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        transition: box-shadow 0.2s, transform 0.2s;
+        position: relative;
+        overflow: hidden;
+    }
+    .glass-card .icon-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        padding: 0.9rem;
+        background: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%);
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.10);
+    }
+    .glass-table {
+        border-radius: 1.25rem;
+        overflow: hidden;
+        border: 1.5px solid #bae6fd;
+        box-shadow: 0 2px 12px 0 rgba(59,130,246,0.08);
+        background: #fff;
+        width: 100%;
+    }
+    .glass-table th {
+        position: sticky;
+        top: 0;
+        background: linear-gradient(90deg, #e0e7ff 0%, #f0f9ff 100%);
+        z-index: 1;
+        font-weight: 800;
+        color: #3730a3;
+        box-shadow: 0 2px 8px rgba(59,130,246,0.04);
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        font-size: 0.95rem;
+        letter-spacing: 0.05em;
+    }
+    .glass-table td {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+    }
+    .glass-table tbody tr:nth-child(even) {
+        background: #f8fafc;
+    }
+    .glass-table tbody tr:nth-child(odd) {
+        background: #fff;
+    }
+    .glass-table tr:hover {
+        background: #e0e7ff !important;
+        box-shadow: 0 4px 16px 0 rgba(99,102,241,0.10);
+        transform: scale(1.01);
+    }
+    .empty-state {
+        text-align: center;
+        padding: 3rem 0;
+        color: #64748b;
+    }
+    .empty-state svg {
+        margin: 0 auto 1rem auto;
+        display: block;
+    }
+    .empty-state h3 {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #1e293b;
+    }
+</style>
 <!-- Statistics Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <!-- Total Orders -->
-    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
-        <div class="flex items-center">
-            <div class="flex-shrink-0">
-                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                    </svg>
-                </div>
-            </div>
-            <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">Total Orders</p>
-                <p class="text-2xl font-bold text-gray-900">{{ $totalOrders }}</p>
-                <p class="text-xs text-gray-500">All time</p>
-            </div>
+    <div class="glass-card">
+        <div class="icon-badge bg-blue-400">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500">Total Orders</p>
+            <p class="text-2xl font-semibold text-gray-900">{{ $totalOrders }}</p>
+            <p class="text-xs text-gray-500">All time</p>
         </div>
     </div>
-
     <!-- Pending Orders -->
-    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
-        <div class="flex items-center">
-            <div class="flex-shrink-0">
-                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-            </div>
-            <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">Pending</p>
-                <p class="text-2xl font-bold text-gray-900">{{ $pendingOrders }}</p>
-                <p class="text-xs text-gray-500">Awaiting action</p>
-            </div>
+    <div class="glass-card">
+        <div class="icon-badge bg-yellow-400">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500">Pending</p>
+            <p class="text-2xl font-semibold text-gray-900">{{ $pendingOrders }}</p>
+            <p class="text-xs text-gray-500">Awaiting action</p>
         </div>
     </div>
-
     <!-- Processing Orders -->
-    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500">
-        <div class="flex items-center">
-            <div class="flex-shrink-0">
-                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                    </svg>
-                </div>
-            </div>
-            <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">Processing</p>
-                <p class="text-2xl font-bold text-gray-900">{{ $processingOrders }}</p>
-                <p class="text-xs text-gray-500">In progress</p>
-            </div>
+    <div class="glass-card">
+        <div class="icon-badge bg-orange-400">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500">Processing</p>
+            <p class="text-2xl font-semibold text-gray-900">{{ $processingOrders }}</p>
+            <p class="text-xs text-gray-500">In progress</p>
         </div>
     </div>
-
     <!-- Completed Orders -->
-    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
-        <div class="flex items-center">
-            <div class="flex-shrink-0">
-                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                </div>
-            </div>
-            <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">Completed</p>
-                <p class="text-2xl font-bold text-gray-900">{{ $completedOrders }}</p>
-                <p class="text-xs text-gray-500">Delivered/Shipped</p>
-            </div>
+    <div class="glass-card">
+        <div class="icon-badge bg-green-400">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500">Completed</p>
+            <p class="text-2xl font-semibold text-gray-900">{{ $completedOrders }}</p>
+            <p class="text-xs text-gray-500">Delivered/Shipped</p>
         </div>
     </div>
 </div>
-
 <!-- Orders Table -->
-<div class="bg-white rounded-xl shadow-lg">
+<div class="glass-table overflow-x-auto">
     <div class="px-6 py-4 border-b border-gray-200">
         <div class="flex justify-between items-center">
             <h3 class="text-lg font-semibold text-gray-900">Recent Orders</h3>
@@ -136,23 +209,22 @@ $unreadCount = Message::where('receiver_id', auth()->id())
             </div>
         </div>
     </div>
-
-    <div class="overflow-x-auto">
+    <div>
         @if($orders->count() > 0)
         <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead>
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Order ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Customer</th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Total</th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody>
                 @foreach($orders as $order)
-                <tr class="hover:bg-gray-50">
+                <tr>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm font-medium text-gray-900">#{{ $order->id }}</div>
                         <div class="text-sm text-gray-500">{{ $order->items->count() }} items</div>
@@ -206,22 +278,21 @@ $unreadCount = Message::where('receiver_id', auth()->id())
                 @endforeach
             </tbody>
         </table>
-
         <!-- Pagination -->
         <div class="px-6 py-4 border-t border-gray-200">
             {{-- {{ $orders->links() }} --}}
         </div>
         @else
-        <div class="text-center py-12">
+        <div class="empty-state">
             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
             </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">No orders</h3>
+            <h3 class="mt-2 text-base font-bold text-gray-900">No orders</h3>
             <p class="mt-1 text-sm text-gray-500">Get started by creating a new order request.</p>
             @can('order-as-bakery')
             <div class="mt-6">
-                <a href="{{ route('supplier.orders.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <a href="{{ route('supplier.orders.create') }}" class="add-btn inline-flex items-center px-6 py-2 text-base rounded-xl shadow font-semibold uppercase tracking-wide">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
                     New Order

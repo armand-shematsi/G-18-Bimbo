@@ -29,27 +29,27 @@
                 </form>
             </div>
             <nav class="flex-1 space-y-2 mt-4">
-                <a href="/supplier/inventory/dashboard" class="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 shadow-sm group {{ request()->is('supplier/inventory/dashboard') ? 'bg-blue-500 text-white font-semibold' : 'text-blue-900 hover:bg-blue-400 hover:text-white' }}">
+                <a href="/supplier/inventory/dashboard" class="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 shadow-sm group text-lg {{ request()->is('supplier/inventory/dashboard') ? 'bg-blue-500 text-white font-semibold' : 'text-blue-900 hover:bg-blue-400 hover:text-white' }}">
                     <svg class="w-5 h-5 text-blue-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 014-4h4m0 0V7a4 4 0 00-4-4H7a4 4 0 00-4 4v10a4 4 0 004 4h4"/></svg>
                     Inventory Dashboard
                 </a>
-                <a href="{{ route('supplier.inventory.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 shadow-sm group {{ request()->routeIs('supplier.inventory.index') ? 'bg-blue-500 text-white font-semibold' : 'text-blue-900 hover:bg-blue-400 hover:text-white' }}">
+                <a href="{{ route('supplier.inventory.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 shadow-sm group text-lg {{ request()->routeIs('supplier.inventory.index') ? 'bg-blue-500 text-white font-semibold' : 'text-blue-900 hover:bg-blue-400 hover:text-white' }}">
                     <svg class="w-5 h-5 text-blue-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a4 4 0 004 4h10a4 4 0 004-4V7"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 3v4a4 4 0 01-4 4H8a4 4 0 01-4-4V3"/></svg>
                     Inventory
                 </a>
-                <a href="{{ route('supplier.stockin.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 shadow-sm group {{ request()->routeIs('supplier.stockin.index') ? 'bg-blue-500 text-white font-semibold' : 'text-blue-900 hover:bg-blue-400 hover:text-white' }}">
+                <a href="{{ route('supplier.stockin.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 shadow-sm group text-lg {{ request()->routeIs('supplier.stockin.index') ? 'bg-blue-500 text-white font-semibold' : 'text-blue-900 hover:bg-blue-400 hover:text-white' }}">
                     <svg class="w-5 h-5 text-blue-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     Stock In
                 </a>
-                <a href="{{ route('supplier.stockout.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 shadow-sm group {{ request()->routeIs('supplier.stockout.index') ? 'bg-blue-500 text-white font-semibold' : 'text-blue-900 hover:bg-blue-400 hover:text-white' }}">
+                <a href="{{ route('supplier.stockout.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 shadow-sm group text-lg {{ request()->routeIs('supplier.stockout.index') ? 'bg-blue-500 text-white font-semibold' : 'text-blue-900 hover:bg-blue-400 hover:text-white' }}">
                     <svg class="w-5 h-5 text-blue-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
                     Stock Out
                 </a>
-                <a href="{{ route('supplier.orders.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 shadow-sm group {{ request()->routeIs('supplier.orders.index') ? 'bg-blue-500 text-white font-semibold' : 'text-blue-900 hover:bg-blue-400 hover:text-white' }}">
+                <a href="{{ route('supplier.orders.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 shadow-sm group text-lg {{ request()->routeIs('supplier.orders.index') ? 'bg-blue-500 text-white font-semibold' : 'text-blue-900 hover:bg-blue-400 hover:text-white' }}">
                     <svg class="w-5 h-5 text-blue-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18"/></svg>
                     Orders
                 </a>
-                <a href="{{ route('supplier.chat.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 shadow-sm group {{ request()->routeIs('supplier.chat.index') ? 'bg-blue-500 text-white font-semibold' : 'text-blue-900 hover:bg-blue-400 hover:text-white' }}">
+                <a href="{{ route('supplier.chat.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 shadow-sm group text-lg {{ request()->routeIs('supplier.chat.index') ? 'bg-blue-500 text-white font-semibold' : 'text-blue-900 hover:bg-blue-400 hover:text-white' }}">
                     <svg class="w-5 h-5 text-blue-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v8a2 2 0 01-2 2H7a2 2 0 01-2-2V10a2 2 0 012-2h2m4-4v4m0 0l-2-2m2 2l2-2"/></svg>
                     Chat
                 </a>

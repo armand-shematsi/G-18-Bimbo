@@ -16,40 +16,21 @@ class OrderProcessingController extends Controller
     public function index()
     {
         $suppliers = User::where('role', 'supplier')->get();
-<<<<<<< HEAD
         // Fetch raw materials from supplier inventory
         $rawMaterials = \App\Models\Inventory::where('location', 'supplier')
             ->where('item_type', 'raw_material')
             ->get();
         $products = Product::where('type', 'raw_material')->get(); // keep for compatibility
-=======
-        $products = Product::where('type', 'raw_material')->get();
-        $products = $products->filter(function($p) { return is_object($p) && isset($p->id) && isset($p->name); })->values();
->>>>>>> 0d9883e580be6bbf6e776b5cdffa859c9c143430
 
         $retailerOrders = \App\Models\Order::whereHas('user', function($q) {
                 $q->where('role', 'retail_manager');
             })
-            ->whereDoesntHave('items.product', function($q) {
-                $q->where('type', 'raw_material');
-            })
-            ->whereIn('status', ['pending', 'processing'])
             ->with(['user', 'items.product'])
             ->orderBy('created_at', 'desc')
             ->get();
-        
-        \Log::info('DEBUG retailerOrders', ['retailerOrders' => $retailerOrders->toArray()]);
 
         $supplierOrders = \App\Models\SupplierOrder::with('product')->orderBy('created_at', 'desc')->get();
-<<<<<<< HEAD
         return view('bakery.order-processing', compact('suppliers', 'products', 'rawMaterials', 'retailerOrders', 'supplierOrders'));
-=======
-        // Remove debug loop
-        $retailerOrders = $retailerOrders->filter(function($order) {
-            return $order->items->count() > 0;
-        })->values();
-        return view('bakery.order-processing', compact('retailerOrders', 'supplierOrders', 'products', 'suppliers'));
->>>>>>> 0d9883e580be6bbf6e776b5cdffa859c9c143430
     }
 
     // AJAX: Store a new supplier order
@@ -130,25 +111,50 @@ class OrderProcessingController extends Controller
         $order->status = 'received';
         $order->save();
 
+        // Sync status to RetailerOrder
         foreach ($order->items as $item) {
-            // Find bakery inventory for this product
-            $bakeryInventory = \App\Models\Inventory::where('product_id', $item->product_id)
+            \App\Models\RetailerOrder::where('retailer_id', $order->user_id)
+                ->where('product_id', $item->product_id)
+                ->update(['status' => $order->status]);
+        }
+
+        foreach ($order->items as $item) {
+            $productId = (int)($item->product_id ?? ($item->product ? $item->product->id : null));
+            $location = trim(strtolower('retail'));
+            if (!$productId || !$location) {
+                \Log::warning('Skipping inventory update: missing product_id for order item', [
+                    'order_id' => $order->id,
+                    'item_id' => $item->id ?? null,
+                    'item_name' => $item->item_name ?? null,
+                ]);
+                continue;
+            }
+            $retailInventory = \App\Models\Inventory::where('product_id', $productId)
+                ->where('location', $location)
+                ->first();
+            if (!$retailInventory) {
+                \Log::warning('No existing retail inventory found for product_id', [
+                    'product_id' => $productId,
+                    'location' => $location,
+                    'order_id' => $order->id,
+                    'item_id' => $item->id ?? null,
+                    'item_name' => $item->item_name ?? null,
+                ]);
+                continue;
+            }
+            // Always sync name and price from bakery
+            $bakeryInventory = \App\Models\Inventory::where('product_id', $productId)
                 ->where('location', 'bakery')
                 ->first();
-
-            // Find or create retail inventory for this product
-            $retailInventory = \App\Models\Inventory::firstOrCreate(
-                [
-                    'product_id' => $item->product_id,
-                    'location' => 'retail',
-                ],
-                [
-                    'item_name' => $item->product ? $item->product->name : $item->item_name,
-                    'unit_price' => $bakeryInventory ? $bakeryInventory->unit_price : 0,
-                ]
-            );
-
-            // Always sync name and price from bakery
+            \Log::info('Retail inventory adjustment', [
+                'product_id' => $productId,
+                'item_name' => $retailInventory->item_name,
+                'current_quantity' => $retailInventory->quantity,
+                'adjustment' => $item->quantity,
+                'new_quantity' => $retailInventory->quantity + $item->quantity,
+                'order_id' => $order->id,
+                'item_id' => $item->id ?? null,
+            ]);
             $retailInventory->item_name = $item->product ? $item->product->name : $item->item_name;
             $retailInventory->unit_price = $bakeryInventory ? $bakeryInventory->unit_price : $retailInventory->unit_price;
             $retailInventory->quantity += $item->quantity;
@@ -165,6 +171,7 @@ class OrderProcessingController extends Controller
     // AJAX: Update retailer order status
     public function updateRetailerOrderStatus(Request $request, $id)
     {
+        \Log::info('updateRetailerOrderStatus called', ['order_id' => $id, 'request' => $request->all()]);
         $order = \App\Models\Order::with('items')->findOrFail($id);
         $newStatus = $request->input('status');
         $allowed = ['pending', 'processing', 'shipped', 'received'];
@@ -173,25 +180,51 @@ class OrderProcessingController extends Controller
         }
         $order->status = $newStatus;
         $order->save();
-        // If status is received, update retail inventory (call receiveRetailerOrder logic)
-        if ($newStatus === 'received') {
+        // Sync status to RetailerOrder
+        foreach ($order->items as $item) {
+            \App\Models\RetailerOrder::where('retailer_id', $order->user_id)
+                ->where('product_id', $item->product_id)
+                ->update(['status' => $order->status]);
+        }
+        // If status is processing, shipped, or received, update retail inventory
+        if (in_array($newStatus, ['processing', 'shipped', 'received'])) {
             foreach ($order->items as $item) {
-                // Find bakery inventory for this product
-                $bakeryInventory = \App\Models\Inventory::where('product_id', $item->product_id)
+                $productId = (int)($item->product_id ?? ($item->product ? $item->product->id : null));
+                $location = trim(strtolower('retail'));
+                if (!$productId || !$location) {
+                    \Log::warning('Skipping inventory update: missing product_id for order item', [
+                        'order_id' => $order->id,
+                        'item_id' => $item->id ?? null,
+                        'item_name' => $item->item_name ?? null,
+                    ]);
+                    continue;
+                }
+                $retailInventory = \App\Models\Inventory::where('product_id', $productId)
+                    ->where('location', $location)
+                    ->first();
+                if (!$retailInventory) {
+                    \Log::warning('No existing retail inventory found for product_id', [
+                        'product_id' => $productId,
+                        'location' => $location,
+                        'order_id' => $order->id,
+                        'item_id' => $item->id ?? null,
+                        'item_name' => $item->item_name ?? null,
+                    ]);
+                    continue;
+                }
+                // Always sync name and price from bakery
+                $bakeryInventory = \App\Models\Inventory::where('product_id', $productId)
                     ->where('location', 'bakery')
                     ->first();
-                // Find or create retail inventory for this product
-                $retailInventory = \App\Models\Inventory::firstOrCreate(
-                    [
-                        'product_id' => $item->product_id,
-                        'location' => 'retail',
-                    ],
-                    [
-                        'item_name' => $item->product ? $item->product->name : $item->item_name,
-                        'unit_price' => $bakeryInventory ? $bakeryInventory->unit_price : 0,
-                    ]
-                );
-                // Always sync name and price from bakery
+                \Log::info('Retail inventory adjustment', [
+                    'product_id' => $productId,
+                    'item_name' => $retailInventory->item_name,
+                    'current_quantity' => $retailInventory->quantity,
+                    'adjustment' => $item->quantity,
+                    'new_quantity' => $retailInventory->quantity + $item->quantity,
+                    'order_id' => $order->id,
+                    'item_id' => $item->id ?? null,
+                ]);
                 $retailInventory->item_name = $item->product ? $item->product->name : $item->item_name;
                 $retailInventory->unit_price = $bakeryInventory ? $bakeryInventory->unit_price : $retailInventory->unit_price;
                 $retailInventory->quantity += $item->quantity;
@@ -207,7 +240,10 @@ class OrderProcessingController extends Controller
 
     public function listSupplierOrders()
     {
-        $orders = \App\Models\SupplierOrder::with('product')->orderBy('created_at', 'desc')->get();
+        $orders = \App\Models\Order::where('user_id', auth()->id())
+            ->with(['items', 'vendor'])
+            ->orderBy('created_at', 'desc')
+            ->get();
         return response()->json(['orders' => $orders]);
     }
 }

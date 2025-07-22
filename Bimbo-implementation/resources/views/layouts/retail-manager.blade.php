@@ -35,6 +35,9 @@
             <a href="{{ route('retail.chat.index') }}" class="flex items-center gap-2 px-4 py-2 rounded-lg transition {{ request()->routeIs('retail.chat.index') ? 'bg-indigo-100 text-indigo-700 font-semibold shadow' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v8a2 2 0 01-2 2H7a2 2 0 01-2-2V10a2 2 0 012-2h2m4-4h4a2 2 0 012 2v4a2 2 0 01-2 2h-4a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg>
                 Chat with Suppliers
+                @if(isset($totalUnread) && $totalUnread > 0)
+                    <span class="inline-block ml-2 px-2 py-1 text-xs font-bold text-white bg-red-600 rounded-full align-top">{{ $totalUnread }}</span>
+                @endif
             </a>
             <a href="{{ route('retail.products.index') }}" class="flex items-center gap-2 px-4 py-2 rounded-lg transition {{ request()->routeIs('retail.products.index') ? 'bg-indigo-100 text-indigo-700 font-semibold shadow' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M3 12h18M3 17h18"/></svg>
@@ -64,37 +67,13 @@
         </div>
     </aside>
     <div class="min-h-screen bg-gradient-to-br from-blue-50 via-green-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 ml-56">
-        <!-- Top Navigation Bar -->
-        <nav class="sticky top-0 z-40 bg-white shadow flex items-center justify-between px-8 h-16 w-full">
-            <div class="flex items-center gap-3">
-                <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
-                    <img class="h-10 w-auto rounded shadow" src="{{ asset('images/k-photo-recipe_ramp_up-2021-11-potato-bread-potato_bread_01.jpeg') }}" alt="Bimbo Logo">
-                    <span class="font-bold text-xl text-indigo-700 tracking-tight hidden sm:inline">Bimbo Retail</span>
-                </a>
-            </div>
-            <div class="flex items-center gap-6">
-                <a href="{{ route('dashboard') }}" class="text-gray-700 hover:text-blue-700 font-semibold transition">Dashboard</a>
-                <a href="{{ route('retail.orders.index') }}" class="text-gray-700 hover:text-blue-700 font-semibold transition">Orders</a>
-                <a href="{{ route('retail.inventory.check') }}" class="text-gray-700 hover:text-blue-700 font-semibold transition">Inventory</a>
-                <a href="{{ route('retail.forecast.index') }}" class="text-gray-700 hover:text-blue-700 font-semibold transition">Forecast</a>
-                <a href="{{ route('retail.products.index') }}" class="text-gray-700 hover:text-blue-700 font-semibold transition">Products</a>
-                <a href="{{ route('retail.chat.index') }}" class="text-gray-700 hover:text-blue-700 font-semibold transition">Chat</a>
-            </div>
-            <div class="relative group">
-                <button class="flex items-center gap-2 text-gray-700 hover:text-blue-700 font-semibold focus:outline-none">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                    <span>{{ Auth::user()->name ?? 'Account' }}</span>
-                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
-                </button>
-                <div class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg py-2 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-150 z-50">
-                    <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">Log Out</button>
-                    </form>
-                </div>
-            </div>
-        </nav>
+        <!-- Logo and Bimbo Retail link to dashboard -->
+        <div class="flex items-center gap-3 px-8 pt-6 pb-2">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
+                <img class="h-10 w-auto rounded-full shadow" src="{{ asset('images/k-photo-recipe_ramp_up-2021-11-potato-bread-potato_bread_01.jpeg') }}" alt="Bimbo Logo">
+                <span class="font-bold text-xl text-indigo-700 tracking-tight hidden sm:inline">Bimbo Retail</span>
+            </a>
+        </div>
         <!-- Page Heading -->
         <header class="bg-white shadow">
             <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">

@@ -23,17 +23,17 @@
                         @if(auth()->user()->role === 'customer')
                             <a href="{{ route('customer.order.create') }}"
                                class="inline-flex items-center px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm mx-1
-                                      {{ request()->routeIs('customer.orders.*') ? 'bg-green-500 text-white shadow-lg scale-105' : 'bg-green-100 text-green-700 hover:bg-green-200 hover:text-green-900' }}"
-                               style="box-shadow: 0 2px 8px 0 rgba(16, 185, 129, 0.10);">
-                                <svg class="w-5 h-5 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                                      {{ request()->routeIs('customer.orders.*') ? 'bg-blue-500 text-white shadow-lg scale-105' : 'bg-blue-100 text-blue-700 hover:bg-blue-200 hover:text-blue-900' }}"
+                               style="box-shadow: 0 2px 8px 0 rgba(59, 130, 246, 0.10);">
+                                <svg class="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                                 Place Order
                             </a>
                             @if(auth()->user()->role === 'customer')
                                 <a href="{{ route('customer.products') }}"
                                    class="inline-flex items-center px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm mx-1
-                                          {{ request()->routeIs('customer.products') ? 'bg-yellow-400 text-white shadow-lg scale-105' : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200 hover:text-yellow-900' }}"
-                                   style="box-shadow: 0 2px 8px 0 rgba(255, 193, 7, 0.10);">
-                                    <svg class="w-5 h-5 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" /></svg>
+                                          {{ request()->routeIs('customer.products') ? 'bg-blue-500 text-white shadow-lg scale-105' : 'bg-blue-100 text-blue-700 hover:bg-blue-200 hover:text-blue-900' }}"
+                                   style="box-shadow: 0 2px 8px 0 rgba(59, 130, 246, 0.10);">
+                                    <svg class="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" /></svg>
                                     Fresh Bread Products
                                 </a>
                             @endif
@@ -120,17 +120,17 @@
                 @if(auth()->user()->role === 'customer')
                     <a href="{{ route('customer.order.create') }}"
                        class="block pl-3 pr-4 py-2 rounded-xl font-semibold text-base transition-all duration-200 shadow-sm my-1
-                              {{ request()->routeIs('customer.orders.*') ? 'bg-green-500 text-white shadow-lg scale-105' : 'bg-green-100 text-green-700 hover:bg-green-200 hover:text-green-900' }}"
-                       style="box-shadow: 0 2px 8px 0 rgba(16, 185, 129, 0.10);">
-                        <svg class="w-5 h-5 mr-2 inline text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                              {{ request()->routeIs('customer.orders.*') ? 'bg-blue-500 text-white shadow-lg scale-105' : 'bg-blue-100 text-blue-700 hover:bg-blue-200 hover:text-blue-900' }}"
+                       style="box-shadow: 0 2px 8px 0 rgba(59, 130, 246, 0.10);">
+                        <svg class="w-5 h-5 mr-2 inline text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                         Place Order
                     </a>
                     @if(auth()->user()->role === 'customer')
                         <a href="{{ route('customer.products') }}"
                            class="block pl-3 pr-4 py-2 rounded-xl font-semibold text-base transition-all duration-200 shadow-sm my-1
-                                  {{ request()->routeIs('customer.products') ? 'bg-yellow-400 text-white shadow-lg scale-105' : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200 hover:text-yellow-900' }}"
-                           style="box-shadow: 0 2px 8px 0 rgba(255, 193, 7, 0.10);">
-                            <svg class="w-5 h-5 mr-2 inline text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" /></svg>
+                                  {{ request()->routeIs('customer.products') ? 'bg-blue-500 text-white shadow-lg scale-105' : 'bg-blue-100 text-blue-700 hover:bg-blue-200 hover:text-blue-900' }}"
+                           style="box-shadow: 0 2px 8px 0 rgba(59, 130, 246, 0.10);">
+                            <svg class="w-5 h-5 mr-2 inline text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" /></svg>
                             Fresh Bread Products
                         </a>
                     @endif
