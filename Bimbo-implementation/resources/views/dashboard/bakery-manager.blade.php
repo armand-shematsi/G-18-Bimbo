@@ -1,19 +1,7 @@
 @extends('layouts.bakery-manager')
 
 @section('header')
-<div class="flex flex-col md:flex-row justify-between items-center mb-6">
-    <div class="flex items-center gap-3">
-        <img src="/images/baguette.jpg" alt="Bakery Logo" class="w-12 h-12 rounded-full shadow-md border-2 border-sky-400 bg-white object-cover">
-        <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Bakery Manager Dashboard</h1>
-            <p class="mt-1 text-base text-gray-600 font-medium">Welcome, Bakery Manager!</p>
-        </div>
-    </div>
-    <div class="text-right mt-4 md:mt-0">
-        <p class="text-sm text-gray-500">Last updated</p>
-        <p class="text-sm font-medium text-gray-900">{{ now()->format('M d, Y H:i') }}</p>
-    </div>
-</div>
+{{-- Remove the top header section (Bakery Manager Dashboard title, welcome message, last updated info) --}}
 @endsection
 
 @section('content')
@@ -293,32 +281,12 @@
             </div>
         </div>
 
-        <!-- Reports Center -->
-        <div class="bg-gradient-to-r from-sky-100 to-white rounded-2xl shadow-xl border-2 border-sky-400 p-8 mb-8">
-            <div class="flex items-center mb-6">
-                <svg class="w-12 h-12 text-sky-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 014-4h4m0 0V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2h6" />
-                </svg>
-                <div>
-                    <h4 class="text-2xl font-extrabold text-sky-600">Reports Center</h4>
-                    <p class="text-sky-600 font-medium">Access all your daily and weekly reports in one place.</p>
-                </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <a href="{{ route('reports.downloads') }}" class="flex items-center justify-center p-4 bg-sky-500 hover:bg-sky-600 text-white rounded-lg font-bold text-lg shadow-md transition-all duration-200 transform hover:scale-105">
-                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                    </svg>
-                    View Your Reports
-                </a>
-                <a href="{{ route('reports.downloads') }}" class="flex items-center justify-center p-4 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold text-lg shadow-md transition-all duration-200 transform hover:scale-105">
-                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    Download Your Reports
-                </a>
-            </div>
+        <!-- Reports Center (replaced with Reports button) -->
+        <div class="w-full flex justify-center my-8">
+            <a href="{{ route('reports.downloads') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-xl shadow-lg text-xl transition-all duration-200 flex items-center gap-2">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Reports
+            </a>
         </div>
     </div>
 
