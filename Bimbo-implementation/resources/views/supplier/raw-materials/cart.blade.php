@@ -22,6 +22,12 @@
         @endif
     </div>
 @endif
+@if(session('success'))
+    <div class="mb-4 p-4 bg-green-100 text-green-800 rounded-lg shadow">{{ session('success') }}</div>
+@endif
+@if(session('error'))
+    <div class="mb-4 p-4 bg-red-100 text-red-800 rounded-lg shadow">{{ session('error') }}</div>
+@endif
 <div class="py-8 max-w-4xl mx-auto">
     <div class="bg-white rounded-2xl shadow-lg p-6">
         @if(count($cart) > 0)
@@ -75,4 +81,4 @@
         @endif
     </div>
 </div>
-@endsection 
+@endsection

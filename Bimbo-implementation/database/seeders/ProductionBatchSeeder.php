@@ -5,13 +5,20 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\ProductionBatch;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ProductionBatchSeeder extends Seeder
 {
     public function run()
     {
-        // Clear existing data
-        ProductionBatch::truncate();
+        // Disable foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        // Truncate child table first
+        DB::table('batch_ingredient')->truncate();
+        // Then truncate parent table
+        DB::table('production_batches')->truncate();
+        // Re-enable foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         // Create sample production batches with different statuses
         ProductionBatch::create([

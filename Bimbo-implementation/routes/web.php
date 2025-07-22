@@ -34,6 +34,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/orders/analytics', [\App\Http\Controllers\Admin\OrderController::class, 'analytics'])->name('orders.analytics');
         Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
         Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
+        Route::get('/analytics/inventory', [AnalyticsController::class, 'adminInventoryAnalytics'])->name('analytics.inventory');
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
         Route::post('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
         Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
@@ -66,6 +67,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/inventory/{id}', [App\Http\Controllers\Supplier\InventoryController::class, 'destroy'])->name('inventory.destroy');
         Route::post('/inventory/{id}/update-quantity', [App\Http\Controllers\Supplier\InventoryController::class, 'updateQuantity'])->name('inventory.updateQuantity');
         Route::get('/inventory/dashboard', [App\Http\Controllers\Supplier\InventoryController::class, 'dashboard'])->name('inventory.dashboard');
+        Route::get('/inventory/{id}', [App\Http\Controllers\Supplier\InventoryController::class, 'show'])->name('inventory.show');
 
         // Supplier dashboard route
         Route::get('/dashboard', function () {
@@ -210,6 +212,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('orders', App\Http\Controllers\Retail\OrderController::class);
         Route::post('/orders/{order}/status', [App\Http\Controllers\Retail\OrderController::class, 'changeStatus'])->name('orders.changeStatus');
         Route::post('/orders/{order}/record-payment', [App\Http\Controllers\Retail\OrderController::class, 'recordPayment'])->name('orders.recordPayment');
+        Route::post('/orders/{order}/return', [\App\Http\Controllers\Retail\OrderController::class, 'return'])->name('orders.return');
+        Route::post('/support', [\App\Http\Controllers\Retail\SupportController::class, 'store'])->name('support.store');
 
         Route::get('/inventory', [App\Http\Controllers\Retail\InventoryController::class, 'index'])->name('inventory.index');
         Route::get('/inventory/create', [App\Http\Controllers\Retail\InventoryController::class, 'create'])->name('inventory.create');
@@ -382,6 +386,7 @@ Route::get('/bakery/api/inventory/{id}/recent-orders', [\App\Http\Controllers\Ba
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/analytics/inventory', [\App\Http\Controllers\Admin\AnalyticsController::class, 'adminInventoryAnalytics'])->name('admin.analytics.inventory');
+    Route::get('analytics/graphs', [\App\Http\Controllers\Admin\AnalyticsController::class, 'graphs'])->name('analytics.graphs');
 });
 
 Route::get('/reports/download/{type}/{filename}', [ReportDownloadController::class, 'download'])
@@ -391,3 +396,8 @@ Route::get('/reports/download/{type}/{filename}', [ReportDownloadController::cla
 Route::get('/reports/view/{filename}', [ReportDownloadController::class, 'view'])
     ->name('reports.view')
     ->where('filename', '.*');
+
+// Add this route for supplier orders AJAX endpoint
+Route::middleware(['auth', 'role:bakery_manager'])->group(function () {
+    Route::get('/order-processing/supplier-orders', [\App\Http\Controllers\Bakery\OrderProcessingController::class, 'listSupplierOrders']);
+});

@@ -178,13 +178,82 @@
 <script>
     // --- Live Stats Cards ---
     function fetchProductionStatsLive() {
+        console.log('Fetching production stats...');
         fetch('/api/production-live')
-            .then(res => res.json())
+            .then(res => {
+                console.log('Production API response status:', res.status);
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                }
+                return res.json();
+            })
             .then(data => {
-                document.querySelector('.batches-today').textContent = data.batches_today ?? '-';
-                document.querySelector('.active-batches').textContent = data.active ?? '-';
-                document.querySelector('.output-today').textContent = data.output ?? '-';
-                document.querySelector('.downtime-today').textContent = data.downtime ?? '0';
+                console.log('Production stats data:', data);
+
+                // Update all cards with visual feedback
+                const cards = [{
+                        selector: '.batches-today',
+                        value: data.batches_today ?? '-',
+                        label: 'Batches Today'
+                    },
+                    {
+                        selector: '.active-batches',
+                        value: data.active ?? '-',
+                        label: 'Active Batches'
+                    },
+                    {
+                        selector: '.output-today',
+                        value: data.output ?? '-',
+                        label: 'Output Today'
+                    },
+                    {
+                        selector: '.downtime-today',
+                        value: data.downtime ?? '0',
+                        label: 'Downtime'
+                    }
+                ];
+
+                cards.forEach(card => {
+                    const element = document.querySelector(card.selector);
+                    if (element) {
+                        const prevValue = element.textContent;
+                        element.textContent = card.value;
+
+                        // Add visual feedback for changes
+                        const cardContainer = element.closest('.bg-white');
+                        if (cardContainer && prevValue !== card.value) {
+                            console.log(`${card.label} updated: ${prevValue} → ${card.value}`);
+
+                            // Flash effect for downtime card (red theme)
+                            if (card.selector === '.downtime-today') {
+                                cardContainer.style.transition = 'all 0.3s ease';
+                                cardContainer.style.transform = 'scale(1.05)';
+                                cardContainer.style.backgroundColor = '#fef2f2';
+
+                                setTimeout(() => {
+                                    cardContainer.style.transform = 'scale(1)';
+                                    cardContainer.style.backgroundColor = '';
+                                }, 500);
+                            } else {
+                                // Standard flash for other cards
+                                cardContainer.style.transition = 'all 0.3s ease';
+                                cardContainer.style.transform = 'scale(1.02)';
+
+                                setTimeout(() => {
+                                    cardContainer.style.transform = 'scale(1)';
+                                }, 300);
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching production stats:', error);
+                // Set fallback values
+                document.querySelector('.batches-today').textContent = '-';
+                document.querySelector('.active-batches').textContent = '-';
+                document.querySelector('.output-today').textContent = '-';
+                document.querySelector('.downtime-today').textContent = '0';
             });
     }
     // Helper: Convert UTC/ISO string to Africa/Nairobi time and format
@@ -196,7 +265,11 @@
         // Get UTC time, add offset
         const local = new Date(d.getTime() + (nairobiOffset - d.getTimezoneOffset()) * 60000);
         return local.toLocaleString('en-KE', {
-            month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
         });
     }
     // --- Live Recent Batches Table ---
@@ -339,6 +412,55 @@
     }
     // --- Initial fetch and polling ---
     fetchProductionStatsLive();
+    setInterval(fetchProductionStatsLive, 5000); // Update every 5 seconds
+
+    // --- Monitor Production Batch Changes ---
+    function setupProductionMonitoring() {
+        let lastProductionData = null;
+
+        function checkProductionChanges() {
+            fetch('/api/production-live')
+                .then(res => res.json())
+                .then(data => {
+                    if (lastProductionData) {
+                        // Check if downtime has changed
+                        const downtimeChanged = data.downtime !== lastProductionData.downtime;
+
+                        if (downtimeChanged) {
+                            console.log('Downtime change detected:', lastProductionData.downtime, '→', data.downtime);
+
+                            // Trigger visual alert for downtime changes
+                            const downtimeCard = document.querySelector('.downtime-today').closest('.bg-white');
+                            if (downtimeCard) {
+                                downtimeCard.style.transition = 'all 0.5s ease';
+                                downtimeCard.style.transform = 'scale(1.1)';
+                                downtimeCard.style.backgroundColor = '#fee2e2';
+                                downtimeCard.style.borderColor = '#ef4444';
+
+                                setTimeout(() => {
+                                    downtimeCard.style.transform = 'scale(1)';
+                                    downtimeCard.style.backgroundColor = '';
+                                    downtimeCard.style.borderColor = '';
+                                }, 1000);
+                            }
+
+                            // Update the display immediately
+                            fetchProductionStatsLive();
+                        }
+                    }
+                    lastProductionData = data;
+                })
+                .catch(error => {
+                    console.error('Error monitoring production changes:', error);
+                });
+        }
+
+        // Check for changes every 3 seconds
+        setInterval(checkProductionChanges, 3000);
+    }
+
+    // Initialize production monitoring
+    setupProductionMonitoring();
     fetchRecentBatchesLive();
     fetchActivityTimelineLive();
     setInterval(fetchActivityTimelineLive, 5000);
@@ -361,7 +483,7 @@
                         'active': 'bg-blue-200 text-blue-800',
                         'completed': 'bg-green-200 text-green-800',
                         'cancelled': 'bg-red-200 text-red-800'
-                    }[batch.status] || 'bg-gray-100 text-gray-700';
+                    } [batch.status] || 'bg-gray-100 text-gray-700';
                     let timeInfo = '';
                     if (batch.actual_start) timeInfo += `Started: <span class=\"font-medium\">${toNairobiString(batch.actual_start)}</span> `;
                     if (batch.actual_end) timeInfo += `| Completed: <span class=\"font-medium\">${toNairobiString(batch.actual_end)}</span>`;

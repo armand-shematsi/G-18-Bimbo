@@ -15,23 +15,23 @@ class OrderController extends Controller
     // Show order placement form
     public function create()
     {
-        $products = Product::where('type', 'finished_product')->get()->map(function($product) {
-            $inventory = \App\Models\Inventory::where('product_id', $product->id)
-                ->where('location', 'retail')
-                ->where('item_type', 'finished_good')
-                ->first();
-            $product->available = $inventory ? $inventory->quantity : 0;
-            $product->unit = $inventory ? $inventory->unit : '';
-            $product->inventory_id = $inventory ? $inventory->id : null;
-            $product->unit_price = $inventory ? $inventory->unit_price : ($product->unit_price ?? $product->price ?? 0);
-            return $product;
-        });
-        return view('customer.order.create', compact('products'));
+        $inventory = \App\Models\Inventory::where('location', 'retail')
+            ->where('item_type', 'finished_good')
+            ->where('quantity', '>', 0)
+            ->get();
+
+        return view('customer.order.create', compact('inventory'));
+
     }
 
     // Handle order submission
     public function store(Request $request)
     {
+        // If 'items' is a JSON string, decode it
+        if (is_string($request->items)) {
+            $request->merge(['items' => json_decode($request->items, true) ?: []]);
+        }
+
         // Filter out items with quantity < 1
         $items = collect($request->input('items', []))
             ->filter(function($item) {

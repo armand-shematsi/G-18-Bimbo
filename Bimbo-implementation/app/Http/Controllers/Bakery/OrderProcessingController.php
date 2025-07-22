@@ -16,7 +16,11 @@ class OrderProcessingController extends Controller
     public function index()
     {
         $suppliers = User::where('role', 'supplier')->get();
-        $products = Product::where('type', 'raw_material')->get();
+        // Fetch raw materials from supplier inventory
+        $rawMaterials = \App\Models\Inventory::where('location', 'supplier')
+            ->where('item_type', 'raw_material')
+            ->get();
+        $products = Product::where('type', 'raw_material')->get(); // keep for compatibility
 
         $retailerOrders = \App\Models\Order::whereHas('user', function($q) {
                 $q->where('role', 'retail_manager');
@@ -25,22 +29,14 @@ class OrderProcessingController extends Controller
                 $q->where('type', 'raw_material');
             })
             ->whereIn('status', ['pending', 'processing'])
-            ->with([
-                'user',
-                'items' => function($q) {
-                    $q->whereHas('product', function($q2) {
-                        $q2->where('type', 'finished_product');
-                    });
-                },
-                'items.product'
-            ])
+            ->with(['user', 'items.product'])
             ->orderBy('created_at', 'desc')
             ->get();
         
         \Log::info('DEBUG retailerOrders', ['retailerOrders' => $retailerOrders->toArray()]);
 
         $supplierOrders = \App\Models\SupplierOrder::with('product')->orderBy('created_at', 'desc')->get();
-        return view('bakery.order-processing', compact('suppliers', 'products', 'retailerOrders', 'supplierOrders'));
+        return view('bakery.order-processing', compact('suppliers', 'products', 'rawMaterials', 'retailerOrders', 'supplierOrders'));
     }
 
     // AJAX: Store a new supplier order
@@ -198,10 +194,7 @@ class OrderProcessingController extends Controller
 
     public function listSupplierOrders()
     {
-        $orders = \App\Models\Order::where('user_id', auth()->id())
-            ->with(['items', 'vendor'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $orders = \App\Models\SupplierOrder::with('product')->orderBy('created_at', 'desc')->get();
         return response()->json(['orders' => $orders]);
     }
 }

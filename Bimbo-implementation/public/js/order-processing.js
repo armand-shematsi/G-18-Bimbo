@@ -1,16 +1,14 @@
-// Order Processing JS extracted from Blade
+window.onerror = function(message, source, lineno, colno, error) {
+    // alert("JS Error: " + message + "\nSource: " + source + "\nLine: " + lineno + ", Column: " + colno);
+    return false;
+};
 
-// Wait for DOM to load
-// eslint-disable-next-line no-undef
-// (If using a linter, ensure 'window' is allowed for global functions)
 document.addEventListener('DOMContentLoaded', function() {
-    // Get the wrapper div with data attributes
     const wrapper = document.querySelector('[data-supplier-order-route], [data-supplier-orders-route]');
     if (!wrapper) return;
     const supplierOrderRoute = wrapper.dataset.supplierOrderRoute;
     const supplierOrdersRoute = wrapper.dataset.supplierOrdersRoute || '/order-processing/supplier-orders';
     const retailerOrdersRoute = wrapper.dataset.retailerOrdersRoute;
-    // Use global receiveOrderBaseUrl and csrfToken from Blade, do not redeclare here
 
     // --- Supplier Order Form AJAX ---
     const supplierOrderForm = document.getElementById('supplierOrderForm');
@@ -38,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         msg.textContent = 'Order placed successfully!';
                         msg.className = 'mt-2 text-green-600';
                         form.reset();
-                        fetchAndRenderSupplierOrders(); // Instead of window.location.reload();
+                        fetchAndRenderSupplierOrders(); // Refresh supplier orders table immediately
                     } else {
                         msg.textContent = 'Failed to place order.';
                         msg.className = 'mt-2 text-red-600';
@@ -65,14 +63,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     data.orders.forEach(order => {
                         let statusClass = order.status === 'received' ? 'text-green-700 font-bold' : 'text-yellow-700 font-bold';
-                        // Add a status dropdown for all orders
                         let statusOptions = ['pending', 'processing', 'shipped', 'received'];
                         let dropdown = `<select class='order-status-dropdown border rounded px-2 py-1' data-order-id='${order.id}'>`;
                         statusOptions.forEach(opt => {
                             dropdown += `<option value='${opt}' ${order.status === opt ? 'selected' : ''}>${opt.charAt(0).toUpperCase() + opt.slice(1)}</option>`;
                         });
                         dropdown += `</select>`;
-                        // Get first item (if exists)
                         let firstItem = order.items && order.items.length > 0 ? order.items[0] : null;
                         let productName = firstItem && firstItem.product ? firstItem.product.name : (firstItem ? firstItem.product_name : 'N/A');
                         let quantity = firstItem ? firstItem.quantity : 'N/A';
@@ -89,52 +85,15 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // Event delegation for status dropdown
-    document.addEventListener('change', function(e) {
-        if (e.target && e.target.classList.contains('order-status-dropdown')) {
-            const dropdown = e.target;
-            const orderId = dropdown.getAttribute('data-order-id');
-            const newStatus = dropdown.value;
-            dropdown.disabled = true;
-            fetch(`${updateOrderStatusUrl}/${orderId}/status`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ status: newStatus })
-            })
-            .then(res => res.json().catch(() => ({ success: false, message: 'Invalid JSON response' })))
-            .then(data => {
-                if (data.success) {
-                    // Optionally update the status cell style
-                    const row = dropdown.closest('tr');
-                    if (row) {
-                        const statusCell = row.querySelector('.status-cell');
-                        if (statusCell) {
-                            statusCell.className = `px-6 py-4 whitespace-nowrap text-sm ${(newStatus === 'received') ? 'text-green-700 font-bold' : 'text-yellow-700 font-bold'} status-cell`;
-                        }
-                    }
-                } else {
-                    alert('Failed to update status: ' + (data.message || 'Unknown error'));
-                }
-            })
-            .catch(err => {
-                alert('AJAX error: ' + err);
-            })
-            .finally(() => {
-                dropdown.disabled = false;
-            });
-        }
-    });
-
     // --- Supplier Orders AJAX ---
-    // Use the correct route from Blade if available
     function fetchAndRenderSupplierOrders() {
         fetch(supplierOrdersRoute)
             .then(res => res.json())
             .then(data => {
                 updateSupplierOrdersTable(data.orders);
+            })
+            .catch(err => {
+                // alert("AJAX error: " + err);
             });
     }
 
@@ -143,14 +102,25 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!tableBody) return;
         tableBody.innerHTML = '';
         orders.forEach(order => {
-            const item = order.items[0];
+            console.log(order); // Debug output
+            if (!order.product || typeof order.product !== 'object') return;
+            let total = '-';
+            let unitPrice = null;
+            if (order.product.unit_price !== undefined && order.product.unit_price !== null && !isNaN(parseFloat(order.product.unit_price))) {
+                unitPrice = parseFloat(order.product.unit_price);
+            } else if (order.product.price !== undefined && order.product.price !== null && !isNaN(parseFloat(order.product.price))) {
+                unitPrice = parseFloat(order.product.price);
+            }
+            if (order.quantity && unitPrice !== null) {
+                total = (order.quantity * unitPrice).toFixed(2);
+            }
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${order.id}</td>
-                <td>${item ? item.product_name : ''}</td>
-                <td>${item ? item.quantity : ''}</td>
+                <td>${order.product.name || ''}</td>
+                <td>${order.quantity || ''}</td>
                 <td>${order.status}</td>
-                <td>${order.total}</td>
+                <td>${total}</td>
                 <td>${formatDate(order.created_at)}</td>
             `;
             tableBody.appendChild(row);
@@ -165,5 +135,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     fetchRetailerOrders();
     fetchAndRenderSupplierOrders();
-    // setInterval(fetchRetailerOrders, 60000); // polling disabled
 }); 

@@ -21,6 +21,15 @@ def predict_post():
         ts = ts.rename(columns={'date': 'ds', 'quantity': 'y'})
         ts['ds'] = pd.to_datetime(ts['ds'])
         if len(ts) < 2:
+            # Not enough data, return zeros or empty forecast
+            forecast[product] = [
+                {'date': (pd.Timestamp.now() + pd.Timedelta(days=i)).strftime('%Y-%m-%d'), 'predicted': 0}
+                for i in range(1, forecast_days + 1)
+            ] if forecast_days > 0 else []
+            predictions.append({
+                'item_name': product,
+                'predicted': 0
+            })
             continue
         try:
             m = Prophet()
@@ -44,7 +53,7 @@ def predict_post():
                 forecast[product] = []
         predictions.append({
             'item_name': product,
-            'predicted': predicted
+            'predicted': predicted if len(ts) >= 2 else 0
         })
     print('DEBUG FORECAST:', forecast)  # Debug print for troubleshooting
     return jsonify({'predictions': predictions, 'forecast': forecast})

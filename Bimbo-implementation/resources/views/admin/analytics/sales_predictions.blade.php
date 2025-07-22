@@ -1,68 +1,43 @@
 @extends('layouts.dashboard')
 
 @section('header')
-    Inventory Analytics & ML Predictions
+    <h2 class="font-semibold text-2xl text-blue-900 leading-tight tracking-wide">
+        <span class="inline-block align-middle mr-2">
+            <svg class="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v4a1 1 0 001 1h3m10-5v4a1 1 0 01-1 1h-3m-4 4h4m-2 0v4m0 0h-2"/></svg>
+        </span>
+        Sales Predictions & Forecasts
+    </h2>
 @endsection
 
 @section('content')
-<div class="py-12">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6 text-gray-900">
-                @if(isset($adminInventoryStats))
-                    <div class="mt-2">
-                        <h2 class="text-2xl font-bold mb-4">Inventory Analytics & ML Predictions</h2>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                            <div class="bg-white p-4 rounded shadow">
-                                <div class="text-gray-500 text-xs">Total Items</div>
-                                <div class="text-2xl font-bold">{{ $adminInventoryStats['total'] }}</div>
-                            </div>
-                            <div class="bg-white p-4 rounded shadow">
-                                <div class="text-gray-500 text-xs">Available</div>
-                                <div class="text-2xl font-bold">{{ $adminInventoryStats['available'] }}</div>
-                            </div>
-                            <div class="bg-white p-4 rounded shadow">
-                                <div class="text-gray-500 text-xs">Low Stock</div>
-                                <div class="text-2xl font-bold">{{ $adminInventoryStats['low_stock'] }}</div>
-                            </div>
-                            <div class="bg-white p-4 rounded shadow">
-                                <div class="text-gray-500 text-xs">Out of Stock</div>
-                                <div class="text-2xl font-bold">{{ $adminInventoryStats['out_of_stock'] }}</div>
-                            </div>
-                        </div>
-                        <div class="mb-6">
-                            <div class="bg-white p-4 rounded shadow">
-                                <div class="text-gray-500 text-xs mb-2">ML Predictions</div>
-                                <ul>
-                                    @foreach($adminInventoryPredictions as $prediction)
-                                        <li class="mb-2">
-                                            <span class="font-medium">{{ $prediction['item_name'] ?? 'Item' }}:</span>
-                                            Predicted value: <span class="text-blue-600">{{ $prediction['predicted'] ?? json_encode($prediction) }}</span>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="mb-6">
-                            <div class="bg-white p-4 rounded shadow">
-                                <div class="text-gray-500 text-xs">Total Inventory Value</div>
-                                <div class="text-xl font-bold">₦{{ number_format($adminTotalInventoryValue, 2) }}</div>
-                            </div>
-                        </div>
-                        <!-- Sales History and Forecast Chart -->
-                        <div class="mb-6">
-                            <div class="bg-white p-4 rounded shadow">
-                                <div class="text-gray-500 text-xs mb-2">Quantity Sold vs Time & 7-Day Forecast</div>
-                                <select id="productSelect" class="mb-4 p-2 border rounded">
-                                    @foreach(array_keys($salesHistoryChartData ?? []) as $product)
-                                        <option value="{{ $product }}">{{ ucfirst($product) }}</option>
-                                    @endforeach
-                                </select>
-                                <canvas id="salesChart" height="100"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                @endif
+<div class="py-12 bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen">
+    <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white rounded-2xl shadow-xl p-8 border border-blue-100 hover:shadow-2xl transition-all duration-200">
+            <h3 class="text-2xl font-bold text-blue-700 mb-6 flex items-center gap-2">
+                <svg class="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v4a1 1 0 001 1h3m10-5v4a1 1 0 01-1 1h-3m-4 4h4m-2 0v4m0 0h-2"/></svg>
+                Predicted Sales (Next 7 Days)
+            </h3>
+            <div class="mb-6">
+                <label for="predProductSelect" class="block mb-2 font-semibold text-blue-900">Select Product:</label>
+                <select id="predProductSelect" class="border border-blue-200 rounded-lg px-3 py-2 mb-4 focus:ring-2 focus:ring-blue-200 w-full max-w-xs">
+                    @if(isset($finishedProducts) && count($finishedProducts))
+                        <optgroup label="Finished Products">
+                            @foreach($finishedProducts as $product)
+                                <option value="{{ strtolower($product) }}">{{ $product }}</option>
+                            @endforeach
+                        </optgroup>
+                    @endif
+                    @if(isset($rawMaterials) && count($rawMaterials))
+                        <optgroup label="Raw Materials">
+                            @foreach($rawMaterials as $material)
+                                <option value="{{ strtolower($material) }}">{{ $material }}</option>
+                            @endforeach
+                        </optgroup>
+                    @endif
+                </select>
+            </div>
+            <div class="bg-gradient-to-br from-blue-100 via-white to-purple-100 rounded-xl p-6 flex items-center justify-center min-h-[350px]">
+                <canvas id="predChart" class="w-full h-72 md:h-96"></canvas>
             </div>
         </div>
     </div>
@@ -72,67 +47,51 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const salesHistory = @json($salesHistoryChartData ?? []);
     const salesForecast = @json($salesForecastChartData ?? []);
-    const productSelect = document.getElementById('productSelect');
-    const ctx = document.getElementById('salesChart').getContext('2d');
-
-    function getChartData(product) {
-        const history = salesHistory[product] || {};
+    const predProductSelect = document.getElementById('predProductSelect');
+    const predCtx = document.getElementById('predChart').getContext('2d');
+    function getPredChartData(product) {
         const forecast = salesForecast[product] || [];
-        const historyDates = Object.keys(history);
-        const historyValues = Object.values(history);
         const forecastDates = forecast.map(f => f.date);
         const forecastValues = forecast.map(f => f.predicted);
         return {
-            labels: [...historyDates, ...forecastDates],
+            labels: forecastDates,
             datasets: [
                 {
-                    label: 'Quantity Sold (Last 30 Days)',
-                    data: [...historyValues, ...Array(forecastValues.length).fill(null)],
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59,130,246,0.1)',
-                    tension: 0.2,
-                },
-                {
-                    label: 'Predicted (Next 7 Days)',
-                    data: [
-                        ...Array(historyValues.length).fill(null),
-                        ...forecastValues
-                    ],
+                    label: 'Predicted Sales',
+                    data: forecastValues,
                     borderColor: '#f59e42',
                     backgroundColor: 'rgba(245,158,66,0.1)',
-                    borderDash: [5,5],
                     tension: 0.2,
                 }
             ]
         };
     }
-
-    let chart;
-    function renderChart(product) {
-        const data = getChartData(product);
-        if (chart) chart.destroy();
-        chart = new Chart(ctx, {
+    let predChart;
+    function renderPredChart(product) {
+        const data = getPredChartData(product);
+        if (predChart) predChart.destroy();
+        predChart = new Chart(predCtx, {
             type: 'line',
             data: data,
             options: {
                 responsive: true,
                 plugins: {
                     legend: { position: 'top' },
-                    title: { display: true, text: product.charAt(0).toUpperCase() + product.slice(1) + ' Sales & Forecast' }
+                    title: { display: true, text: product.charAt(0).toUpperCase() + product.slice(1) + ' Predicted Sales' },
+                    tooltip: { enabled: true },
                 },
                 scales: {
-                    y: { beginAtZero: true }
+                    x: { title: { display: true, text: 'Date' } },
+                    y: { beginAtZero: true, title: { display: true, text: 'Predicted Sales' } }
                 }
             }
         });
     }
-
-    if (productSelect && productSelect.value) {
-        renderChart(productSelect.value);
-        productSelect.addEventListener('change', function() {
-            renderChart(this.value);
+    if (predProductSelect && predProductSelect.value) {
+        renderPredChart(predProductSelect.value);
+        predProductSelect.addEventListener('change', function() {
+            renderPredChart(this.value);
         });
     }
 </script>

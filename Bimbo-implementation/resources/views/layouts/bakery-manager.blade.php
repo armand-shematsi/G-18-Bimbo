@@ -90,7 +90,7 @@
                 </a>
                 <form method="POST" action="{{ route('logout') }}" class="pt-2">
                     @csrf
-                    <button type="submit" class="w-full flex items-center gap-2 px-4 py-3 rounded-lg bg-red-500 text-white font-semibold shadow hover:bg-red-600 transition">
+                    <button type="submit" class="w-full flex items-center gap-2 px-4 py-3 rounded-lg bg-blue-500 text-white font-semibold shadow hover:bg-blue-600 transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V5" />
                         </svg>

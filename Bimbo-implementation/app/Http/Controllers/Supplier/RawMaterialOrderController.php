@@ -93,86 +93,92 @@ class RawMaterialOrderController extends Controller
     // Checkout and place order
     public function checkout(Request $request)
     {
-        \Log::info('CHECKOUT DEBUG', ['user_id' => \Auth::id(), 'role' => \Auth::user()->role]);
         $user = Auth::user();
         if ($user->role !== 'bakery_manager') {
             abort(403, 'Only bakery managers can order raw materials from suppliers.');
         }
-        \Log::info('CHECKOUT METHOD CALLED', [
-            'user_id' => Auth::id(),
-            'cart' => Session::get('supplier_cart', []),
-            'request' => $request->all()
-        ]);
+        $cart = Session::get('supplier_cart', []);
+        if (empty($cart)) {
+            return redirect()->route('supplier.raw-materials.cart')->with('error', 'Cart is empty!');
+        }
         try {
-            // Add logging before validation
-            \Log::info('Before validation', ['request' => $request->all()]);
             $validated = $request->validate([
                 'shipping_address' => 'required|string',
                 'billing_address' => 'required|string',
             ]);
-            \Log::info('Validation passed', ['validated' => $validated]);
-            $cart = Session::get('supplier_cart', []);
-            if (empty($cart)) {
-                \Log::warning('Cart is empty during checkout', ['user_id' => Auth::id()]);
-                return redirect()->route('supplier.raw-materials.cart')->with('error', 'Cart is empty!');
-            }
             $total = collect($cart)->sum('total_price');
-            $customerName = Auth::user() ? Auth::user()->name : 'Bakery Manager';
-            $vendor = \App\Models\Vendor::where('user_id', $cart[0]['supplier_id'])->first();
-            $vendorId = $vendor ? $vendor->id : null;
-            if (!$vendorId) {
-                \Log::warning('No vendor found for supplier', ['supplier_id' => $cart[0]['supplier_id']]);
-                return redirect()->route('supplier.raw-materials.cart')->with('error', 'Vendor not found!');
-            }
-            $order = Order::create([
-                'user_id' => Auth::id(),
-                'vendor_id' => $vendorId,
-                'customer_name' => $customerName,
-                'status' => 'pending',
-                'total' => $total,
-                'payment_status' => 'unpaid',
-                'shipping_address' => $request->input('shipping_address'),
-                'billing_address' => $request->input('billing_address'),
-                'placed_at' => now(),
-            ]);
-            \Log::info('Raw material order created', [
-                'order_id' => $order->id,
-                'user_id' => Auth::id(),
-                'vendor_id' => $order->vendor_id,
-                'customer_name' => $order->customer_name
-            ]);
-            \Log::info('Order created', ['order_id' => $order->id]);
+            $customerName = $user->name ?? 'Bakery Manager';
+            $messages = [];
             foreach ($cart as $item) {
-                $order->items()->create([
-                    'product_id' => $item['product_id'] ?? null,
-                    'product_name' => $item['product_name'],
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
-                    'total_price' => $item['total_price'],
-                    'supplier_id' => $item['supplier_id'],
+                // Find or create vendor for supplier
+                $vendor = \App\Models\Vendor::firstOrCreate(
+                    ['user_id' => $item['supplier_id']],
+                    [
+                        'name' => $user->name ?? 'Supplier',
+                        'email' => $user->email ?? 'supplier@example.com',
+                        'phone' => $user->phone ?? '000-000-0000',
+                        'address' => $user->address ?? 'Unknown Address',
+                        'city' => $user->city ?? 'Unknown City',
+                        'state' => $user->state ?? 'Unknown State',
+                        'zip_code' => $user->zip_code ?? '00000',
+                        'business_type' => 'Supplier',
+                        'tax_id' => $user->tax_id ?? 'TAX000000',
+                        'business_license' => $user->business_license ?? 'LIC000000',
+                        'status' => 'active',
+                        'sales' => 0,
+                        'annual_revenue' => 0,
+                        'years_in_business' => 0,
+                        'regulatory_certification' => $user->regulatory_certification ?? null,
+                    ]
+                );
+                $vendorId = $vendor->id;
+                // Create order for this vendor
+                $order = Order::create([
+                    'user_id' => $user->id,
+                    'vendor_id' => $vendorId,
+                    'customer_name' => $customerName,
+                    'status' => 'pending',
+                    'total' => $item['total_price'],
+                    'payment_status' => 'unpaid',
+                    'shipping_address' => $request->input('shipping_address'),
+                    'billing_address' => $request->input('billing_address'),
+                    'placed_at' => now(),
                 ]);
+                // Check inventory
                 $inventory = Inventory::find($item['inventory_id']);
-                if ($inventory) {
+                if ($inventory && $inventory->quantity >= $item['quantity']) {
+                    $order->items()->create([
+                        'product_id' => $item['product_id'] ?? null,
+                        'product_name' => $item['product_name'],
+                        'quantity' => $item['quantity'],
+                        'unit_price' => $item['unit_price'],
+                        'total_price' => $item['total_price'],
+                        'supplier_id' => $item['supplier_id'],
+                    ]);
                     $inventory->quantity -= $item['quantity'];
                     $inventory->save();
+                } else {
+                    $messages[] = 'Insufficient stock for ' . $item['product_name'] . '. Order not placed for this item.';
+                    continue;
                 }
+                $messages[] = 'Order placed for ' . $item['product_name'] . ' (Qty: ' . $item['quantity'] . ').';
+            }
+            // Add SupplierOrder creation for each cart item
+            foreach ($cart as $item) {
+                \App\Models\SupplierOrder::create([
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'supplier_id' => $item['supplier_id'],
+                    'status' => 'pending',
+                ]);
             }
             Session::forget('supplier_cart');
-            \Log::info('Redirecting to supplier.orders.show', ['order_id' => $order->id]);
-            // Redirect bakery manager to cart with success message instead of supplier order details
-            return redirect()->route('supplier.raw-materials.cart')->with('success', 'Raw material order placed successfully!');
+            $finalMsg = implode(' ', $messages);
+            return redirect()->route('supplier.raw-materials.cart')->with('success', 'Order process complete. ' . $finalMsg);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::error('Validation failed in checkout', [
-                'errors' => $e->errors(),
-                'request' => $request->all(),
-            ]);
-            throw $e; // Let Laravel handle the redirect and error display
+            return redirect()->route('supplier.raw-materials.cart')->with('error', 'Validation failed: ' . implode(' ', $e->errors()));
         } catch (\Throwable $e) {
-            \Log::error('Error placing raw material order', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-            return redirect()->route('supplier.raw-materials.cart')->with('error', 'An error occurred while placing the order. Please try again.');
+            return redirect()->route('supplier.raw-materials.cart')->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
 }

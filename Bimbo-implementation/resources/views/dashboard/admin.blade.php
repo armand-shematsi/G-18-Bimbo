@@ -24,6 +24,9 @@
     <a href="{{ route('admin.analytics') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
         Analytics
     </a>
+    <a href="/admin/analytics/inventory" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-purple-700 hover:text-purple-900 hover:border-purple-300 focus:outline-none focus:text-purple-900 focus:border-purple-300 transition">
+        Inventory Analytics
+    </a>
     <a href="{{ route('admin.settings') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition">
         System Settings
     </a>

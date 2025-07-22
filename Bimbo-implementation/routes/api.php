@@ -49,6 +49,7 @@ Route::get('/batches/{batch}/shifts', function ($batchId) {
 });
 
 // Add API resource routes for workforce management
+Route::get('/assignments/filled-count', [App\Http\Controllers\Api\AssignmentController::class, 'filledCount']);
 Route::apiResource('staff', App\Http\Controllers\Api\StaffController::class);
 Route::apiResource('supply-centers', App\Http\Controllers\Api\SupplyCenterController::class);
 Route::apiResource('assignments', App\Http\Controllers\Api\AssignmentController::class);
