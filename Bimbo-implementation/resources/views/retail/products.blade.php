@@ -10,7 +10,7 @@
 @section('content')
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
     @foreach($products as $product)
-        <div class="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col transition-transform hover:scale-105 hover:shadow-2xl border border-gray-100">
+        <div class="bg-gradient-to-br from-red-200 to-pink-300 rounded-2xl shadow-lg overflow-hidden flex flex-col transition-transform hover:scale-105 hover:shadow-2xl border border-gray-100">
             <div class="h-48 w-full bg-gray-50 flex items-center justify-center overflow-hidden">
                 <img src="{{ $product->image_url ? asset($product->image_url) : asset('images/' . strtolower(str_replace(' ', '_', $product->name)) . '.jpg') }}"
                      alt="{{ $product->name }}"

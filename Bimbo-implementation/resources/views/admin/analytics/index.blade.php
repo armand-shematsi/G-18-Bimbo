@@ -41,6 +41,25 @@
                     <h3 class="text-lg font-semibold mb-4">Order Status Distribution (Last 30 Days)</h3>
                     <canvas id="orderStatusPieChart" width="120" height="120"></canvas>
                 </div>
+
+                <h3 class="text-lg font-semibold mb-4">ML Recommendations by Segment</h3>
+                <div class="mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        @foreach($customerSegments as $segment => $count)
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <h4 class="font-semibold text-blue-800">Segment {{ $segment }}</h4>
+                                <p class="text-sm text-blue-600">{{ $count }} customers</p>
+                                @if($segment == 'high_value')
+                                    <p class="text-xs text-gray-600 mt-2">Recommend: Loyalty rewards and exclusive previews</p>
+                                @elseif($segment == 'medium_value')
+                                    <p class="text-xs text-gray-600 mt-2">Recommend: Bundle offers and personalized discounts</p>
+                                @else
+                                    <p class="text-xs text-gray-600 mt-2">Recommend: Win-back campaigns and introductory offers</p>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
             </div>
         </div>
     </div>
