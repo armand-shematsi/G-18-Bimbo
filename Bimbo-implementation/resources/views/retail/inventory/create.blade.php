@@ -21,8 +21,13 @@
     <form method="POST" action="{{ route('retail.inventory.store') }}">
         @csrf
         <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Item Name</label>
-            <input type="text" name="item_name" class="w-full border border-gray-300 rounded px-3 py-2" required>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Product</label>
+            <select name="product_id" id="product_id" class="w-full border border-gray-300 rounded px-3 py-2" required>
+                <option value="">Select a product</option>
+                @foreach($products as $product)
+                    <option value="{{ $product->id }}">{{ $product->name }}</option>
+                @endforeach
+            </select>
         </div>
         <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>

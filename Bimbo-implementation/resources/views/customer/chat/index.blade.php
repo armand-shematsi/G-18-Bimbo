@@ -18,7 +18,11 @@
                                 @forelse($suppliers as $supplier)
                                     <a href="{{ route('customer.chat.index', ['user_id' => $supplier->id]) }}"
                                        class="block p-3 rounded-lg {{ request('user_id') == $supplier->id ? 'bg-primary-50 text-primary-700 font-bold' : 'hover:bg-gray-50' }}">
-                                        <div class="font-medium">{{ optional($supplier)->name }}</div>
+                                        <div class="font-medium">{{ optional($supplier)->name }}
+                                            @if(request('user_id') != $supplier->id && $currentChat && $supplier->id == $currentChat->id && $unreadCount > 0)
+                                                <span class="inline-block ml-2 px-2 py-1 text-xs font-bold text-white bg-red-600 rounded-full align-top">{{ $unreadCount }}</span>
+                                            @endif
+                                        </div>
                                         <div class="text-xs text-gray-500">Role: {{ $supplier->role }}</div>
                                     </a>
                                 @empty

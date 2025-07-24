@@ -9,7 +9,7 @@
     <div class="max-w-7xl mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <!-- Current Inventory -->
-            <div class="bg-gradient-to-br from-green-400 to-blue-500 shadow-xl rounded-2xl p-6 flex items-center">
+            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 shadow-xl rounded-2xl p-6 flex items-center">
                 <div class="flex-shrink-0">
                     <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -23,7 +23,7 @@
                 </div>
             </div>
             <!-- Pending Orders -->
-            <div class="bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-xl rounded-2xl p-6 flex items-center">
+            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 shadow-xl rounded-2xl p-6 flex items-center">
                 <div class="flex-shrink-0">
                     <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -37,7 +37,7 @@
                 </div>
             </div>
             <!-- Low Stock Items -->
-            <div class="bg-gradient-to-br from-red-400 to-pink-500 shadow-xl rounded-2xl p-6 flex items-center">
+            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 shadow-xl rounded-2xl p-6 flex items-center">
                 <div class="flex-shrink-0">
                     <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -52,6 +52,8 @@
             </div>
         </div>
         <!-- Supplier Inventory Table -->
+        <!-- Removed supplier inventory table as requested -->
+        <!--
         <div class="mt-8">
             <h3 class="text-2xl font-extrabold text-blue-800 mb-4">Supplier Inventory</h3>
             <div class="mt-4 bg-white shadow-lg rounded-2xl overflow-hidden">
@@ -100,19 +102,20 @@
                 </div>
             </div>
         </div>
+        -->
         <!-- Quick Actions -->
         <div class="mt-8">
             <h3 class="text-2xl font-extrabold text-green-700 mb-4">Quick Actions</h3>
             <div class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <a href="{{ route('retail.orders.create') }}" class="relative block w-full p-6 bg-gradient-to-br from-green-400 to-blue-500 border-2 border-green-500 rounded-2xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200">
+                <a href="{{ route('retail.orders.create') }}" class="relative block w-full p-6 bg-gradient-to-br from-blue-500 to-indigo-600 border-2 border-blue-600 rounded-2xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200">
                     <h4 class="text-xl font-bold text-white">Place Order</h4>
                     <p class="mt-1 text-base text-white/90">Order new bread products</p>
                 </a>
-                <a href="{{ route('retail.inventory.check') }}" class="relative block w-full p-6 bg-gradient-to-br from-blue-400 to-green-400 border-2 border-blue-500 rounded-2xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200">
+                <a href="{{ route('retail.inventory.check') }}" class="relative block w-full p-6 bg-gradient-to-br from-blue-500 to-indigo-600 border-2 border-blue-600 rounded-2xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200">
                     <h4 class="text-xl font-bold text-white">Check Inventory</h4>
                     <p class="mt-1 text-base text-white/90">View current stock levels</p>
                 </a>
-                <a href="{{ route('retail.forecast.index') }}" class="relative block w-full p-6 bg-gradient-to-br from-yellow-400 to-pink-400 border-2 border-yellow-500 rounded-2xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200">
+                <a href="{{ route('retail.forecast.index') }}" class="relative block w-full p-6 bg-gradient-to-br from-blue-500 to-indigo-600 border-2 border-blue-600 rounded-2xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200">
                     <h4 class="text-xl font-bold text-white">View Forecast</h4>
                     <p class="mt-1 text-base text-white/90">Check demand predictions</p>
                 </a>

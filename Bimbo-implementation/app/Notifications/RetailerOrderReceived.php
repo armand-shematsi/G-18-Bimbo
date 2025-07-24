@@ -6,17 +6,18 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use App\Models\RetailerOrder;
+use App\Models\Order;
 
 class RetailerOrderReceived extends Notification
 {
     use Queueable;
-    public $order;
+
+    protected $order;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(RetailerOrder $order)
+    public function __construct(Order $order)
     {
         $this->order = $order;
     }

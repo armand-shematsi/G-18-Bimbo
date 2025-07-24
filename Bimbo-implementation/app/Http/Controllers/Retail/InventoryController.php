@@ -48,7 +48,8 @@ class InventoryController extends Controller
     // Show form to add new inventory item
     public function create()
     {
-        return view('retail.inventory.create');
+        $products = \App\Models\Product::all();
+        return view('retail.inventory.create', compact('products'));
     }
 
     // Store new inventory item
@@ -56,6 +57,7 @@ class InventoryController extends Controller
     {
         $data = $request->validate([
             'item_name' => 'required|string|max:255',
+            'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:0',
             'unit_price' => 'required|numeric|min:0',
             'unit' => 'required|string|max:50',
@@ -63,7 +65,7 @@ class InventoryController extends Controller
             'reorder_level' => 'required|integer|min:0',
         ]);
         $data['location'] = 'retail';
-        Inventory::create($data);
+        \App\Models\Inventory::create($data);
         return redirect()->route('retail.inventory.check')->with('status', 'Inventory item added successfully.');
     }
 

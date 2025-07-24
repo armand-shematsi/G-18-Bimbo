@@ -2,7 +2,9 @@
 @section('header')
 <div class="sticky top-0 z-30 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-400 shadow-lg py-4 px-8 flex items-center justify-between rounded-b-2xl">
     <h1 class="text-3xl font-extrabold text-white flex items-center gap-3">
-        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3" /></svg>
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3" />
+        </svg>
         Order Processing
     </h1>
     <span class="text-lg text-white/80 font-semibold">Bakery Dashboard</span>
@@ -18,7 +20,9 @@
             <div class="flex-1 min-w-0 bg-white rounded-3xl shadow-2xl border-l-8 border-blue-700 p-12 mb-14">
                 <div class="mb-10">
                     <h2 class="text-4xl font-extrabold tracking-wider bg-gradient-to-r from-blue-700 via-blue-400 to-purple-400 bg-clip-text text-transparent drop-shadow-lg flex items-center gap-3">
-                        <svg class="w-10 h-10 text-blue-400 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3" /></svg>
+                        <svg class="w-10 h-10 text-blue-400 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3" />
+                        </svg>
                         Retailer Orders
                     </h2>
                     <div class="h-1 w-20 bg-gradient-to-r from-blue-500 to-purple-400 rounded mt-3 mb-3"></div>
@@ -37,56 +41,65 @@
                         </thead>
                         <tbody class="divide-y divide-blue-50">
                             @foreach($retailerOrders as $order)
-                                @if(!is_object($order))
-                                    @continue
-                                @endif
-                                @php $products = []; @endphp
-                                @if(is_object($order) && is_iterable($order->items))
-                                    @foreach($order->items as $idx => $item)
-                                        @if(is_object($item) && is_object($item->product) && isset($item->product->id) && is_int($item->product->id) && $item->product->type === 'finished_product')
-                                            @php $products[] = ($item->product->name ?? 'N/A') . ' (' . $item->quantity . ')'; @endphp
-                                        @endif
-                                    @endforeach
-                                @endif
-                                @if(is_object($order) && count($products) > 0)
-                                <tr class="hover:bg-blue-100 hover:shadow-lg transition group">
-                                    <td class="px-5 py-3 font-extrabold text-blue-900 whitespace-nowrap border-l-4 border-blue-600 bg-blue-50 text-lg">{{ $order->id }}</td>
-                                    <td class="px-5 py-3 text-blue-800 font-medium">
-                                        @if(is_object($order->user))
-                                            <span>{{ $order->user->name ?? 'N/A' }}</span>
-                                        @else
-                                            <span class="text-gray-400 italic">User missing</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-5 py-3">
-                                        <span class="inline-flex items-center gap-2 px-4 py-1 rounded-full text-base font-bold
+                            @if(!is_object($order))
+                            @continue
+                            @endif
+                            @php $products = []; @endphp
+                            @if(is_object($order) && is_iterable($order->items))
+                            @foreach($order->items as $idx => $item)
+                            @if(is_object($item) && is_object($item->product) && isset($item->product->id) && is_int($item->product->id) && $item->product->type === 'finished_product')
+                            @php $products[] = ($item->product->name ?? 'N/A') . ' (' . $item->quantity . ')'; @endphp
+                            @endif
+                            @endforeach
+                            @endif
+                            @if(is_object($order) && count($products) > 0)
+                            <tr class="hover:bg-blue-100 hover:shadow-lg transition group">
+                                <td class="px-5 py-3 font-extrabold text-blue-900 whitespace-nowrap border-l-4 border-blue-600 bg-blue-50 text-lg">{{ $order->id }}</td>
+                                <td class="px-5 py-3 text-blue-800 font-medium">
+                                    @if(is_object($order->user))
+                                    <span>{{ $order->user->name ?? 'N/A' }}</span>
+                                    @else
+                                    <span class="text-gray-400 italic">User missing</span>
+                                    @endif
+                                </td>
+                                <td class="px-5 py-3">
+                                    <span class="inline-flex items-center gap-2 px-4 py-1 rounded-full text-base font-bold
                                             @if($order->status === 'pending') bg-yellow-200 text-yellow-900 animate-pulse
                                             @elseif($order->status === 'processing') bg-blue-200 text-blue-900
                                             @elseif($order->status === 'shipped') bg-purple-200 text-purple-900
                                             @elseif($order->status === 'received') bg-green-200 text-green-900
                                             @else bg-gray-100 text-gray-800 @endif">
-                                            @if($order->status === 'pending')
-                                                <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
-                                            @elseif($order->status === 'processing')
-                                                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3" /></svg>
-                                            @elseif($order->status === 'shipped')
-                                                <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 10h1l2 7h13l2-7h1" /></svg>
-                                            @elseif($order->status === 'received')
-                                                <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" /></svg>
-                                            @endif
-                                            {{ ucfirst($order->status) }}
-                                        </span>
-                                    </td>
-                                    <td class="px-5 py-3 text-blue-800 whitespace-nowrap font-medium">{{ $order->placed_at ? $order->placed_at->format('M d, Y H:i') : '-' }}</td>
-                                    <td class="px-5 py-3">
-                                        <div class="flex flex-wrap gap-2">
-                                            @foreach($products as $prod)
-                                                <span class="inline-block bg-blue-200 text-blue-900 rounded-full px-3 py-1 text-xs font-semibold">{{ $prod }}</span>
-                                            @endforeach
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endif
+                                        @if($order->status === 'pending')
+                                        <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <circle cx="12" cy="12" r="10" />
+                                            <path d="M12 6v6l4 2" />
+                                        </svg>
+                                        @elseif($order->status === 'processing')
+                                        <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path d="M12 8v4l3 3" />
+                                        </svg>
+                                        @elseif($order->status === 'shipped')
+                                        <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path d="M3 10h1l2 7h13l2-7h1" />
+                                        </svg>
+                                        @elseif($order->status === 'received')
+                                        <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        @endif
+                                        {{ ucfirst($order->status) }}
+                                    </span>
+                                </td>
+                                <td class="px-5 py-3 text-blue-800 whitespace-nowrap font-medium">{{ $order->placed_at ? $order->placed_at->format('M d, Y H:i') : '-' }}</td>
+                                <td class="px-5 py-3">
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach($products as $prod)
+                                        <span class="inline-block bg-blue-200 text-blue-900 rounded-full px-3 py-1 text-xs font-semibold">{{ $prod }}</span>
+                                        @endforeach
+                                    </div>
+                                </td>
+                            </tr>
+                            @endif
                             @endforeach
                         </tbody>
                     </table>
@@ -96,7 +109,9 @@
             <div class="flex-1 min-w-0 w-full bg-gradient-to-br from-purple-100 to-blue-50 rounded-3xl shadow-2xl border-l-8 border-purple-700 p-12 mb-14">
                 <div class="mb-10">
                     <h2 class="text-4xl font-extrabold tracking-wider bg-gradient-to-r from-purple-700 via-purple-400 to-blue-400 bg-clip-text text-transparent drop-shadow-lg flex items-center gap-3">
-                        <svg class="w-10 h-10 text-purple-400 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V7a2 2 0 00-2-2H6a2 2 0 00-2 2v6" /></svg>
+                        <svg class="w-10 h-10 text-purple-400 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V7a2 2 0 00-2-2H6a2 2 0 00-2 2v6" />
+                        </svg>
                         Your Supplier Orders
                     </h2>
                     <div class="h-1 w-20 bg-gradient-to-r from-purple-500 to-blue-400 rounded mt-3 mb-3"></div>
@@ -122,7 +137,10 @@
                                 <td class="px-5 py-3 font-extrabold text-purple-900 whitespace-nowrap flex items-center gap-2 border-l-4 border-purple-600 bg-purple-50 text-lg"> <!-- Order ID -->
                                     <span>{{ is_object($order) ? $order->id : $order }}</span>
                                     <button class="ml-1 text-purple-400 hover:text-purple-700 focus:outline-none relative" data-tooltip="Copy" onclick="event.stopPropagation(); copyOrderId('{{ is_object($order) ? $order->id : $order }}', this)">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><rect x="3" y="3" width="13" height="13" rx="2"/></svg>
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <rect x="9" y="9" width="13" height="13" rx="2" />
+                                            <rect x="3" y="3" width="13" height="13" rx="2" />
+                                        </svg>
                                         <span class="absolute -top-6 left-1/2 -translate-x-1/2 bg-purple-700 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition pointer-events-none" x-text="$el.getAttribute('data-tooltip') || 'Copy'"></span>
                                     </button>
                                 </td>
@@ -134,16 +152,16 @@
                                 <td class="px-5 py-3 text-purple-900 whitespace-nowrap font-semibold">{{ is_object($order) ? $order->quantity : '' }}</td>
                                 <td class="px-5 py-3 whitespace-nowrap">
                                     @if(is_object($order))
-                                        <span class="status-badge {{ strtolower($order->status) }} @if($order->status === 'pending') animate-pulse @endif font-bold text-base">
-                                            {{ ucfirst($order->status) }}
-                                        </span>
+                                    <span class="status-badge {{ strtolower($order->status) }} @if($order->status === 'pending') animate-pulse @endif font-bold text-base">
+                                        {{ ucfirst($order->status) }}
+                                    </span>
                                     @endif
                                 </td>
                                 <td class="px-5 py-3 text-purple-900 whitespace-nowrap font-extrabold text-lg"> <!-- Total -->
                                     @if(is_object($order) && is_object($order->product) && $order->product->unit_price !== null)
-                                        ₦{{ number_format($order->quantity * $order->product->unit_price, 2) }}
+                                    ₦{{ number_format($order->quantity * $order->product->unit_price, 2) }}
                                     @else
-                                        -
+                                    -
                                     @endif
                                 </td>
                                 <td class="px-5 py-3 text-purple-900 whitespace-nowrap font-medium">{{ (is_object($order) && $order->created_at) ? $order->created_at->format('n/j/Y, g:i A') : '-' }}</td>
@@ -189,27 +207,29 @@
             const newStatus = dropdown.value;
             dropdown.disabled = true;
             fetch(`${updateOrderStatusUrl}/${orderId}/status`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ status: newStatus })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    // Optionally show a message or update the row
-                } else {
-                    alert('Failed to update status: ' + (data.message || 'Unknown error'));
-                }
-            })
-            .catch(err => {
-                alert('AJAX error: ' + err);
-            })
-            .finally(() => {
-                dropdown.disabled = false;
-            });
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status: newStatus
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Optionally show a message or update the row
+                    } else {
+                        alert('Failed to update status: ' + (data.message || 'Unknown error'));
+                    }
+                })
+                .catch(err => {
+                    alert('AJAX error: ' + err);
+                })
+                .finally(() => {
+                    dropdown.disabled = false;
+                });
         }
     });
 
@@ -219,36 +239,38 @@
             const orderId = button.getAttribute('data-order-id');
             button.disabled = true;
             fetch(`${updateOrderStatusUrl}/${orderId}/status`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ status: 'received' })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    // Update the dropdown to 'received'
-                    const row = button.closest('tr');
-                    if (row) {
-                        const dropdown = row.querySelector('.order-status-dropdown');
-                        if (dropdown) {
-                            dropdown.value = 'received';
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status: 'received'
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the dropdown to 'received'
+                        const row = button.closest('tr');
+                        if (row) {
+                            const dropdown = row.querySelector('.order-status-dropdown');
+                            if (dropdown) {
+                                dropdown.value = 'received';
+                            }
                         }
+                        // Change button text and keep it disabled
+                        button.textContent = 'Received';
+                        button.disabled = true;
+                    } else {
+                        alert('Failed to update status: ' + (data.message || 'Unknown error'));
+                        button.disabled = false;
                     }
-                    // Change button text and keep it disabled
-                    button.textContent = 'Received';
-                    button.disabled = true;
-                } else {
-                    alert('Failed to update status: ' + (data.message || 'Unknown error'));
+                })
+                .catch(err => {
+                    alert('AJAX error: ' + err);
                     button.disabled = false;
-                }
-            })
-            .catch(err => {
-                alert('AJAX error: ' + err);
-                button.disabled = false;
-            });
+                });
         }
     });
 

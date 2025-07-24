@@ -7,45 +7,161 @@
 @endsection
 
 @section('content')
-<div x-data="{ toast: '', showToast(msg) { this.toast = msg; setTimeout(() => this.toast = '', 1800); } }">
-    <template x-if="toast">
-        <div class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 bg-green-600 text-white font-bold px-6 py-3 rounded-2xl shadow-lg animate-fade-in-out">
-            <span x-text="toast"></span>
-        </div>
-    </template>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 py-8">
-        @foreach($products as $product)
-            <div class="bg-gradient-to-br from-red-50 to-pink-100 rounded-3xl shadow-xl p-7 flex flex-col items-center transition-transform duration-200 hover:-translate-y-2 hover:shadow-2xl group relative"
-                 x-data="{ loading: false, quantity: 1, max: {{ $product->available ?? 1 }}, shake: false, handleInput(e) { if (parseInt(e.target.value) > this.max) { this.shake = true; this.quantity = this.max; setTimeout(() => this.shake = false, 400); } }, handleSubmit(e) { if (this.quantity > this.max) { this.shake = true; this.quantity = this.max; setTimeout(() => this.shake = false, 400); e.preventDefault(); return; } this.loading = true; } }">
-                <!-- Product Type Badge (if available) -->
-                @if(isset($product->type) && $product->type)
-                    <span class="absolute top-5 left-5 bg-gradient-to-r from-green-400 to-blue-400 text-white text-xs font-bold px-3 py-1 rounded-full shadow">{{ ucfirst(str_replace('_', ' ', $product->type)) }}</span>
-                @endif
-                <!-- Product Image -->
-                <div class="w-32 h-32 mb-4 flex items-center justify-center rounded-full border-4 border-blue-400 bg-gradient-to-br from-blue-100 to-purple-100 overflow-hidden shadow-lg transition-all duration-200 group-hover:border-green-400">
-                    <img src="{{ asset($product->image_url ?? 'images/default-product.jpg') }}" alt="{{ $product->name }}" class="object-cover w-28 h-28 rounded-full">
+
+@php
+    // Remove $accentColors and related logic
+@endphp
+<style>
+    .product-card {
+        --accent-color: #3b82f6;
+        --shadow-color: rgba(59,130,246,0.13);
+        transition: box-shadow 0.25s, transform 0.18s, border-color 0.18s;
+        background: #fff;
+        border-radius: 1.2rem;
+        border: 2px solid #e5e7eb;
+        position: relative;
+        min-height: 320px;
+        max-width: 320px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        margin-bottom: 1rem;
+        padding-top: 1.2rem;
+        box-shadow: 0 2px 12px 0 var(--shadow-color);
+    }
+    .product-card:hover {
+        box-shadow: 0 8px 20px 0 var(--shadow-color, rgba(59,130,246,0.18));
+        transform: translateY(-4px) scale(1.025);
+        border-color: var(--accent-color, #3b82f6);
+        background: #f9fafb;
+    }
+    .product-img {
+        border-radius: 50%;
+        border: 3px solid var(--accent-color, #3b82f6);
+        width: 140px;
+        height: 140px;
+        object-fit: cover;
+        background: #fff;
+        margin-bottom: 0.7rem;
+        box-shadow: 0 3px 12px 0 var(--shadow-color);
+        transition: box-shadow 0.2s, border-color 0.2s;
+        z-index: 2;
+    }
+    .product-card:hover .product-img {
+        border-color: var(--accent-color, #3b82f6);
+        box-shadow: 0 8px 20px 0 var(--shadow-color, rgba(59,130,246,0.18));
+    }
+    .badge {
+        position: absolute;
+        top: 0.7rem;
+        left: 50%;
+        transform: translateX(-50%) translateY(-30%);
+        background: var(--accent-color, #3b82f6);
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 800;
+        padding: 0.18rem 0.7rem;
+        border-radius: 9999px;
+        box-shadow: 0 1px 4px 0 var(--shadow-color, rgba(59,130,246,0.13));
+        letter-spacing: 0.07em;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.08);
+        z-index: 3;
+    }
+    .add-to-cart-btn {
+        background: var(--accent-color, #3b82f6);
+        color: #fff;
+        font-weight: 800;
+        border: none;
+        border-radius: 0.7rem;
+        padding: 0.6rem 1.2rem;
+        font-size: 1rem;
+        box-shadow: 0 2px 8px 0 var(--shadow-color, rgba(59,130,246,0.13));
+        transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.7rem;
+    }
+    .add-to-cart-btn:hover {
+        background: #111827;
+        color: #fff;
+        box-shadow: 0 4px 16px 0 var(--shadow-color, rgba(59,130,246,0.22));
+        transform: scale(1.04);
+    }
+    .product-title {
+        font-size: 1.1rem;
+        font-weight: 900;
+        margin-bottom: 0.3rem;
+        color: #111827;
+        text-align: center;
+        letter-spacing: 0.01em;
+    }
+    .product-available {
+        color: #059669;
+        font-weight: 700;
+        font-size: 0.95rem;
+    }
+    .product-price {
+        font-size: 1.2rem;
+        font-weight: 900;
+        color: #059669;
+        margin-bottom: 0.7rem;
+        letter-spacing: 0.01em;
+    }
+    .out-of-stock {
+        color: #ef4444;
+        font-weight: 800;
+        font-size: 0.95rem;
+        margin-top: 1.2rem;
+    }
+    .quantity-input {
+        width: 40px;
+        font-size: 0.95rem;
+        padding: 0.3rem;
+        border-radius: 0.3rem;
+        border: 1.2px solid #d1fae5;
+        text-align: center;
+        margin-bottom: 0.3rem;
+        font-weight: 700;
+        color: #059669;
+        background: #f0fdf4;
+        transition: border-color 0.2s;
+    }
+    .quantity-input:focus {
+        border-color: #3b82f6;
+        outline: none;
+    }
+</style>
+<div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-6 mt-6">
+    @forelse($products as $product)
+        <div class="product-card p-10">
+            <span class="badge">Fresh Bread</span>
+            @if($product->image_url)
+                <img src="{{ asset($product->image_url) }}" alt="{{ $product->name }}" class="product-img">
+            @else
+                <div class="product-img flex items-center justify-center bg-gray-200">
+                    <span class="text-gray-400 text-5xl">🍞</span>
                 </div>
-                <!-- Product Name -->
-                <h3 class="text-2xl font-extrabold text-gray-900 text-center mb-1 tracking-tight">{{ $product->name }}</h3>
-                <!-- Product Statement -->
-                @if(isset($product->statement) && $product->statement)
-                    <p class="text-base text-gray-500 italic text-center mb-2">{{ $product->statement }}</p>
-                @endif
-                <!-- Rating and Stock Group -->
-                <div class="flex items-center justify-center gap-4 mb-2">
-                    <div class="flex items-center gap-1">
-                        @for($i = 1; $i <= 5; $i++)
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.287 3.966c.3.922-.755 1.688-1.54 1.118l-3.385-2.46a1 1 0 00-1.175 0l-3.385 2.46c-.784.57-1.838-.196-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.045 9.394c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.286-3.967z"/></svg>
-                        @endfor
-                        <span class="ml-1 text-yellow-600 font-bold text-base">{{ number_format($product->rating ?? 5, 1) }}</span>
-                    </div>
-                    <span class="bg-green-100 text-green-700 font-bold px-3 py-1 rounded-full text-xs shadow">Available: {{ $product->available ?? 0 }} {{ $product->unit ?? 'loaf' }}</span>
+            @endif
+            <h3 class="text-2xl font-extrabold text-gray-900 text-center mb-1 tracking-tight">{{ $product->name }}</h3>
+            @if(isset($product->statement) && $product->statement)
+                <p class="text-base text-gray-500 italic text-center mb-2">{{ $product->statement }}</p>
+            @endif
+            <div class="flex items-center justify-center gap-4 mb-2">
+                <div class="flex items-center gap-1">
+                    @for($i = 1; $i <= 5; $i++)
+                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.287 3.966c.3.922-.755 1.688-1.54 1.118l-3.385-2.46a1 1 0 00-1.175 0l-3.385 2.46c-.784.57-1.838-.196-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.045 9.394c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.286-3.967z"/></svg>
+                    @endfor
+                    <span class="ml-1 text-yellow-600 font-bold text-base">{{ number_format($product->rating ?? 5, 1) }}</span>
                 </div>
-                <!-- Price -->
-                <div class="text-3xl font-extrabold text-green-600 mb-4 tracking-tight">₦{{ number_format($product->unit_price, 2) }}</div>
-                <!-- Quantity Selector and Add to Cart -->
-                <form action="{{ route('customer.cart.add', $product->id) }}" method="POST" class="w-full flex flex-col items-center gap-3 mt-auto"
-                      @submit="if ({{ $product->available ?? 0 }} == 0) { $event.preventDefault(); return false; }">
+                <span class="bg-green-100 text-green-700 font-bold px-3 py-1 rounded-full text-xs shadow">Available: {{ $product->available ?? 0 }} {{ $product->unit ?? 'loaf' }}</span>
+            </div>
+            <p class="mb-1 text-gray-500 text-base">Available: <span class="product-available">{{ $product->available }} {{ $product->unit }}</span></p>
+            <p class="product-price">$ {{ number_format($product->unit_price, 2) }}</p>
+            @if($product->available > 0 && $product->inventory_id)
+                <form action="{{ route('customer.cart.add') }}" method="POST" class="flex flex-col items-center w-full">
+
                     @csrf
                     @if(isset($product->inventory_id))
                         <input type="hidden" name="inventory_id" value="{{ $product->inventory_id }}">

@@ -39,7 +39,7 @@
                 </div>
                 <div class="mb-8">
                     <h3 class="text-lg font-semibold mb-4">Order Status Distribution (Last 30 Days)</h3>
-                    <canvas id="orderStatusPieChart" width="250" height="250"></canvas>
+                    <canvas id="orderStatusPieChart" width="120" height="120"></canvas>
                 </div>
 
                 <h3 class="text-lg font-semibold mb-4">ML Recommendations by Segment</h3>
