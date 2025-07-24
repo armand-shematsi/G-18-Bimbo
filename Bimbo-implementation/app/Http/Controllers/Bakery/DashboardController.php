@@ -13,18 +13,19 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         // You can add bakery-specific dashboard data here
-        return view('dashboard.bakery-manager');
+        $products = \App\Models\Product::all();
+        return view('dashboard.bakery-manager', compact('products'));
     }
 
     public function productionOverview()
     {
         $today = Carbon::today();
-        
+
         // Get actual counts based on current status, not just dates
         $todayBatches = ProductionBatch::whereDate('scheduled_start', $today)->count();
         $completedBatches = ProductionBatch::where('status', 'completed')->count();
         $inProgressBatches = ProductionBatch::where('status', 'active')->count();
-        
+
         return response()->json([
             'todayBatches' => $todayBatches,
             'completedBatches' => $completedBatches,
@@ -36,11 +37,11 @@ class DashboardController extends Controller
     {
         // First try to get from ActivityLog
         $activities = ActivityLog::latest()->limit(10)->get();
-        
+
         if ($activities->isEmpty()) {
             // Fallback: Get recent batch changes
             $recentBatches = ProductionBatch::latest()->limit(10)->get();
-            $activities = $recentBatches->map(function($batch) {
+            $activities = $recentBatches->map(function ($batch) {
                 $status = $batch->status;
                 $map = [
                     'planned' => ['color' => 'gray', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>', 'status' => 'Planned'],
@@ -49,7 +50,7 @@ class DashboardController extends Controller
                     'cancelled' => ['color' => 'red', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-1.414-1.414L12 9.172 7.05 4.222l-1.414 1.414L10.828 12l-5.192 5.192 1.414 1.414L12 14.828l4.95 4.95 1.414-1.414L13.172 12z"/>', 'status' => 'Cancelled'],
                 ];
                 $meta = $map[$status] ?? ['color' => 'gray', 'icon' => '', 'status' => ucfirst($status)];
-                
+
                 return [
                     'title' => $batch->name . ' Batch - ' . ucfirst($status),
                     'time' => $batch->updated_at->diffForHumans(),
@@ -60,7 +61,7 @@ class DashboardController extends Controller
             });
         } else {
             // Use ActivityLog data
-            $activities = $activities->map(function($log) {
+            $activities = $activities->map(function ($log) {
                 $map = [
                     'started' => ['color' => 'blue', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>', 'status' => 'Started'],
                     'completed' => ['color' => 'green', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>', 'status' => 'Completed'],
@@ -77,7 +78,7 @@ class DashboardController extends Controller
                 ];
             });
         }
-        
+
         return response()->json(['activities' => $activities]);
     }
-} 
+}

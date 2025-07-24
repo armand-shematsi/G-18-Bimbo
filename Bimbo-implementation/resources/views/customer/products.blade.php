@@ -23,7 +23,7 @@
                 @endif
                 <!-- Product Image -->
                 <div class="w-32 h-32 mb-4 flex items-center justify-center rounded-full border-4 border-blue-400 bg-gradient-to-br from-blue-100 to-purple-100 overflow-hidden shadow-lg transition-all duration-200 group-hover:border-green-400">
-                    <img src="{{ $product->image_url ?? asset('images/default-product.jpg') }}" alt="{{ $product->name }}" class="object-cover w-28 h-28 rounded-full">
+                    <img src="{{ asset($product->image_url ?? 'images/default-product.jpg') }}" alt="{{ $product->name }}" class="object-cover w-28 h-28 rounded-full">
                 </div>
                 <!-- Product Name -->
                 <h3 class="text-2xl font-extrabold text-gray-900 text-center mb-1 tracking-tight">{{ $product->name }}</h3>

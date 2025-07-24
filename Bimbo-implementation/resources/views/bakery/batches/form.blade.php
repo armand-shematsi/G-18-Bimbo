@@ -120,10 +120,6 @@ $isEdit = isset($batch);
         </select>
         @error('production_line_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
     </div>
-    <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700">Note:</label>
-        <div class="text-xs text-gray-500">All times are saved in Africa/Nairobi time. Your input will be converted to UTC for storage and then displayed in Nairobi time.</div>
-    </div>
     <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">{{ $isEdit ? 'Update Batch' : 'Create Batch' }}</button>
     <a href="{{ route('bakery.batches.index') }}" class="ml-2 text-gray-600 hover:underline">Cancel</a>
 </form>
