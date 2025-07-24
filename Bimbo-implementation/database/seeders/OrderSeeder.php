@@ -28,6 +28,13 @@ class OrderSeeder extends Seeder
             ]);
         }
 
+        // Get the first available vendor
+        $vendor = \App\Models\Vendor::first();
+        if (!$vendor) {
+            $this->command->error('No vendor found. Please run VendorSeeder first.');
+            return;
+        }
+
         // Get or create some products
         $products = [
             ['name' => 'White Bread'],
@@ -53,6 +60,7 @@ class OrderSeeder extends Seeder
             for ($j = 0; $j < $ordersPerDay; $j++) {
                 $order = Order::create([
                     'user_id' => $retailManager->id,
+                    'vendor_id' => $vendor->id,
                     'customer_name' => 'Customer ' . ($i * $ordersPerDay + $j + 1),
                     'customer_email' => 'customer' . ($i * $ordersPerDay + $j + 1) . '@example.com',
                     'status' => ['pending', 'processing', 'shipped', 'delivered'][rand(0, 3)],

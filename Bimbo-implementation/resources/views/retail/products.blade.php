@@ -1,13 +1,18 @@
 @extends('layouts.retail-manager')
 
 @section('header')
-    <h2 class="text-2xl font-extrabold text-blue-800 mb-6 flex items-center gap-2">
-        <svg class="w-7 h-7 text-yellow-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M3 12h18M3 17h18"/></svg>
-        Bread Products
-    </h2>
+<h2 class="text-2xl font-extrabold text-blue-800 mb-6 flex items-center gap-2">
+    <svg class="w-7 h-7 text-yellow-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M3 12h18M3 17h18" />
+    </svg>
+    Bread Products
+</h2>
 @endsection
 
 @section('content')
+<div style="color: red;">
+    Products count: {{ isset($products) ? $products->count() : 'NOT SET' }}
+</div>
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
     @foreach($products as $product)
         <div class="bg-gradient-to-br from-blue-100 to-blue-300 rounded-2xl shadow-lg overflow-hidden flex flex-col transition-transform hover:scale-105 hover:shadow-2xl border border-gray-100">

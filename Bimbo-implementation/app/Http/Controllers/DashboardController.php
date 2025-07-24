@@ -42,6 +42,7 @@ class DashboardController extends Controller
                 $products = \App\Models\Product::all();
                 return view('dashboard.supplier', compact('products'));
             case 'bakery_manager':
+                $products = \App\Models\Product::all();
                 // Show only retailer orders for finished products that are pending or processing
                 $orders = \App\Models\Order::whereHas('user', function($q) {
                         $q->where('role', 'retail_manager');
@@ -73,7 +74,7 @@ class DashboardController extends Controller
                 $shiftFilled = \App\Models\Shift::whereDate('start_time', $today)->whereNotNull('user_id')->count();
                 $overtimeCount = \App\Models\Shift::whereDate('start_time', $today)
                     ->whereRaw('TIMESTAMPDIFF(HOUR, start_time, end_time) > 8')->count();
-                return view('dashboard.bakery-manager', compact('orders', 'staff', 'supplyCenters', 'activeStaffCount', 'productionTarget', 'todaysOutput', 'staffOnDuty', 'absentCount', 'shiftFilled', 'overtimeCount'));
+                return view('dashboard.bakery-manager', compact('orders', 'staff', 'supplyCenters', 'activeStaffCount', 'productionTarget', 'todaysOutput', 'staffOnDuty', 'absentCount', 'shiftFilled', 'overtimeCount', 'products'));
             case 'distributor':
                 $products = \App\Models\Product::all();
                 return view('dashboard.distributor', compact('products'));

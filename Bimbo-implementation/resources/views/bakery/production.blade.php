@@ -1,18 +1,12 @@
 @extends('layouts.bakery-manager')
 
 @section('header')
-<div class="flex flex-col md:flex-row justify-between items-center mb-6">
-    <div class="flex items-center gap-3">
+<div class="flex flex-col items-start justify-center text-left py-6 ml-12">
+    <div class="flex items-center gap-3 mb-2">
         <img src="/images/baguette.jpg" alt="Bakery Logo" class="w-12 h-12 rounded-full shadow-md border-2 border-sky-400 bg-white object-cover">
-        <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Production Monitoring</h1>
-            <p class="mt-1 text-base text-gray-600 font-medium">Track and manage your bakery's production in real time.</p>
-        </div>
+        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Production Monitoring</h1>
     </div>
-    <div class="text-right mt-4 md:mt-0">
-        <p class="text-sm text-gray-500">Last updated</p>
-        <p class="text-sm font-medium text-gray-900">{{ now()->format('M d, Y H:i') }}</p>
-    </div>
+    <p class="mt-1 text-base text-gray-600 font-medium">Track and manage your bakery's production in real time.</p>
 </div>
 @endsection
 

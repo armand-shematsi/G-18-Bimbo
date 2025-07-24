@@ -1,18 +1,18 @@
 @extends('layouts.supplier')
 
 @section('header')
-    <h1 class="text-3xl font-bold text-gray-900">Order Raw Materials</h1>
-    <p class="mt-1 text-sm text-gray-600">Browse and order raw materials from other suppliers.</p>
+<h1 class="text-3xl font-bold text-gray-900">Order Raw Materials</h1>
+<p class="mt-1 text-sm text-gray-600">Browse and order raw materials from other suppliers.</p>
 @endsection
 
 @section('content')
 <div class="py-8">
     {{-- Debug print removed --}}
     @if(session('success'))
-        <div class="mb-4 p-4 bg-green-100 text-green-800 rounded-lg shadow">{{ session('success') }}</div>
+    <div class="mb-4 p-4 bg-green-100 text-green-800 rounded-lg shadow">{{ session('success') }}</div>
     @endif
     @if(session('error'))
-        <div class="mb-4 p-4 bg-red-100 text-red-800 rounded-lg shadow">{{ session('error') }}</div>
+    <div class="mb-4 p-4 bg-red-100 text-red-800 rounded-lg shadow">{{ session('error') }}</div>
     @endif
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         @forelse($rawMaterials as $item)
@@ -63,12 +63,12 @@
                 @elseif($item->quantity <= 5)
                     <span class="absolute top-4 right-4 bg-yellow-100 text-yellow-700 text-xs font-bold px-3 py-1 rounded-full shadow">Low Stock</span>
                 @else
-                    <span class="absolute top-4 right-4 bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full shadow">In Stock</span>
+                <span class="absolute top-4 right-4 bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full shadow">In Stock</span>
                 @endif
                 <div class="mt-4 text-xs text-gray-400 text-right">Last updated: {{ $item->updated_at->diffForHumans() }}</div>
-            </div>
+        </div>
         @empty
-            <div class="col-span-3 text-center text-gray-500 text-lg">No raw materials available from other suppliers at the moment.</div>
+        <div class="col-span-3 text-center text-gray-500 text-lg">No raw materials available from other suppliers at the moment.</div>
         @endforelse
     </div>
     <div class="mt-8 text-right">

@@ -25,30 +25,15 @@
             </svg>
         </button>
         <!-- Sidebar -->
-        <aside id="sidebar" class="hidden md:flex flex-col w-64 bg-amber-50 text-gray-900 border-r border-gray-200 min-h-screen sticky md:static top-0 z-40 transition-all duration-300">
+        <aside id="sidebar" class="hidden md:flex flex-col w-48 bg-amber-50 text-gray-900 border-r border-gray-200 min-h-screen sticky md:static top-0 z-40 transition-all duration-300">
             <div class="flex items-center justify-center h-24 px-6 border-b border-gray-100 bg-white shadow-sm">
                 <a href="{{ route('dashboard') }}">
                     <img class="h-16 w-auto rounded bg-white shadow" src="{{ asset('images/k-photo-recipe_ramp_up-2021-11-potato-bread-potato_bread_01.jpeg') }}" alt="Bimbo Logo - Bakery Dashboard">
                 </a>
             </div>
             <!-- User Menu moved from header bar -->
-            <div class="flex flex-col items-center py-4 border-b border-gray-100">
-                <button type="button" class="flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
-                    <span class="sr-only">Open user menu</span>
-                    <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=random" alt="{{ auth()->user()->name }}">
-                </button>
-                <div class="hidden absolute left-64 mt-2 w-48 origin-top-left rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1" id="user-menu">
-                    <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1">Edit Profile</a>
-                    <a href="{{ route('password.update') }}" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1">Change Password</a>
-                </div>
-                <span class="mt-2 font-semibold text-gray-800">{{ auth()->user()->name }}</span>
-            </div>
-            <!-- Page Heading moved from header bar -->
-            <div class="px-6 py-4 border-b border-gray-100">
-                <h2 class="font-semibold text-lg text-gray-800 leading-tight">
-                    @yield('header')
-                </h2>
-            </div>
+            <!-- (Remove the following block from the sidebar) -->
+            <!-- Removed custom Production Monitoring card from sidebar -->
             <nav class="flex-1 px-4 py-6 space-y-2">
                 <div class="mb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">Production</div>
                 <a href="{{ route('bakery.production') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg {{ request()->routeIs('bakery.production') ? 'bg-sky-100 text-sky-700 font-bold' : 'text-gray-700 hover:bg-sky-50' }}">
@@ -108,9 +93,26 @@
             </nav>
         </aside>
         <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col min-h-screen">
+        <div class="flex-1 flex flex-col min-h-screen relative">
+            <!-- User Avatar and Bakery Manager label in top right with dropdown -->
+            <div class="absolute right-8 top-6 z-50 flex items-center gap-3">
+                <div class="relative group">
+                    <button type="button" class="flex items-center gap-2 rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 px-2 py-1 shadow" id="user-menu-button-main" aria-expanded="false" aria-haspopup="true">
+                        <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=random" alt="{{ auth()->user()->name }}">
+                        <span class="font-bold text-lg text-gray-800">Bakery Manager</span>
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div class="hidden group-focus-within:block group-hover:block absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button-main" tabindex="-1" id="user-menu-main">
+                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">Edit Profile</a>
+                        <a href="{{ route('password.update') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">Change Password</a>
+                    </div>
+                </div>
+            </div>
             <!-- Page Content -->
             <main>
+                @yield('header')
                 <div class="py-12">
                     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -146,6 +148,24 @@
                 sidebar.classList.remove('hidden');
             } else {
                 sidebar.classList.add('hidden');
+            }
+        });
+    </script>
+    <script>
+        // Dropdown logic for top right user menu
+        document.addEventListener('DOMContentLoaded', function() {
+            const btn = document.getElementById('user-menu-button-main');
+            const menu = document.getElementById('user-menu-main');
+            if (btn && menu) {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    menu.classList.toggle('hidden');
+                });
+                document.addEventListener('click', function(e) {
+                    if (!btn.contains(e.target)) {
+                        menu.classList.add('hidden');
+                    }
+                });
             }
         });
     </script>
