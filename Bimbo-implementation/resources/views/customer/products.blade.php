@@ -8,6 +8,7 @@
 
 @section('content')
 
+
 @php
 // Remove $accentColors and related logic
 @endphp
@@ -178,75 +179,56 @@
         @if($product->available > 0 && $product->inventory_id)
         <form action="{{ route('customer.cart.add') }}" method="POST" class="flex flex-col items-center w-full">
 
-            @csrf
-            @if(isset($product->inventory_id))
-            <input type="hidden" name="inventory_id" value="{{ $product->inventory_id }}">
-            @endif
-            <input type="number" name="quantity" min="1" max="{{ $product->available ?? 1 }}" value="1" class="w-16 h-12 text-center rounded-xl border-2 border-green-200 focus:border-green-400 focus:ring-2 focus:ring-green-100 text-lg font-bold bg-green-50 mb-2 transition">
-            @if(($product->available ?? 0) == 0)
-            <span class="w-full text-center bg-red-100 text-red-600 font-bold py-2 rounded-xl shadow mb-2">Out of Stock</span>
-            @endif
-            <button type="submit" @if(($product->available ?? 0) == 0) disabled @endif class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-400 hover:from-blue-600 hover:to-blue-500 text-white font-extrabold text-lg py-3 rounded-2xl shadow-lg transition-transform duration-150 hover:-translate-y-1 focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.35 2.7A2 2 0 007.48 19h9.04a2 2 0 001.83-2.3L17 13M7 13V6a1 1 0 011-1h5a1 1 0 011 1v7"></path>
-                </svg>
-                Add to Cart
-            </button>
-        </form>
-        @endif
+                    @csrf
+                    @if(isset($product->inventory_id))
+                        <input type="hidden" name="inventory_id" value="{{ $product->inventory_id }}">
+                    @endif
+                    <input type="number" name="quantity" min="1" max="{{ $product->available ?? 1 }}" value="1" class="w-16 h-12 text-center rounded-xl border-2 border-green-200 focus:border-green-400 focus:ring-2 focus:ring-green-100 text-lg font-bold bg-green-50 mb-2 transition">
+                    @if(($product->available ?? 0) == 0)
+                        <span class="w-full text-center bg-red-100 text-red-600 font-bold py-2 rounded-xl shadow mb-2">Out of Stock</span>
+                    @endif
+                    <button type="submit" @if(($product->available ?? 0) == 0) disabled @endif class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-400 hover:from-blue-600 hover:to-blue-500 text-white font-extrabold text-lg py-3 rounded-2xl shadow-lg transition-transform duration-150 hover:-translate-y-1 focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.35 2.7A2 2 0 007.48 19h9.04a2 2 0 001.83-2.3L17 13M7 13V6a1 1 0 011-1h5a1 1 0 011 1v7"></path></svg>
+                        Add to Cart
+                    </button>
+                </form>
+
+            </div>
+        @endforeach
     </div>
-    @empty
-    <div class="col-span-full text-center text-gray-500 py-10">No products available.</div>
-    @endforelse
 </div>
-</div>
+@else
+    <div class="text-center text-gray-500 mt-12">
+        No products available at this time.
+    </div>
+@endif
 <style>
-    @keyframes fade-in-out {
-        0% {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-
-        10% {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        90% {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        100% {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-    }
-
-    .animate-fade-in-out {
-        animation: fade-in-out 1.8s both;
-    }
-
-    @keyframes shake {
-
-        0%,
-        100% {
-            transform: translateX(0);
-        }
-
-        20%,
-        60% {
-            transform: translateX(-8px);
-        }
-
-        40%,
-        80% {
-            transform: translateX(8px);
-        }
-    }
-
-    .animate-shake {
-        animation: shake 0.4s;
-    }
+@keyframes fade-in-out {
+    0% { opacity: 0; transform: translateY(-10px); }
+    10% { opacity: 1; transform: translateY(0); }
+    90% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-10px); }
+}
+.animate-fade-in-out { animation: fade-in-out 1.8s both; }
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+}
+.animate-shake { animation: shake 0.4s; }
+.product-available {
+    color: #059669;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+.product-price {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: #059669;
+    margin-bottom: 0.7rem;
+    letter-spacing: 0.01em;
+}
 </style>
 @endsection
+
+

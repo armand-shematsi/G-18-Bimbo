@@ -83,7 +83,7 @@ class InventoryController extends Controller
     }
 
     /**
-     * Store a newly created inventory item.
+     * Store a newly created inventory item or update existing stock if item already exists at the same location.
      */
     public function store(Request $request)
     {
@@ -98,10 +98,33 @@ class InventoryController extends Controller
             'product_id' => 'nullable|exists:products,id',
         ]);
 
-        $inventory = Inventory::create($validated);
+        // Default location to 'bakery' if not provided
+        $location = $validated['location'] ?? 'bakery';
 
-        return redirect()->route('bakery.inventory.index')
-            ->with('success', 'Inventory item created successfully.');
+        // Try to find existing inventory for this product at this location
+        $existing = Inventory::where('product_id', $validated['product_id'])
+            ->where('location', $location)
+            ->first();
+
+        if ($existing) {
+            // Update quantity and other fields if needed
+            $existing->quantity += $validated['quantity'];
+            $existing->unit_price = $validated['unit_price'] ?? $existing->unit_price;
+            $existing->unit = $validated['unit'];
+            $existing->item_type = $validated['item_type'];
+            $existing->reorder_level = $validated['reorder_level'];
+            $existing->item_name = $validated['item_name'];
+            $existing->save();
+
+            return redirect()->route('bakery.inventory.index')
+                ->with('success', 'Inventory item updated successfully.');
+        } else {
+            $validated['location'] = $location;
+            Inventory::create($validated);
+
+            return redirect()->route('bakery.inventory.index')
+                ->with('success', 'Inventory item created successfully.');
+        }
     }
 
     /**

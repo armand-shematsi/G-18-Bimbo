@@ -35,6 +35,7 @@
             <!-- (Remove the following block from the sidebar) -->
             <!-- Removed custom Production Monitoring card from sidebar -->
             <nav class="flex-1 px-4 py-6 space-y-2">
+                <div class="mb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">Production</div>
                 <a href="{{ route('bakery.production') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg {{ request()->routeIs('bakery.production') ? 'bg-sky-100 text-sky-700 font-bold' : 'text-gray-700 hover:bg-sky-50' }}">
                     <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13v-2a4 4 0 014-4h10a4 4 0 014 4v2" />
@@ -42,12 +43,14 @@
                     </svg>
                     Production Monitoring
                 </a>
-                <a href="{{ route('workforce.overview', array_filter(['supply_center_id' => request('supply_center_id')])) }}" class="flex items-center gap-3 px-4 py-2 rounded-lg {{ request()->routeIs('workforce.overview') ? 'bg-sky-100 text-sky-700 font-bold' : 'text-gray-700 hover:bg-sky-50' }}">
-                    <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M17 8a4 4 0 11-8 0 4 4 0 018 0z" />
+                <a href="{{ route('bakery.maintenance') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg {{ request()->routeIs('bakery.maintenance') ? 'bg-sky-100 text-sky-700 font-bold' : 'text-gray-700 hover:bg-sky-50' }}">
+                    <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 11l6 6M3 21l6-6m0 0l6-6m-6 6l-6-6" />
                     </svg>
-                    Workforce Distribution Management
+                    Machine Maintenance
                 </a>
+
+                <div class="mt-4 mb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">Inventory & Orders</div>
                 <a href="{{ route('bakery.inventory.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg {{ request()->routeIs('bakery.inventory.*') ? 'bg-sky-100 text-sky-700 font-bold' : 'text-gray-700 hover:bg-sky-50' }}">
                     <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <rect width="20" height="14" x="2" y="7" rx="2" />
@@ -61,18 +64,23 @@
                     </svg>
                     Order Raw Materials
                 </a>
-                <a href="{{ route('bakery.maintenance') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg {{ request()->routeIs('bakery.maintenance') ? 'bg-sky-100 text-sky-700 font-bold' : 'text-gray-700 hover:bg-sky-50' }}">
-                    <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 11l6 6M3 21l6-6m0 0l6-6m-6 6l-6-6" />
-                    </svg>
-                    Machine Maintenance
-                </a>
                 <a href="{{ route('bakery.order-processing') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg {{ request()->routeIs('bakery.order-processing') ? 'bg-sky-100 text-sky-700 font-bold' : 'text-gray-700 hover:bg-sky-50' }}">
                     <svg class="w-5 h-5 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 014-4h4m0 0V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2h6" />
                     </svg>
                     Order Processing
                 </a>
+
+                <div class="mt-4 mb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">Workforce</div>
+                <a href="{{ route('workforce.overview', array_filter(['supply_center_id' => request('supply_center_id')])) }}" class="flex items-center gap-3 px-4 py-2 rounded-lg {{ request()->routeIs('workforce.overview') ? 'bg-sky-100 text-sky-700 font-bold' : 'text-gray-700 hover:bg-sky-50' }}">
+                    <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M17 8a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    Workforce Distribution Management
+                </a>
+
+                <hr class="my-4 border-gray-300">
+
                 <form method="POST" action="{{ route('logout') }}" class="pt-2">
                     @csrf
                     <button type="submit" class="w-full flex items-center gap-2 px-4 py-3 rounded-lg bg-blue-500 text-white font-semibold shadow hover:bg-blue-600 transition">
