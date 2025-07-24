@@ -10,16 +10,16 @@
 @section('content')
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
     @foreach($products as $product)
-        <div class="bg-gradient-to-br from-red-200 to-pink-300 rounded-2xl shadow-lg overflow-hidden flex flex-col transition-transform hover:scale-105 hover:shadow-2xl border border-gray-100">
-            <div class="h-48 w-full bg-gray-50 flex items-center justify-center overflow-hidden">
+        <div class="bg-gradient-to-br from-blue-100 to-blue-300 rounded-2xl shadow-lg overflow-hidden flex flex-col transition-transform hover:scale-105 hover:shadow-2xl border border-gray-100">
+            <div class="h-40 w-full bg-gray-50 flex items-center justify-center overflow-hidden">
                 <img src="{{ $product->image_url ? asset($product->image_url) : asset('images/' . strtolower(str_replace(' ', '_', $product->name)) . '.jpg') }}"
                      alt="{{ $product->name }}"
-                     class="object-cover h-44 w-44 rounded-full border-4 border-white shadow-md"
+                     class="object-cover h-64 w-44 rounded-full border-4 border-white shadow-md"
                      onerror="this.onerror=null;this.src='https://via.placeholder.com/180?text=No+Image';">
             </div>
-            <div class="p-6 flex-1 flex flex-col justify-between">
+            <div class="p-3 flex-1 flex flex-col justify-between">
                 <div>
-                    <h3 class="text-lg font-extrabold text-gray-900 mb-1">{{ $product->name }}</h3>
+                    <h3 class="text-lg font-extrabold text-gray-900">{{ $product->name }}</h3>
                     <div class="flex items-center mb-2">
                         <span class="flex text-yellow-400 mr-2">
                             @for($i = 0; $i < 5; $i++)

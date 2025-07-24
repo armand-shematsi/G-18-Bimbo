@@ -22,8 +22,8 @@
                         <img src="{{ asset($item->product->image_url) }}" alt="{{ $item->item_name }}" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300">
                     </div>
                 @else
-                    <div class="overflow-hidden rounded-lg mb-4 border border-gray-200 shadow-sm bg-gray-100 flex items-center justify-center h-56">
-                        <span class="text-gray-400 text-4xl">🛒</span>
+                    <div class="overflow-hidden rounded-lg mb-4 border border-gray-200 shadow-sm">
+                        <img src="{{ asset('images/default-product.jpg') }}" alt="{{ $item->item_name }}" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300">
                     </div>
                 @endif
                 <div class="mb-4 flex items-center justify-between">
@@ -75,4 +75,4 @@
         <a href="{{ route('supplier.raw-materials.cart') }}" class="inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg shadow transition-all">View Cart</a>
     </div>
 </div>
-@endsection 
+@endsection
