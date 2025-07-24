@@ -63,12 +63,20 @@
                                     @endif
                                 </td>
                                 <td class="px-5 py-3">
+                                    <form>
+                                        <select class="order-status-dropdown px-2 py-1 rounded border border-blue-300 focus:ring focus:ring-blue-200" data-order-id="{{ $order->id }}">
+                                            <option value="pending" @if($order->status === 'pending') selected @endif>Pending</option>
+                                            <option value="processing" @if($order->status === 'processing') selected @endif>Processing</option>
+                                            <option value="shipped" @if($order->status === 'shipped') selected @endif>Shipped</option>
+                                            <option value="received" @if($order->status === 'received') selected @endif>Received</option>
+                                        </select>
+                                    </form>
                                     <span class="inline-flex items-center gap-2 px-4 py-1 rounded-full text-base font-bold
-                                            @if($order->status === 'pending') bg-yellow-200 text-yellow-900 animate-pulse
-                                            @elseif($order->status === 'processing') bg-blue-200 text-blue-900
-                                            @elseif($order->status === 'shipped') bg-purple-200 text-purple-900
-                                            @elseif($order->status === 'received') bg-green-200 text-green-900
-                                            @else bg-gray-100 text-gray-800 @endif">
+                                        @if($order->status === 'pending') bg-yellow-200 text-yellow-900 animate-pulse
+                                        @elseif($order->status === 'processing') bg-blue-200 text-blue-900
+                                        @elseif($order->status === 'shipped') bg-purple-200 text-purple-900
+                                        @elseif($order->status === 'received') bg-green-200 text-green-900
+                                        @else bg-gray-100 text-gray-800 @endif">
                                         @if($order->status === 'pending')
                                         <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                             <circle cx="12" cy="12" r="10" />
@@ -219,7 +227,30 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        // Optionally show a message or update the row
+                        // Update the status badge in the same row
+                        const row = dropdown.closest('tr');
+                        if (row) {
+                            const badge = row.querySelector('.order-status-badge');
+                            if (badge) {
+                                badge.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                                badge.className = 'order-status-badge inline-flex items-center gap-2 px-4 py-1 rounded-full text-base font-bold ';
+                                if (newStatus === 'pending') {
+                                    badge.className += 'bg-yellow-200 text-yellow-900 animate-pulse';
+                                    badge.innerHTML = `<svg class=\"w-4 h-4 text-yellow-400\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"10\" /><path d=\"M12 6v6l4 2\" /></svg> Pending`;
+                                } else if (newStatus === 'processing') {
+                                    badge.className += 'bg-blue-200 text-blue-900';
+                                    badge.innerHTML = `<svg class=\"w-4 h-4 text-blue-400\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path d=\"M12 8v4l3 3\" /></svg> Processing`;
+                                } else if (newStatus === 'shipped') {
+                                    badge.className += 'bg-purple-200 text-purple-900';
+                                    badge.innerHTML = `<svg class=\"w-4 h-4 text-purple-400\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path d=\"M3 10h1l2 7h13l2-7h1\" /></svg> Shipped`;
+                                } else if (newStatus === 'received') {
+                                    badge.className += 'bg-green-200 text-green-900';
+                                    badge.innerHTML = `<svg class=\"w-4 h-4 text-green-400\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path d=\"M5 13l4 4L19 7\" /></svg> Received`;
+                                } else {
+                                    badge.className += 'bg-gray-100 text-gray-800';
+                                }
+                            }
+                        }
                     } else {
                         alert('Failed to update status: ' + (data.message || 'Unknown error'));
                     }
